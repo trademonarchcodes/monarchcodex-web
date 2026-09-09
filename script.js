@@ -1,1100 +1,785 @@
-// ======================================================
-// MONARCH CODEX
-// Supabase Authentication + Member Dashboard
-// ======================================================
+/* =========================================================
+   MONARCH CODEX
+   Supabase Authentication + Member Dashboard
+   ========================================================= */
+
+/* ---------------- SUPABASE ---------------- */
 
 const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+  "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
 const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
 );
 
 
-// ======================================================
-// MOBILE MENU
-// ======================================================
+/* ---------------- DOM HELPERS ---------------- */
 
-const menuToggle = document.getElementById("menuToggle");
-const navMenu = document.getElementById("navMenu");
-
-if (menuToggle && navMenu) {
-
-    menuToggle.addEventListener("click", () => {
-        navMenu.classList.toggle("active");
-    });
-
-    navMenu.querySelectorAll("a").forEach((link) => {
-
-        link.addEventListener("click", () => {
-            navMenu.classList.remove("active");
-        });
-
-    });
+function get(id) {
+  return document.getElementById(id);
 }
-
-
-// ======================================================
-// MESSAGE HELPERS
-// ======================================================
 
 function showMessage(element, message, type = "") {
+  if (!element) return;
 
-    if (!element) return;
+  element.textContent = message;
+  element.className = "form-message";
 
-    element.textContent = message;
-    element.className = "form-message";
-
-    if (type) {
-        element.classList.add(type);
-    }
+  if (type) {
+    element.classList.add(type);
+  }
 }
 
 
-// ======================================================
-// REGISTRATION
-// ======================================================
+/* ---------------- MOBILE MENU ---------------- */
 
-const registrationForm =
-    document.getElementById("registrationForm");
+const menuToggle = get("menuToggle");
+const navLinks = get("navLinks");
 
-const registrationMessage =
-    document.getElementById("registrationMessage");
+if (menuToggle && navLinks) {
+  menuToggle.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
+  });
 
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("active");
+    });
+  });
+}
+
+
+/* ---------------- REGISTRATION ---------------- */
+
+const registrationForm = get("registrationForm");
 
 if (registrationForm) {
+  registrationForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    registrationForm.addEventListener("submit", async (event) => {
+    const fullname = get("fullname")?.value.trim();
+    const email = get("email")?.value.trim();
+    const phone = get("phone")?.value.trim();
+    const password = get("password")?.value;
 
-        event.preventDefault();
+    const message = get("registrationMessage");
 
-        const fullname =
-            document.getElementById("fullname").value.trim();
+    if (!fullname || !email || !password) {
+      showMessage(
+        message,
+        "Please fill in all required fields.",
+        "error"
+      );
+      return;
+    }
 
-        const email =
-            document.getElementById("email").value.trim();
+    if (password.length < 6) {
+      showMessage(
+        message,
+        "Password must contain at least 6 characters.",
+        "error"
+      );
+      return;
+    }
 
-        const phone =
-            document.getElementById("phone").value.trim();
+    showMessage(
+      message,
+      "CREATING ACCOUNT...",
+      "loading"
+    );
 
-        const password =
-            document.getElementById("password").value;
+    try {
+      const { data, error } =
+        await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullname,
+              phone: phone
+            },
+            emailRedirectTo:
+              window.location.origin +
+              window.location.pathname
+          }
+        });
 
-
-        if (!fullname || !email || !password) {
-
-            showMessage(
-                registrationMessage,
-                "Please fill in all required fields.",
-                "error"
-            );
-
-            return;
-        }
-
+      if (error) {
+        console.error("Registration error:", error);
 
         showMessage(
-            registrationMessage,
-            "CREATING ACCOUNT..."
+          message,
+          error.message,
+          "error"
         );
 
+        return;
+      }
 
-        const { data, error } =
-            await supabaseClient.auth.signUp({
+      if (data.user) {
+        showMessage(
+          message,
+          "Account created successfully. Please check your email and confirm your account before logging in.",
+          "success"
+        );
 
-                email: email,
+        registrationForm.reset();
+      }
 
-                password: password,
+    } catch (error) {
+      console.error("Registration exception:", error);
 
-                options: {
-
-                    data: {
-                        full_name: fullname,
-                        phone: phone
-                    },
-
-                    emailRedirectTo:
-                        window.location.origin +
-                        window.location.pathname
-
-                }
-
-            });
-
-
-        if (error) {
-
-            console.error(error);
-
-            showMessage(
-                registrationMessage,
-                error.message,
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (data.user) {
-
-            showMessage(
-                registrationMessage,
-                "Account created! Please check your email to confirm your account before logging in.",
-                "success"
-            );
-
-            registrationForm.reset();
-
-        }
-
-    });
-
+      showMessage(
+        message,
+        "Unable to connect to the authentication server. Please try again.",
+        "error"
+      );
+    }
+  });
 }
 
 
-// ======================================================
-// LOGIN
-// ======================================================
+/* ---------------- LOGIN ---------------- */
 
-const loginForm =
-    document.getElementById("loginForm");
-
-const loginMessage =
-    document.getElementById("loginMessage");
-
+const loginForm = get("loginForm");
 
 if (loginForm) {
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    loginForm.addEventListener("submit", async (event) => {
+    const email = get("loginEmail")?.value.trim();
+    const password = get("loginPassword")?.value;
 
-        event.preventDefault();
+    const message = get("loginMessage");
 
+    if (!email || !password) {
+      showMessage(
+        message,
+        "Please enter your email and password.",
+        "error"
+      );
+      return;
+    }
 
-        const email =
-            document.getElementById("loginEmail").value.trim();
+    showMessage(
+      message,
+      "SIGNING IN...",
+      "loading"
+    );
 
-        const password =
-            document.getElementById("loginPassword").value;
+    try {
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
 
-
-        if (!email || !password) {
-
-            showMessage(
-                loginMessage,
-                "Please enter your email and password.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        showMessage(
-            loginMessage,
-            "LOGGING IN..."
-        );
-
-
-        const { data, error } =
-            await supabaseClient.auth.signInWithPassword({
-
-                email: email,
-                password: password
-
-            });
-
-
-        if (error) {
-
-            console.error(error);
-
-            showMessage(
-                loginMessage,
-                error.message,
-                "error"
-            );
-
-            return;
-        }
-
+      if (error) {
+        console.error("Login error:", error);
 
         showMessage(
-            loginMessage,
-            "Login successful.",
-            "success"
+          message,
+          error.message,
+          "error"
         );
 
+        return;
+      }
 
-        if (data.user) {
+      if (!data.session) {
+        showMessage(
+          message,
+          "Login completed, but no active session was created.",
+          "error"
+        );
 
-            await loadDashboard(data.user);
+        return;
+      }
 
-            setTimeout(() => {
+      showMessage(
+        message,
+        "LOGIN SUCCESSFUL.",
+        "success"
+      );
 
-                document
-                    .getElementById("dashboard")
-                    ?.scrollIntoView({
-                        behavior: "smooth"
-                    });
+      await loadDashboard(data.user);
 
-            }, 300);
+    } catch (error) {
+      console.error("Login exception:", error);
 
-        }
-
-    });
-
+      showMessage(
+        message,
+        "Failed to connect to Supabase. Please check your internet connection and try again.",
+        "error"
+      );
+    }
+  });
 }
 
 
-// ======================================================
-// DASHBOARD VARIABLES
-// ======================================================
+/* ---------------- SESSION CHECK ---------------- */
 
-const dashboard =
-    document.getElementById("dashboard");
+async function checkCurrentSession() {
+  try {
+    const {
+      data: { session },
+      error
+    } = await supabaseClient.auth.getSession();
 
-const memberName =
-    document.getElementById("memberName");
+    if (error) {
+      console.error("Session error:", error);
+      return;
+    }
 
-const accountStatus =
-    document.getElementById("accountStatus");
+    if (session && session.user) {
+      await loadDashboard(session.user);
+    } else {
+      hideDashboard();
+    }
 
-const memberEmail =
-    document.getElementById("memberEmail");
-
-const logoutButton =
-    document.getElementById("logoutButton");
-
-const investmentHistory =
-    document.getElementById("investmentHistory");
+  } catch (error) {
+    console.error("Session check failed:", error);
+    hideDashboard();
+  }
+}
 
 
-// Selected investment information
+/* ---------------- LOAD DASHBOARD ---------------- */
+
+async function loadDashboard(user) {
+  const dashboard = get("dashboard");
+
+  if (!dashboard || !user) {
+    return;
+  }
+
+  try {
+    const {
+      data: profile,
+      error
+    } = await supabaseClient
+      .from("profiles")
+      .select("full_name, phone, role, status")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      console.error("Profile error:", error);
+
+      /*
+       * The authentication session is still valid.
+       * We don't destroy it simply because profile loading failed.
+       */
+
+      showDashboard();
+
+      if (get("memberName")) {
+        get("memberName").textContent =
+          user.user_metadata?.full_name ||
+          "Monarch";
+      }
+
+      if (get("memberEmail")) {
+        get("memberEmail").textContent =
+          user.email || "";
+      }
+
+      return;
+    }
+
+    if (get("memberName")) {
+      get("memberName").textContent =
+        profile.full_name || "Monarch";
+    }
+
+    if (get("memberEmail")) {
+      get("memberEmail").textContent =
+        user.email || "";
+    }
+
+    if (get("accountStatus")) {
+      get("accountStatus").textContent =
+        profile.status
+          ? profile.status.toUpperCase()
+          : "PENDING";
+    }
+
+    showDashboard();
+
+    await loadPackages();
+    await loadInvestmentHistory(user.id);
+
+  } catch (error) {
+    console.error("Dashboard error:", error);
+  }
+}
+
+
+/* ---------------- SHOW / HIDE DASHBOARD ---------------- */
+
+function showDashboard() {
+  const dashboard = get("dashboard");
+
+  if (!dashboard) return;
+
+  dashboard.style.display = "block";
+
+  const loginSection = document.getElementById("login");
+
+  if (loginSection) {
+    loginSection.style.display = "none";
+  }
+
+  dashboard.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+
+function hideDashboard() {
+  const dashboard = get("dashboard");
+
+  if (dashboard) {
+    dashboard.style.display = "none";
+  }
+
+  const loginSection = document.getElementById("login");
+
+  if (loginSection) {
+    loginSection.style.display = "";
+  }
+}
+
+
+/* ---------------- PACKAGE SELECTION ---------------- */
 
 let selectedPackageId = null;
 let selectedPackageAmount = null;
 let selectedPaymentMethod = null;
 
+async function loadPackages() {
+  const container = get("dashboardPackages");
 
-// ======================================================
-// LOAD DASHBOARD
-// ======================================================
+  if (!container) return;
 
-async function loadDashboard(user) {
-
-    if (!user) return;
-
-
-    // Show dashboard
-
-    if (dashboard) {
-        dashboard.style.display = "block";
-    }
-
-
-    // Display email
-
-    if (memberEmail) {
-        memberEmail.textContent =
-            user.email || "—";
-    }
-
-
-    // Get member profile
-
-    const { data: profile, error } =
-        await supabaseClient
-            .from("profiles")
-            .select("full_name, phone, role, status")
-            .eq("id", user.id)
-            .maybeSingle();
-
+  try {
+    const {
+      data: packages,
+      error
+    } = await supabaseClient
+      .from("packages")
+      .select("id, name, amount")
+      .eq("active", true)
+      .order("amount", {
+        ascending: true
+      });
 
     if (error) {
-
-        console.error(
-            "Profile loading error:",
-            error
-        );
-
-        if (memberName) {
-            memberName.textContent = "Monarch";
-        }
-
-        if (accountStatus) {
-            accountStatus.textContent = "Pending";
-        }
-
-    } else if (profile) {
-
-        if (memberName) {
-
-            memberName.textContent =
-                profile.full_name ||
-                "Monarch";
-
-        }
-
-
-        if (accountStatus) {
-
-            accountStatus.textContent =
-                formatStatus(profile.status);
-
-        }
-
+      console.error("Packages error:", error);
+      return;
     }
 
+    container.innerHTML = "";
 
-    // Load investment history
+    packages.forEach((pkg) => {
+      const button = document.createElement("button");
 
-    await loadInvestmentHistory(user.id);
+      button.type = "button";
+      button.className = "dashboard-package";
+      button.textContent = pkg.name;
 
+      button.dataset.packageId = pkg.id;
+      button.dataset.amount = pkg.amount;
+
+      button.addEventListener("click", () => {
+        selectPackage(pkg);
+      });
+
+      container.appendChild(button);
+    });
+
+  } catch (error) {
+    console.error("Package loading failed:", error);
+  }
 }
 
 
-// ======================================================
-// FORMAT STATUS
-// ======================================================
+function selectPackage(pkg) {
+  selectedPackageId = pkg.id;
+  selectedPackageAmount = Number(pkg.amount);
 
-function formatStatus(status) {
+  const amountBox = get("selectedPackageAmount");
+  const packageBox = get("selectedPackageBox");
+  const paymentBox = get("paymentMethodBox");
 
-    if (!status) {
-        return "Pending";
-    }
+  if (amountBox) {
+    amountBox.textContent =
+      "$" + Number(pkg.amount).toLocaleString();
+  }
 
+  if (packageBox) {
+    packageBox.style.display = "block";
+  }
 
-    return status.charAt(0).toUpperCase() +
-        status.slice(1);
+  if (paymentBox) {
+    paymentBox.style.display = "block";
+  }
 
-}
+  document
+    .querySelectorAll(".dashboard-package")
+    .forEach((button) => {
+      button.classList.remove("selected");
 
-
-// ======================================================
-// PACKAGE SELECTION
-// ======================================================
-
-const packageButtons =
-    document.querySelectorAll(".dashboard-package");
-
-
-packageButtons.forEach((button) => {
-
-    button.addEventListener("click", async () => {
-
-        const amount =
-            Number(
-                button.dataset.packageAmount
-            );
-
-
-        if (!amount) {
-
-            console.error(
-                "Invalid package amount."
-            );
-
-            return;
-        }
-
-
-        // Get package from Supabase
-
-        const { data: packageData, error } =
-            await supabaseClient
-                .from("packages")
-                .select("id, name, amount")
-                .eq("amount", amount)
-                .eq("active", true)
-                .maybeSingle();
-
-
-        if (error || !packageData) {
-
-            console.error(
-                "Package loading error:",
-                error
-            );
-
-            const message =
-                document.getElementById(
-                    "investmentMessage"
-                );
-
-            showMessage(
-                message,
-                "This investment package is currently unavailable.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        selectedPackageId =
-            packageData.id;
-
-        selectedPackageAmount =
-            Number(packageData.amount);
-
-
-        // Clear previous package selection
-
-        packageButtons.forEach((item) => {
-            item.classList.remove("selected");
-        });
-
-
-        // Highlight selected package
-
+      if (
+        Number(button.dataset.packageId) ===
+        Number(pkg.id)
+      ) {
         button.classList.add("selected");
-
-
-        // Display selected package
-
-        const selectedBox =
-            document.getElementById(
-                "selectedPackageBox"
-            );
-
-        const selectedAmount =
-            document.getElementById(
-                "selectedPackageAmount"
-            );
-
-
-        if (selectedBox) {
-            selectedBox.style.display = "block";
-        }
-
-
-        if (selectedAmount) {
-
-            selectedAmount.textContent =
-                "$" +
-                selectedPackageAmount.toLocaleString();
-
-        }
-
-
-        // Show payment methods
-
-        const paymentBox =
-            document.getElementById(
-                "paymentMethodBox"
-            );
-
-
-        if (paymentBox) {
-            paymentBox.style.display = "block";
-        }
-
-
-        // Reset payment method
-
-        selectedPaymentMethod = null;
-
-
-        document
-            .querySelectorAll(".payment-option")
-            .forEach((option) => {
-
-                option.classList.remove(
-                    "selected"
-                );
-
-            });
-
-
-        const submitButton =
-            document.getElementById(
-                "submitInvestment"
-            );
-
-
-        if (submitButton) {
-            submitButton.style.display = "none";
-        }
-
-
-        const investmentMessage =
-            document.getElementById(
-                "investmentMessage"
-            );
-
-
-        showMessage(
-            investmentMessage,
-            ""
-        );
-
+      }
     });
 
-});
+  selectedPaymentMethod = null;
+
+  document
+    .querySelectorAll("[data-payment-method]")
+    .forEach((button) => {
+      button.classList.remove("selected");
+    });
+
+  const investmentMessage = get("investmentMessage");
+
+  if (investmentMessage) {
+    investmentMessage.textContent = "";
+  }
+}
 
 
-// ======================================================
-// PAYMENT METHOD SELECTION
-// ======================================================
+/* ---------------- PAYMENT METHOD ---------------- */
 
-const paymentOptions =
-    document.querySelectorAll(".payment-option");
+document
+  .querySelectorAll("[data-payment-method]")
+  .forEach((button) => {
 
+    button.addEventListener("click", () => {
 
-paymentOptions.forEach((option) => {
+      selectedPaymentMethod =
+        button.dataset.paymentMethod;
 
-    option.addEventListener("click", () => {
-
-        if (!selectedPackageId) {
-
-            const message =
-                document.getElementById(
-                    "investmentMessage"
-                );
-
-            showMessage(
-                message,
-                "Please select an investment package first.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        selectedPaymentMethod =
-            option.dataset.paymentMethod;
-
-
-        paymentOptions.forEach((item) => {
-
-            item.classList.remove(
-                "selected"
-            );
-
+      document
+        .querySelectorAll("[data-payment-method]")
+        .forEach((item) => {
+          item.classList.remove("selected");
         });
 
+      button.classList.add("selected");
 
-        option.classList.add("selected");
+      const message = get("investmentMessage");
 
-
-        const submitButton =
-            document.getElementById(
-                "submitInvestment"
-            );
-
-
-        if (submitButton) {
-            submitButton.style.display = "block";
-        }
-
-
-        const investmentMessage =
-            document.getElementById(
-                "investmentMessage"
-            );
-
-
-        showMessage(
-            investmentMessage,
-            ""
-        );
-
+      if (message) {
+        message.textContent =
+          "Payment method selected: " +
+          selectedPaymentMethod.toUpperCase();
+      }
     });
 
-});
+  });
 
 
-// ======================================================
-// SUBMIT INVESTMENT REQUEST
-// ======================================================
+/* ---------------- INVESTMENT REQUEST ---------------- */
 
-const submitInvestment =
-    document.getElementById(
-        "submitInvestment"
-    );
-
+const submitInvestment = get("submitInvestment");
 
 if (submitInvestment) {
-
-    submitInvestment.addEventListener(
-        "click",
-        async () => {
-
-            // Make sure user is logged in
-
-            const {
-                data: {
-                    user
-                }
-            } =
-                await supabaseClient.auth.getUser();
-
-
-            if (!user) {
-
-                showMessage(
-                    document.getElementById(
-                        "investmentMessage"
-                    ),
-                    "Please log in again before submitting an investment request.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            // Validate selection
-
-            if (!selectedPackageId) {
-
-                showMessage(
-                    document.getElementById(
-                        "investmentMessage"
-                    ),
-                    "Please select an investment package.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (!selectedPaymentMethod) {
-
-                showMessage(
-                    document.getElementById(
-                        "investmentMessage"
-                    ),
-                    "Please select a payment method.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            submitInvestment.disabled = true;
-
-            submitInvestment.textContent =
-                "SUBMITTING...";
-
-
-            // Insert investment request
-
-            const { data, error } =
-                await supabaseClient
-                    .from("investments")
-                    .insert({
-
-                        user_id: user.id,
-
-                        package_id:
-                            selectedPackageId,
-
-                        amount:
-                            selectedPackageAmount,
-
-                        payment_method:
-                            selectedPaymentMethod,
-
-                        status: "pending"
-
-                    })
-                    .select()
-                    .single();
-
-
-            if (error) {
-
-                console.error(
-                    "Investment request error:",
-                    error
-                );
-
-
-                showMessage(
-                    document.getElementById(
-                        "investmentMessage"
-                    ),
-                    error.message,
-                    "error"
-                );
-
-
-                submitInvestment.disabled = false;
-
-                submitInvestment.textContent =
-                    "Submit Investment Request";
-
-                return;
-            }
-
-
-            console.log(
-                "Investment created:",
-                data
-            );
-
-
-            const paymentName =
-                selectedPaymentMethod === "bank"
-                    ? "Bank Account"
-                    : "Crypto Funding";
-
-
-            showMessage(
-                document.getElementById(
-                    "investmentMessage"
-                ),
-                `Investment request submitted successfully. Package: $${selectedPackageAmount.toLocaleString()} — Payment method: ${paymentName}. Your request is pending confirmation.`,
-                "success"
-            );
-
-
-            // Reset selection
-
-            selectedPackageId = null;
-
-            selectedPackageAmount = null;
-
-            selectedPaymentMethod = null;
-
-
-            packageButtons.forEach((button) => {
-
-                button.classList.remove(
-                    "selected"
-                );
-
-            });
-
-
-            paymentOptions.forEach((option) => {
-
-                option.classList.remove(
-                    "selected"
-                );
-
-            });
-
-
-            const selectedBox =
-                document.getElementById(
-                    "selectedPackageBox"
-                );
-
-
-            if (selectedBox) {
-                selectedBox.style.display = "none";
-            }
-
-
-            const paymentBox =
-                document.getElementById(
-                    "paymentMethodBox"
-                );
-
-
-            if (paymentBox) {
-                paymentBox.style.display = "none";
-            }
-
-
-            submitInvestment.style.display =
-                "none";
-
-
-            submitInvestment.disabled = false;
-
-            submitInvestment.textContent =
-                "Submit Investment Request";
-
-
-            // Refresh history
-
-            await loadInvestmentHistory(user.id);
-
-        }
+  submitInvestment.addEventListener("click", async () => {
+
+    const message = get("investmentMessage");
+
+    if (!selectedPackageId) {
+      showMessage(
+        message,
+        "Please select an investment package.",
+        "error"
+      );
+      return;
+    }
+
+    if (!selectedPaymentMethod) {
+      showMessage(
+        message,
+        "Please select a payment method.",
+        "error"
+      );
+      return;
+    }
+
+    submitInvestment.disabled = true;
+
+    showMessage(
+      message,
+      "SUBMITTING INVESTMENT REQUEST...",
+      "loading"
     );
 
+    try {
+      const {
+        data: {
+          user
+        }
+      } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        showMessage(
+          message,
+          "Your session has expired. Please log in again.",
+          "error"
+        );
+
+        submitInvestment.disabled = false;
+        return;
+      }
+
+      const {
+        error
+      } = await supabaseClient
+        .from("investments")
+        .insert({
+          user_id: user.id,
+          package_id: selectedPackageId,
+          amount: selectedPackageAmount,
+          payment_method: selectedPaymentMethod,
+          status: "pending"
+        });
+
+      if (error) {
+        console.error(
+          "Investment error:",
+          error
+        );
+
+        showMessage(
+          message,
+          error.message,
+          "error"
+        );
+
+        submitInvestment.disabled = false;
+        return;
+      }
+
+      showMessage(
+        message,
+        "Investment request submitted successfully. Your request is pending confirmation.",
+        "success"
+      );
+
+      await loadInvestmentHistory(user.id);
+
+    } catch (error) {
+      console.error(
+        "Investment exception:",
+        error
+      );
+
+      showMessage(
+        message,
+        "Unable to submit your investment request.",
+        "error"
+      );
+
+    } finally {
+      submitInvestment.disabled = false;
+    }
+
+  });
 }
 
 
-// ======================================================
-// LOAD INVESTMENT HISTORY
-// ======================================================
+/* ---------------- INVESTMENT HISTORY ---------------- */
 
 async function loadInvestmentHistory(userId) {
+  const history = get("investmentHistory");
 
-    if (!investmentHistory || !userId) {
-        return;
-    }
+  if (!history) return;
 
-
-    investmentHistory.innerHTML =
-        "<p>Loading your investment requests...</p>";
-
-
-    const { data, error } =
-        await supabaseClient
-            .from("investments")
-            .select(`
-                id,
-                amount,
-                payment_method,
-                status,
-                created_at,
-                packages (
-                    name
-                )
-            `)
-            .eq("user_id", userId)
-            .order("created_at", {
-                ascending: false
-            });
-
+  try {
+    const {
+      data: investments,
+      error
+    } = await supabaseClient
+      .from("investments")
+      .select(`
+        id,
+        amount,
+        payment_method,
+        status,
+        created_at,
+        packages (
+          name
+        )
+      `)
+      .eq("user_id", userId)
+      .order("created_at", {
+        ascending: false
+      });
 
     if (error) {
+      console.error(
+        "Investment history error:",
+        error
+      );
 
-        console.error(
-            "Investment history error:",
-            error
-        );
+      history.innerHTML =
+        "<p>Unable to load investment history.</p>";
 
-
-        investmentHistory.innerHTML =
-            "<p>Unable to load investment requests.</p>";
-
-        return;
+      return;
     }
 
+    if (!investments || investments.length === 0) {
+      history.innerHTML =
+        "<p>No investment requests yet.</p>";
 
-    if (!data || data.length === 0) {
-
-        investmentHistory.innerHTML =
-            "<p>You have no investment requests yet.</p>";
-
-        return;
+      return;
     }
 
+    history.innerHTML = "";
 
-    investmentHistory.innerHTML = "";
+    investments.forEach((investment) => {
 
+      const item =
+        document.createElement("div");
 
-    data.forEach((investment) => {
+      item.className =
+        "investment-history-item";
 
-        const card =
-            document.createElement("div");
+      const packageName =
+        investment.packages?.name ||
+        "Investment Package";
 
+      const amount =
+        Number(investment.amount)
+          .toLocaleString();
 
-        card.className =
-            "investment-history-card";
+      const status =
+        String(investment.status)
+          .toUpperCase();
 
+      item.innerHTML = `
+        <strong>${escapeHTML(packageName)}</strong>
+        <span>$${amount}</span>
+        <span>${escapeHTML(
+          investment.payment_method
+        )}</span>
+        <span>${escapeHTML(status)}</span>
+      `;
 
-        const packageName =
-            investment.packages?.name ||
-            "Investment Package";
-
-
-        const paymentMethod =
-            investment.payment_method === "bank"
-                ? "Bank Account"
-                : "Crypto Funding";
-
-
-        const status =
-            formatStatus(
-                investment.status
-            );
-
-
-        const date =
-            new Date(
-                investment.created_at
-            ).toLocaleDateString();
-
-
-        card.innerHTML = `
-
-            <div>
-
-                <strong>
-                    ${escapeHtml(packageName)}
-                </strong>
-
-                <p>
-                    Amount:
-                    $${Number(investment.amount).toLocaleString()}
-                </p>
-
-                <p>
-                    Payment:
-                    ${escapeHtml(paymentMethod)}
-                </p>
-
-                <p>
-                    Date:
-                    ${escapeHtml(date)}
-                </p>
-
-            </div>
-
-            <div>
-
-                <strong>
-                    ${escapeHtml(status)}
-                </strong>
-
-            </div>
-
-        `;
-
-
-        investmentHistory.appendChild(card);
-
+      history.appendChild(item);
     });
 
+  } catch (error) {
+    console.error(
+      "History exception:",
+      error
+    );
+  }
 }
 
 
-// ======================================================
-// BASIC HTML ESCAPE
-// ======================================================
+/* ---------------- LOGOUT ---------------- */
 
-function escapeHtml(value) {
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-// ======================================================
-// LOGOUT
-// ======================================================
+const logoutButton = get("logoutButton");
 
 if (logoutButton) {
+  logoutButton.addEventListener("click", async () => {
 
-    logoutButton.addEventListener(
-        "click",
-        async () => {
+    logoutButton.disabled = true;
 
-            const { error } =
-                await supabaseClient.auth.signOut();
+    try {
+      const {
+        error
+      } = await supabaseClient.auth.signOut();
 
-
-            if (error) {
-
-                console.error(
-                    "Logout error:",
-                    error
-                );
-
-                return;
-            }
-
-
-            if (dashboard) {
-                dashboard.style.display = "none";
-            }
-
-
-            window.location.hash = "login";
-
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-
-        }
-    );
-
-}
-
-
-// ======================================================
-// CHECK CURRENT SESSION
-// ======================================================
-
-async function checkCurrentSession() {
-
-    const {
-        data: {
-            session
-        }
-    } =
-        await supabaseClient.auth.getSession();
-
-
-    if (session?.user) {
-
-        await loadDashboard(
-            session.user
+      if (error) {
+        console.error(
+          "Logout error:",
+          error
         );
 
-    } else {
+        return;
+      }
 
-        if (dashboard) {
-            dashboard.style.display = "none";
-        }
+      selectedPackageId = null;
+      selectedPackageAmount = null;
+      selectedPaymentMethod = null;
 
+      hideDashboard();
+
+      window.location.hash = "login";
+
+      window.location.reload();
+
+    } catch (error) {
+      console.error(
+        "Logout exception:",
+        error
+      );
+
+    } finally {
+      logoutButton.disabled = false;
     }
-
+  });
 }
 
 
-// ======================================================
-// AUTH STATE CHANGES
-// ======================================================
+/* ---------------- AUTH STATE ---------------- */
 
 supabaseClient.auth.onAuthStateChange(
-    async (event, session) => {
+  async (event, session) => {
 
-        console.log(
-            "Auth event:",
-            event
-        );
+    console.log(
+      "Auth event:",
+      event
+    );
 
-
-        if (
-            event === "SIGNED_IN" &&
-            session?.user
-        ) {
-
-            await loadDashboard(
-                session.user
-            );
-
-        }
-
-
-        if (
-            event === "SIGNED_OUT"
-        ) {
-
-            if (dashboard) {
-                dashboard.style.display = "none";
-            }
-
-        }
-
+    if (
+      session &&
+      session.user &&
+      (
+        event === "SIGNED_IN" ||
+        event === "INITIAL_SESSION" ||
+        event === "USER_UPDATED"
+      )
+    ) {
+      await loadDashboard(session.user);
     }
+
+    if (event === "SIGNED_OUT") {
+      hideDashboard();
+    }
+  }
 );
 
 
-// ======================================================
-// START APPLICATION
-// ======================================================
+/* ---------------- SECURITY HELPER ---------------- */
 
-checkCurrentSession();
+function escapeHTML(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+/* ---------------- START APPLICATION ---------------- */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    checkCurrentSession();
+  }
+);
