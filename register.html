@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register | Monarch Codex</title>
+    <meta name="description" content="Create your Monarch Codex member account.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="nav-container">
+
+            <a href="index.html" class="logo">
+                MONARCH<span>CODEX</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="login.html">Login</a>
+            </nav>
+
+        </div>
+    </header>
+
+
+    <!-- REGISTRATION -->
+    <main>
+
+        <section class="auth-section">
+
+            <div class="auth-container">
+
+                <div class="auth-header">
+                    <p class="section-label">BECOME A MONARCH</p>
+
+                    <h1>Create Your <span>Account</span></h1>
+
+                    <p>
+                        Join Monarch Codex and create your personal member account.
+                    </p>
+                </div>
+
+
+                <div class="auth-card">
+
+                    <form id="registrationForm">
+
+                        <div class="form-group">
+                            <label for="fullname">Full Name</label>
+
+                            <input
+                                type="text"
+                                id="fullname"
+                                name="fullname"
+                                placeholder="Enter your full name"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="Enter your phone number"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Create a password"
+                                minlength="6"
+                                required
+                            >
+                        </div>
+
+
+                        <button type="submit" class="btn btn-primary">
+                            Create Account
+                        </button>
+
+                        <p id="registrationMessage" class="form-message"></p>
+
+                    </form>
+
+
+                    <div class="auth-footer">
+
+                        <p>
+                            Already have an account?
+                            <a href="login.html">Login here</a>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+        <div class="footer-container">
+
+            <div>
+                <div class="logo">
+                    MONARCH<span>CODEX</span>
+                </div>
+
+                <p>
+                    Learn. Build. Trade. Create.
+                </p>
+            </div>
+
+            <div class="footer-bottom">
+                <p>
+                    © 2026 Monarch Codex. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+
+    </footer>
+
+</body>
+</html>
