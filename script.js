@@ -6,7 +6,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     /* ================================
-       MOBILE NAVIGATION
+       MOBILE MENU
        ================================ */
 
     const menuToggle = document.getElementById("menuToggle");
@@ -19,23 +19,29 @@ document.addEventListener("DOMContentLoaded", function () {
             navMenu.classList.toggle("active");
 
             if (navMenu.classList.contains("active")) {
+
                 menuToggle.innerHTML = "✕";
+
                 menuToggle.setAttribute(
                     "aria-label",
                     "Close navigation"
                 );
+
             } else {
+
                 menuToggle.innerHTML = "☰";
+
                 menuToggle.setAttribute(
                     "aria-label",
                     "Open navigation"
                 );
+
             }
 
         });
 
 
-        /* Close menu after clicking a link */
+        /* Close menu when a navigation link is clicked */
 
         const navLinks = navMenu.querySelectorAll("a");
 
@@ -55,31 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
         });
-
-    }
-
-
-    /* ================================
-       REGISTRATION FORM
-       ================================ */
-
-    const registrationForm =
-        document.getElementById("registrationForm");
-
-    if (registrationForm) {
-
-        registrationForm.addEventListener(
-            "submit",
-            function (event) {
-
-                event.preventDefault();
-
-                alert(
-                    "Registration system is being connected to Monarch Codex."
-                );
-
-            }
-        );
 
     }
 
@@ -118,5 +99,31 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
     });
+
+
+    /* ================================
+       REGISTRATION FORM
+       TEMPORARY HANDLER
+       ================================ */
+
+    const registrationForm =
+        document.getElementById("registrationForm");
+
+    if (registrationForm) {
+
+        registrationForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+                alert(
+                    "Monarch Codex registration will be connected to the secure database soon."
+                );
+
+            }
+        );
+
+    }
 
 });
