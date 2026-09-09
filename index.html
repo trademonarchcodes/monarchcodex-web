@@ -77,6 +77,8 @@
 
             <a href="#register">Register</a>
 
+            <a href="#login">Login</a>
+
             <a href="#support">Support</a>
 
         </nav>
@@ -162,8 +164,10 @@
 
 
                 <p>
+
                     Discover the vision behind Monarch Codex
                     and the platform we are building.
+
                 </p>
 
             </div>
@@ -239,8 +243,8 @@
 
                 <p>
 
-                    Select an available package after creating
-                    and accessing your Monarch Codex account.
+                    Available packages will be accessible
+                    through your personal Monarch dashboard.
 
                 </p>
 
@@ -381,6 +385,188 @@
 
 
             </form>
+
+        </section>
+
+
+
+        <!-- =========================
+             LOGIN
+             ========================= -->
+
+        <section
+            id="login"
+            class="section dark-section"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    MONARCH ACCESS
+                </p>
+
+
+                <h2>
+                    Login
+                </h2>
+
+
+                <p>
+
+                    Login to access your personal
+                    Monarch Codex dashboard.
+
+                </p>
+
+            </div>
+
+
+
+            <form
+                id="loginForm"
+                class="registration-form"
+            >
+
+
+                <input
+                    type="email"
+                    name="loginEmail"
+                    id="loginEmail"
+                    placeholder="Email Address"
+                    autocomplete="email"
+                    required
+                >
+
+
+                <input
+                    type="password"
+                    name="loginPassword"
+                    id="loginPassword"
+                    placeholder="Password"
+                    autocomplete="current-password"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                    class="gold-button"
+                >
+                    LOGIN
+                </button>
+
+
+                <p
+                    id="loginMessage"
+                    class="form-message"
+                ></p>
+
+
+                <p class="auth-switch">
+
+                    Don't have an account?
+
+                    <a href="#register">
+                        Create one
+                    </a>
+
+                </p>
+
+
+            </form>
+
+        </section>
+
+
+
+        <!-- =========================
+             DASHBOARD
+             ========================= -->
+
+        <section
+            id="dashboard"
+            class="section dashboard-section"
+            style="display: none;"
+        >
+
+            <div class="section-heading">
+
+                <p class="eyebrow">
+                    MONARCH DASHBOARD
+                </p>
+
+
+                <h2>
+                    Welcome, <span id="memberName">Monarch</span>
+                </h2>
+
+
+                <p>
+                    Your personal Monarch Codex dashboard.
+                </p>
+
+            </div>
+
+
+
+            <div class="about-content">
+
+
+                <div class="about-card">
+
+                    <h3>
+                        ACCOUNT STATUS
+                    </h3>
+
+
+                    <p id="accountStatus">
+                        Checking account status...
+                    </p>
+
+                </div>
+
+
+
+                <div class="about-card">
+
+                    <h3>
+                        MEMBER EMAIL
+                    </h3>
+
+
+                    <p id="memberEmail">
+                        Loading...
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div
+                class="dashboard-actions"
+                style="margin-top: 30px;"
+            >
+
+                <a
+                    href="#investment"
+                    class="gold-button"
+                >
+                    VIEW PACKAGES
+                </a>
+
+
+                <button
+                    type="button"
+                    id="logoutButton"
+                    class="gold-button logout-button"
+                >
+                    LOGOUT
+                </button>
+
+            </div>
 
         </section>
 
