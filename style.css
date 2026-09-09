@@ -20,9 +20,7 @@ body {
     line-height: 1.7;
 }
 
-/* =========================================
-   NAVIGATION
-   ========================================= */
+/* NAVIGATION */
 
 .navbar {
     width: 100%;
@@ -78,9 +76,7 @@ body {
     cursor: pointer;
 }
 
-/* =========================================
-   HERO
-   ========================================= */
+/* HERO */
 
 .hero {
     min-height: calc(100vh - 78px);
@@ -147,9 +143,7 @@ body {
     font-size: 16px;
 }
 
-/* =========================================
-   BUTTON
-   ========================================= */
+/* BUTTON */
 
 .gold-button {
     display: inline-block;
@@ -173,9 +167,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* =========================================
-   SECTIONS
-   ========================================= */
+/* SECTIONS */
 
 .section {
     padding: 100px 7%;
@@ -201,9 +193,7 @@ body {
     color: #a9a9a9;
 }
 
-/* =========================================
-   ABOUT
-   ========================================= */
+/* ABOUT */
 
 .about-content {
     display: grid;
@@ -234,9 +224,7 @@ body {
     color: #aaaaaa;
 }
 
-/* =========================================
-   INVESTMENT PACKAGES
-   ========================================= */
+/* INVESTMENT */
 
 .packages {
     display: grid;
@@ -268,9 +256,7 @@ body {
     box-shadow: 0 15px 40px rgba(212, 175, 55, 0.08);
 }
 
-/* =========================================
-   REGISTRATION
-   ========================================= */
+/* REGISTRATION */
 
 .registration-form {
     width: 100%;
@@ -289,4 +275,177 @@ body {
     border-radius: 5px;
     outline: none;
     font-family: inherit;
-   
+    font-size: 14px;
+    transition: 0.3s ease;
+}
+
+.registration-form input:focus {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.08);
+}
+
+.registration-form input::placeholder {
+    color: #777777;
+}
+
+.registration-form .gold-button {
+    margin-top: 5px;
+}
+
+/* FOOTER */
+
+footer {
+    padding: 40px 7%;
+    background: #030303;
+    border-top: 1px solid rgba(212, 175, 55, 0.15);
+    text-align: center;
+}
+
+footer .logo {
+    margin-bottom: 10px;
+}
+
+footer p {
+    color: #777777;
+    font-size: 13px;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+    .navbar {
+        padding: 0 5%;
+    }
+
+    .navbar nav {
+        gap: 18px;
+    }
+
+    .navbar nav a {
+        font-size: 12px;
+    }
+
+    .hero,
+    .section {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    .packages {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .navbar {
+        min-height: 70px;
+        padding: 0 20px;
+    }
+
+    .logo {
+        font-size: 16px;
+        letter-spacing: 1.5px;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .navbar nav {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        padding: 20px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        background: #080808;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+    }
+
+    .navbar nav.active {
+        display: flex;
+    }
+
+    .navbar nav a {
+        display: block;
+        padding: 15px 10px;
+        border-bottom: 1px solid #191919;
+        font-size: 14px;
+    }
+
+    .navbar nav a:last-child {
+        border-bottom: none;
+    }
+
+    .hero {
+        min-height: 85vh;
+        padding: 70px 20px;
+    }
+
+    .hero h1 {
+        font-size: clamp(45px, 15vw, 70px);
+    }
+
+    .hero-text {
+        font-size: 14px;
+    }
+
+    .section {
+        padding: 75px 20px;
+    }
+
+    .section-heading {
+        margin-bottom: 35px;
+    }
+
+    .section-heading h2 {
+        font-size: 34px;
+    }
+
+    .about-content {
+        grid-template-columns: 1fr;
+    }
+
+    .about-card {
+        padding: 25px;
+    }
+
+    .packages {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .package {
+        min-height: 110px;
+        font-size: 25px;
+    }
+
+    footer {
+        padding: 35px 20px;
+    }
+}
+
+/* SMALL PHONES */
+
+@media (max-width: 380px) {
+
+    .packages {
+        grid-template-columns: 1fr;
+    }
+
+    .hero h1 {
+        font-size: 44px;
+    }
+
+    .gold-button {
+        width: 100%;
+        text-align: center;
+    }
+   }
