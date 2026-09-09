@@ -8,766 +8,220 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Monarch Codex</title>
-
     <meta
         name="description"
-        content="Monarch Codex — Learn, build, trade and grow."
+        content="Monarch Codex — a digital ecosystem for learning, building, trading, creating and growing."
     >
 
-    <!-- Google Font -->
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
+    <title>Monarch Codex | Build. Learn. Trade. Create.</title>
 
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- Website CSS -->
     <link rel="stylesheet" href="style.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        defer
+    ></script>
+
+    <script src="script.js" defer></script>
 </head>
 
 <body>
 
-    <!-- ================= NAVBAR ================= -->
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
 
-    <header class="navbar">
+<header class="navbar">
 
-        <div class="nav-container">
+    <div class="container">
 
-            <a href="#home" class="logo">
-                MONARCH <span>CODEX</span>
-            </a>
+        <a href="#home" class="logo">
+            MONARCH <span>CODEX</span>
+        </a>
 
-            <button
-                class="menu-toggle"
-                id="menuToggle"
-                aria-label="Open navigation menu"
-            >
-                ☰
-            </button>
+        <button
+            class="menu-toggle"
+            id="menuToggle"
+            aria-label="Open navigation menu"
+        >
+            ☰
+        </button>
 
-            <nav id="navMenu">
+        <ul class="nav-links" id="navLinks">
 
+            <li>
                 <a href="#home">Home</a>
-                <a href="#about">About</a>
-                <a href="#investment">Investment</a>
-                <a href="#register">Register</a>
-                <a href="#login">Login</a>
-                <a href="#support">Support</a>
+            </li>
 
-            </nav>
+            <li>
+                <a href="#about">About</a>
+            </li>
+
+            <li>
+                <a href="#ecosystem">Ecosystem</a>
+            </li>
+
+            <li>
+                <a href="#investment">Investment</a>
+            </li>
+
+            <li>
+                <a href="#register">Register</a>
+            </li>
+
+            <li>
+                <a href="#login">Login</a>
+            </li>
+
+            <li>
+                <a href="#support">Support</a>
+            </li>
+
+        </ul>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<main>
+
+<section class="hero" id="home">
+
+    <div class="container">
+
+        <div class="hero-content">
+
+            <div class="hero-badge">
+                THE MONARCH CODEX
+            </div>
+
+            <h1>
+                Learn.
+                <span>Build.</span>
+                Trade.
+                Create.
+            </h1>
+
+            <p>
+                Monarch Codex is a growing digital ecosystem
+                designed to help people develop practical
+                knowledge, explore technology, understand
+                financial markets, build digital opportunities
+                and become better versions of themselves.
+            </p>
+
+            <div
+                style="
+                    display:flex;
+                    gap:12px;
+                    flex-wrap:wrap;
+                "
+            >
+
+                <a
+                    href="#register"
+                    class="btn btn-primary"
+                >
+                    Become a Monarch
+                </a>
+
+                <a
+                    href="#ecosystem"
+                    class="btn btn-secondary"
+                >
+                    Explore Monarch Codex
+                </a>
+
+            </div>
 
         </div>
 
-    </header>
+    </div>
+
+</section>
 
 
-    <!-- ================= HERO ================= -->
+<!-- =====================================================
+     ABOUT
+===================================================== -->
 
-    <main>
+<section class="about" id="about">
 
-        <section id="home" class="hero">
+    <div class="container">
 
-            <div class="hero-content">
+        <div class="section-heading">
 
-                <p class="hero-label">
-                    WELCOME TO MONARCH CODEX
-                </p>
+            <span class="eyebrow">
+                About Us
+            </span>
 
-                <h1>
-                    BUILD YOUR
-                    <span>FINANCIAL FUTURE.</span>
-                </h1>
+            <h2>
+                More Than A Platform.
+                <span class="text-gold">
+                    A Growing Ecosystem.
+                </span>
+            </h2>
 
-                <p>
-                    A platform built around knowledge, opportunity,
-                    discipline and financial growth.
-                </p>
-
-                <div class="hero-buttons">
-
-                    <a href="#register" class="btn primary-btn">
-                        Become a Monarch
-                    </a>
-
-                    <a href="#about" class="btn secondary-btn">
-                        Learn More
-                    </a>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= ABOUT ================= -->
-
-        <section id="about" class="section">
-
-            <div class="section-heading">
-
-                <p class="section-label">
-                    ABOUT US
-                </p>
-
-                <h2>
-                    Welcome to <span>Monarch Codex</span>
-                </h2>
-
-            </div>
-
-            <div class="about-content">
-
-                <p>
-                    Monarch Codex is a growing digital platform focused
-                    on education, financial markets, technology,
-                    entrepreneurship and personal development.
-                </p>
-
-                <p>
-                    Our goal is to provide members with practical
-                    knowledge and opportunities while building a strong
-                    community of ambitious people.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= INVESTMENT ================= -->
-
-        <section id="investment" class="section investment-section">
-
-            <div class="section-heading">
-
-                <p class="section-label">
-                    INVESTMENT OPTIONS
-                </p>
-
-                <h2>
-                    Choose Your <span>Package</span>
-                </h2>
-
-                <p>
-                    Select an available package from your member
-                    dashboard after creating and confirming your account.
-                </p>
-
-            </div>
-
-
-            <div class="package-grid">
-
-                <div class="package-card">
-                    <h3>$30</h3>
-                    <p>Starter Package</p>
-                </div>
-
-                <div class="package-card">
-                    <h3>$50</h3>
-                    <p>Growth Package</p>
-                </div>
-
-                <div class="package-card">
-                    <h3>$100</h3>
-                    <p>Growth Package</p>
-                </div>
-
-                <div class="package-card">
-                    <h3>$300</h3>
-                    <p>Advanced Package</p>
-                </div>
-
-                <div class="package-card">
-                    <h3>$500</h3>
-                    <p>Advanced Package</p>
-                </div>
-
-                <div class="package-card featured-package">
-                    <h3>$1,000</h3>
-                    <p>Premium Package</p>
-                </div>
-
-            </div>
-
-            <p class="investment-note">
-                Investment involves financial risk. Package selection
-                does not guarantee profit or returns.
+            <p>
+                Monarch Codex brings learning, technology,
+                finance, creativity and personal development
+                into one digital environment.
             </p>
 
-        </section>
+        </div>
 
 
-        <!-- ================= REGISTER ================= -->
+        <div class="about-grid">
 
-        <section id="register" class="section auth-section">
-
-            <div class="section-heading">
-
-                <p class="section-label">
-                    JOIN MONARCH CODEX
-                </p>
-
-                <h2>
-                    Create Your <span>Account</span>
-                </h2>
-
-            </div>
-
-
-            <form id="registrationForm" class="auth-form">
-
-                <div class="form-group">
-
-                    <label for="fullname">
-                        Full Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="fullname"
-                        name="fullname"
-                        placeholder="Enter your full name"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="email">
-                        Email Address
-                    </label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="phone">
-                        Phone Number
-                    </label>
-
-                    <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        placeholder="Enter your phone number"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Create a password"
-                        minlength="6"
-                        required
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn primary-btn full-btn"
-                >
-                    Create Account
-                </button>
-
-
-                <p
-                    id="registrationMessage"
-                    class="form-message"
-                ></p>
-
-
-                <p class="auth-switch">
-
-                    Already have an account?
-
-                    <a href="#login">
-                        Login here
-                    </a>
-
-                </p>
-
-            </form>
-
-        </section>
-
-
-        <!-- ================= LOGIN ================= -->
-
-        <section id="login" class="section auth-section">
-
-            <div class="section-heading">
-
-                <p class="section-label">
-                    MEMBER ACCESS
-                </p>
-
-                <h2>
-                    Member <span>Login</span>
-                </h2>
-
-            </div>
-
-
-            <form id="loginForm" class="auth-form">
-
-                <div class="form-group">
-
-                    <label for="loginEmail">
-                        Email Address
-                    </label>
-
-                    <input
-                        type="email"
-                        id="loginEmail"
-                        name="loginEmail"
-                        placeholder="Enter your email"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="loginPassword">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="loginPassword"
-                        name="loginPassword"
-                        placeholder="Enter your password"
-                        required
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn primary-btn full-btn"
-                >
-                    Login
-                </button>
-
-
-                <p
-                    id="loginMessage"
-                    class="form-message"
-                ></p>
-
-
-                <p class="auth-switch">
-
-                    Don't have an account?
-
-                    <a href="#register">
-                        Register here
-                    </a>
-
-                </p>
-
-            </form>
-
-        </section>
-
-
-        <!-- ================= DASHBOARD ================= -->
-
-        <section
-            id="dashboard"
-            class="section dashboard-section"
-            style="display: none;"
-        >
-
-            <div class="section-heading">
-
-                <p class="section-label">
-                    MONARCH MEMBER AREA
-                </p>
-
-                <h2>
-                    Welcome,
-                    <span id="memberName">
-                        Monarch
-                    </span>
-                </h2>
-
-                <p>
-                    Manage your account and investment requests
-                    from your personal dashboard.
-                </p>
-
-            </div>
-
-
-            <!-- ACCOUNT INFORMATION -->
-
-            <div class="dashboard-grid">
-
-                <div class="dashboard-card">
-
-                    <span class="dashboard-card-label">
-                        ACCOUNT STATUS
-                    </span>
-
-                    <strong id="accountStatus">
-                        Pending
-                    </strong>
-
-                </div>
-
-
-                <div class="dashboard-card">
-
-                    <span class="dashboard-card-label">
-                        EMAIL
-                    </span>
-
-                    <strong id="memberEmail">
-                        —
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- INVESTMENT AREA -->
-
-            <div class="dashboard-investment">
-
-                <div class="dashboard-title">
-
-                    <p class="section-label">
-                        INVESTMENT
-                    </p>
-
-                    <h3>
-                        Select Your Package
-                    </h3>
-
-                </div>
-
+            <div class="about-image">
 
                 <div
-                    id="dashboardPackages"
-                    class="package-grid"
+                    style="
+                        width:100%;
+                        height:100%;
+                        min-height:430px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        text-align:center;
+                        padding:30px;
+                    "
                 >
 
-                    <button
-                        type="button"
-                        class="package-card dashboard-package"
-                        data-package-amount="30"
-                    >
+                    <div>
 
-                        <h3>$30</h3>
-                        <p>Starter Package</p>
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="package-card dashboard-package"
-                        data-package-amount="50"
-                    >
-
-                        <h3>$50</h3>
-                        <p>Growth Package</p>
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="package-card dashboard-package"
-                        data-package-amount="100"
-                    >
-
-                        <h3>$100</h3>
-                        <p>Growth Package</p>
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="package-card dashboard-package"
-                        data-package-amount="300"
-                    >
-
-                        <h3>$300</h3>
-                        <p>Advanced Package</p>
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="package-card dashboard-package"
-                        data-package-amount="500"
-                    >
-
-                        <h3>$500</h3>
-                        <p>Advanced Package</p>
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="package-card dashboard-package featured-package"
-                        data-package-amount="1000"
-                    >
-
-                        <h3>$1,000</h3>
-                        <p>Premium Package</p>
-
-                    </button>
-
-                </div>
-
-
-                <!-- SELECTED PACKAGE -->
-
-                <div
-                    id="selectedPackageBox"
-                    class="selected-package"
-                    style="display: none;"
-                >
-
-                    <p>
-                        Selected Package:
-                    </p>
-
-                    <strong id="selectedPackageAmount">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <!-- PAYMENT METHOD -->
-
-                <div
-                    id="paymentMethodBox"
-                    class="payment-method-box"
-                    style="display: none;"
-                >
-
-                    <h3>
-                        Choose Payment Method
-                    </h3>
-
-                    <p>
-                        Select how you intend to fund your investment request.
-                    </p>
-
-
-                    <div class="payment-options">
-
-                        <button
-                            type="button"
-                            class="payment-option"
-                            data-payment-method="bank"
+                        <div
+                            style="
+                                font-size:4rem;
+                                color:#d4af37;
+                                font-weight:800;
+                            "
                         >
+                            MC
+                        </div>
 
-                            <strong>
-                                Bank Account
-                            </strong>
-
-                            <span>
-                                Fund through bank transfer.
-                            </span>
-
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="payment-option"
-                            data-payment-method="crypto"
+                        <p
+                            style="
+                                color:#999;
+                                margin-top:10px;
+                            "
                         >
-
-                            <strong>
-                                Crypto Funding
-                            </strong>
-
-                            <span>
-                                Fund using cryptocurrency.
-                            </span>
-
-                        </button>
+                            MONARCH CODEX
+                        </p>
 
                     </div>
 
-
-                    <button
-                        type="button"
-                        id="submitInvestment"
-                        class="btn primary-btn full-btn"
-                        style="display: none;"
-                    >
-                        Submit Investment Request
-                    </button>
-
-
-                    <p
-                        id="investmentMessage"
-                        class="form-message"
-                    ></p>
-
                 </div>
 
             </div>
 
 
-            <!-- INVESTMENT HISTORY -->
-
-            <div class="dashboard-investment-history">
-
-                <div class="dashboard-title">
-
-                    <p class="section-label">
-                        MY INVESTMENTS
-                    </p>
-
-                    <h3>
-                        Investment Requests
-                    </h3>
-
-                </div>
-
-
-                <div id="investmentHistory">
-
-                    <p>
-                        Your investment requests will appear here.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- LOGOUT -->
-
-            <div class="dashboard-actions">
-
-                <button
-                    type="button"
-                    id="logoutButton"
-                    class="btn secondary-btn logout-button"
-                >
-                    Logout
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= SUPPORT ================= -->
-
-        <section id="support" class="section support-section">
-
-            <div class="section-heading">
-
-                <p class="section-label">
-                    SUPPORT
-                </p>
+            <div class="about-content">
 
                 <h2>
-                    Need <span>Help?</span>
-                </h2>
-
-                <p>
-                    Our support channels will be available here.
-                </p>
-
-            </div>
-
-            <div class="support-card">
-
-                <p>
-                    Support contact details will be added soon.
-                </p>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer class="footer">
-
-        <div class="footer-content">
-
-            <h3>
-                MONARCH <span>CODEX</span>
-            </h3>
-
-            <p>
-                Learn. Build. Grow.
-            </p>
-
-            <p>
-                © 2026 Monarch Codex. All rights reserved.
-            </p>
-
-        </div>
-
-    </footer>
-
-
-    <!-- Supabase -->
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
-    <!-- Website JavaScript -->
-
-    <script src="script.js"></script>
-
-</body>
-</html>
+                   
