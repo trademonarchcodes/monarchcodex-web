@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Login to your Monarch Codex account."
+    >
+
+    <title>Login | Monarch Codex</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        defer
+    ></script>
+
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="container">
+
+        <a href="index.html" class="logo">
+            MONARCH <span>CODEX</span>
+        </a>
+
+        <a
+            href="index.html"
+            class="btn btn-secondary"
+        >
+            ← Home
+        </a>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section
+    class="login-section"
+    style="min-height:calc(100vh - 78px);"
+>
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <span class="eyebrow">
+                Member Access
+            </span>
+
+            <h2>
+                Enter The
+                <span class="text-gold">
+                    Codex
+                </span>
+            </h2>
+
+            <p>
+                Access your Monarch Codex account.
+            </p>
+
+        </div>
+
+
+        <div class="form-container">
+
+            <form id="loginForm">
+
+                <div class="form-group">
+
+                    <label for="loginEmail">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="loginEmail"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="loginPassword">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Login
+                </button>
+
+
+                <div
+                    id="loginMessage"
+                    class="form-message"
+                ></div>
+
+            </form>
+
+
+            <div
+                style="
+                    text-align:center;
+                    margin-top:22px;
+                    color:#888;
+                    font-size:.85rem;
+                "
+            >
+
+                Don't have an account?
+
+                <a
+                    href="register.html"
+                    style="color:#d4af37;font-weight:600;"
+                >
+                    Become a Monarch
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+    <div class="container">
+
+        <h3>
+            MONARCH CODEX
+        </h3>
+
+        <p>
+            Learn. Build. Trade. Create.
+        </p>
+
+        <p style="margin-top:15px;">
+            © 2026 Monarch Codex.
+            All rights reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+</body>
+
+</html>
