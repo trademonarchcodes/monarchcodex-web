@@ -5,16 +5,40 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Monarch Codex</title>
 
     <meta
         name="description"
-        content="Monarch Codex — Technology, opportunity, financial growth and innovation."
+        content="Monarch Codex — Technology, opportunity, financial education, business and innovation."
     >
 
-    <link rel="stylesheet" href="style.css">
+    <!-- Poppins Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Main CSS -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
@@ -36,10 +60,10 @@
         <button
             class="menu-toggle"
             id="menuToggle"
-            aria-label="Open navigation">
-
+            aria-label="Open navigation"
+            type="button"
+        >
             ☰
-
         </button>
 
 
@@ -62,15 +86,20 @@
 
 
     <!-- =========================
-         MAIN CONTENT
+         MAIN
          ========================= -->
 
     <main>
 
 
-        <!-- HERO -->
+        <!-- =========================
+             HERO
+             ========================= -->
 
-        <section id="home" class="hero">
+        <section
+            id="home"
+            class="hero"
+        >
 
             <div class="hero-content">
 
@@ -91,19 +120,18 @@
 
                 <p class="hero-text">
 
-                    Monarch Codex is building a platform where
-                    technology, opportunity, knowledge and financial
-                    growth come together.
+                    Monarch Codex is building a digital platform
+                    where technology, knowledge, business,
+                    opportunity and financial growth come together.
 
                 </p>
 
 
                 <a
                     href="#register"
-                    class="gold-button">
-
+                    class="gold-button"
+                >
                     CREATE YOUR ACCOUNT
-
                 </a>
 
             </div>
@@ -118,8 +146,8 @@
 
         <section
             id="about"
-            class="section">
-
+            class="section"
+        >
 
             <div class="section-heading">
 
@@ -134,10 +162,8 @@
 
 
                 <p>
-
                     Discover the vision behind Monarch Codex
-                    and the people building the platform.
-
+                    and the platform we are building.
                 </p>
 
             </div>
@@ -186,7 +212,6 @@
 
             </div>
 
-
         </section>
 
 
@@ -197,8 +222,8 @@
 
         <section
             id="investment"
-            class="section dark-section">
-
+            class="section dark-section"
+        >
 
             <div class="section-heading">
 
@@ -214,10 +239,8 @@
 
                 <p>
 
-                    Choose from the available packages.
-
-                    Investment functionality will be connected
-                    securely to your account dashboard later.
+                    Select an available package after creating
+                    and accessing your Monarch Codex account.
 
                 </p>
 
@@ -260,7 +283,6 @@
 
             </div>
 
-
         </section>
 
 
@@ -271,8 +293,8 @@
 
         <section
             id="register"
-            class="section">
-
+            class="section"
+        >
 
             <div class="section-heading">
 
@@ -288,8 +310,8 @@
 
                 <p>
 
-                    Create your Monarch Codex account
-                    to access your personal dashboard.
+                    Register to create your Monarch Codex
+                    member account.
 
                 </p>
 
@@ -299,12 +321,14 @@
 
             <form
                 id="registrationForm"
-                class="registration-form">
+                class="registration-form"
+            >
 
 
                 <input
                     type="text"
                     name="fullname"
+                    id="fullname"
                     placeholder="Full Name"
                     autocomplete="name"
                     required
@@ -314,6 +338,7 @@
                 <input
                     type="email"
                     name="email"
+                    id="email"
                     placeholder="Email Address"
                     autocomplete="email"
                     required
@@ -323,6 +348,7 @@
                 <input
                     type="tel"
                     name="phone"
+                    id="phone"
                     placeholder="Phone Number"
                     autocomplete="tel"
                     required
@@ -332,23 +358,29 @@
                 <input
                     type="password"
                     name="password"
+                    id="password"
                     placeholder="Create Password"
                     autocomplete="new-password"
+                    minlength="6"
                     required
                 >
 
 
                 <button
                     type="submit"
-                    class="gold-button">
-
+                    class="gold-button"
+                >
                     CREATE ACCOUNT
-
                 </button>
 
 
-            </form>
+                <p
+                    id="registrationMessage"
+                    class="form-message"
+                ></p>
 
+
+            </form>
 
         </section>
 
@@ -360,8 +392,8 @@
 
         <section
             id="support"
-            class="section dark-section">
-
+            class="section dark-section"
+        >
 
             <div class="section-heading">
 
@@ -377,13 +409,12 @@
 
                 <p>
 
-                    Our official support contacts will
-                    be added here.
+                    Official Monarch Codex support contacts
+                    will be added here.
 
                 </p>
 
             </div>
-
 
         </section>
 
@@ -397,7 +428,6 @@
          ========================= -->
 
     <footer>
-
 
         <div class="logo">
 
@@ -413,16 +443,24 @@
 
         </p>
 
-
     </footer>
 
 
 
-    <!-- JAVASCRIPT -->
+    <!-- =========================
+         SUPABASE
+         ========================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- Main JavaScript -->
 
     <script src="script.js"></script>
 
 
 </body>
 
-                  </html>
+</html>
