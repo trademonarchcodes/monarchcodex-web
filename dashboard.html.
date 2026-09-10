@@ -952,3 +952,159 @@
 
         renderInvestmentHistory();
     }
+        function updateFinancialStats() {
+            const confirmed = investmentsData.filter(
+                item => String(item.status || "").toLowerCase() === "confirmed"
+            );
+
+            const pending = investmentsData.filter(
+                item => String(item.status || "").toLowerCase() === "pending"
+            );
+
+            const total = confirmed.reduce(
+                (sum, item) => sum + (Number(item.amount) || 0),
+                0
+            );
+
+            totalInvested.textContent = formatAmount(total);
+            confirmedInvestments.textContent = confirmed.length;
+            pendingInvestments.textContent = pending.length;
+            totalRequests.textContent = investmentsData.length;
+
+            const confirmedEarnings = earningsData.filter(
+                item => String(item.status || "confirmed").toLowerCase() === "confirmed"
+            );
+
+            const earned = confirmedEarnings.reduce(
+                (sum, item) => sum + (Number(item.amount) || 0),
+                0
+            );
+
+            totalEarnings.textContent = formatAmount(earned);
+        }
+
+        function renderInvestmentHistory() {
+            if (!investmentsData.length) {
+                historyContent.innerHTML = `
+                    <div class="empty-card">
+                        No investment requests found.
+                    </div>
+                `;
+                return;
+            }
+
+            historyContent.innerHTML = `
+                <div class="table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Package</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${investmentsData.map(item => `
+                                <tr>
+                                    <td>${escapeHtml(getPackageName(item.package_id))}</td>
+                                    <td>${formatAmount(item.amount)}</td>
+                                    <td>${escapeHtml(
+                                        String(item.payment_method || "").toUpperCase()
+                                    )}</td>
+                                    <td>${formatDate(item.created_at)}</td>
+                                    <td>
+                                        <span class="status ${getStatusClass(item.status)}">
+                                            ${escapeHtml(item.status || "pending")}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function loadEarnings() {
+            earningsContent.innerHTML = `
+                <div class="loading-card">
+                    Loading earnings...
+                </div>
+            `;
+
+            const { data, error } = await supabaseClient
+                .from("earnings")
+                .select("*")
+                .eq("user_id", currentUser.id)
+                .order("created_at", { ascending: false });
+
+            if (error) {
+                console.error("Earnings load error:", error);
+
+                earningsData = [];
+
+                earningsContent.innerHTML = `
+                    <div class="empty-card">
+                        Unable to load earnings right now.
+                    </div>
+                `;
+
+                updateFinancialStats();
+                return;
+            }
+
+            earningsData = data || [];
+
+            updateFinancialStats();
+            renderEarnings();
+        }
+
+        function renderEarnings() {
+            if (!earningsData.length) {
+                earningsContent.innerHTML = `
+                    <div class="empty-card">
+                        No earnings have been recorded yet.
+                    </div>
+                `;
+                return;
+            }
+
+            earningsContent.innerHTML = `
+                <div class="table-wrapper">
+                    <table class="earnings-table">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${earningsData.map(item => `
+                                <tr>
+                                    <td class="earning-amount">
+                                        ${formatAmount(item.amount)}
+                                    </td>
+                                    <td>
+                                        ${escapeHtml(item.description || "Earning")}
+                                    </td>
+                                    <td>
+                                        ${formatDate(item.created_at)}
+                                    </td>
+                                    <td>
+                                        <span class="status ${getStatusClass(
+                                            item.status || "confirmed"
+                                        )}">
+                                            ${escapeHtml(item.status || "confirmed")}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
