@@ -1105,3 +1105,250 @@
 
         return true;
     }
+
+    function updateFinancialStats() {
+        let totalInvested = 0;
+        let confirmedCount = 0;
+        let pendingCount = 0;
+
+        investmentsData.forEach((investment) => {
+            const amount = Number(investment.amount || 0);
+
+            if (investment.status === "confirmed") {
+                confirmedCount++;
+                totalInvested += amount;
+            }
+
+            if (investment.status === "pending") {
+                pendingCount++;
+            }
+        });
+
+        document.getElementById("totalInvested").textContent =
+            formatAmount(totalInvested);
+
+        document.getElementById("confirmedInvestments").textContent =
+            confirmedCount;
+
+        document.getElementById("pendingInvestments").textContent =
+            pendingCount;
+
+        document.getElementById("totalRequests").textContent =
+            investmentsData.length;
+    }
+
+
+    function renderInvestmentHistory() {
+        const historyContent =
+            document.getElementById("historyContent");
+
+        if (!investmentsData.length) {
+            historyContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <h3>No Investment Requests Yet</h3>
+                    <p>
+                        Your investment activity will appear here
+                        after you submit your first request.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        const packagesMap = {};
+
+        packagesData.forEach((pkg) => {
+            if (pkg.id) {
+                packagesMap[pkg.id] = pkg;
+            }
+        });
+
+        historyContent.innerHTML = investmentsData.map((investment) => {
+            const packageItem =
+                packagesMap[investment.package_id] || null;
+
+            const packageName =
+                getPackageName(packageItem) ||
+                "Investment Package";
+
+            const amount =
+                Number(
+                    investment.amount ||
+                    packageItem?.amount ||
+                    packageItem?.price ||
+                    0
+                );
+
+            const paymentMethod =
+                investment.payment_method === "bank"
+                    ? "Bank Account"
+                    : investment.payment_method === "crypto"
+                        ? "Crypto Funding"
+                        : escapeHtml(
+                            investment.payment_method ||
+                            "Not specified"
+                        );
+
+            const status =
+                String(investment.status || "pending").toLowerCase();
+
+            const statusClass =
+                getStatusClass(status);
+
+            return `
+                <div class="history-item">
+
+                    <div class="history-main">
+
+                        <div class="history-package">
+                            ${escapeHtml(packageName)}
+                        </div>
+
+                        <div class="history-details">
+                            <span>
+                                ${formatAmount(amount)}
+                            </span>
+
+                            <span>
+                                ${paymentMethod}
+                            </span>
+
+                            <span>
+                                ${formatDate(investment.created_at)}
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="status ${statusClass}">
+                        ${escapeHtml(
+                            status.charAt(0).toUpperCase() +
+                            status.slice(1)
+                        )}
+                    </div>
+
+                </div>
+            `;
+        }).join("");
+    }
+
+
+    document
+        .getElementById("submitInvestmentBtn")
+        .addEventListener("click", async () => {
+
+            clearMessage();
+
+            const button =
+                document.getElementById("submitInvestmentBtn");
+
+            if (!currentUser || !currentProfile) {
+                showMessage(
+                    "Your session is not ready. Please refresh and try again.",
+                    "error"
+                );
+                return;
+            }
+
+            if (currentProfile.status === "blocked") {
+                showMessage(
+                    "Your account is blocked. You cannot submit an investment request.",
+                    "error"
+                );
+                return;
+            }
+
+            if (!selectedPackage) {
+                showMessage(
+                    "Please select an investment package first.",
+                    "error"
+                );
+                return;
+            }
+
+            if (!selectedPaymentMethod) {
+                showMessage(
+                    "Please select a payment method.",
+                    "error"
+                );
+                return;
+            }
+
+            const packageAmount =
+                Number(
+                    selectedPackage.amount ||
+                    selectedPackage.price ||
+                    0
+                );
+
+            if (!packageAmount || packageAmount <= 0) {
+                showMessage(
+                    "The selected package has an invalid amount.",
+                    "error"
+                );
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = "Submitting...";
+
+            try {
+                const { error } =
+                    await supabaseClient
+                        .from("investments")
+                        .insert([
+                            {
+                                user_id: currentUser.id,
+                                package_id: selectedPackage.id,
+                                amount: packageAmount,
+                                payment_method: selectedPaymentMethod,
+                                status: "pending"
+                            }
+                        ]);
+
+                if (error) {
+                    throw error;
+                }
+
+                showMessage(
+                    "Investment request submitted successfully. Your request is now pending admin confirmation.",
+                    "success"
+                );
+
+                selectedPackage = null;
+                selectedPaymentMethod = null;
+
+                document
+                    .querySelectorAll(".package-card")
+                    .forEach((card) => {
+                        card.classList.remove("selected");
+                    });
+
+                document
+                    .querySelectorAll(".payment-option")
+                    .forEach((option) => {
+                        option.classList.remove("selected");
+                    });
+
+                await loadInvestmentHistory();
+
+            } catch (error) {
+
+                console.error(
+                    "Investment submission error:",
+                    error
+                );
+
+                showMessage(
+                    error.message ||
+                    "Unable to submit investment request.",
+                    "error"
+                );
+
+            } finally {
+
+                button.disabled = false;
+                button.textContent = "Submit Investment Request";
+            }
+        });
