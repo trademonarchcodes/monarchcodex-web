@@ -765,3 +765,190 @@
             0
         );
     }
+    async function loadPackages() {
+
+        packagesContent.innerHTML =
+            '<div class="loading-card">Loading packages...</div>';
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("packages")
+            .select("*")
+            .order("amount", {
+                ascending: true
+            });
+
+        if (error) {
+            console.error("Packages error:", error);
+
+            packagesContent.innerHTML =
+                '<div class="empty-card">Unable to load packages.</div>';
+
+            return;
+        }
+
+        packagesData = data || [];
+
+        renderPackages();
+    }
+
+    function renderPackages() {
+
+        if (!packagesData.length) {
+
+            packagesContent.innerHTML =
+                '<div class="empty-card">No packages available.</div>';
+
+            return;
+        }
+
+        packagesContent.innerHTML =
+            packagesData.map(pkg => {
+
+                const name =
+                    getPackageName(pkg);
+
+                const amount =
+                    getPackageAmount(pkg);
+
+                const selected =
+                    selectedPackage &&
+                    selectedPackage.id === pkg.id;
+
+                return `
+                    <button
+                        type="button"
+                        class="package-card ${selected ? "selected" : ""}"
+                        data-package-id="${escapeHtml(pkg.id)}"
+                    >
+                        <span class="package-name">
+                            ${escapeHtml(name)}
+                        </span>
+
+                        <span class="package-amount">
+                            ${formatAmount(amount)}
+                        </span>
+
+                        <span class="package-action">
+                            ${selected ? "Selected" : "Select Package"}
+                        </span>
+                    </button>
+                `;
+
+            }).join("");
+
+        document
+            .querySelectorAll(".package-card")
+            .forEach(card => {
+
+                card.addEventListener(
+                    "click",
+                    () => {
+
+                        const packageId =
+                            card.dataset.packageId;
+
+                        selectPackage(packageId);
+                    }
+                );
+
+            });
+    }
+
+    function selectPackage(packageId) {
+
+        selectedPackage =
+            packagesData.find(
+                pkg =>
+                    String(pkg.id) ===
+                    String(packageId)
+            ) || null;
+
+        renderPackages();
+
+        if (selectedPackage) {
+            showMessage(
+                `${getPackageName(selectedPackage)} selected.`,
+                "success"
+            );
+        }
+    }
+
+    function selectPaymentMethod(method) {
+
+        selectedPaymentMethod = method;
+
+        document
+            .querySelectorAll(".payment-option")
+            .forEach(option => {
+
+                option.classList.toggle(
+                    "selected",
+                    option.dataset.payment === method
+                );
+
+            });
+
+        const methodName =
+            method === "bank"
+                ? "Bank Transfer"
+                : "Cryptocurrency";
+
+        showMessage(
+            `${methodName} selected.`,
+            "success"
+        );
+    }
+
+    document
+        .querySelectorAll(".payment-option")
+        .forEach(option => {
+
+            option.addEventListener(
+                "click",
+                () => {
+                    selectPaymentMethod(
+                        option.dataset.payment
+                    );
+                }
+            );
+
+        });
+
+    async function loadInvestmentHistory() {
+
+        historyContent.innerHTML =
+            '<div class="loading-card">Loading investment history...</div>';
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("investments")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+
+            console.error(
+                "Investment history error:",
+                error
+            );
+
+            historyContent.innerHTML =
+                '<div class="empty-card">Unable to load investment history.</div>';
+
+            return;
+        }
+
+        investmentsData = data || [];
+
+        updateFinancialStats();
+
+        renderInvestmentHistory();
+    }
