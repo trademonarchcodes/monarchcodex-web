@@ -10,6 +10,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet"
@@ -394,11 +395,34 @@
             font-size: 12px;
         }
 
+        .earnings-table {
+            min-width: 650px;
+        }
+
+        .earning-amount {
+            color: #d4af37;
+            font-weight: 700;
+        }
+
         .empty-state {
             padding: 25px 5px;
             color: #777;
             font-size: 13px;
             text-align: center;
+        }
+
+        .empty-state h3 {
+            color: #ccc;
+            margin: 8px 0;
+        }
+
+        .empty-state p {
+            color: #777;
+            margin: 0;
+        }
+
+        .empty-icon {
+            font-size: 25px;
         }
 
         @media (max-width: 900px) {
@@ -475,99 +499,179 @@
 
 <header class="dashboard-header">
     <div class="header-inner">
+
         <div class="brand">MONARCH CODEX</div>
 
         <div class="header-right">
             <div class="monarch-badge">MONARCH</div>
-            <button id="logoutBtn" class="logout-btn">Logout</button>
+
+            <button id="logoutBtn" class="logout-btn">
+                Logout
+            </button>
         </div>
+
     </div>
 </header>
 
 <main class="dashboard-container">
 
     <section class="welcome-section">
-        <h1>Welcome, <span id="memberName">Monarch</span></h1>
-        <p>Your MONARCH CODEX command center.</p>
+        <h1>
+            Welcome,
+            <span id="memberName">Monarch</span>
+        </h1>
+
+        <p>
+            Your MONARCH CODEX command center.
+        </p>
     </section>
 
     <div id="messageBox" class="message-box"></div>
 
+    <!-- FINANCIAL SUMMARY -->
+
     <section class="stats-grid">
 
         <div class="stat-card">
-            <div class="stat-label">TOTAL INVESTED</div>
-            <div id="totalInvested" class="stat-value">$0</div>
+            <div class="stat-label">
+                TOTAL INVESTED
+            </div>
+
+            <div id="totalInvested" class="stat-value">
+                $0
+            </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label">CONFIRMED</div>
-            <div id="confirmedInvestments" class="stat-value">0</div>
+            <div class="stat-label">
+                TOTAL EARNINGS
+            </div>
+
+            <div id="totalEarnings" class="stat-value">
+                $0
+            </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label">PENDING</div>
-            <div id="pendingInvestments" class="stat-value">0</div>
+            <div class="stat-label">
+                CONFIRMED
+            </div>
+
+            <div id="confirmedInvestments" class="stat-value">
+                0
+            </div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-label">REQUESTS</div>
-            <div id="totalRequests" class="stat-value">0</div>
+            <div class="stat-label">
+                PENDING
+            </div>
+
+            <div id="pendingInvestments" class="stat-value">
+                0
+            </div>
         </div>
 
     </section>
+
+    <!-- PROFILE -->
 
     <section class="dashboard-grid">
 
         <div class="card">
+
             <h2>Your Profile</h2>
 
             <div class="profile-row">
-                <span class="profile-label">Full Name</span>
-                <span id="profileFullName" class="profile-value">Loading...</span>
+                <span class="profile-label">
+                    Full Name
+                </span>
+
+                <span id="profileFullName" class="profile-value">
+                    Loading...
+                </span>
             </div>
 
             <div class="profile-row">
-                <span class="profile-label">Phone</span>
-                <span id="profilePhone" class="profile-value">Loading...</span>
+                <span class="profile-label">
+                    Phone
+                </span>
+
+                <span id="profilePhone" class="profile-value">
+                    Loading...
+                </span>
             </div>
 
             <div class="profile-row">
-                <span class="profile-label">Account Status</span>
-                <span id="profileStatus" class="profile-value">Loading...</span>
+                <span class="profile-label">
+                    Account Status
+                </span>
+
+                <span id="profileStatus" class="profile-value">
+                    Loading...
+                </span>
             </div>
+
         </div>
 
         <div class="card">
+
             <h2>Account Overview</h2>
 
             <div class="profile-row">
-                <span class="profile-label">Member Type</span>
-                <span class="profile-value status-active">MONARCH</span>
+                <span class="profile-label">
+                    Member Type
+                </span>
+
+                <span class="profile-value status-active">
+                    MONARCH
+                </span>
             </div>
 
             <div class="profile-row">
-                <span class="profile-label">Role</span>
-                <span id="profileRole" class="profile-value">Member</span>
+                <span class="profile-label">
+                    Role
+                </span>
+
+                <span id="profileRole" class="profile-value">
+                    Member
+                </span>
             </div>
 
             <div class="profile-row">
-                <span class="profile-label">Member Since</span>
-                <span id="memberSince" class="profile-value">Loading...</span>
+                <span class="profile-label">
+                    Member Since
+                </span>
+
+                <span id="memberSince" class="profile-value">
+                    Loading...
+                </span>
             </div>
+
         </div>
 
     </section>
 
+    <!-- INVESTMENT PACKAGES -->
+
     <section class="card packages-section">
+
         <h2>Investment Packages</h2>
 
         <div id="packagesContent" class="packages-grid">
-            <div class="loading">Loading investment packages...</div>
+
+            <div class="loading">
+                Loading investment packages...
+            </div>
+
         </div>
+
     </section>
 
+    <!-- PAYMENT METHOD -->
+
     <section class="card">
+
         <h2>Payment Method</h2>
 
         <div class="payment-grid">
@@ -577,10 +681,15 @@
                 data-payment="bank"
                 onclick="selectPaymentMethod(this)"
             >
-                <div class="payment-title">Bank Account</div>
+
+                <div class="payment-title">
+                    Bank Account
+                </div>
+
                 <div class="payment-description">
                     Submit your request for bank payment instructions.
                 </div>
+
             </div>
 
             <div
@@ -588,36 +697,88 @@
                 data-payment="crypto"
                 onclick="selectPaymentMethod(this)"
             >
-                <div class="payment-title">Crypto Funding</div>
+
+                <div class="payment-title">
+                    Crypto Funding
+                </div>
+
                 <div class="payment-description">
                     Submit your request for crypto payment instructions.
                 </div>
+
             </div>
 
         </div>
+
     </section>
+
+    <!-- INVESTMENT REQUEST -->
 
     <section class="card submit-section">
-        <h2>Submit Investment Request</h2>
+
+        <h2>
+            Submit Investment Request
+        </h2>
 
         <p style="color:#888;font-size:13px;line-height:1.7;margin-top:-5px;">
-            Select an investment package and payment method, then submit your
-            request. Payment verification is handled manually by MONARCH CODEX.
+
+            Select an investment package and payment method, then submit
+            your request. Payment verification is handled manually by
+            MONARCH CODEX.
+
         </p>
 
-        <button id="submitInvestmentBtn" class="submit-btn">
+        <button
+            id="submitInvestmentBtn"
+            class="submit-btn"
+        >
             Submit Investment Request
         </button>
+
     </section>
 
+    <!-- INVESTMENT HISTORY -->
+
     <section class="card history-section">
-        <h2>Investment History</h2>
+
+        <h2>
+            Investment History
+        </h2>
 
         <div class="table-wrapper">
+
             <div id="historyContent">
-                <div class="loading">Loading investment history...</div>
+
+                <div class="loading">
+                    Loading investment history...
+                </div>
+
             </div>
+
         </div>
+
+    </section>
+
+    <!-- EARNINGS HISTORY -->
+
+    <section class="card history-section">
+
+        <h2>
+            Earnings
+        </h2>
+
+        <div class="table-wrapper">
+
+            <div id="earningsContent">
+
+                <div class="loading">
+                    Loading earnings...
+                </div>
+
+            </div>
+
+        </div>
+
     </section>
 
 </main>
@@ -639,8 +800,11 @@
 
     let currentUser = null;
     let currentProfile = null;
+
     let packagesData = [];
     let investmentsData = [];
+    let earningsData = [];
+
     let selectedPackage = null;
     let selectedPaymentMethod = null;
 
@@ -671,8 +835,14 @@
     const historyContent =
         document.getElementById("historyContent");
 
+    const earningsContent =
+        document.getElementById("earningsContent");
+
     const totalInvested =
         document.getElementById("totalInvested");
+
+    const totalEarnings =
+        document.getElementById("totalEarnings");
 
     const confirmedInvestments =
         document.getElementById("confirmedInvestments");
@@ -688,744 +858,30 @@
 
 
     function escapeHtml(value) {
+
         return String(value ?? "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+
     }
 
 
     function showMessage(message, type = "info") {
+
         messageBox.textContent = message;
-        messageBox.className = "message-box show";
+
+        messageBox.className =
+            "message-box show";
 
         if (type === "error") {
+
             messageBox.style.borderColor =
                 "rgba(239,119,119,0.45)";
 
             messageBox.style.background =
                 "rgba(239,119,119,0.08)";
 
-            messageBox.style.color =
-                "#ef9999";
-        } else if (type === "success") {
-            messageBox.style.borderColor =
-                "rgba(127,220,155,0.4)";
-
-            messageBox.style.background =
-                "rgba(127,220,155,0.07)";
-
-            messageBox.style.color =
-                "#9be8b1";
-        } else {
-            messageBox.style.borderColor =
-                "rgba(212,175,55,0.3)";
-
-            messageBox.style.background =
-                "rgba(212,175,55,0.08)";
-
-            messageBox.style.color =
-                "#eeeeee";
-        }
-    }
-
-
-    function clearMessage() {
-        messageBox.textContent = "";
-        messageBox.className = "message-box";
-    }
-
-
-    function formatAmount(amount) {
-        const number = Number(amount || 0);
-
-        return "$" + number.toLocaleString(
-            "en-US",
-            {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            }
-        );
-    }
-
-
-    function formatDate(dateValue) {
-        if (!dateValue) {
-            return "—";
-        }
-
-        const date = new Date(dateValue);
-
-        if (Number.isNaN(date.getTime())) {
-            return "—";
-        }
-
-        return date.toLocaleDateString(
-            "en-US",
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric"
-            }
-        );
-    }
-
-
-    function getStatusClass(status) {
-        const normalized =
-            String(status || "").toLowerCase();
-
-        if (normalized === "active") {
-            return "status-active";
-        }
-
-        if (normalized === "pending") {
-            return "status-pending";
-        }
-
-        if (normalized === "confirmed") {
-            return "status-confirmed";
-        }
-
-        if (normalized === "rejected") {
-            return "status-rejected";
-        }
-
-        if (normalized === "blocked") {
-            return "status-blocked";
-        }
-
-        return "";
-    }
-
-
-    async function checkMemberAuthorization() {
-
-        const {
-            data: userData,
-            error: userError
-        } = await supabaseClient.auth.getUser();
-
-        if (userError) {
-            console.error(userError);
-
-            window.location.href = "login.html";
-            return false;
-        }
-
-        currentUser = userData.user;
-
-        if (!currentUser) {
-            window.location.href = "login.html";
-            return false;
-        }
-
-
-        const {
-            data: profile,
-            error: profileError
-        } = await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq("id", currentUser.id)
-            .maybeSingle();
-
-
-        if (profileError) {
-            console.error(profileError);
-
-            showMessage(
-                "Unable to load your member profile: " +
-                profileError.message,
-                "error"
-            );
-
-            return false;
-        }
-
-
-        if (!profile) {
-            showMessage(
-                "Your member profile could not be found.",
-                "error"
-            );
-
-            return false;
-        }
-
-
-        if (
-            profile.role === "admin" &&
-            profile.status === "active"
-        ) {
-            window.location.href = "admin.html";
-            return false;
-        }
-
-
-        if (profile.status === "blocked") {
-
-            await supabaseClient.auth.signOut();
-
-            window.location.href = "login.html";
-
-            return false;
-        }
-
-
-        currentProfile = profile;
-
-        return true;
-    }
-
-
-    function displayProfile() {
-
-        const fullName =
-            currentProfile?.full_name ||
-            currentUser?.email ||
-            "Monarch";
-
-        memberName.textContent = fullName;
-
-        profileFullName.textContent =
-            currentProfile?.full_name || "—";
-
-        profilePhone.textContent =
-            currentProfile?.phone || "—";
-
-        const status =
-            currentProfile?.status || "pending";
-
-        profileStatus.textContent =
-            status.charAt(0).toUpperCase() +
-            status.slice(1);
-
-        profileStatus.className =
-            "profile-value " +
-            getStatusClass(status);
-
-        profileRole.textContent =
-            currentProfile?.role === "admin"
-                ? "Admin"
-                : "Member";
-
-        memberSince.textContent =
-            formatDate(currentProfile?.created_at);
-    }
-
-
-    async function loadPackages() {
-
-        packagesContent.innerHTML =
-            '<div class="loading">Loading investment packages...</div>';
-
-
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("packages")
-            .select("*");
-
-
-        if (error) {
-            console.error(error);
-
-            packagesContent.innerHTML =
-                '<div class="loading">Unable to load packages.</div>';
-
-            showMessage(
-                "Unable to load investment packages: " +
-                error.message,
-                "error"
-            );
-
-            return false;
-        }
-
-
-        packagesData = data || [];
-
-        renderPackages();
-
-        return true;
-    }
-
-
-    function getPackageName(packageItem) {
-
-        return (
-            packageItem?.name ||
-            packageItem?.title ||
-            "Investment Package"
-        );
-    }
-
-
-    function getPackageAmount(packageItem) {
-
-        const amount =
-            packageItem?.amount ??
-            packageItem?.price ??
-            0;
-
-        return Number(amount) || 0;
-    }
-
-
-    function renderPackages() {
-
-        if (!packagesData.length) {
-
-            packagesContent.innerHTML =
-                '<div class="empty-state">' +
-                'No investment packages are currently available.' +
-                '</div>';
-
-            return;
-        }
-
-
-        packagesContent.innerHTML =
-            packagesData.map((packageItem) => {
-
-                const name =
-                    getPackageName(packageItem);
-
-                const amount =
-                    getPackageAmount(packageItem);
-
-                const isSelected =
-                    selectedPackage &&
-                    selectedPackage.id === packageItem.id;
-
-
-                return `
-                    <div
-                        class="package-card ${isSelected ? "selected" : ""}"
-                        data-package-id="${escapeHtml(packageItem.id)}"
-                        onclick="selectPackage(this)"
-                    >
-
-                        <div class="package-check">
-                            ${isSelected ? "✓" : ""}
-                        </div>
-
-                        <div class="package-name">
-                            ${escapeHtml(name)}
-                        </div>
-
-                        <div class="package-amount">
-                            ${formatAmount(amount)}
-                        </div>
-
-                    </div>
-                `;
-
-            }).join("");
-    }
-
-
-    function selectPackage(element) {
-
-        const packageId =
-            element.getAttribute("data-package-id");
-
-
-        selectedPackage =
-            packagesData.find(
-                item => String(item.id) === String(packageId)
-            ) || null;
-
-
-        renderPackages();
-    }
-
-
-    function selectPaymentMethod(element) {
-
-        document
-            .querySelectorAll(".payment-option")
-            .forEach(option => {
-                option.classList.remove("selected");
-            });
-
-
-        element.classList.add("selected");
-
-        selectedPaymentMethod =
-            element.getAttribute("data-payment");
-    }
-
-
-    async function loadInvestmentHistory() {
-
-        historyContent.innerHTML =
-            '<div class="loading">Loading investment history...</div>';
-
-
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("investments")
-            .select("*")
-            .eq("user_id", currentUser.id)
-            .order("created_at", {
-                ascending: false
-            });
-
-
-        if (error) {
-            console.error(error);
-
-            historyContent.innerHTML =
-                '<div class="empty-state">' +
-                'Unable to load investment history.' +
-                '</div>';
-
-            showMessage(
-                "Unable to load your investments: " +
-                error.message,
-                "error"
-            );
-
-            return false;
-        }
-
-
-        investmentsData = data || [];
-
-        updateFinancialStats();
-
-        renderInvestmentHistory();
-
-        return true;
-    }
-
-    function updateFinancialStats() {
-        let totalInvested = 0;
-        let confirmedCount = 0;
-        let pendingCount = 0;
-
-        investmentsData.forEach((investment) => {
-            const amount = Number(investment.amount || 0);
-
-            if (investment.status === "confirmed") {
-                confirmedCount++;
-                totalInvested += amount;
-            }
-
-            if (investment.status === "pending") {
-                pendingCount++;
-            }
-        });
-
-        document.getElementById("totalInvested").textContent =
-            formatAmount(totalInvested);
-
-        document.getElementById("confirmedInvestments").textContent =
-            confirmedCount;
-
-        document.getElementById("pendingInvestments").textContent =
-            pendingCount;
-
-        document.getElementById("totalRequests").textContent =
-            investmentsData.length;
-    }
-
-
-    function renderInvestmentHistory() {
-        const historyContent =
-            document.getElementById("historyContent");
-
-        if (!investmentsData.length) {
-            historyContent.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">📊</div>
-                    <h3>No Investment Requests Yet</h3>
-                    <p>
-                        Your investment activity will appear here
-                        after you submit your first request.
-                    </p>
-                </div>
-            `;
-            return;
-        }
-
-        const packagesMap = {};
-
-        packagesData.forEach((pkg) => {
-            if (pkg.id) {
-                packagesMap[pkg.id] = pkg;
-            }
-        });
-
-        historyContent.innerHTML = investmentsData.map((investment) => {
-            const packageItem =
-                packagesMap[investment.package_id] || null;
-
-            const packageName =
-                getPackageName(packageItem) ||
-                "Investment Package";
-
-            const amount =
-                Number(
-                    investment.amount ||
-                    packageItem?.amount ||
-                    packageItem?.price ||
-                    0
-                );
-
-            const paymentMethod =
-                investment.payment_method === "bank"
-                    ? "Bank Account"
-                    : investment.payment_method === "crypto"
-                        ? "Crypto Funding"
-                        : escapeHtml(
-                            investment.payment_method ||
-                            "Not specified"
-                        );
-
-            const status =
-                String(investment.status || "pending").toLowerCase();
-
-            const statusClass =
-                getStatusClass(status);
-
-            return `
-                <div class="history-item">
-
-                    <div class="history-main">
-
-                        <div class="history-package">
-                            ${escapeHtml(packageName)}
-                        </div>
-
-                        <div class="history-details">
-                            <span>
-                                ${formatAmount(amount)}
-                            </span>
-
-                            <span>
-                                ${paymentMethod}
-                            </span>
-
-                            <span>
-                                ${formatDate(investment.created_at)}
-                            </span>
-                        </div>
-
-                    </div>
-
-                    <div class="status ${statusClass}">
-                        ${escapeHtml(
-                            status.charAt(0).toUpperCase() +
-                            status.slice(1)
-                        )}
-                    </div>
-
-                </div>
-            `;
-        }).join("");
-    }
-
-
-    document
-        .getElementById("submitInvestmentBtn")
-        .addEventListener("click", async () => {
-
-            clearMessage();
-
-            const button =
-                document.getElementById("submitInvestmentBtn");
-
-            if (!currentUser || !currentProfile) {
-                showMessage(
-                    "Your session is not ready. Please refresh and try again.",
-                    "error"
-                );
-                return;
-            }
-
-            if (currentProfile.status === "blocked") {
-                showMessage(
-                    "Your account is blocked. You cannot submit an investment request.",
-                    "error"
-                );
-                return;
-            }
-
-            if (!selectedPackage) {
-                showMessage(
-                    "Please select an investment package first.",
-                    "error"
-                );
-                return;
-            }
-
-            if (!selectedPaymentMethod) {
-                showMessage(
-                    "Please select a payment method.",
-                    "error"
-                );
-                return;
-            }
-
-            const packageAmount =
-                Number(
-                    selectedPackage.amount ||
-                    selectedPackage.price ||
-                    0
-                );
-
-            if (!packageAmount || packageAmount <= 0) {
-                showMessage(
-                    "The selected package has an invalid amount.",
-                    "error"
-                );
-                return;
-            }
-
-            button.disabled = true;
-            button.textContent = "Submitting...";
-
-            try {
-                const { error } =
-                    await supabaseClient
-                        .from("investments")
-                        .insert([
-                            {
-                                user_id: currentUser.id,
-                                package_id: selectedPackage.id,
-                                amount: packageAmount,
-                                payment_method: selectedPaymentMethod,
-                                status: "pending"
-                            }
-                        ]);
-
-                if (error) {
-                    throw error;
-                }
-
-                showMessage(
-                    "Investment request submitted successfully. Your request is now pending admin confirmation.",
-                    "success"
-                );
-
-                selectedPackage = null;
-                selectedPaymentMethod = null;
-
-                document
-                    .querySelectorAll(".package-card")
-                    .forEach((card) => {
-                        card.classList.remove("selected");
-                    });
-
-                document
-                    .querySelectorAll(".payment-option")
-                    .forEach((option) => {
-                        option.classList.remove("selected");
-                    });
-
-                await loadInvestmentHistory();
-
-            } catch (error) {
-
-                console.error(
-                    "Investment submission error:",
-                    error
-                );
-
-                showMessage(
-                    error.message ||
-                    "Unable to submit investment request.",
-                    "error"
-                );
-
-            } finally {
-
-                button.disabled = false;
-                button.textContent = "Submit Investment Request";
-            }
-        });
-
-    document
-        .getElementById("logoutBtn")
-        .addEventListener("click", async () => {
-
-            const button =
-                document.getElementById("logoutBtn");
-
-            button.disabled = true;
-            button.textContent = "Logging out...";
-
-            try {
-                await supabaseClient.auth.signOut();
-            } catch (error) {
-                console.error("Logout error:", error);
-            }
-
-            window.location.href = "login.html";
-        });
-
-
-    async function initializeDashboard() {
-
-        clearMessage();
-
-        try {
-
-            await checkMemberAuthorization();
-
-            displayProfile();
-
-            await loadPackages();
-
-            await loadInvestmentHistory();
-
-        } catch (error) {
-
-            console.error(
-                "Dashboard initialization error:",
-                error
-            );
-
-            showMessage(
-                error.message ||
-                "Unable to load your dashboard. Please refresh and try again.",
-                "error"
-            );
-
-            document.getElementById("packagesContent").innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">⚠️</div>
-                    <h3>Unable to Load Packages</h3>
-                    <p>
-                        Please refresh the page and try again.
-                    </p>
-                </div>
-            `;
-
-            document.getElementById("historyContent").innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">⚠️</div>
-                    <h3>Unable to Load Investment History</h3>
-                    <p>
-                        Please refresh the page and try again.
-                    </p>
-                </div>
-            `;
-        }
-    }
-
-
-    initializeDashboard();
-
-</script>
-
-</body>
-</html>
+   
