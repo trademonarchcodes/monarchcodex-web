@@ -1384,3 +1384,147 @@
             cursor: not-allowed;
         }
     </style>
+        .earnings-summary {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .earning-total-card {
+            background: linear-gradient(
+                135deg,
+                #151515,
+                #0c0c0c
+            );
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .earning-total-card h3 {
+            margin: 0 0 10px;
+            color: #aaa;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .earning-total {
+            color: #D4AF37;
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .earnings-history-card,
+        .history-card {
+            background: #111111;
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .history-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .history-header h3 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 18px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .earnings-table,
+        .history-table {
+            width: 100%;
+            min-width: 650px;
+            border-collapse: collapse;
+        }
+
+        .earnings-table th,
+        .earnings-table td,
+        .history-table th,
+        .history-table td {
+            padding: 15px 18px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            white-space: nowrap;
+        }
+
+        .earnings-table th,
+        .history-table th {
+            color: #D4AF37;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            background: #0d0d0d;
+        }
+
+        .earnings-table td,
+        .history-table td {
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        .earnings-table tbody tr:last-child td,
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .earning-amount {
+            color: #D4AF37 !important;
+            font-weight: 700;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .status-confirmed,
+        .status-active,
+        .status-success {
+            color: #8ee6a8;
+            background: rgba(46, 204, 113, 0.12);
+        }
+
+        .status-pending {
+            color: #f2cf69;
+            background: rgba(212, 175, 55, 0.12);
+        }
+
+        .status-rejected,
+        .status-blocked,
+        .status-error {
+            color: #ff8d8d;
+            background: rgba(231, 76, 60, 0.12);
+        }
+
+        .message.success {
+            border-color: rgba(46, 204, 113, 0.35);
+            color: #8ee6a8;
+        }
+
+        .message.error {
+            border-color: rgba(231, 76, 60, 0.35);
+            color: #ff8d8d;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding: 25px 0;
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+    </style>
