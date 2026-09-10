@@ -1,75 +1,1340 @@
-/* =========================================================
-   MONARCH CODEX
-   Supabase + Member Dashboard + Admin Command Center
-   ========================================================= */
+const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
-const SUPABASE_URL =
-    "https://avaworleivncevaoqeny.supabase.co";
-
-const SUPABASE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-
-let supabaseClient = null;
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
 
-/* =========================================================
-   SUPABASE INITIALIZATION
-   ========================================================= */
+// =====================================================
+// HELPERS
+// =====================================================
 
-function getSupabase() {
+function showMessage(message, type = "info") {
+    const box = document.getElementById("message");
 
-    if (!supabaseClient) {
-
-        if (
-            typeof window.supabase === "undefined" ||
-            typeof window.supabase.createClient !== "function"
-        ) {
-            throw new Error(
-                "Supabase library has not loaded yet."
-            );
-        }
-
-        supabaseClient =
-            window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_KEY
-            );
+    if (!box) {
+        alert(message);
+        return;
     }
 
-    return supabaseClient;
+    box.textContent = message;
+    box.className = `message ${type}`;
+    box.style.display = "block";
+
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 4000);
 }
 
 
-/* =========================================================
-   PAGE READY
-   ========================================================= */
+function formatMoney(amount) {
+    return `$${Number(amount).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+}
+
+
+function formatDate(date) {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+}
+
+
+function statusBadge(status) {
+    const safeStatus = status || "pending";
+
+    return `
+        <span class="status-badge status-${safeStatus}">
+            ${safeStatus.toUpperCase()}
+        </span>
+    `;
+}
+
+
+// =====================================================
+// AUTH
+// =====================================================
+
+async function getCurrentUser() {
+
+    const {
+        data: { user },
+        error
+    } = await supabase.auth.getUser();
+
+    if (error) {
+        console.error(error);
+        return null;
+    }
+
+    return user;
+}
+
+
+async function logout() {
+
+    await supabase.auth.signOut();
+
+    window.location.href = "login.html";
+}
+
+
+// =====================================================
+// REGISTRATION
+// =====================================================
+
+async function registerUser() {
+
+    const fullName =
+        document.getElementById("fullName")?.value.trim();
+
+    const email =
+        document.getElementById("email")?.value.trim();
+
+    const phone =
+        document.getElementById("phone")?.value.trim();
+
+    const password =
+        document.getElementById("password")?.value;
+
+
+    if (!fullName || !email || !password) {
+
+        showMessage(
+            "Please fill in all required fields.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (password.length < 6) {
+
+        showMessage(
+            "Password must be at least 6 characters.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabase.auth.signUp({
+
+            email,
+            password,
+
+            options: {
+                data: {
+                    full_name: fullName,
+                    phone: phone
+                }
+            }
+
+        });
+
+
+    if (error) {
+
+        console.error(error);
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (data.user) {
+
+        showMessage(
+            "Account created successfully. Please check your email if confirmation is required.",
+            "success"
+        );
+
+
+        setTimeout(() => {
+
+            window.location.href = "login.html";
+
+        }, 2000);
+    }
+}
+
+
+// =====================================================
+// LOGIN
+// =====================================================
+
+async function loginUser() {
+
+    const email =
+        document.getElementById("email")?.value.trim();
+
+    const password =
+        document.getElementById("password")?.value;
+
+
+    if (!email || !password) {
+
+        showMessage(
+            "Enter your email and password.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabase.auth.signInWithPassword({
+
+            email,
+            password
+
+        });
+
+
+    if (error) {
+
+        console.error(error);
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (data.user) {
+
+        const { data: profile } =
+            await supabase
+                .from("profiles")
+                .select("role,status")
+                .eq("id", data.user.id)
+                .single();
+
+
+        if (profile?.role === "admin") {
+
+            window.location.href = "admin.html";
+
+        } else {
+
+            window.location.href = "dashboard.html";
+
+        }
+    }
+}
+
+
+// =====================================================
+// MEMBER DASHBOARD
+// =====================================================
+
+async function loadMemberDashboard() {
+
+    const user = await getCurrentUser();
+
+
+    if (!user) {
+
+        window.location.href = "login.html";
+
+        return;
+    }
+
+
+    const { data: profile, error } =
+        await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+
+    if (error) {
+
+        console.error(error);
+
+        return;
+    }
+
+
+    const nameElement =
+        document.getElementById("memberName");
+
+
+    if (nameElement) {
+
+        nameElement.textContent =
+            profile.full_name || "Monarch";
+    }
+
+
+    const emailElement =
+        document.getElementById("memberEmail");
+
+
+    if (emailElement) {
+
+        emailElement.textContent =
+            user.email || "";
+    }
+
+
+    await loadPackages();
+
+    await loadInvestmentHistory(user.id);
+}
+
+
+// =====================================================
+// PACKAGES
+// =====================================================
+
+async function loadPackages() {
+
+    const container =
+        document.getElementById("packageOptions");
+
+
+    if (!container) return;
+
+
+    const { data: packages, error } =
+        await supabase
+            .from("packages")
+            .select("*")
+            .eq("active", true)
+            .order("amount", {
+                ascending: true
+            });
+
+
+    if (error) {
+
+        console.error(error);
+
+        container.innerHTML =
+            "<p>Unable to load packages.</p>";
+
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    packages.forEach(pkg => {
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "package-card";
+
+
+        card.dataset.packageId =
+            pkg.id;
+
+
+        card.innerHTML = `
+
+            <div class="package-name">
+                ${pkg.name}
+            </div>
+
+            <div class="package-amount">
+                ${formatMoney(pkg.amount)}
+            </div>
+
+        `;
+
+
+        card.addEventListener("click", () => {
+
+            document
+                .querySelectorAll(".package-card")
+                .forEach(item =>
+                    item.classList.remove("selected")
+                );
+
+
+            card.classList.add("selected");
+
+
+            const hiddenInput =
+                document.getElementById("selectedPackage");
+
+
+            if (hiddenInput) {
+
+                hiddenInput.value =
+                    pkg.id;
+            }
+
+
+            window.selectedPackageId =
+                pkg.id;
+
+        });
+
+
+        container.appendChild(card);
+
+    });
+}
+
+
+// =====================================================
+// SUBMIT INVESTMENT
+// =====================================================
+
+async function submitInvestment() {
+
+    const user =
+        await getCurrentUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    const packageId =
+        window.selectedPackageId ||
+        document.getElementById(
+            "selectedPackage"
+        )?.value;
+
+
+    const paymentMethod =
+        document.querySelector(
+            'input[name="paymentMethod"]:checked'
+        )?.value;
+
+
+    if (!packageId) {
+
+        showMessage(
+            "Please select an investment package.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!paymentMethod) {
+
+        showMessage(
+            "Please select a payment method.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabase
+            .from("investments")
+            .insert({
+
+                user_id: user.id,
+
+                package_id: Number(packageId),
+
+                payment_method: paymentMethod,
+
+                status: "pending"
+
+            });
+
+
+    if (error) {
+
+        console.error(error);
+
+        showMessage(
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+
+    showMessage(
+        "Investment request submitted successfully. Awaiting confirmation.",
+        "success"
+    );
+
+
+    await loadInvestmentHistory(user.id);
+}
+
+
+// =====================================================
+// INVESTMENT HISTORY
+// =====================================================
+
+async function loadInvestmentHistory(userId) {
+
+    const container =
+        document.getElementById(
+            "investmentHistory"
+        );
+
+
+    if (!container) return;
+
+
+    const { data, error } =
+        await supabase
+            .from("investments")
+            .select(`
+                id,
+                amount,
+                payment_method,
+                status,
+                created_at,
+                packages (
+                    name
+                )
+            `)
+            .eq("user_id", userId)
+            .order("created_at", {
+                ascending: false
+            });
+
+
+    if (error) {
+
+        console.error(error);
+
+        container.innerHTML =
+            "<p>Unable to load investment history.</p>";
+
+        return;
+    }
+
+
+    if (!data.length) {
+
+        container.innerHTML = `
+
+            <div class="empty-state">
+                No investment requests yet.
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        data.map(item => `
+
+            <div class="history-row">
+
+                <div>
+
+                    <strong>
+                        ${item.packages?.name || "Package"}
+                    </strong>
+
+                    <small>
+                        ${formatDate(item.created_at)}
+                    </small>
+
+                </div>
+
+
+                <div>
+                    ${formatMoney(item.amount)}
+                </div>
+
+
+                <div>
+                    ${
+                        item.payment_method === "crypto"
+                            ? "Crypto Funding"
+                            : "Bank Account"
+                    }
+                </div>
+
+
+                <div>
+                    ${statusBadge(item.status)}
+                </div>
+
+            </div>
+
+        `).join("");
+}
+
+
+// =====================================================
+// ADMIN CHECK
+// =====================================================
+
+async function checkAdmin() {
+
+    const user =
+        await getCurrentUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return null;
+    }
+
+
+    const { data: profile, error } =
+        await supabase
+            .from("profiles")
+            .select(
+                "id,full_name,role,status"
+            )
+            .eq("id", user.id)
+            .single();
+
+
+    if (error || !profile) {
+
+        console.error(error);
+
+        await logout();
+
+        return null;
+    }
+
+
+    if (
+        profile.role !== "admin" ||
+        profile.status !== "active"
+    ) {
+
+        alert(
+            "Admin access required."
+        );
+
+        window.location.href =
+            "dashboard.html";
+
+        return null;
+    }
+
+
+    return {
+        user,
+        profile
+    };
+}
+
+
+// =====================================================
+// ADMIN DASHBOARD
+// =====================================================
+
+async function loadAdminDashboard() {
+
+    const admin =
+        await checkAdmin();
+
+
+    if (!admin) return;
+
+
+    await loadAdminStats();
+
+    await loadMembers();
+
+    await loadInvestmentRequests();
+}
+
+
+// =====================================================
+// ADMIN STATISTICS
+// =====================================================
+
+async function loadAdminStats() {
+
+    const {
+        data: profiles,
+        error: profileError
+    } = await supabase
+        .from("profiles")
+        .select("role,status");
+
+
+    if (profileError) {
+
+        console.error(profileError);
+
+        return;
+    }
+
+
+    const members =
+        profiles.filter(
+            p => p.role === "member"
+        );
+
+
+    const pendingMembers =
+        members.filter(
+            p => p.status === "pending"
+        ).length;
+
+
+    const {
+        data: investments,
+        error: investmentError
+    } = await supabase
+        .from("investments")
+        .select("status");
+
+
+    if (investmentError) {
+
+        console.error(investmentError);
+
+        return;
+    }
+
+
+    const confirmed =
+        investments.filter(
+            i => i.status === "confirmed"
+        ).length;
+
+
+    const rejected =
+        investments.filter(
+            i => i.status === "rejected"
+        ).length;
+
+
+    setStat(
+        "totalMembers",
+        members.length
+    );
+
+
+    setStat(
+        "pendingMembers",
+        pendingMembers
+    );
+
+
+    setStat(
+        "confirmedInvestments",
+        confirmed
+    );
+
+
+    setStat(
+        "rejectedInvestments",
+        rejected
+    );
+}
+
+
+function setStat(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+    }
+}
+
+
+// =====================================================
+// LOAD MEMBERS
+// =====================================================
+
+async function loadMembers() {
+
+    const table =
+        document.getElementById(
+            "membersTable"
+        );
+
+
+    if (!table) return;
+
+
+    const {
+        data: members,
+        error
+    } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", {
+            ascending: false
+        });
+
+
+    if (error) {
+
+        console.error(error);
+
+        table.innerHTML = `
+
+            <tr>
+                <td colspan="5">
+                    Unable to load members.
+                </td>
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    if (!members.length) {
+
+        table.innerHTML = `
+
+            <tr>
+                <td colspan="5">
+                    No members found.
+                </td>
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        members.map(member => {
+
+            let action = "";
+
+
+            if (member.role === "admin") {
+
+                action = `
+
+                    <span class="admin-label">
+                        ADMIN
+                    </span>
+
+                `;
+
+            }
+
+            else if (
+                member.status === "pending"
+            ) {
+
+                action = `
+
+                    <button
+                        class="admin-btn approve-btn"
+                        onclick="changeMemberStatus('${member.id}', 'active')">
+                        Activate
+                    </button>
+
+                    <button
+                        class="admin-btn reject-btn"
+                        onclick="changeMemberStatus('${member.id}', 'blocked')">
+                        Block
+                    </button>
+
+                `;
+
+            }
+
+            else if (
+                member.status === "active"
+            ) {
+
+                action = `
+
+                    <button
+                        class="admin-btn reject-btn"
+                        onclick="changeMemberStatus('${member.id}', 'blocked')">
+                        Block
+                    </button>
+
+                `;
+
+            }
+
+            else {
+
+                action = `
+
+                    <button
+                        class="admin-btn approve-btn"
+                        onclick="changeMemberStatus('${member.id}', 'active')">
+                        Activate
+                    </button>
+
+                `;
+            }
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${member.full_name || "Unnamed Monarch"}
+                    </td>
+
+                    <td>
+                        ${member.role}
+                    </td>
+
+                    <td>
+                        ${statusBadge(member.status)}
+                    </td>
+
+                    <td>
+                        ${formatDate(member.created_at)}
+                    </td>
+
+                    <td>
+                        ${action}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+}
+
+
+// =====================================================
+// CHANGE MEMBER STATUS
+// =====================================================
+
+async function changeMemberStatus(
+    userId,
+    newStatus
+) {
+
+    const admin =
+        await checkAdmin();
+
+
+    if (!admin) return;
+
+
+    const actionName =
+        newStatus === "active"
+            ? "activate"
+            : "block";
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to ${actionName} this member?`
+        );
+
+
+    if (!confirmed) return;
+
+
+    const { error } =
+        await supabase
+            .from("profiles")
+            .update({
+                status: newStatus
+            })
+            .eq("id", userId)
+            .eq("role", "member");
+
+
+    if (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+        return;
+    }
+
+
+    await loadAdminStats();
+
+    await loadMembers();
+}
+
+
+// =====================================================
+// LOAD INVESTMENT REQUESTS
+// =====================================================
+
+async function loadInvestmentRequests() {
+
+    const table =
+        document.getElementById(
+            "investmentsTable"
+        );
+
+
+    if (!table) return;
+
+
+    const {
+        data: investments,
+        error
+    } = await supabase
+        .from("investments")
+        .select(`
+            id,
+            amount,
+            payment_method,
+            status,
+            created_at,
+            profiles (
+                full_name
+            ),
+            packages (
+                name
+            )
+        `)
+        .order("created_at", {
+            ascending: false
+        });
+
+
+    if (error) {
+
+        console.error(error);
+
+        table.innerHTML = `
+
+            <tr>
+                <td colspan="8">
+                    Unable to load investment requests.
+                </td>
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    if (!investments.length) {
+
+        table.innerHTML = `
+
+            <tr>
+                <td colspan="8">
+                    No investment requests found.
+                </td>
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        investments.map(item => {
+
+            let action = "";
+
+
+            if (item.status === "pending") {
+
+                action = `
+
+                    <button
+                        class="admin-btn approve-btn"
+                        onclick="changeInvestmentStatus(${item.id}, 'confirmed')">
+                        Confirm
+                    </button>
+
+                    <button
+                        class="admin-btn reject-btn"
+                        onclick="changeInvestmentStatus(${item.id}, 'rejected')">
+                        Reject
+                    </button>
+
+                `;
+
+            }
+
+            else if (
+                item.status === "confirmed"
+            ) {
+
+                action = `
+
+                    <span class="confirmed-label">
+                        CONFIRMED
+                    </span>
+
+                `;
+
+            }
+
+            else {
+
+                action = `
+
+                    <span class="rejected-label">
+                        REJECTED
+                    </span>
+
+                `;
+            }
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${item.profiles?.full_name || "Unknown Monarch"}
+                    </td>
+
+                    <td>
+                        -
+                    </td>
+
+                    <td>
+                        ${item.packages?.name || "Package"}
+                    </td>
+
+                    <td>
+                        ${formatMoney(item.amount)}
+                    </td>
+
+                    <td>
+                        ${
+                            item.payment_method === "crypto"
+                                ? "Crypto Funding"
+                                : "Bank Account"
+                        }
+                    </td>
+
+                    <td>
+                        ${statusBadge(item.status)}
+                    </td>
+
+                    <td>
+                        ${formatDate(item.created_at)}
+                    </td>
+
+                    <td>
+                        ${action}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+}
+
+
+// =====================================================
+// CONFIRM / REJECT INVESTMENT
+// =====================================================
+
+async function changeInvestmentStatus(
+    investmentId,
+    newStatus
+) {
+
+    const admin =
+        await checkAdmin();
+
+
+    if (!admin) return;
+
+
+    const action =
+        newStatus === "confirmed"
+            ? "confirm"
+            : "reject";
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to ${action} this investment request?`
+        );
+
+
+    if (!confirmed) return;
+
+
+    const { error } =
+        await supabase
+            .from("investments")
+            .update({
+                status: newStatus
+            })
+            .eq("id", investmentId);
+
+
+    if (error) {
+
+        console.error(error);
+
+        alert(error.message);
+
+        return;
+    }
+
+
+    alert(
+        newStatus === "confirmed"
+            ? "Investment confirmed successfully."
+            : "Investment rejected successfully."
+    );
+
+
+    await loadAdminStats();
+
+    await loadInvestmentRequests();
+}
+
+
+// =====================================================
+// PAGE STARTUP
+// =====================================================
 
 document.addEventListener(
     "DOMContentLoaded",
     async () => {
 
-        try {
+        const page =
+            window.location.pathname;
 
-            setupMobileMenu();
 
-            setupRegistration();
+        // REGISTER
 
-            setupLogin();
+        if (
+            document.getElementById(
+                "registerForm"
+            ) ||
+            page.includes("register.html")
+        ) {
 
-            setupLogout();
+            const form =
+                document.getElementById(
+                    "registerForm"
+                );
 
-            setupAdminLogout();
 
-            await setupMemberDashboard();
+            if (form) {
 
-            await setupAdminDashboard();
+                form.addEventListener(
+                    "submit",
+                    async event => {
 
-        } catch (error) {
+                        event.preventDefault();
 
-            console.error(
-                "Monarch Codex error:",
-                error
-            );
+                        await registerUser();
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        // LOGIN
+
+        if (
+            document.getElementById(
+                "loginForm"
+            ) ||
+            page.includes("login.html")
+        ) {
+
+            const form =
+                document.getElementById(
+                    "loginForm"
+                );
+
+
+            if (form) {
+
+                form.addEventListener(
+                    "submit",
+                    async event => {
+
+                        event.preventDefault();
+
+                        await loginUser();
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        // MEMBER DASHBOARD
+
+        if (
+            page.includes(
+                "dashboard.html"
+            )
+        ) {
+
+            await loadMemberDashboard();
+
+        }
+
+
+        // ADMIN DASHBOARD
+
+        if (
+            page.includes(
+                "admin.html"
+            )
+        ) {
+
+            await loadAdminDashboard();
 
         }
 
@@ -77,1708 +1342,33 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   MOBILE MENU
-   ========================================================= */
+// =====================================================
+// GLOBAL FUNCTIONS
+// =====================================================
 
-function setupMobileMenu() {
+window.logout =
+    logout;
 
-    const menuButton =
-        document.getElementById(
-            "menuButton"
-        );
+window.registerUser =
+    registerUser;
 
-    const navLinks =
-        document.getElementById(
-            "navLinks"
-        );
+window.loginUser =
+    loginUser;
 
-    if (
-        !menuButton ||
-        !navLinks
-    ) {
-        return;
-    }
+window.submitInvestment =
+    submitInvestment;
 
-    menuButton.addEventListener(
-        "click",
-        () => {
+window.changeMemberStatus =
+    changeMemberStatus;
 
-            navLinks.classList.toggle(
-                "active"
-            );
+window.changeInvestmentStatus =
+    changeInvestmentStatus;
 
-        }
-    );
-}
+window.loadAdminDashboard =
+    loadAdminDashboard;
 
+window.loadMembers =
+    loadMembers;
 
-/* =========================================================
-   REGISTRATION
-   ========================================================= */
-
-function setupRegistration() {
-
-    const form =
-        document.getElementById(
-            "registrationForm"
-        );
-
-    if (!form) {
-        return;
-    }
-
-    form.addEventListener(
-        "submit",
-        async (event) => {
-
-            event.preventDefault();
-
-            const message =
-                document.getElementById(
-                    "registrationMessage"
-                );
-
-            const fullName =
-                document.getElementById(
-                    "fullname"
-                ).value.trim();
-
-            const email =
-                document.getElementById(
-                    "email"
-                ).value.trim();
-
-            const phone =
-                document.getElementById(
-                    "phone"
-                ).value.trim();
-
-            const password =
-                document.getElementById(
-                    "password"
-                ).value;
-
-            if (
-                !fullName ||
-                !email ||
-                !password
-            ) {
-
-                if (message) {
-
-                    message.textContent =
-                        "Please complete all required fields.";
-
-                }
-
-                return;
-            }
-
-            try {
-
-                const supabase =
-                    getSupabase();
-
-                if (message) {
-
-                    message.textContent =
-                        "Creating your Monarch account...";
-
-                }
-
-                const {
-                    data,
-                    error
-                } =
-                    await supabase.auth.signUp({
-
-                        email:
-                            email,
-
-                        password:
-                            password,
-
-                        options: {
-
-                            data: {
-
-                                full_name:
-                                    fullName,
-
-                                phone:
-                                    phone
-
-                            }
-
-                        }
-
-                    });
-
-                if (error) {
-                    throw error;
-                }
-
-                if (message) {
-
-                    if (
-                        data.user &&
-                        data.session
-                    ) {
-
-                        message.textContent =
-                            "Account created successfully. Redirecting...";
-
-                        setTimeout(
-                            () => {
-
-                                window.location.href =
-                                    "dashboard.html";
-
-                            },
-                            1000
-                        );
-
-                    } else {
-
-                        message.textContent =
-                            "Account created. Please check your email to confirm your account.";
-
-                    }
-
-                }
-
-                form.reset();
-
-            } catch (error) {
-
-                console.error(
-                    "Registration error:",
-                    error
-                );
-
-                if (message) {
-
-                    message.textContent =
-                        error.message ||
-                        "Registration failed.";
-
-                }
-
-            }
-
-        }
-    );
-}
-
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
-function setupLogin() {
-
-    const form =
-        document.getElementById(
-            "loginForm"
-        );
-
-    if (!form) {
-        return;
-    }
-
-    form.addEventListener(
-        "submit",
-        async (event) => {
-
-            event.preventDefault();
-
-            const message =
-                document.getElementById(
-                    "loginMessage"
-                );
-
-            const email =
-                document.getElementById(
-                    "loginEmail"
-                ).value.trim();
-
-            const password =
-                document.getElementById(
-                    "loginPassword"
-                ).value;
-
-            if (
-                !email ||
-                !password
-            ) {
-
-                if (message) {
-
-                    message.textContent =
-                        "Please enter your email and password.";
-
-                }
-
-                return;
-            }
-
-            try {
-
-                const supabase =
-                    getSupabase();
-
-                if (message) {
-
-                    message.textContent =
-                        "Signing you in...";
-
-                }
-
-                const {
-                    data,
-                    error
-                } =
-                    await supabase.auth.signInWithPassword({
-
-                        email:
-                            email,
-
-                        password:
-                            password
-
-                    });
-
-                if (error) {
-                    throw error;
-                }
-
-                if (!data.session) {
-
-                    throw new Error(
-                        "Login succeeded but no session was created."
-                    );
-
-                }
-
-                if (message) {
-
-                    message.textContent =
-                        "Login successful. Redirecting...";
-
-                }
-
-                setTimeout(
-                    () => {
-
-                        window.location.href =
-                            "dashboard.html";
-
-                    },
-                    500
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Login error:",
-                    error
-                );
-
-                if (message) {
-
-                    message.textContent =
-                        error.message ||
-                        "Login failed.";
-
-                }
-
-            }
-
-        }
-    );
-}
-
-
-/* =========================================================
-   MEMBER DASHBOARD
-   ========================================================= */
-
-async function setupMemberDashboard() {
-
-    const dashboardName =
-        document.getElementById(
-            "dashboardName"
-        );
-
-    const investmentForm =
-        document.getElementById(
-            "investmentForm"
-        );
-
-    if (
-        !dashboardName &&
-        !investmentForm
-    ) {
-        return;
-    }
-
-    if (
-        document.getElementById(
-            "adminTotalMembers"
-        )
-    ) {
-        return;
-    }
-
-    try {
-
-        const supabase =
-            getSupabase();
-
-        const {
-            data: {
-                session
-            }
-        } =
-            await supabase.auth.getSession();
-
-        if (!session) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-        }
-
-        await loadMemberProfile(
-            session.user.id
-        );
-
-        await loadPackages();
-
-        await loadInvestmentHistory(
-            session.user.id
-        );
-
-        setupInvestmentForm(
-            session.user.id
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Dashboard error:",
-            error
-        );
-
-    }
-}
-
-
-/* =========================================================
-   MEMBER PROFILE
-   ========================================================= */
-
-async function loadMemberProfile(
-    userId
-) {
-
-    const supabase =
-        getSupabase();
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("profiles")
-            .select(
-                "full_name, phone, role, status"
-            )
-            .eq(
-                "id",
-                userId
-            )
-            .single();
-
-    if (error) {
-
-        console.error(
-            "Profile error:",
-            error
-        );
-
-        return;
-    }
-
-    const dashboardName =
-        document.getElementById(
-            "dashboardName"
-        );
-
-    const profileName =
-        document.getElementById(
-            "profileName"
-        );
-
-    const profilePhone =
-        document.getElementById(
-            "profilePhone"
-        );
-
-    const profileStatus =
-        document.getElementById(
-            "profileStatus"
-        );
-
-    const profileStatusInfo =
-        document.getElementById(
-            "profileStatusInfo"
-        );
-
-    if (dashboardName) {
-
-        dashboardName.textContent =
-            data.full_name ||
-            "Monarch";
-
-    }
-
-    if (profileName) {
-
-        profileName.textContent =
-            data.full_name ||
-            "Not available";
-
-    }
-
-    if (profilePhone) {
-
-        profilePhone.textContent =
-            data.phone ||
-            "Not provided";
-
-    }
-
-    if (profileStatus) {
-
-        profileStatus.textContent =
-            capitalizeStatus(
-                data.status
-            );
-
-    }
-
-    if (profileStatusInfo) {
-
-        profileStatusInfo.textContent =
-            capitalizeStatus(
-                data.status
-            );
-
-    }
-}
-
-
-/* =========================================================
-   PACKAGES
-   ========================================================= */
-
-async function loadPackages() {
-
-    const select =
-        document.getElementById(
-            "packageSelect"
-        );
-
-    if (!select) {
-        return;
-    }
-
-    const supabase =
-        getSupabase();
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("packages")
-            .select(
-                "id, name, amount"
-            )
-            .eq(
-                "active",
-                true
-            )
-            .order(
-                "amount",
-                {
-                    ascending:
-                        true
-                }
-            );
-
-    if (error) {
-
-        console.error(
-            "Package error:",
-            error
-        );
-
-        return;
-    }
-
-    select.innerHTML =
-        '<option value="">Select a package</option>';
-
-    data.forEach(
-        (pkg) => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                pkg.id;
-
-            option.textContent =
-                `${pkg.name} — $${Number(
-                    pkg.amount
-                ).toLocaleString(
-                    "en-US",
-                    {
-                        minimumFractionDigits:
-                            2
-                    }
-                )}`;
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
-}
-
-
-/* =========================================================
-   INVESTMENT FORM
-   ========================================================= */
-
-function setupInvestmentForm(
-    userId
-) {
-
-    const form =
-        document.getElementById(
-            "investmentForm"
-        );
-
-    if (!form) {
-        return;
-    }
-
-    form.addEventListener(
-        "submit",
-        async (event) => {
-
-            event.preventDefault();
-
-            const packageSelect =
-                document.getElementById(
-                    "packageSelect"
-                );
-
-            const paymentMethod =
-                document.getElementById(
-                    "paymentMethod"
-                );
-
-            const message =
-                document.getElementById(
-                    "investmentMessage"
-                );
-
-            const packageId =
-                packageSelect.value;
-
-            const payment =
-                paymentMethod.value;
-
-            if (
-                !packageId ||
-                !payment
-            ) {
-
-                if (message) {
-
-                    message.textContent =
-                        "Please select a package and payment method.";
-
-                }
-
-                return;
-            }
-
-            try {
-
-                const supabase =
-                    getSupabase();
-
-                if (message) {
-
-                    message.textContent =
-                        "Submitting your investment request...";
-
-                }
-
-                const {
-                    error
-                } =
-                    await supabase
-                        .from("investments")
-                        .insert({
-
-                            user_id:
-                                userId,
-
-                            package_id:
-                                Number(
-                                    packageId
-                                ),
-
-                            payment_method:
-                                payment
-
-                        });
-
-                if (error) {
-                    throw error;
-                }
-
-                if (message) {
-
-                    message.textContent =
-                        "Investment request submitted successfully.";
-
-                }
-
-                form.reset();
-
-                await loadInvestmentHistory(
-                    userId
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Investment error:",
-                    error
-                );
-
-                if (message) {
-
-                    message.textContent =
-                        error.message ||
-                        "Unable to submit investment request.";
-
-                }
-
-            }
-
-        }
-    );
-}
-
-
-/* =========================================================
-   MEMBER INVESTMENT HISTORY
-   ========================================================= */
-
-async function loadInvestmentHistory(
-    userId
-) {
-
-    const table =
-        document.getElementById(
-            "investmentHistory"
-        );
-
-    if (!table) {
-        return;
-    }
-
-    const supabase =
-        getSupabase();
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("investments")
-            .select(`
-                id,
-                amount,
-                payment_method,
-                status,
-                created_at,
-                packages (
-                    name
-                )
-            `)
-            .eq(
-                "user_id",
-                userId
-            )
-            .order(
-                "created_at",
-                {
-                    ascending:
-                        false
-                }
-            );
-
-    if (error) {
-
-        console.error(
-            "Investment history error:",
-            error
-        );
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="5">
-                    Unable to load investment history.
-                </td>
-            </tr>`;
-
-        return;
-    }
-
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="5">
-                    No investment requests yet.
-                </td>
-            </tr>`;
-
-        return;
-    }
-
-    table.innerHTML = "";
-
-    data.forEach(
-        (investment) => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-            const packageName =
-                investment.packages &&
-                investment.packages.name
-                    ? investment.packages.name
-                    : "Investment Package";
-
-            const amount =
-                Number(
-                    investment.amount
-                ).toLocaleString(
-                    "en-US",
-                    {
-                        minimumFractionDigits:
-                            2
-                    }
-                );
-
-            const payment =
-                investment.payment_method ===
-                "crypto"
-                    ? "Crypto"
-                    : "Bank";
-
-            const status =
-                capitalizeStatus(
-                    investment.status
-                );
-
-            const date =
-                new Date(
-                    investment.created_at
-                ).toLocaleDateString(
-                    "en-US",
-                    {
-                        year:
-                            "numeric",
-
-                        month:
-                            "short",
-
-                        day:
-                            "numeric"
-                    }
-                );
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHtml(
-                        packageName
-                    )}
-                </td>
-
-                <td>
-                    $${amount}
-                </td>
-
-                <td>
-                    ${payment}
-                </td>
-
-                <td>
-                    ${status}
-                </td>
-
-                <td>
-                    ${date}
-                </td>
-
-            `;
-
-            table.appendChild(
-                row
-            );
-
-        }
-    );
-}
-
-
-/* =========================================================
-   ADMIN DASHBOARD
-   ========================================================= */
-
-async function setupAdminDashboard() {
-
-    const adminPage =
-        document.getElementById(
-            "adminTotalMembers"
-        );
-
-    if (!adminPage) {
-        return;
-    }
-
-    try {
-
-        const supabase =
-            getSupabase();
-
-        const {
-            data: {
-                session
-            }
-        } =
-            await supabase.auth.getSession();
-
-        if (!session) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-        }
-
-        const {
-            data: profile,
-            error: profileError
-        } =
-            await supabase
-                .from("profiles")
-                .select(
-                    "full_name, role, status"
-                )
-                .eq(
-                    "id",
-                    session.user.id
-                )
-                .single();
-
-        if (
-            profileError ||
-            !profile ||
-            profile.role !== "admin" ||
-            profile.status !== "active"
-        ) {
-
-            alert(
-                "Administrator access required."
-            );
-
-            window.location.href =
-                "dashboard.html";
-
-            return;
-        }
-
-        await loadAdminMembers();
-
-        await loadAdminInvestments();
-
-    } catch (error) {
-
-        console.error(
-            "Admin dashboard error:",
-            error
-        );
-
-    }
-}
-
-
-/* =========================================================
-   ADMIN MEMBERS
-   ========================================================= */
-
-async function loadAdminMembers() {
-
-    const table =
-        document.getElementById(
-            "adminMembersTable"
-        );
-
-    if (!table) {
-        return;
-    }
-
-    const supabase =
-        getSupabase();
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("profiles")
-            .select(
-                "id, full_name, phone, role, status, created_at"
-            )
-            .order(
-                "created_at",
-                {
-                    ascending:
-                        false
-                }
-            );
-
-    if (error) {
-
-        console.error(
-            "Admin members error:",
-            error
-        );
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="6">
-                    Unable to load members.
-                </td>
-            </tr>`;
-
-        return;
-    }
-
-    const total =
-        data.length;
-
-    const active =
-        data.filter(
-            member =>
-                member.status ===
-                "active"
-        ).length;
-
-    const pending =
-        data.filter(
-            member =>
-                member.status ===
-                "pending"
-        ).length;
-
-    setText(
-        "adminTotalMembers",
-        total
-    );
-
-    setText(
-        "adminActiveMembers",
-        active
-    );
-
-    setText(
-        "adminPendingMembers",
-        pending
-    );
-
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="6">
-                    No Monarch accounts found.
-                </td>
-            </tr>`;
-
-        return;
-    }
-
-    table.innerHTML = "";
-
-    data.forEach(
-        (member) => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-            const joined =
-                new Date(
-                    member.created_at
-                ).toLocaleDateString(
-                    "en-US",
-                    {
-                        year:
-                            "numeric",
-
-                        month:
-                            "short",
-
-                        day:
-                            "numeric"
-                    }
-                );
-
-            let actionHTML = "";
-
-            /*
-               Never allow the currently logged-in admin
-               to accidentally modify their own account.
-            */
-
-            if (
-                member.role === "admin"
-            ) {
-
-                actionHTML = `
-                    <span class="coming-soon">
-                        Admin
-                    </span>
-                `;
-
-            } else {
-
-                if (
-                    member.status ===
-                    "pending"
-                ) {
-
-                    actionHTML = `
-                        <button
-                            type="button"
-                            class="admin-action-btn"
-                            data-user-id="${member.id}"
-                            data-action="activate">
-                            Activate
-                        </button>
-
-                        <button
-                            type="button"
-                            class="admin-action-btn admin-danger-btn"
-                            data-user-id="${member.id}"
-                            data-action="block">
-                            Block
-                        </button>
-                    `;
-
-                } else if (
-                    member.status ===
-                    "active"
-                ) {
-
-                    actionHTML = `
-                        <button
-                            type="button"
-                            class="admin-action-btn admin-danger-btn"
-                            data-user-id="${member.id}"
-                            data-action="block">
-                            Block
-                        </button>
-                    `;
-
-                } else if (
-                    member.status ===
-                    "blocked"
-                ) {
-
-                    actionHTML = `
-                        <button
-                            type="button"
-                            class="admin-action-btn"
-                            data-user-id="${member.id}"
-                            data-action="activate">
-                            Activate
-                        </button>
-                    `;
-
-                }
-
-            }
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHtml(
-                        member.full_name ||
-                        "Unnamed Monarch"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        member.phone ||
-                        "Not provided"
-                    )}
-                </td>
-
-                <td>
-                    ${capitalizeStatus(
-                        member.status
-                    )}
-                </td>
-
-                <td>
-                    ${capitalizeStatus(
-                        member.role
-                    )}
-                </td>
-
-                <td>
-                    ${joined}
-                </td>
-
-                <td>
-                    <div class="admin-action-group">
-                        ${actionHTML}
-                    </div>
-                </td>
-
-            `;
-
-            table.appendChild(
-                row
-            );
-
-        }
-    );
-
-    setupMemberActionButtons();
-}
-
-
-/* =========================================================
-   ADMIN MEMBER ACTIONS
-   ========================================================= */
-
-function setupMemberActionButtons() {
-
-    const buttons =
-        document.querySelectorAll(
-            ".admin-action-btn"
-        );
-
-    buttons.forEach(
-        (button) => {
-
-            button.addEventListener(
-                "click",
-                async () => {
-
-                    const userId =
-                        button.dataset.userId;
-
-                    const action =
-                        button.dataset.action;
-
-                    if (
-                        !userId ||
-                        !action
-                    ) {
-                        return;
-                    }
-
-                    let newStatus =
-                        "";
-
-                    if (
-                        action ===
-                        "activate"
-                    ) {
-
-                        newStatus =
-                            "active";
-
-                    } else if (
-                        action ===
-                        "block"
-                    ) {
-
-                        newStatus =
-                            "blocked";
-
-                    } else {
-
-                        return;
-                    }
-
-                    const confirmation =
-                        action ===
-                        "block"
-                            ? "Block this Monarch account?"
-                            : "Activate this Monarch account?";
-
-                    if (
-                        !window.confirm(
-                            confirmation
-                        )
-                    ) {
-                        return;
-                    }
-
-                    button.disabled =
-                        true;
-
-                    const originalText =
-                        button.textContent;
-
-                    button.textContent =
-                        "Saving...";
-
-                    try {
-
-                        const supabase =
-                            getSupabase();
-
-                        const {
-                            error
-                        } =
-                            await supabase
-                                .from("profiles")
-                                .update({
-                                    status:
-                                        newStatus
-                                })
-                                .eq(
-                                    "id",
-                                    userId
-                                )
-                                .eq(
-                                    "role",
-                                    "member"
-                                );
-
-                        if (error) {
-                            throw error;
-                        }
-
-                        await loadAdminMembers();
-
-                    } catch (error) {
-
-                        console.error(
-                            "Member action error:",
-                            error
-                        );
-
-                        alert(
-                            error.message ||
-                            "Unable to update this account."
-                        );
-
-                        button.disabled =
-                            false;
-
-                        button.textContent =
-                            originalText;
-                    }
-
-                }
-            );
-
-        }
-    );
-}
-
-
-/* =========================================================
-   ADMIN INVESTMENTS
-   ========================================================= */
-
-async function loadAdminInvestments() {
-
-    const table =
-        document.getElementById(
-            "adminInvestmentsTable"
-        );
-
-    if (!table) {
-        return;
-    }
-
-    const supabase =
-        getSupabase();
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("investments")
-            .select(`
-                id,
-                amount,
-                payment_method,
-                status,
-                created_at,
-                profiles (
-                    full_name
-                ),
-                packages (
-                    name
-                )
-            `)
-            .order(
-                "created_at",
-                {
-                    ascending:
-                        false
-                }
-            );
-
-    if (error) {
-
-        console.error(
-            "Admin investment error:",
-            error
-        );
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="7">
-                    Unable to load investment requests.
-                </td>
-            </tr>`;
-
-        return;
-    }
-
-    const pending =
-        data.filter(
-            investment =>
-                investment.status ===
-                "pending"
-        ).length;
-
-    setText(
-        "adminInvestmentRequests",
-        pending
-    );
-
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
-        table.innerHTML =
-            `<tr>
-                <td colspan="7">
-                    No investment requests found.
-                </td>
-            </tr>`;
-
-        return;
-    }
-
-    table.innerHTML = "";
-
-    data.forEach(
-        (investment) => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-            const memberName =
-                investment.profiles &&
-                investment.profiles.full_name
-                    ? investment.profiles.full_name
-                    : "Unknown Monarch";
-
-            const packageName =
-                investment.packages &&
-                investment.packages.name
-                    ? investment.packages.name
-                    : "Package";
-
-            const amount =
-                Number(
-                    investment.amount
-                ).toLocaleString(
-                    "en-US",
-                    {
-                        minimumFractionDigits:
-                            2
-                    }
-                );
-
-            const payment =
-                investment.payment_method ===
-                "crypto"
-                    ? "Crypto"
-                    : "Bank";
-
-            const status =
-                capitalizeStatus(
-                    investment.status
-                );
-
-            const date =
-                new Date(
-                    investment.created_at
-                ).toLocaleDateString(
-                    "en-US",
-                    {
-                        year:
-                            "numeric",
-
-                        month:
-                            "short",
-
-                        day:
-                            "numeric"
-                    }
-                );
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHtml(
-                        memberName
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        packageName
-                    )}
-                </td>
-
-                <td>
-                    $${amount}
-                </td>
-
-                <td>
-                    ${payment}
-                </td>
-
-                <td>
-                    ${status}
-                </td>
-
-                <td>
-                    ${date}
-                </td>
-
-                <td>
-                    <span class="coming-soon">
-                        Next
-                    </span>
-                </td>
-
-            `;
-
-            table.appendChild(
-                row
-            );
-
-        }
-    );
-}
-
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
-function setupLogout() {
-
-    const button =
-        document.getElementById(
-            "logoutBtn"
-        );
-
-    if (!button) {
-        return;
-    }
-
-    button.addEventListener(
-        "click",
-        async () => {
-
-            try {
-
-                const supabase =
-                    getSupabase();
-
-                await supabase.auth.signOut();
-
-                window.location.href =
-                    "login.html";
-
-            } catch (error) {
-
-                console.error(
-                    "Logout error:",
-                    error
-                );
-
-            }
-
-        }
-    );
-}
-
-
-/* =========================================================
-   ADMIN LOGOUT
-   ========================================================= */
-
-function setupAdminLogout() {
-
-    const button =
-        document.getElementById(
-            "adminLogoutBtn"
-        );
-
-    if (!button) {
-        return;
-    }
-
-    button.addEventListener(
-        "click",
-        async () => {
-
-            try {
-
-                const supabase =
-                    getSupabase();
-
-                await supabase.auth.signOut();
-
-                window.location.href =
-                    "login.html";
-
-            } catch (error) {
-
-                console.error(
-                    "Admin logout error:",
-                    error
-                );
-
-            }
-
-        }
-    );
-}
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function setText(
-    elementId,
-    value
-) {
-
-    const element =
-        document.getElementById(
-            elementId
-        );
-
-    if (element) {
-
-        element.textContent =
-            value;
-
-    }
-}
-
-
-function capitalizeStatus(
-    value
-) {
-
-    if (!value) {
-        return "Unknown";
-    }
-
-    return String(value)
-        .charAt(0)
-        .toUpperCase() +
-        String(value)
-            .slice(1);
-}
-
-
-function escapeHtml(
-    value
-) {
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
+window.loadInvestmentRequests =
+    loadInvestmentRequests;
