@@ -1352,3 +1352,80 @@
                 button.textContent = "Submit Investment Request";
             }
         });
+
+    document
+        .getElementById("logoutBtn")
+        .addEventListener("click", async () => {
+
+            const button =
+                document.getElementById("logoutBtn");
+
+            button.disabled = true;
+            button.textContent = "Logging out...";
+
+            try {
+                await supabaseClient.auth.signOut();
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+
+            window.location.href = "login.html";
+        });
+
+
+    async function initializeDashboard() {
+
+        clearMessage();
+
+        try {
+
+            await checkMemberAuthorization();
+
+            displayProfile();
+
+            await loadPackages();
+
+            await loadInvestmentHistory();
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard initialization error:",
+                error
+            );
+
+            showMessage(
+                error.message ||
+                "Unable to load your dashboard. Please refresh and try again.",
+                "error"
+            );
+
+            document.getElementById("packagesContent").innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">⚠️</div>
+                    <h3>Unable to Load Packages</h3>
+                    <p>
+                        Please refresh the page and try again.
+                    </p>
+                </div>
+            `;
+
+            document.getElementById("historyContent").innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">⚠️</div>
+                    <h3>Unable to Load Investment History</h3>
+                    <p>
+                        Please refresh the page and try again.
+                    </p>
+                </div>
+            `;
+        }
+    }
+
+
+    initializeDashboard();
+
+</script>
+
+</body>
+</html>
