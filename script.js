@@ -8,11 +8,13 @@ const SUPABASE_URL =
 
 const SUPABASE_KEY =
     "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+let supabaseClient = null;
+
+
 /* =========================================================
    SUPABASE INITIALIZATION
    ========================================================= */
-
-let supabaseClient = null;
 
 function getSupabase() {
 
@@ -22,7 +24,9 @@ function getSupabase() {
             typeof window.supabase === "undefined" ||
             typeof window.supabase.createClient !== "function"
         ) {
-            throw new Error("Supabase library has not loaded yet.");
+            throw new Error(
+                "Supabase library has not loaded yet."
+            );
         }
 
         supabaseClient =
@@ -40,34 +44,37 @@ function getSupabase() {
    PAGE READY
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
 
-    try {
+        try {
 
-        setupMobileMenu();
+            setupMobileMenu();
 
-        setupRegistration();
+            setupRegistration();
 
-        setupLogin();
+            setupLogin();
 
-        setupLogout();
+            setupLogout();
 
-        setupAdminLogout();
+            setupAdminLogout();
 
-        await setupMemberDashboard();
+            await setupMemberDashboard();
 
-        await setupAdminDashboard();
+            await setupAdminDashboard();
 
-    } catch (error) {
+        } catch (error) {
 
-        console.error(
-            "Monarch Codex error:",
-            error
-        );
+            console.error(
+                "Monarch Codex error:",
+                error
+            );
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================================================
@@ -77,21 +84,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 function setupMobileMenu() {
 
     const menuButton =
-        document.getElementById("menuButton");
+        document.getElementById(
+            "menuButton"
+        );
 
     const navLinks =
-        document.getElementById("navLinks");
+        document.getElementById(
+            "navLinks"
+        );
 
-    if (!menuButton || !navLinks) {
+    if (
+        !menuButton ||
+        !navLinks
+    ) {
         return;
     }
 
-    menuButton.addEventListener("click", () => {
+    menuButton.addEventListener(
+        "click",
+        () => {
 
-        navLinks.classList.toggle("active");
+            navLinks.classList.toggle(
+                "active"
+            );
 
-    });
-
+        }
+    );
 }
 
 
@@ -102,137 +120,155 @@ function setupMobileMenu() {
 function setupRegistration() {
 
     const form =
-        document.getElementById("registrationForm");
+        document.getElementById(
+            "registrationForm"
+        );
 
     if (!form) {
         return;
     }
 
-    form.addEventListener("submit", async (event) => {
+    form.addEventListener(
+        "submit",
+        async (event) => {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        const message =
-            document.getElementById(
-                "registrationMessage"
-            );
+            const message =
+                document.getElementById(
+                    "registrationMessage"
+                );
 
-        const fullName =
-            document.getElementById(
-                "fullname"
-            ).value.trim();
+            const fullName =
+                document.getElementById(
+                    "fullname"
+                ).value.trim();
 
-        const email =
-            document.getElementById(
-                "email"
-            ).value.trim();
+            const email =
+                document.getElementById(
+                    "email"
+                ).value.trim();
 
-        const phone =
-            document.getElementById(
-                "phone"
-            ).value.trim();
+            const phone =
+                document.getElementById(
+                    "phone"
+                ).value.trim();
 
-        const password =
-            document.getElementById(
-                "password"
-            ).value;
+            const password =
+                document.getElementById(
+                    "password"
+                ).value;
 
-        if (!fullName || !email || !password) {
+            if (
+                !fullName ||
+                !email ||
+                !password
+            ) {
 
-            if (message) {
-                message.textContent =
-                    "Please complete all required fields.";
+                if (message) {
+
+                    message.textContent =
+                        "Please complete all required fields.";
+
+                }
+
+                return;
             }
 
-            return;
-        }
+            try {
 
-        try {
+                const supabase =
+                    getSupabase();
 
-            const supabase =
-                getSupabase();
+                if (message) {
 
-            if (message) {
-                message.textContent =
-                    "Creating your Monarch account...";
-            }
+                    message.textContent =
+                        "Creating your Monarch account...";
 
-            const {
-                data,
-                error
-            } = await supabase.auth.signUp({
+                }
 
-                email: email,
+                const {
+                    data,
+                    error
+                } =
+                    await supabase.auth.signUp({
 
-                password: password,
+                        email:
+                            email,
 
-                options: {
+                        password:
+                            password,
 
-                    data: {
+                        options: {
 
-                        full_name: fullName,
+                            data: {
 
-                        phone: phone
+                                full_name:
+                                    fullName,
+
+                                phone:
+                                    phone
+
+                            }
+
+                        }
+
+                    });
+
+                if (error) {
+                    throw error;
+                }
+
+                if (message) {
+
+                    if (
+                        data.user &&
+                        data.session
+                    ) {
+
+                        message.textContent =
+                            "Account created successfully. Redirecting...";
+
+                        setTimeout(
+                            () => {
+
+                                window.location.href =
+                                    "dashboard.html";
+
+                            },
+                            1000
+                        );
+
+                    } else {
+
+                        message.textContent =
+                            "Account created. Please check your email to confirm your account.";
 
                     }
 
                 }
 
-            });
+                form.reset();
 
+            } catch (error) {
 
-            if (error) {
-                throw error;
-            }
+                console.error(
+                    "Registration error:",
+                    error
+                );
 
-
-            if (message) {
-
-                if (
-                    data.user &&
-                    data.session
-                ) {
+                if (message) {
 
                     message.textContent =
-                        "Account created successfully. Redirecting...";
-
-                    setTimeout(() => {
-
-                        window.location.href =
-                            "dashboard.html";
-
-                    }, 1000);
-
-                } else {
-
-                    message.textContent =
-                        "Account created. Please check your email to confirm your account.";
+                        error.message ||
+                        "Registration failed.";
 
                 }
 
             }
 
-            form.reset();
-
-        } catch (error) {
-
-            console.error(
-                "Registration error:",
-                error
-            );
-
-            if (message) {
-
-                message.textContent =
-                    error.message ||
-                    "Registration failed.";
-
-            }
-
         }
-
-    });
-
+    );
 }
 
 
@@ -243,111 +279,124 @@ function setupRegistration() {
 function setupLogin() {
 
     const form =
-        document.getElementById("loginForm");
+        document.getElementById(
+            "loginForm"
+        );
 
     if (!form) {
         return;
     }
 
-    form.addEventListener("submit", async (event) => {
+    form.addEventListener(
+        "submit",
+        async (event) => {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        const message =
-            document.getElementById(
-                "loginMessage"
-            );
-
-        const email =
-            document.getElementById(
-                "loginEmail"
-            ).value.trim();
-
-        const password =
-            document.getElementById(
-                "loginPassword"
-            ).value;
-
-
-        if (!email || !password) {
-
-            if (message) {
-                message.textContent =
-                    "Please enter your email and password.";
-            }
-
-            return;
-        }
-
-
-        try {
-
-            const supabase =
-                getSupabase();
-
-            if (message) {
-                message.textContent =
-                    "Signing you in...";
-            }
-
-
-            const {
-                data,
-                error
-            } = await supabase.auth.signInWithPassword({
-
-                email: email,
-
-                password: password
-
-            });
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (!data.session) {
-                throw new Error(
-                    "Login succeeded but no session was created."
+            const message =
+                document.getElementById(
+                    "loginMessage"
                 );
+
+            const email =
+                document.getElementById(
+                    "loginEmail"
+                ).value.trim();
+
+            const password =
+                document.getElementById(
+                    "loginPassword"
+                ).value;
+
+            if (
+                !email ||
+                !password
+            ) {
+
+                if (message) {
+
+                    message.textContent =
+                        "Please enter your email and password.";
+
+                }
+
+                return;
             }
 
+            try {
 
-            if (message) {
-                message.textContent =
-                    "Login successful. Redirecting...";
-            }
+                const supabase =
+                    getSupabase();
 
+                if (message) {
 
-            setTimeout(() => {
+                    message.textContent =
+                        "Signing you in...";
 
-                window.location.href =
-                    "dashboard.html";
+                }
 
-            }, 500);
+                const {
+                    data,
+                    error
+                } =
+                    await supabase.auth.signInWithPassword({
 
+                        email:
+                            email,
 
-        } catch (error) {
+                        password:
+                            password
 
-            console.error(
-                "Login error:",
-                error
-            );
+                    });
 
-            if (message) {
+                if (error) {
+                    throw error;
+                }
 
-                message.textContent =
-                    error.message ||
-                    "Login failed.";
+                if (!data.session) {
+
+                    throw new Error(
+                        "Login succeeded but no session was created."
+                    );
+
+                }
+
+                if (message) {
+
+                    message.textContent =
+                        "Login successful. Redirecting...";
+
+                }
+
+                setTimeout(
+                    () => {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    },
+                    500
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+                if (message) {
+
+                    message.textContent =
+                        error.message ||
+                        "Login failed.";
+
+                }
 
             }
 
         }
-
-    });
-
+    );
 }
 
 
@@ -367,22 +416,12 @@ async function setupMemberDashboard() {
             "investmentForm"
         );
 
-    /*
-       If none of the member-dashboard elements exist,
-       this isn't the member dashboard.
-    */
-
     if (
         !dashboardName &&
         !investmentForm
     ) {
         return;
     }
-
-
-    /*
-       Don't run member-dashboard logic on admin.html.
-    */
 
     if (
         document.getElementById(
@@ -392,19 +431,17 @@ async function setupMemberDashboard() {
         return;
     }
 
-
     try {
 
         const supabase =
             getSupabase();
 
-
         const {
             data: {
                 session
             }
-        } = await supabase.auth.getSession();
-
+        } =
+            await supabase.auth.getSession();
 
         if (!session) {
 
@@ -412,27 +449,21 @@ async function setupMemberDashboard() {
                 "login.html";
 
             return;
-
         }
-
 
         await loadMemberProfile(
             session.user.id
         );
 
-
         await loadPackages();
-
 
         await loadInvestmentHistory(
             session.user.id
         );
 
-
         setupInvestmentForm(
             session.user.id
         );
-
 
     } catch (error) {
 
@@ -442,12 +473,11 @@ async function setupMemberDashboard() {
         );
 
     }
-
 }
 
 
 /* =========================================================
-   LOAD MEMBER PROFILE
+   MEMBER PROFILE
    ========================================================= */
 
 async function loadMemberProfile(
@@ -457,18 +487,20 @@ async function loadMemberProfile(
     const supabase =
         getSupabase();
 
-
     const {
         data,
         error
-    } = await supabase
-        .from("profiles")
-        .select(
-            "full_name, phone, role, status"
-        )
-        .eq("id", userId)
-        .single();
-
+    } =
+        await supabase
+            .from("profiles")
+            .select(
+                "full_name, phone, role, status"
+            )
+            .eq(
+                "id",
+                userId
+            )
+            .single();
 
     if (error) {
 
@@ -478,9 +510,7 @@ async function loadMemberProfile(
         );
 
         return;
-
     }
-
 
     const dashboardName =
         document.getElementById(
@@ -507,7 +537,6 @@ async function loadMemberProfile(
             "profileStatusInfo"
         );
 
-
     if (dashboardName) {
 
         dashboardName.textContent =
@@ -515,7 +544,6 @@ async function loadMemberProfile(
             "Monarch";
 
     }
-
 
     if (profileName) {
 
@@ -525,7 +553,6 @@ async function loadMemberProfile(
 
     }
 
-
     if (profilePhone) {
 
         profilePhone.textContent =
@@ -533,7 +560,6 @@ async function loadMemberProfile(
             "Not provided";
 
     }
-
 
     if (profileStatus) {
 
@@ -544,7 +570,6 @@ async function loadMemberProfile(
 
     }
 
-
     if (profileStatusInfo) {
 
         profileStatusInfo.textContent =
@@ -553,12 +578,11 @@ async function loadMemberProfile(
             );
 
     }
-
 }
 
 
 /* =========================================================
-   LOAD PACKAGES
+   PACKAGES
    ========================================================= */
 
 async function loadPackages() {
@@ -572,30 +596,29 @@ async function loadPackages() {
         return;
     }
 
-
     const supabase =
         getSupabase();
-
 
     const {
         data,
         error
-    } = await supabase
-        .from("packages")
-        .select(
-            "id, name, amount"
-        )
-        .eq(
-            "active",
-            true
-        )
-        .order(
-            "amount",
-            {
-                ascending: true
-            }
-        );
-
+    } =
+        await supabase
+            .from("packages")
+            .select(
+                "id, name, amount"
+            )
+            .eq(
+                "active",
+                true
+            )
+            .order(
+                "amount",
+                {
+                    ascending:
+                        true
+                }
+            );
 
     if (error) {
 
@@ -605,40 +628,39 @@ async function loadPackages() {
         );
 
         return;
-
     }
-
 
     select.innerHTML =
         '<option value="">Select a package</option>';
 
+    data.forEach(
+        (pkg) => {
 
-    data.forEach((pkg) => {
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-        const option =
-            document.createElement(
-                "option"
+            option.value =
+                pkg.id;
+
+            option.textContent =
+                `${pkg.name} — $${Number(
+                    pkg.amount
+                ).toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits:
+                            2
+                    }
+                )}`;
+
+            select.appendChild(
+                option
             );
 
-        option.value =
-            pkg.id;
-
-        option.textContent =
-            `${pkg.name} — $${Number(
-                pkg.amount
-            ).toLocaleString(
-                "en-US",
-                {
-                    minimumFractionDigits: 2
-                }
-            )}`;
-
-        select.appendChild(
-            option
-        );
-
-    });
-
+        }
+    );
 }
 
 
@@ -659,13 +681,11 @@ function setupInvestmentForm(
         return;
     }
 
-
     form.addEventListener(
         "submit",
         async (event) => {
 
             event.preventDefault();
-
 
             const packageSelect =
                 document.getElementById(
@@ -682,13 +702,11 @@ function setupInvestmentForm(
                     "investmentMessage"
                 );
 
-
             const packageId =
                 packageSelect.value;
 
             const payment =
                 paymentMethod.value;
-
 
             if (
                 !packageId ||
@@ -703,15 +721,12 @@ function setupInvestmentForm(
                 }
 
                 return;
-
             }
-
 
             try {
 
                 const supabase =
                     getSupabase();
-
 
                 if (message) {
 
@@ -720,29 +735,29 @@ function setupInvestmentForm(
 
                 }
 
-
                 const {
                     error
-                } = await supabase
-                    .from("investments")
-                    .insert({
+                } =
+                    await supabase
+                        .from("investments")
+                        .insert({
 
-                        user_id:
-                            userId,
+                            user_id:
+                                userId,
 
-                        package_id:
-                            Number(packageId),
+                            package_id:
+                                Number(
+                                    packageId
+                                ),
 
-                        payment_method:
-                            payment
+                            payment_method:
+                                payment
 
-                    });
-
+                        });
 
                 if (error) {
                     throw error;
                 }
-
 
                 if (message) {
 
@@ -751,14 +766,11 @@ function setupInvestmentForm(
 
                 }
 
-
                 form.reset();
-
 
                 await loadInvestmentHistory(
                     userId
                 );
-
 
             } catch (error) {
 
@@ -766,7 +778,6 @@ function setupInvestmentForm(
                     "Investment error:",
                     error
                 );
-
 
                 if (message) {
 
@@ -780,12 +791,11 @@ function setupInvestmentForm(
 
         }
     );
-
 }
 
 
 /* =========================================================
-   INVESTMENT HISTORY
+   MEMBER INVESTMENT HISTORY
    ========================================================= */
 
 async function loadInvestmentHistory(
@@ -801,39 +811,36 @@ async function loadInvestmentHistory(
         return;
     }
 
-
     const supabase =
         getSupabase();
-
 
     const {
         data,
         error
-    } = await supabase
-        .from("investments")
-        .select(
-            `
-            id,
-            amount,
-            payment_method,
-            status,
-            created_at,
-            packages (
-                name
+    } =
+        await supabase
+            .from("investments")
+            .select(`
+                id,
+                amount,
+                payment_method,
+                status,
+                created_at,
+                packages (
+                    name
+                )
+            `)
+            .eq(
+                "user_id",
+                userId
             )
-            `
-        )
-        .eq(
-            "user_id",
-            userId
-        )
-        .order(
-            "created_at",
-            {
-                ascending: false
-            }
-        );
-
+            .order(
+                "created_at",
+                {
+                    ascending:
+                        false
+                }
+            );
 
     if (error) {
 
@@ -850,11 +857,12 @@ async function loadInvestmentHistory(
             </tr>`;
 
         return;
-
     }
 
-
-    if (!data || data.length === 0) {
+    if (
+        !data ||
+        data.length === 0
+    ) {
 
         table.innerHTML =
             `<tr>
@@ -864,12 +872,9 @@ async function loadInvestmentHistory(
             </tr>`;
 
         return;
-
     }
 
-
     table.innerHTML = "";
-
 
     data.forEach(
         (investment) => {
@@ -879,13 +884,11 @@ async function loadInvestmentHistory(
                     "tr"
                 );
 
-
             const packageName =
                 investment.packages &&
                 investment.packages.name
                     ? investment.packages.name
                     : "Investment Package";
-
 
             const amount =
                 Number(
@@ -893,10 +896,10 @@ async function loadInvestmentHistory(
                 ).toLocaleString(
                     "en-US",
                     {
-                        minimumFractionDigits: 2
+                        minimumFractionDigits:
+                            2
                     }
                 );
-
 
             const payment =
                 investment.payment_method ===
@@ -904,12 +907,10 @@ async function loadInvestmentHistory(
                     ? "Crypto"
                     : "Bank";
 
-
             const status =
                 capitalizeStatus(
                     investment.status
                 );
-
 
             const date =
                 new Date(
@@ -917,17 +918,23 @@ async function loadInvestmentHistory(
                 ).toLocaleDateString(
                     "en-US",
                     {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric"
+                        year:
+                            "numeric",
+
+                        month:
+                            "short",
+
+                        day:
+                            "numeric"
                     }
                 );
-
 
             row.innerHTML = `
 
                 <td>
-                    ${escapeHtml(packageName)}
+                    ${escapeHtml(
+                        packageName
+                    )}
                 </td>
 
                 <td>
@@ -948,14 +955,12 @@ async function loadInvestmentHistory(
 
             `;
 
-
             table.appendChild(
                 row
             );
 
         }
     );
-
 }
 
 
@@ -970,24 +975,21 @@ async function setupAdminDashboard() {
             "adminTotalMembers"
         );
 
-
     if (!adminPage) {
         return;
     }
-
 
     try {
 
         const supabase =
             getSupabase();
 
-
         const {
             data: {
                 session
             }
-        } = await supabase.auth.getSession();
-
+        } =
+            await supabase.auth.getSession();
 
         if (!session) {
 
@@ -995,29 +997,22 @@ async function setupAdminDashboard() {
                 "login.html";
 
             return;
-
         }
-
-
-        /*
-           First verify that this account is actually
-           an active administrator.
-        */
 
         const {
             data: profile,
             error: profileError
-        } = await supabase
-            .from("profiles")
-            .select(
-                "full_name, role, status"
-            )
-            .eq(
-                "id",
-                session.user.id
-            )
-            .single();
-
+        } =
+            await supabase
+                .from("profiles")
+                .select(
+                    "full_name, role, status"
+                )
+                .eq(
+                    "id",
+                    session.user.id
+                )
+                .single();
 
         if (
             profileError ||
@@ -1034,14 +1029,11 @@ async function setupAdminDashboard() {
                 "dashboard.html";
 
             return;
-
         }
-
 
         await loadAdminMembers();
 
         await loadAdminInvestments();
-
 
     } catch (error) {
 
@@ -1051,12 +1043,11 @@ async function setupAdminDashboard() {
         );
 
     }
-
 }
 
 
 /* =========================================================
-   LOAD ADMIN MEMBERS
+   ADMIN MEMBERS
    ========================================================= */
 
 async function loadAdminMembers() {
@@ -1070,26 +1061,25 @@ async function loadAdminMembers() {
         return;
     }
 
-
     const supabase =
         getSupabase();
-
 
     const {
         data,
         error
-    } = await supabase
-        .from("profiles")
-        .select(
-            "id, full_name, phone, role, status, created_at"
-        )
-        .order(
-            "created_at",
-            {
-                ascending: false
-            }
-        );
-
+    } =
+        await supabase
+            .from("profiles")
+            .select(
+                "id, full_name, phone, role, status, created_at"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending:
+                        false
+                }
+            );
 
     if (error) {
 
@@ -1100,19 +1090,16 @@ async function loadAdminMembers() {
 
         table.innerHTML =
             `<tr>
-                <td colspan="5">
+                <td colspan="6">
                     Unable to load members.
                 </td>
             </tr>`;
 
         return;
-
     }
-
 
     const total =
         data.length;
-
 
     const active =
         data.filter(
@@ -1121,14 +1108,12 @@ async function loadAdminMembers() {
                 "active"
         ).length;
 
-
     const pending =
         data.filter(
             member =>
                 member.status ===
                 "pending"
         ).length;
-
 
     setText(
         "adminTotalMembers",
@@ -1145,23 +1130,22 @@ async function loadAdminMembers() {
         pending
     );
 
-
-    if (data.length === 0) {
+    if (
+        !data ||
+        data.length === 0
+    ) {
 
         table.innerHTML =
             `<tr>
-                <td colspan="5">
+                <td colspan="6">
                     No Monarch accounts found.
                 </td>
             </tr>`;
 
         return;
-
     }
 
-
     table.innerHTML = "";
-
 
     data.forEach(
         (member) => {
@@ -1171,19 +1155,98 @@ async function loadAdminMembers() {
                     "tr"
                 );
 
-
             const joined =
                 new Date(
                     member.created_at
                 ).toLocaleDateString(
                     "en-US",
                     {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric"
+                        year:
+                            "numeric",
+
+                        month:
+                            "short",
+
+                        day:
+                            "numeric"
                     }
                 );
 
+            let actionHTML = "";
+
+            /*
+               Never allow the currently logged-in admin
+               to accidentally modify their own account.
+            */
+
+            if (
+                member.role === "admin"
+            ) {
+
+                actionHTML = `
+                    <span class="coming-soon">
+                        Admin
+                    </span>
+                `;
+
+            } else {
+
+                if (
+                    member.status ===
+                    "pending"
+                ) {
+
+                    actionHTML = `
+                        <button
+                            type="button"
+                            class="admin-action-btn"
+                            data-user-id="${member.id}"
+                            data-action="activate">
+                            Activate
+                        </button>
+
+                        <button
+                            type="button"
+                            class="admin-action-btn admin-danger-btn"
+                            data-user-id="${member.id}"
+                            data-action="block">
+                            Block
+                        </button>
+                    `;
+
+                } else if (
+                    member.status ===
+                    "active"
+                ) {
+
+                    actionHTML = `
+                        <button
+                            type="button"
+                            class="admin-action-btn admin-danger-btn"
+                            data-user-id="${member.id}"
+                            data-action="block">
+                            Block
+                        </button>
+                    `;
+
+                } else if (
+                    member.status ===
+                    "blocked"
+                ) {
+
+                    actionHTML = `
+                        <button
+                            type="button"
+                            class="admin-action-btn"
+                            data-user-id="${member.id}"
+                            data-action="activate">
+                            Activate
+                        </button>
+                    `;
+
+                }
+
+            }
 
             row.innerHTML = `
 
@@ -1217,8 +1280,13 @@ async function loadAdminMembers() {
                     ${joined}
                 </td>
 
-            `;
+                <td>
+                    <div class="admin-action-group">
+                        ${actionHTML}
+                    </div>
+                </td>
 
+            `;
 
             table.appendChild(
                 row
@@ -1227,11 +1295,146 @@ async function loadAdminMembers() {
         }
     );
 
+    setupMemberActionButtons();
 }
 
 
 /* =========================================================
-   LOAD ADMIN INVESTMENTS
+   ADMIN MEMBER ACTIONS
+   ========================================================= */
+
+function setupMemberActionButtons() {
+
+    const buttons =
+        document.querySelectorAll(
+            ".admin-action-btn"
+        );
+
+    buttons.forEach(
+        (button) => {
+
+            button.addEventListener(
+                "click",
+                async () => {
+
+                    const userId =
+                        button.dataset.userId;
+
+                    const action =
+                        button.dataset.action;
+
+                    if (
+                        !userId ||
+                        !action
+                    ) {
+                        return;
+                    }
+
+                    let newStatus =
+                        "";
+
+                    if (
+                        action ===
+                        "activate"
+                    ) {
+
+                        newStatus =
+                            "active";
+
+                    } else if (
+                        action ===
+                        "block"
+                    ) {
+
+                        newStatus =
+                            "blocked";
+
+                    } else {
+
+                        return;
+                    }
+
+                    const confirmation =
+                        action ===
+                        "block"
+                            ? "Block this Monarch account?"
+                            : "Activate this Monarch account?";
+
+                    if (
+                        !window.confirm(
+                            confirmation
+                        )
+                    ) {
+                        return;
+                    }
+
+                    button.disabled =
+                        true;
+
+                    const originalText =
+                        button.textContent;
+
+                    button.textContent =
+                        "Saving...";
+
+                    try {
+
+                        const supabase =
+                            getSupabase();
+
+                        const {
+                            error
+                        } =
+                            await supabase
+                                .from("profiles")
+                                .update({
+                                    status:
+                                        newStatus
+                                })
+                                .eq(
+                                    "id",
+                                    userId
+                                )
+                                .eq(
+                                    "role",
+                                    "member"
+                                );
+
+                        if (error) {
+                            throw error;
+                        }
+
+                        await loadAdminMembers();
+
+                    } catch (error) {
+
+                        console.error(
+                            "Member action error:",
+                            error
+                        );
+
+                        alert(
+                            error.message ||
+                            "Unable to update this account."
+                        );
+
+                        button.disabled =
+                            false;
+
+                        button.textContent =
+                            originalText;
+                    }
+
+                }
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   ADMIN INVESTMENTS
    ========================================================= */
 
 async function loadAdminInvestments() {
@@ -1245,38 +1448,35 @@ async function loadAdminInvestments() {
         return;
     }
 
-
     const supabase =
         getSupabase();
-
 
     const {
         data,
         error
-    } = await supabase
-        .from("investments")
-        .select(
-            `
-            id,
-            amount,
-            payment_method,
-            status,
-            created_at,
-            profiles (
-                full_name
-            ),
-            packages (
-                name
-            )
-            `
-        )
-        .order(
-            "created_at",
-            {
-                ascending: false
-            }
-        );
-
+    } =
+        await supabase
+            .from("investments")
+            .select(`
+                id,
+                amount,
+                payment_method,
+                status,
+                created_at,
+                profiles (
+                    full_name
+                ),
+                packages (
+                    name
+                )
+            `)
+            .order(
+                "created_at",
+                {
+                    ascending:
+                        false
+                }
+            );
 
     if (error) {
 
@@ -1287,15 +1487,13 @@ async function loadAdminInvestments() {
 
         table.innerHTML =
             `<tr>
-                <td colspan="6">
+                <td colspan="7">
                     Unable to load investment requests.
                 </td>
             </tr>`;
 
         return;
-
     }
-
 
     const pending =
         data.filter(
@@ -1304,29 +1502,27 @@ async function loadAdminInvestments() {
                 "pending"
         ).length;
 
-
     setText(
         "adminInvestmentRequests",
         pending
     );
 
-
-    if (!data || data.length === 0) {
+    if (
+        !data ||
+        data.length === 0
+    ) {
 
         table.innerHTML =
             `<tr>
-                <td colspan="6">
+                <td colspan="7">
                     No investment requests found.
                 </td>
             </tr>`;
 
         return;
-
     }
 
-
     table.innerHTML = "";
-
 
     data.forEach(
         (investment) => {
@@ -1336,13 +1532,11 @@ async function loadAdminInvestments() {
                     "tr"
                 );
 
-
             const memberName =
                 investment.profiles &&
                 investment.profiles.full_name
                     ? investment.profiles.full_name
                     : "Unknown Monarch";
-
 
             const packageName =
                 investment.packages &&
@@ -1350,17 +1544,16 @@ async function loadAdminInvestments() {
                     ? investment.packages.name
                     : "Package";
 
-
             const amount =
                 Number(
                     investment.amount
                 ).toLocaleString(
                     "en-US",
                     {
-                        minimumFractionDigits: 2
+                        minimumFractionDigits:
+                            2
                     }
                 );
-
 
             const payment =
                 investment.payment_method ===
@@ -1368,12 +1561,10 @@ async function loadAdminInvestments() {
                     ? "Crypto"
                     : "Bank";
 
-
             const status =
                 capitalizeStatus(
                     investment.status
                 );
-
 
             const date =
                 new Date(
@@ -1381,12 +1572,16 @@ async function loadAdminInvestments() {
                 ).toLocaleDateString(
                     "en-US",
                     {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric"
+                        year:
+                            "numeric",
+
+                        month:
+                            "short",
+
+                        day:
+                            "numeric"
                     }
                 );
-
 
             row.innerHTML = `
 
@@ -1418,8 +1613,13 @@ async function loadAdminInvestments() {
                     ${date}
                 </td>
 
-            `;
+                <td>
+                    <span class="coming-soon">
+                        Next
+                    </span>
+                </td>
 
+            `;
 
             table.appendChild(
                 row
@@ -1427,12 +1627,11 @@ async function loadAdminInvestments() {
 
         }
     );
-
 }
 
 
 /* =========================================================
-   MEMBER LOGOUT
+   LOGOUT
    ========================================================= */
 
 function setupLogout() {
@@ -1445,7 +1644,6 @@ function setupLogout() {
     if (!button) {
         return;
     }
-
 
     button.addEventListener(
         "click",
@@ -1472,7 +1670,6 @@ function setupLogout() {
 
         }
     );
-
 }
 
 
@@ -1490,7 +1687,6 @@ function setupAdminLogout() {
     if (!button) {
         return;
     }
-
 
     button.addEventListener(
         "click",
@@ -1517,7 +1713,6 @@ function setupAdminLogout() {
 
         }
     );
-
 }
 
 
@@ -1536,10 +1731,11 @@ function setText(
         );
 
     if (element) {
+
         element.textContent =
             value;
-    }
 
+    }
 }
 
 
@@ -1554,8 +1750,8 @@ function capitalizeStatus(
     return String(value)
         .charAt(0)
         .toUpperCase() +
-        String(value).slice(1);
-
+        String(value)
+            .slice(1);
 }
 
 
