@@ -5,276 +5,835 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Dashboard | Monarch Codex</title>
-    <meta name="description" content="Monarch Codex member dashboard.">
+
+    <meta
+        name="description"
+        content="Your private Monarch Codex member dashboard."
+    >
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="style.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        defer>
+    </script>
+
     <script src="script.js" defer></script>
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <div class="nav-container">
+<!-- ==================================================
+     NAVBAR
+================================================== -->
+
+<header class="navbar">
+
+    <div class="nav-container">
+
+        <a href="index.html" class="logo">
+            MONARCH<span>CODEX</span>
+        </a>
+
+        <nav class="nav-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="nav-logout"
+            >
+                Logout
+            </button>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<!-- ==================================================
+     DASHBOARD
+================================================== -->
+
+<main>
+
+<section class="dashboard-section">
+
+<div class="dashboard-container">
+
+
+    <!-- ==============================================
+         WELCOME
+    =============================================== -->
+
+    <div class="dashboard-welcome">
+
+        <div>
+
+            <p class="section-label">
+                MONARCH MEMBER AREA
+            </p>
+
+            <h1>
+                Welcome,
+                <span id="dashboardName">
+                    Monarch
+                </span>
+            </h1>
+
+            <p>
+                Your personal Monarch Codex dashboard.
+            </p>
+
+        </div>
+
+        <div class="member-badge">
+
+            <span class="badge-dot"></span>
+
+            Member Account
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================================
+         ACCOUNT SUMMARY
+    =============================================== -->
+
+    <div class="dashboard-summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                $
+            </div>
+
+            <div>
+
+                <p>
+                    Investment Capital
+                </p>
+
+                <h2>
+                    $0.00
+                </h2>
+
+                <span>
+                    Coming soon
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                +
+            </div>
+
+            <div>
+
+                <p>
+                    Profit
+                </p>
+
+                <h2>
+                    $0.00
+                </h2>
+
+                <span>
+                    Coming soon
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                =
+            </div>
+
+            <div>
+
+                <p>
+                    Total Balance
+                </p>
+
+                <h2>
+                    $0.00
+                </h2>
+
+                <span>
+                    Coming soon
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <p>
+                    Account Status
+                </p>
+
+                <h2
+                    id="profileStatus"
+                    class="status-text"
+                >
+                    Loading...
+                </h2>
+
+                <span>
+                    Account verification
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================================
+         ACCOUNT INFORMATION
+    =============================================== -->
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    PROFILE
+                </p>
+
+                <h2>
+                    Account Information
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="account-grid">
+
+            <div class="account-item">
+
+                <span>
+                    Full Name
+                </span>
+
+                <strong id="profileName">
+                    Loading...
+                </strong>
+
+            </div>
+
+
+            <div class="account-item">
+
+                <span>
+                    Phone Number
+                </span>
+
+                <strong id="profilePhone">
+                    Loading...
+                </strong>
+
+            </div>
+
+
+            <div class="account-item">
+
+                <span>
+                    Account Type
+                </span>
+
+                <strong>
+                    Monarch Member
+                </strong>
+
+            </div>
+
+
+            <div class="account-item">
+
+                <span>
+                    Account Status
+                </span>
+
+                <strong id="profileStatus">
+                    Loading...
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================================
+         INVESTMENT AREA
+    =============================================== -->
+
+    <div class="dashboard-two-column">
+
+
+        <!-- INVESTMENT REQUEST -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-card-header">
+
+                <div>
+
+                    <p class="section-label">
+                        INVEST
+                    </p>
+
+                    <h2>
+                        Start an Investment
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <p class="dashboard-description">
+                Select an available package and payment
+                method to submit an investment request.
+            </p>
+
+
+            <form id="investmentForm">
+
+
+                <div class="form-group">
+
+                    <label for="packageSelect">
+                        Investment Package
+                    </label>
+
+                    <select
+                        id="packageSelect"
+                        required
+                    >
+
+                        <option value="">
+                            Select a package
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="paymentMethod">
+                        Payment Method
+                    </label>
+
+                    <select
+                        id="paymentMethod"
+                        required
+                    >
+
+                        <option value="">
+                            Select payment method
+                        </option>
+
+                        <option value="bank">
+                            Bank Account
+                        </option>
+
+                        <option value="crypto">
+                            Crypto Funding
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Submit Investment Request
+                </button>
+
+
+                <p
+                    id="investmentMessage"
+                    class="form-message"
+                ></p>
+
+            </form>
+
+        </div>
+
+
+        <!-- ACCOUNT OVERVIEW -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-card-header">
+
+                <div>
+
+                    <p class="section-label">
+                        OVERVIEW
+                    </p>
+
+                    <h2>
+                        Your Journey
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="journey-list">
+
+
+                <div class="journey-item">
+
+                    <div class="journey-number">
+                        01
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            Account Created
+                        </h4>
+
+                        <p>
+                            Your Monarch Codex account is active.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="journey-item">
+
+                    <div class="journey-number">
+                        02
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            Choose Package
+                        </h4>
+
+                        <p>
+                            Select an investment package above.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="journey-item">
+
+                    <div class="journey-number">
+                        03
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            Request Review
+                        </h4>
+
+                        <p>
+                            Your request will be reviewed.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="journey-item">
+
+                    <div class="journey-number">
+                        04
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            Account Updates
+                        </h4>
+
+                        <p>
+                            Future capital and profit information
+                            will appear here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================================
+         INVESTMENT HISTORY
+    =============================================== -->
+
+    <div class="dashboard-card history-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    ACTIVITY
+                </p>
+
+                <h2>
+                    Investment History
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table class="investment-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Package
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                        <th>
+                            Payment
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="investmentHistory">
+
+                    <tr>
+
+                        <td colspan="5">
+                            Loading investment history...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================================
+         TRANSACTION HISTORY PLACEHOLDER
+    =============================================== -->
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    TRANSACTIONS
+                </p>
+
+                <h2>
+                    Transaction History
+                </h2>
+
+            </div>
+
+            <span class="coming-soon">
+                COMING SOON
+            </span>
+
+        </div>
+
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ⇄
+            </div>
+
+            <h3>
+                Transaction History
+            </h3>
+
+            <p>
+                Deposits, investment capital, profits,
+                withdrawals and other account transactions
+                will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================================
+         CAPITAL & PROFIT PLACEHOLDER
+    =============================================== -->
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    PERFORMANCE
+                </p>
+
+                <h2>
+                    Capital & Profit
+                </h2>
+
+            </div>
+
+            <span class="coming-soon">
+                COMING SOON
+            </span>
+
+        </div>
+
+
+        <div class="performance-placeholder">
+
+            <div class="performance-box">
+
+                <span>
+                    Investment Capital
+                </span>
+
+                <strong>
+                    $0.00
+                </strong>
+
+            </div>
+
+
+            <div class="performance-box">
+
+                <span>
+                    Profit
+                </span>
+
+                <strong>
+                    $0.00
+                </strong>
+
+            </div>
+
+
+            <div class="performance-box">
+
+                <span>
+                    Total Value
+                </span>
+
+                <strong>
+                    $0.00
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <p class="placeholder-note">
+            These figures will be connected to the
+            Monarch Codex account management system
+            when the financial management module is added.
+        </p>
+
+    </div>
+
+
+    <!-- ==============================================
+         IMPORTANT NOTICE
+    =============================================== -->
+
+    <div class="dashboard-notice">
+
+        <div class="notice-icon">
+            !
+        </div>
+
+        <div>
+
+            <h3>
+                Important Notice
+            </h3>
+
+            <p>
+                Investment requests submitted through this
+                dashboard remain pending until reviewed
+                and confirmed. Investment values and
+                returns are not guaranteed.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==============================================
+         SUPPORT
+    =============================================== -->
+
+    <div class="dashboard-support">
+
+        <p class="section-label">
+            MONARCH SUPPORT
+        </p>
+
+        <h2>
+            Need Help?
+        </h2>
+
+        <p>
+            Support channels will be connected to your
+            dashboard as the platform develops.
+        </p>
+
+        <span>
+            Support coming soon.
+        </span>
+
+    </div>
+
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- ==================================================
+     FOOTER
+================================================== -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-brand">
 
             <a href="index.html" class="logo">
                 MONARCH<span>CODEX</span>
             </a>
 
-            <nav class="nav-links">
-                <a href="index.html">Home</a>
-                <button id="logoutBtn" class="nav-logout" type="button">
-                    Logout
-                </button>
-            </nav>
+            <p>
+                Learn. Build. Trade. Create.
+            </p>
 
         </div>
-    </header>
 
 
-    <!-- DASHBOARD -->
-    <main>
+        <div class="footer-links">
 
-        <section class="dashboard-section">
+            <a href="index.html">
+                Home
+            </a>
 
-            <div class="dashboard-container">
+            <a href="register.html">
+                Register
+            </a>
 
-                <!-- WELCOME -->
-                <div class="dashboard-header">
-
-                    <p class="section-label">MEMBER DASHBOARD</p>
-
-                    <h1>Welcome, <span id="dashboardName">Monarch</span></h1>
-
-                    <p>
-                        Manage your account and submit your investment request.
-                    </p>
-
-                </div>
-
-
-                <!-- ACCOUNT INFORMATION -->
-                <div class="dashboard-grid">
-
-                    <div class="dashboard-card">
-
-                        <h3>Account Information</h3>
-
-                        <div class="account-info">
-
-                            <div class="info-row">
-                                <span>Name</span>
-                                <strong id="profileName">Loading...</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>Phone</span>
-                                <strong id="profilePhone">Loading...</strong>
-                            </div>
-
-                            <div class="info-row">
-                                <span>Account Status</span>
-                                <strong id="profileStatus">Loading...</strong>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- INVESTMENT -->
-                    <div class="dashboard-card">
-
-                        <h3>Start an Investment</h3>
-
-                        <p class="card-description">
-                            Select the package you want to request.
-                        </p>
-
-
-                        <form id="investmentForm">
-
-                            <div class="form-group">
-
-                                <label for="packageSelect">
-                                    Investment Package
-                                </label>
-
-                                <select id="packageSelect" required>
-
-                                    <option value="">
-                                        Select a package
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="paymentMethod">
-                                    Payment Method
-                                </label>
-
-                                <select id="paymentMethod" required>
-
-                                    <option value="">
-                                        Select payment method
-                                    </option>
-
-                                    <option value="bank">
-                                        Bank Account
-                                    </option>
-
-                                    <option value="crypto">
-                                        Crypto Funding
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary"
-                            >
-                                Submit Investment Request
-                            </button>
-
-
-                            <p
-                                id="investmentMessage"
-                                class="form-message"
-                            ></p>
-
-                        </form>
-
-                    </div>
-
-                </div>
-
-
-                <!-- INVESTMENT HISTORY -->
-                <div class="dashboard-card history-card">
-
-                    <div class="history-header">
-
-                        <div>
-                            <p class="section-label">
-                                ACCOUNT ACTIVITY
-                            </p>
-
-                            <h2>Investment History</h2>
-                        </div>
-
-                    </div>
-
-
-                    <div class="table-wrapper">
-
-                        <table class="investment-table">
-
-                            <thead>
-
-                                <tr>
-                                    <th>Package</th>
-                                    <th>Amount</th>
-                                    <th>Payment</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-
-                            </thead>
-
-                            <tbody id="investmentHistory">
-
-                                <tr>
-                                    <td colspan="5">
-                                        Loading investment history...
-                                    </td>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-
-                <!-- NOTICE -->
-                <div class="dashboard-notice">
-
-                    <h3>Important</h3>
-
-                    <p>
-                        Investment requests submitted through this dashboard
-                        remain pending until they are reviewed and confirmed.
-                    </p>
-
-                </div>
-
-
-                <!-- SUPPORT -->
-                <div class="dashboard-support">
-
-                    <h2>Need Help?</h2>
-
-                    <p>
-                        Our support channels will be available here.
-                    </p>
-
-                    <span>
-                        Support coming soon.
-                    </span>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- FOOTER -->
-    <footer class="footer">
-
-        <div class="footer-container">
-
-            <div>
-
-                <div class="logo">
-                    MONARCH<span>CODEX</span>
-                </div>
-
-                <p>
-                    Learn. Build. Trade. Create.
-                </p>
-
-            </div>
-
-
-            <div class="footer-bottom">
-
-                <p>
-                    © 2026 Monarch Codex. All rights reserved.
-                </p>
-
-            </div>
+            <a href="login.html">
+                Login
+            </a>
 
         </div>
 
-    </footer>
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2026 Monarch Codex. All rights reserved.
+        </p>
+
+    </div>
+
+</footer>
 
 </body>
 </html>
