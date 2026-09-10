@@ -1202,3 +1202,312 @@ investmentsContent.innerHTML =
     `;
 
 }
+
+async function activateMember(button) {
+
+clearMessage();
+
+const memberId =
+    button.dataset.memberId;
+
+if (!memberId) {
+    return;
+}
+
+/*
+ * Security check:
+ * Only normal members can be modified.
+ * Admin accounts can never be changed here.
+ */
+
+const targetProfile =
+    profilesData.find(
+        profile =>
+            profile.id === memberId
+    );
+
+if (
+    !targetProfile ||
+    targetProfile.role !== "member"
+) {
+
+    showMessage(
+        "Security check failed: administrator accounts cannot be modified from member controls."
+    );
+
+    return;
+}
+
+button.disabled =
+    true;
+
+const originalText =
+    button.textContent;
+
+button.textContent =
+    "Updating...";
+
+const {
+    error
+} =
+    await supabaseClient
+        .from("profiles")
+        .update({
+            status: "active"
+        })
+        .eq(
+            "id",
+            memberId
+        )
+        .eq(
+            "role",
+            "member"
+        );
+
+if (error) {
+
+    console.error(
+        "Could not activate member:",
+        error
+    );
+
+    showMessage(
+        "Could not activate member: " +
+        error.message
+    );
+
+    button.disabled =
+        false;
+
+    button.textContent =
+        originalText;
+
+    return;
+}
+
+showMessage(
+    "Member activated successfully.",
+    "success"
+);
+
+await refreshAdminData();
+
+}
+
+async function blockMember(button) {
+
+clearMessage();
+
+const memberId =
+    button.dataset.memberId;
+
+if (!memberId) {
+    return;
+}
+
+/*
+ * Security check:
+ * Only normal members can be modified.
+ * Admin accounts are protected.
+ */
+
+const targetProfile =
+    profilesData.find(
+        profile =>
+            profile.id === memberId
+    );
+
+if (
+    !targetProfile ||
+    targetProfile.role !== "member"
+) {
+
+    showMessage(
+        "Security check failed: administrator accounts cannot be modified from member controls."
+    );
+
+    return;
+}
+
+button.disabled =
+    true;
+
+const originalText =
+    button.textContent;
+
+button.textContent =
+    "Updating...";
+
+const {
+    error
+} =
+    await supabaseClient
+        .from("profiles")
+        .update({
+            status: "blocked"
+        })
+        .eq(
+            "id",
+            memberId
+        )
+        .eq(
+            "role",
+            "member"
+        );
+
+if (error) {
+
+    console.error(
+        "Could not block member:",
+        error
+    );
+
+    showMessage(
+        "Could not block member: " +
+        error.message
+    );
+
+    button.disabled =
+        false;
+
+    button.textContent =
+        originalText;
+
+    return;
+}
+
+showMessage(
+    "Member blocked successfully.",
+    "success"
+);
+
+await refreshAdminData();
+
+}
+
+async function confirmInvestment(button) {
+
+clearMessage();
+
+const investmentId =
+    button.dataset.investmentId;
+
+if (!investmentId) {
+    return;
+}
+
+button.disabled =
+    true;
+
+const originalText =
+    button.textContent;
+
+button.textContent =
+    "Updating...";
+
+const {
+    error
+} =
+    await supabaseClient
+        .from("investments")
+        .update({
+            status: "confirmed"
+        })
+        .eq(
+            "id",
+            investmentId
+        );
+
+if (error) {
+
+    console.error(
+        "Could not confirm investment:",
+        error
+    );
+
+    showMessage(
+        "Could not confirm investment: " +
+        error.message
+    );
+
+    button.disabled =
+        false;
+
+    button.textContent =
+        originalText;
+
+    return;
+}
+
+showMessage(
+    "Investment confirmed successfully.",
+    "success"
+);
+
+await refreshAdminData();
+
+}
+
+async function rejectInvestment(button) {
+
+clearMessage();
+
+const investmentId =
+    button.dataset.investmentId;
+
+if (!investmentId) {
+    return;
+}
+
+button.disabled =
+    true;
+
+const originalText =
+    button.textContent;
+
+button.textContent =
+    "Updating...";
+
+const {
+    error
+} =
+    await supabaseClient
+        .from("investments")
+        .update({
+            status: "rejected"
+        })
+        .eq(
+            "id",
+            investmentId
+        );
+
+if (error) {
+
+    console.error(
+        "Could not reject investment:",
+        error
+    );
+
+    showMessage(
+        "Could not reject investment: " +
+        error.message
+    );
+
+    button.disabled =
+        false;
+
+    button.textContent =
+        originalText;
+
+    return;
+}
+
+showMessage(
+    "Investment rejected successfully.",
+    "success"
+);
+
+await refreshAdminData();
+
+}
+
