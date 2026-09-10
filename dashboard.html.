@@ -1108,3 +1108,123 @@
                 </div>
             `;
         }
+        async function submitInvestmentRequest() {
+            clearMessage();
+
+            if (!selectedPackage) {
+                showMessage("Please select an investment package.", "error");
+                return;
+            }
+
+            if (!selectedPaymentMethod) {
+                showMessage("Please select a payment method.", "error");
+                return;
+            }
+
+            if (!currentUser) {
+                showMessage("Your session has expired. Please log in again.", "error");
+                return;
+            }
+
+            submitInvestmentBtn.disabled = true;
+            submitInvestmentBtn.textContent = "Submitting...";
+
+            const investmentAmount = getPackageAmount(selectedPackage);
+
+            const { data, error } = await supabaseClient
+                .from("investments")
+                .insert([{
+                    user_id: currentUser.id,
+                    package_id: selectedPackage.id,
+                    amount: investmentAmount,
+                    payment_method: selectedPaymentMethod,
+                    status: "pending"
+                }])
+                .select()
+                .single();
+
+            if (error) {
+                console.error("Investment submission error:", error);
+
+                showMessage(
+                    error.message || "Unable to submit investment request.",
+                    "error"
+                );
+
+                submitInvestmentBtn.disabled = false;
+                submitInvestmentBtn.textContent = "Submit Investment Request";
+                return;
+            }
+
+            investmentsData.unshift(data);
+
+            updateFinancialStats();
+            renderInvestmentHistory();
+
+            selectedPackage = null;
+            selectedPaymentMethod = null;
+
+            document.querySelectorAll(".package-card").forEach(card => {
+                card.classList.remove("selected");
+            });
+
+            document.querySelectorAll(".payment-option").forEach(option => {
+                option.classList.remove("selected");
+            });
+
+            showMessage(
+                "Investment request submitted successfully. It is now pending review.",
+                "success"
+            );
+
+            submitInvestmentBtn.disabled = false;
+            submitInvestmentBtn.textContent = "Submit Investment Request";
+        }
+
+        submitInvestmentBtn.addEventListener(
+            "click",
+            submitInvestmentRequest
+        );
+
+        async function logout() {
+            const { error } = await supabaseClient.auth.signOut();
+
+            if (error) {
+                console.error("Logout error:", error);
+                showMessage("Unable to log out. Please try again.", "error");
+                return;
+            }
+
+            window.location.href = "login.html";
+        }
+
+        logoutBtn.addEventListener("click", logout);
+
+        async function initializeDashboard() {
+            clearMessage();
+
+            try {
+                const authorized = await checkMemberAuthorization();
+
+                if (!authorized) {
+                    return;
+                }
+
+                await loadPackages();
+                await loadInvestmentHistory();
+                await loadEarnings();
+
+                displayProfile();
+
+                updateFinancialStats();
+            } catch (error) {
+                console.error("Dashboard initialization error:", error);
+
+                showMessage(
+                    "Unable to load your dashboard. Please refresh the page.",
+                    "error"
+                );
+            }
+        }
+
+        initializeDashboard();
