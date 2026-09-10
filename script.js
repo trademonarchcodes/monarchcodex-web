@@ -9,7 +9,6 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
     "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JiPjIh";
 
-
 /* =========================================================
    SUPABASE INITIALIZATION
    ========================================================= */
