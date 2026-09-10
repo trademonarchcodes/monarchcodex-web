@@ -914,3 +914,656 @@ async function checkAdminAuthorization() {
 
     return true;
 }
+
+async function loadProfiles() {
+
+    membersStatus.textContent =
+        "Loading...";
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("profiles")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+        throw error;
+    }
+
+
+    profilesData =
+        data || [];
+
+
+    totalMembersElement.textContent =
+        profilesData.filter(
+            profile =>
+                profile.role === "member"
+        ).length;
+
+
+    pendingMembersElement.textContent =
+        profilesData.filter(
+            profile =>
+                profile.role === "member" &&
+                profile.status === "pending"
+        ).length;
+
+
+    membersStatus.textContent =
+        profilesData.length + " profiles";
+
+
+    renderMembers();
+
+    populateEarningMembers();
+}
+
+
+function renderMembers() {
+
+    const members =
+        profilesData.filter(
+            profile =>
+                profile.role === "member"
+        );
+
+
+    if (!members.length) {
+
+        membersContent.innerHTML = `
+            <p class="empty-text">
+                No members found.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    membersContent.innerHTML = `
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${members.map(
+                        member => {
+
+                            const status =
+                                String(
+                                    member.status ||
+                                    "pending"
+                                ).toLowerCase();
+
+                            return `
+
+                                <tr>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            member.full_name ||
+                                            "Unnamed Monarch"
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            member.phone ||
+                                            "Not provided"
+                                        )}
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="status ${getStatusClass(status)}"
+                                        >
+                                            ${escapeHtml(
+                                                status
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                status.slice(1)
+                                            )}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        ${formatDate(
+                                            member.created_at
+                                        )}
+                                    </td>
+
+                                    <td>
+
+                                        <div class="action-buttons">
+
+                                            ${
+                                                status !== "active"
+                                                    ? `
+                                                        <button
+                                                            class="action-btn activate-btn"
+                                                            onclick="updateMemberStatus(
+                                                                '${member.id}',
+                                                                'active'
+                                                            )"
+                                                        >
+                                                            Activate
+                                                        </button>
+                                                      `
+                                                    : ""
+                                            }
+
+                                            ${
+                                                status !== "blocked"
+                                                    ? `
+                                                        <button
+                                                            class="action-btn block-btn"
+                                                            onclick="updateMemberStatus(
+                                                                '${member.id}',
+                                                                'blocked'
+                                                            )"
+                                                        >
+                                                            Block
+                                                        </button>
+                                                      `
+                                                    : ""
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            `;
+                        }
+                    ).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+async function updateMemberStatus(
+    memberId,
+    newStatus
+) {
+
+    clearMessage();
+
+
+    const member =
+        profilesData.find(
+            profile =>
+                profile.id === memberId
+        );
+
+
+    if (!member) {
+
+        showMessage(
+            "Member profile could not be found."
+        );
+
+        return;
+    }
+
+
+    if (member.role === "admin") {
+
+        showMessage(
+            "Administrator accounts cannot be changed from member controls."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("profiles")
+                .update({
+                    status: newStatus,
+                    updated_at: new Date().toISOString()
+                })
+                .eq(
+                    "id",
+                    memberId
+                );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        showMessage(
+            "Member status updated successfully.",
+            "success"
+        );
+
+
+        await loadProfiles();
+
+    } catch (error) {
+
+        console.error(
+            "Member status error:",
+            error
+        );
+
+        showMessage(
+            error.message ||
+            "Unable to update member status."
+        );
+    }
+}
+
+
+async function loadPackages() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("packages")
+            .select("*");
+
+
+    if (error) {
+        throw error;
+    }
+
+
+    packagesData =
+        data || [];
+}
+
+
+async function loadInvestments() {
+
+    investmentsStatus.textContent =
+        "Loading...";
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("investments")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+        throw error;
+    }
+
+
+    investmentsData =
+        data || [];
+
+
+    const confirmed =
+        investmentsData.filter(
+            investment =>
+                investment.status === "confirmed"
+        ).length;
+
+
+    const rejected =
+        investmentsData.filter(
+            investment =>
+                investment.status === "rejected"
+        ).length;
+
+
+    confirmedInvestmentsElement.textContent =
+        confirmed;
+
+
+    rejectedInvestmentsElement.textContent =
+        rejected;
+
+
+    investmentsStatus.textContent =
+        investmentsData.length +
+        " requests";
+
+
+    renderInvestments();
+}
+
+
+function getMemberName(userId) {
+
+    const profile =
+        profilesData.find(
+            member =>
+                member.id === userId
+        );
+
+
+    if (!profile) {
+        return "Unknown Monarch";
+    }
+
+
+    return profile.full_name ||
+        "Unnamed Monarch";
+}
+
+
+function getPackageName(packageId) {
+
+    const packageItem =
+        packagesData.find(
+            pkg =>
+                pkg.id === packageId
+        );
+
+
+    if (!packageItem) {
+        return "Investment Package";
+    }
+
+
+    return (
+        packageItem.name ||
+        packageItem.title ||
+        "Investment Package"
+    );
+}
+
+
+function renderInvestments() {
+
+    if (!investmentsData.length) {
+
+        investmentsContent.innerHTML = `
+            <p class="empty-text">
+                No investment requests found.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    investmentsContent.innerHTML = `
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Monarch</th>
+                        <th>Package</th>
+                        <th>Amount</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${investmentsData.map(
+                        investment => {
+
+                            const status =
+                                String(
+                                    investment.status ||
+                                    "pending"
+                                ).toLowerCase();
+
+                            const amount =
+                                Number(
+                                    investment.amount ||
+                                    0
+                                );
+
+                            return `
+
+                                <tr>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            getMemberName(
+                                                investment.user_id
+                                            )
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            getPackageName(
+                                                investment.package_id
+                                            )
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${formatAmount(
+                                            amount
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            investment.payment_method === "bank"
+                                                ? "Bank Account"
+                                                : investment.payment_method === "crypto"
+                                                    ? "Crypto Funding"
+                                                    : investment.payment_method || "Not specified"
+                                        )}
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="status ${getStatusClass(status)}"
+                                        >
+                                            ${escapeHtml(
+                                                status
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                status.slice(1)
+                                            )}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        ${formatDate(
+                                            investment.created_at
+                                        )}
+                                    </td>
+
+                                    <td>
+
+                                        ${
+                                            status === "pending"
+                                                ? `
+                                                    <div class="action-buttons">
+
+                                                        <button
+                                                            class="action-btn confirm-btn"
+                                                            onclick="updateInvestmentStatus(
+                                                                '${investment.id}',
+                                                                'confirmed'
+                                                            )"
+                                                        >
+                                                            Confirm
+                                                        </button>
+
+                                                        <button
+                                                            class="action-btn reject-btn"
+                                                            onclick="updateInvestmentStatus(
+                                                                '${investment.id}',
+                                                                'rejected'
+                                                            )"
+                                                        >
+                                                            Reject
+                                                        </button>
+
+                                                    </div>
+                                                  `
+                                                : `
+                                                    <span class="section-status">
+                                                        No actions
+                                                    </span>
+                                                  `
+                                        }
+
+                                    </td>
+
+                                </tr>
+
+                            `;
+                        }
+                    ).join("")}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+async function updateInvestmentStatus(
+    investmentId,
+    newStatus
+) {
+
+    clearMessage();
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("investments")
+                .update({
+                    status: newStatus,
+                    updated_at: new Date().toISOString()
+                })
+                .eq(
+                    "id",
+                    investmentId
+                );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        showMessage(
+            "Investment status updated successfully.",
+            "success"
+        );
+
+
+        await loadInvestments();
+
+    } catch (error) {
+
+        console.error(
+            "Investment status error:",
+            error
+        );
+
+        showMessage(
+            error.message ||
+            "Unable to update investment status."
+        );
+    }
+}
+
+
+function populateEarningMembers() {
+
+    const members =
+        profilesData.filter(
+            profile =>
+                profile.role === "member"
+        );
+
+
+    earningMember.innerHTML = `
+        <option value="">
+            Select a member
+        </option>
+    `;
+
+
+    members.forEach(
+        member => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                member.id;
+
+            option.textContent =
+                member.full_name ||
+                "Unnamed Monarch";
+
+            earningMember.appendChild(
+                option
+            );
+        }
+    );
+}
