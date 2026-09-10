@@ -621,3 +621,487 @@
     </section>
 
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const SUPABASE_URL =
+        "https://avaworleivncevaoqeny.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+        );
+
+    let currentUser = null;
+    let currentProfile = null;
+    let packagesData = [];
+    let investmentsData = [];
+    let selectedPackage = null;
+    let selectedPaymentMethod = null;
+
+    const memberName =
+        document.getElementById("memberName");
+
+    const messageBox =
+        document.getElementById("messageBox");
+
+    const profileFullName =
+        document.getElementById("profileFullName");
+
+    const profilePhone =
+        document.getElementById("profilePhone");
+
+    const profileStatus =
+        document.getElementById("profileStatus");
+
+    const profileRole =
+        document.getElementById("profileRole");
+
+    const memberSince =
+        document.getElementById("memberSince");
+
+    const packagesContent =
+        document.getElementById("packagesContent");
+
+    const historyContent =
+        document.getElementById("historyContent");
+
+    const totalInvested =
+        document.getElementById("totalInvested");
+
+    const confirmedInvestments =
+        document.getElementById("confirmedInvestments");
+
+    const pendingInvestments =
+        document.getElementById("pendingInvestments");
+
+    const totalRequests =
+        document.getElementById("totalRequests");
+
+    const submitInvestmentBtn =
+        document.getElementById("submitInvestmentBtn");
+
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function showMessage(message, type = "info") {
+        messageBox.textContent = message;
+        messageBox.className = "message-box show";
+
+        if (type === "error") {
+            messageBox.style.borderColor =
+                "rgba(239,119,119,0.45)";
+
+            messageBox.style.background =
+                "rgba(239,119,119,0.08)";
+
+            messageBox.style.color =
+                "#ef9999";
+        } else if (type === "success") {
+            messageBox.style.borderColor =
+                "rgba(127,220,155,0.4)";
+
+            messageBox.style.background =
+                "rgba(127,220,155,0.07)";
+
+            messageBox.style.color =
+                "#9be8b1";
+        } else {
+            messageBox.style.borderColor =
+                "rgba(212,175,55,0.3)";
+
+            messageBox.style.background =
+                "rgba(212,175,55,0.08)";
+
+            messageBox.style.color =
+                "#eeeeee";
+        }
+    }
+
+
+    function clearMessage() {
+        messageBox.textContent = "";
+        messageBox.className = "message-box";
+    }
+
+
+    function formatAmount(amount) {
+        const number = Number(amount || 0);
+
+        return "$" + number.toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+
+    function formatDate(dateValue) {
+        if (!dateValue) {
+            return "—";
+        }
+
+        const date = new Date(dateValue);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleDateString(
+            "en-US",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+    }
+
+
+    function getStatusClass(status) {
+        const normalized =
+            String(status || "").toLowerCase();
+
+        if (normalized === "active") {
+            return "status-active";
+        }
+
+        if (normalized === "pending") {
+            return "status-pending";
+        }
+
+        if (normalized === "confirmed") {
+            return "status-confirmed";
+        }
+
+        if (normalized === "rejected") {
+            return "status-rejected";
+        }
+
+        if (normalized === "blocked") {
+            return "status-blocked";
+        }
+
+        return "";
+    }
+
+
+    async function checkMemberAuthorization() {
+
+        const {
+            data: userData,
+            error: userError
+        } = await supabaseClient.auth.getUser();
+
+        if (userError) {
+            console.error(userError);
+
+            window.location.href = "login.html";
+            return false;
+        }
+
+        currentUser = userData.user;
+
+        if (!currentUser) {
+            window.location.href = "login.html";
+            return false;
+        }
+
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", currentUser.id)
+            .maybeSingle();
+
+
+        if (profileError) {
+            console.error(profileError);
+
+            showMessage(
+                "Unable to load your member profile: " +
+                profileError.message,
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (!profile) {
+            showMessage(
+                "Your member profile could not be found.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        if (
+            profile.role === "admin" &&
+            profile.status === "active"
+        ) {
+            window.location.href = "admin.html";
+            return false;
+        }
+
+
+        if (profile.status === "blocked") {
+
+            await supabaseClient.auth.signOut();
+
+            window.location.href = "login.html";
+
+            return false;
+        }
+
+
+        currentProfile = profile;
+
+        return true;
+    }
+
+
+    function displayProfile() {
+
+        const fullName =
+            currentProfile?.full_name ||
+            currentUser?.email ||
+            "Monarch";
+
+        memberName.textContent = fullName;
+
+        profileFullName.textContent =
+            currentProfile?.full_name || "—";
+
+        profilePhone.textContent =
+            currentProfile?.phone || "—";
+
+        const status =
+            currentProfile?.status || "pending";
+
+        profileStatus.textContent =
+            status.charAt(0).toUpperCase() +
+            status.slice(1);
+
+        profileStatus.className =
+            "profile-value " +
+            getStatusClass(status);
+
+        profileRole.textContent =
+            currentProfile?.role === "admin"
+                ? "Admin"
+                : "Member";
+
+        memberSince.textContent =
+            formatDate(currentProfile?.created_at);
+    }
+
+
+    async function loadPackages() {
+
+        packagesContent.innerHTML =
+            '<div class="loading">Loading investment packages...</div>';
+
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("packages")
+            .select("*");
+
+
+        if (error) {
+            console.error(error);
+
+            packagesContent.innerHTML =
+                '<div class="loading">Unable to load packages.</div>';
+
+            showMessage(
+                "Unable to load investment packages: " +
+                error.message,
+                "error"
+            );
+
+            return false;
+        }
+
+
+        packagesData = data || [];
+
+        renderPackages();
+
+        return true;
+    }
+
+
+    function getPackageName(packageItem) {
+
+        return (
+            packageItem?.name ||
+            packageItem?.title ||
+            "Investment Package"
+        );
+    }
+
+
+    function getPackageAmount(packageItem) {
+
+        const amount =
+            packageItem?.amount ??
+            packageItem?.price ??
+            0;
+
+        return Number(amount) || 0;
+    }
+
+
+    function renderPackages() {
+
+        if (!packagesData.length) {
+
+            packagesContent.innerHTML =
+                '<div class="empty-state">' +
+                'No investment packages are currently available.' +
+                '</div>';
+
+            return;
+        }
+
+
+        packagesContent.innerHTML =
+            packagesData.map((packageItem) => {
+
+                const name =
+                    getPackageName(packageItem);
+
+                const amount =
+                    getPackageAmount(packageItem);
+
+                const isSelected =
+                    selectedPackage &&
+                    selectedPackage.id === packageItem.id;
+
+
+                return `
+                    <div
+                        class="package-card ${isSelected ? "selected" : ""}"
+                        data-package-id="${escapeHtml(packageItem.id)}"
+                        onclick="selectPackage(this)"
+                    >
+
+                        <div class="package-check">
+                            ${isSelected ? "✓" : ""}
+                        </div>
+
+                        <div class="package-name">
+                            ${escapeHtml(name)}
+                        </div>
+
+                        <div class="package-amount">
+                            ${formatAmount(amount)}
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+    }
+
+
+    function selectPackage(element) {
+
+        const packageId =
+            element.getAttribute("data-package-id");
+
+
+        selectedPackage =
+            packagesData.find(
+                item => String(item.id) === String(packageId)
+            ) || null;
+
+
+        renderPackages();
+    }
+
+
+    function selectPaymentMethod(element) {
+
+        document
+            .querySelectorAll(".payment-option")
+            .forEach(option => {
+                option.classList.remove("selected");
+            });
+
+
+        element.classList.add("selected");
+
+        selectedPaymentMethod =
+            element.getAttribute("data-payment");
+    }
+
+
+    async function loadInvestmentHistory() {
+
+        historyContent.innerHTML =
+            '<div class="loading">Loading investment history...</div>';
+
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("investments")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .order("created_at", {
+                ascending: false
+            });
+
+
+        if (error) {
+            console.error(error);
+
+            historyContent.innerHTML =
+                '<div class="empty-state">' +
+                'Unable to load investment history.' +
+                '</div>';
+
+            showMessage(
+                "Unable to load your investments: " +
+                error.message,
+                "error"
+            );
+
+            return false;
+        }
+
+
+        investmentsData = data || [];
+
+        updateFinancialStats();
+
+        renderInvestmentHistory();
+
+        return true;
+    }
