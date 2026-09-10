@@ -10,15 +10,11 @@
 
     <title>Login | Monarch Codex</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- HEADER -->
     <header class="site-header">
         <div class="container nav-container">
 
@@ -35,25 +31,31 @@
     </header>
 
 
-    <!-- LOGIN SECTION -->
     <main class="auth-page">
 
         <div class="auth-card">
 
             <div class="auth-header">
-                <p class="eyebrow">MONARCH CODEX</p>
 
-                <h1>Welcome Back</h1>
+                <p class="eyebrow">
+                    MONARCH CODEX
+                </p>
+
+                <h1>
+                    Welcome Back
+                </h1>
 
                 <p>
-                    Login to access your Monarch Codex dashboard.
+                    Login to access your Monarch Codex account.
                 </p>
+
             </div>
 
 
             <form id="loginForm">
 
                 <div class="form-group">
+
                     <label for="email">
                         Email Address
                     </label>
@@ -66,10 +68,12 @@
                         autocomplete="email"
                         required
                     >
+
                 </div>
 
 
                 <div class="form-group">
+
                     <label for="password">
                         Password
                     </label>
@@ -82,12 +86,14 @@
                         autocomplete="current-password"
                         required
                     >
+
                 </div>
 
 
                 <button
                     type="submit"
                     class="btn btn-primary auth-submit"
+                    id="loginButton"
                 >
                     Login
                 </button>
@@ -98,6 +104,7 @@
             <div
                 id="loginMessage"
                 class="form-message"
+                style="margin-top: 15px; text-align: center;"
             ></div>
 
 
@@ -123,7 +130,6 @@
     </main>
 
 
-    <!-- FOOTER -->
     <footer class="site-footer">
 
         <div class="container">
@@ -140,15 +146,224 @@
     </footer>
 
 
-    <!-- SUPABASE MUST LOAD BEFORE SCRIPT.JS -->
+    <!-- SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script src="script.js"></script>
 
-
+    <!-- LOGIN SYSTEM -->
     <script>
-        document.getElementById("currentYear").textContent =
+
+        const SUPABASE_URL =
+            "https://avaworleivncevaoqeny.supabase.co";
+
+        const SUPABASE_KEY =
+            "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const loginButton =
+            document.getElementById("loginButton");
+
+        const loginMessage =
+            document.getElementById("loginMessage");
+
+
+        function showMessage(message, success = false) {
+
+            loginMessage.textContent = message;
+
+            if (success) {
+                loginMessage.style.color = "#D4AF37";
+            } else {
+                loginMessage.style.color = "#ff6b6b";
+            }
+
+        }
+
+
+        loginForm.addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+                const email =
+                    document
+                        .getElementById("email")
+                        .value
+                        .trim();
+
+                const password =
+                    document
+                        .getElementById("password")
+                        .value;
+
+
+                if (!email || !password) {
+
+                    showMessage(
+                        "Please enter your email and password."
+                    );
+
+                    return;
+                }
+
+
+                loginButton.disabled = true;
+
+                loginButton.textContent =
+                    "Logging in...";
+
+                showMessage(
+                    "Connecting to Monarch Codex...",
+                    true
+                );
+
+
+                try {
+
+                    const {
+                        data,
+                        error
+                    } =
+                        await supabaseClient.auth.signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+
+
+                    if (error) {
+
+                        console.error(
+                            "LOGIN ERROR:",
+                            error
+                        );
+
+                        showMessage(
+                            error.message
+                        );
+
+                        loginButton.disabled = false;
+
+                        loginButton.textContent =
+                            "Login";
+
+                        return;
+                    }
+
+
+                    if (!data.user) {
+
+                        showMessage(
+                            "Login failed. Please try again."
+                        );
+
+                        loginButton.disabled = false;
+
+                        loginButton.textContent =
+                            "Login";
+
+                        return;
+                    }
+
+
+                    showMessage(
+                        "Login successful. Opening your account...",
+                        true
+                    );
+
+
+                    /*
+                     * Check the user's profile
+                     * so administrators go to the
+                     * Admin Command Center.
+                     */
+
+                    const {
+                        data: profile,
+                        error: profileError
+                    } =
+                        await supabaseClient
+                            .from("profiles")
+                            .select(
+                                "id, full_name, role, status"
+                            )
+                            .eq(
+                                "id",
+                                data.user.id
+                            )
+                            .single();
+
+
+                    if (profileError) {
+
+                        console.error(
+                            "PROFILE ERROR:",
+                            profileError
+                        );
+
+                        /*
+                         * The Auth login itself succeeded,
+                         * so send the user to dashboard.
+                         */
+
+                        window.location.href =
+                            "dashboard.html";
+
+                        return;
+                    }
+
+
+                    if (
+                        profile.role === "admin" &&
+                        profile.status === "active"
+                    ) {
+
+                        window.location.href =
+                            "admin.html";
+
+                    } else {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "UNEXPECTED LOGIN ERROR:",
+                        error
+                    );
+
+                    showMessage(
+                        "Something went wrong. Please try again."
+                    );
+
+                    loginButton.disabled = false;
+
+                    loginButton.textContent =
+                        "Login";
+                }
+
+            }
+        );
+
+
+        document.getElementById(
+            "currentYear"
+        ).textContent =
             new Date().getFullYear();
+
     </script>
 
 </body>
