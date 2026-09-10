@@ -1965,3 +1965,183 @@ async function () {
 
 );
 
+/*
+
+* LOGOUT
+  */
+
+logoutBtn.addEventListener(
+"click",
+async function () {
+
+    clearMessage();
+
+    logoutBtn.disabled =
+        true;
+
+    logoutBtn.textContent =
+        "Logging out...";
+
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .auth
+            .signOut();
+
+
+    if (
+        error
+    ) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+        showMessage(
+            "Could not log out: " +
+            error.message
+        );
+
+        logoutBtn.disabled =
+            false;
+
+        logoutBtn.textContent =
+            "Logout";
+
+        return;
+    }
+
+
+    window.location.href =
+        "login.html";
+}
+
+);
+
+/*
+
+* INITIALIZE DASHBOARD
+  */
+
+async function initializeDashboard() {
+
+try {
+
+    /*
+     * Verify the current session
+     * and member profile first.
+     */
+
+    const authorized =
+        await checkMemberAuthorization();
+
+
+    if (
+        !authorized
+    ) {
+        return;
+    }
+
+
+    /*
+     * Display the member's
+     * profile information.
+     */
+
+    displayProfile();
+
+
+    /*
+     * Load packages first.
+     * Investment history uses the
+     * package information to display
+     * package names correctly.
+     */
+
+    await loadPackages();
+
+
+    /*
+     * Load the member's investment
+     * history separately.
+     */
+
+    await loadInvestmentHistory();
+
+
+} catch (error) {
+
+    console.error(
+        "Dashboard initialization failed:",
+        error
+    );
+
+
+    showMessage(
+        "Could not initialize your dashboard: " +
+        (
+            error.message ||
+            "Unknown error"
+        )
+    );
+
+
+    /*
+     * Never leave loading messages
+     * on the screen forever.
+     */
+
+    if (
+        packagesContent.textContent
+            .includes(
+                "Loading packages..."
+            )
+    ) {
+
+        packagesContent.innerHTML =
+            `
+            <p class="error-text">
+                Could not load packages:
+                ${escapeHtml(
+                    error.message ||
+                    "Unknown error"
+                )}
+            </p>
+            `;
+    }
+
+
+    if (
+        investmentHistoryContent.textContent
+            .includes(
+                "Loading investment history..."
+            )
+    ) {
+
+        investmentHistoryContent.innerHTML =
+            `
+            <p class="error-text">
+                Could not load investment history:
+                ${escapeHtml(
+                    error.message ||
+                    "Unknown error"
+                )}
+            </p>
+            `;
+    }
+}
+
+}
+
+/*
+
+* START DASHBOARD
+  */
+
+initializeDashboard();
+
+</script></body>
+</html>
