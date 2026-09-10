@@ -7,8 +7,7 @@ const SUPABASE_URL =
     "https://avaworleivncevaoqeny.supabase.co";
 
 const SUPABASE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JiPjIh";
-
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 /* =========================================================
    SUPABASE INITIALIZATION
    ========================================================= */
