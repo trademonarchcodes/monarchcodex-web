@@ -31,12 +31,7 @@
 
 <body>
 
-<!-- ==================================================
-     NAVBAR
-================================================== -->
-
 <header class="navbar">
-
     <div class="nav-container">
 
         <a href="index.html" class="logo">
@@ -44,29 +39,19 @@
         </a>
 
         <nav class="nav-links">
-
-            <a href="index.html">
-                Home
-            </a>
+            <a href="index.html">Home</a>
 
             <button
                 type="button"
                 id="logoutBtn"
-                class="nav-logout"
-            >
+                class="nav-logout">
                 Logout
             </button>
-
         </nav>
 
     </div>
-
 </header>
 
-
-<!-- ==================================================
-     DASHBOARD
-================================================== -->
 
 <main>
 
@@ -74,10 +59,9 @@
 
 <div class="dashboard-container">
 
-
-    <!-- ==============================================
+    <!-- =====================================================
          WELCOME
-    =============================================== -->
+         ===================================================== -->
 
     <div class="dashboard-welcome">
 
@@ -89,9 +73,7 @@
 
             <h1>
                 Welcome,
-                <span id="dashboardName">
-                    Monarch
-                </span>
+                <span id="dashboardName">Monarch</span>
             </h1>
 
             <p>
@@ -99,6 +81,7 @@
             </p>
 
         </div>
+
 
         <div class="member-badge">
 
@@ -111,12 +94,11 @@
     </div>
 
 
-    <!-- ==============================================
-         ACCOUNT SUMMARY
-    =============================================== -->
+    <!-- =====================================================
+         SUMMARY
+         ===================================================== -->
 
     <div class="dashboard-summary-grid">
-
 
         <div class="summary-card">
 
@@ -207,8 +189,7 @@
 
                 <h2
                     id="profileStatus"
-                    class="status-text"
-                >
+                    class="status-text">
                     Loading...
                 </h2>
 
@@ -223,9 +204,9 @@
     </div>
 
 
-    <!-- ==============================================
+    <!-- =====================================================
          ACCOUNT INFORMATION
-    =============================================== -->
+         ===================================================== -->
 
     <div class="dashboard-card">
 
@@ -293,7 +274,7 @@
                     Account Status
                 </span>
 
-                <strong id="profileStatus">
+                <strong id="profileStatusInfo">
                     Loading...
                 </strong>
 
@@ -304,14 +285,14 @@
     </div>
 
 
-    <!-- ==============================================
-         INVESTMENT AREA
-    =============================================== -->
+    <!-- =====================================================
+         INVESTMENT + JOURNEY
+         ===================================================== -->
 
     <div class="dashboard-two-column">
 
 
-        <!-- INVESTMENT REQUEST -->
+        <!-- INVESTMENT -->
 
         <div class="dashboard-card">
 
@@ -333,8 +314,10 @@
 
 
             <p class="dashboard-description">
-                Select an available package and payment
-                method to submit an investment request.
+
+                Select an available package and payment method
+                to submit an investment request.
+
             </p>
 
 
@@ -349,8 +332,7 @@
 
                     <select
                         id="packageSelect"
-                        required
-                    >
+                        required>
 
                         <option value="">
                             Select a package
@@ -369,8 +351,7 @@
 
                     <select
                         id="paymentMethod"
-                        required
-                    >
+                        required>
 
                         <option value="">
                             Select payment method
@@ -391,23 +372,25 @@
 
                 <button
                     type="submit"
-                    class="btn btn-primary"
-                >
+                    class="btn btn-primary">
+
                     Submit Investment Request
+
                 </button>
 
 
                 <p
                     id="investmentMessage"
-                    class="form-message"
-                ></p>
+                    class="form-message">
+                </p>
 
             </form>
 
         </div>
 
 
-        <!-- ACCOUNT OVERVIEW -->
+
+        <!-- JOURNEY -->
 
         <div class="dashboard-card">
 
@@ -515,6 +498,7 @@
 
                 </div>
 
+
             </div>
 
         </div>
@@ -522,9 +506,9 @@
     </div>
 
 
-    <!-- ==============================================
+    <!-- =====================================================
          INVESTMENT HISTORY
-    =============================================== -->
+         ===================================================== -->
 
     <div class="dashboard-card history-card">
 
@@ -597,9 +581,9 @@
     </div>
 
 
-    <!-- ==============================================
-         TRANSACTION HISTORY PLACEHOLDER
-    =============================================== -->
+    <!-- =====================================================
+         TRANSACTION HISTORY
+         ===================================================== -->
 
     <div class="dashboard-card">
 
@@ -635,9 +619,11 @@
             </h3>
 
             <p>
+
                 Deposits, investment capital, profits,
                 withdrawals and other account transactions
                 will appear here.
+
             </p>
 
         </div>
@@ -645,9 +631,9 @@
     </div>
 
 
-    <!-- ==============================================
-         CAPITAL & PROFIT PLACEHOLDER
-    =============================================== -->
+    <!-- =====================================================
+         CAPITAL & PROFIT
+         ===================================================== -->
 
     <div class="dashboard-card">
 
@@ -673,6 +659,7 @@
 
 
         <div class="performance-placeholder">
+
 
             <div class="performance-box">
 
@@ -712,21 +699,24 @@
 
             </div>
 
+
         </div>
 
 
         <p class="placeholder-note">
-            These figures will be connected to the
-            Monarch Codex account management system
-            when the financial management module is added.
+
+            These figures will be connected to the Monarch
+            Codex account management system when the financial
+            management module is added.
+
         </p>
 
     </div>
 
 
-    <!-- ==============================================
-         IMPORTANT NOTICE
-    =============================================== -->
+    <!-- =====================================================
+         NOTICE
+         ===================================================== -->
 
     <div class="dashboard-notice">
 
@@ -741,10 +731,12 @@
             </h3>
 
             <p>
+
                 Investment requests submitted through this
-                dashboard remain pending until reviewed
-                and confirmed. Investment values and
-                returns are not guaranteed.
+                dashboard remain pending until reviewed and
+                confirmed. Investment values and returns are
+                not guaranteed.
+
             </p>
 
         </div>
@@ -752,9 +744,9 @@
     </div>
 
 
-    <!-- ==============================================
+    <!-- =====================================================
          SUPPORT
-    =============================================== -->
+         ===================================================== -->
 
     <div class="dashboard-support">
 
@@ -785,18 +777,23 @@
 </main>
 
 
-<!-- ==================================================
+<!-- =========================================================
      FOOTER
-================================================== -->
+     ========================================================= -->
 
 <footer class="footer">
 
     <div class="footer-container">
 
+
         <div class="footer-brand">
 
-            <a href="index.html" class="logo">
+            <a
+                href="index.html"
+                class="logo">
+
                 MONARCH<span>CODEX</span>
+
             </a>
 
             <p>
@@ -822,6 +819,7 @@
 
         </div>
 
+
     </div>
 
 
@@ -834,6 +832,7 @@
     </div>
 
 </footer>
+
 
 </body>
 </html>
