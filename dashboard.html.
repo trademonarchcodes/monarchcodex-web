@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MONARCH CODEX | Member Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: #050505;
+            color: #ffffff;
+        }
+
+        .dashboard-page {
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(212, 175, 55, 0.10),
+                    transparent 35%
+                ),
+                #050505;
+        }
+
+        .dashboard-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.20);
+            background: rgba(5, 5, 5, 0.96);
+            backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            width: min(1200px, 92%);
+            margin: auto;
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .brand {
+            color: #D4AF37;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .monarch-badge {
+            border: 1px solid #D4AF37;
+            color: #D4AF37;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .logout-btn {
+            border: 1px solid rgba(212, 175, 55, 0.6);
+            background: transparent;
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #D4AF37;
+            color: #000000;
+        }
+
+        .dashboard-container {
+            width: min(1200px, 92%);
+            margin: 0 auto;
+            padding: 35px 0 60px;
+        }
+
+        .welcome-section {
+            margin-bottom: 25px;
+        }
+
+        .welcome-section h1 {
+            margin: 0 0 8px;
+            font-size: clamp(25px, 5vw, 38px);
+        }
+
+        .welcome-section h1 span {
+            color: #D4AF37;
+        }
+
+        .welcome-section p {
+            margin: 0;
+            color: #aaaaaa;
+            font-size: 14px;
+        }
+
+        .message-box {
+            display: none;
+            margin-bottom: 20px;
+            padding: 13px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .message-box.success {
+            display: block;
+            border: 1px solid rgba(70, 180, 100, 0.5);
+            background: rgba(70, 180, 100, 0.10);
+            color: #9be7ad;
+        }
+
+        .message-box.error {
+            display: block;
+            border: 1px solid rgba(220, 70, 70, 0.5);
+            background: rgba(220, 70, 70, 0.10);
+            color: #ffaaaa;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            border-radius: 10px;
+            background: #0d0d0d;
+        }
+
+        .stat-label {
+            color: #999999;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            color: #D4AF37;
+            font-size: 25px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard-page">
+
+    <header class="dashboard-header">
+        <div class="header-inner">
+
+            <div class="brand">
+                MONARCH CODEX
+            </div>
+
+            <div class="header-right">
+                <span class="monarch-badge">
+                    MONARCH
+                </span>
+
+                <button
+                    type="button"
+                    class="logout-btn"
+                    id="logoutBtn"
+                >
+                    Logout
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+            <h1>
+                Welcome,
+                <span id="memberName">Monarch</span>
+            </h1>
+
+            <p>
+                Your MONARCH CODEX command center.
+            </p>
+        </section>
+
+        <div
+            id="messageBox"
+            class="message-box"
+        ></div>
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-label">
+                    TOTAL INVESTED
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalInvested"
+                >
+                    $0.00
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">
+                    CONFIRMED
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="confirmedInvestments"
+                >
+                    0
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">
+                    PENDING
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="pendingInvestments"
+                >
+                    0
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">
+                    REQUESTS
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalRequests"
+                >
+                    0
+                </div>
+            </div>
+
+        </section>
+
