@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin | Monarch Codex</title>
+
+    <meta
+        name="description"
+        content="Monarch Codex administration dashboard."
+    >
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        defer>
+    </script>
+
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="nav-container">
+
+        <a href="index.html" class="logo">
+            MONARCH<span>CODEX</span>
+        </a>
+
+        <nav class="nav-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <button
+                type="button"
+                id="adminLogoutBtn"
+                class="nav-logout">
+
+                Logout
+
+            </button>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="dashboard-section">
+
+<div class="dashboard-container">
+
+
+    <!-- ADMIN HEADER -->
+
+    <div class="dashboard-welcome">
+
+        <div>
+
+            <p class="section-label">
+                MONARCH CODEX ADMINISTRATION
+            </p>
+
+            <h1>
+                Admin <span>Command Center</span>
+            </h1>
+
+            <p>
+                Manage Monarch members, investment requests and
+                account activity from one place.
+            </p>
+
+        </div>
+
+
+        <div class="member-badge">
+
+            <span class="badge-dot"></span>
+
+            Administrator
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ADMIN SUMMARY -->
+
+    <div class="dashboard-summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                M
+            </div>
+
+            <div>
+
+                <p>
+                    Total Monarchs
+                </p>
+
+                <h2 id="adminTotalMembers">
+                    0
+                </h2>
+
+                <span>
+                    Registered members
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                $
+            </div>
+
+            <div>
+
+                <p>
+                    Investment Requests
+                </p>
+
+                <h2 id="adminInvestmentRequests">
+                    0
+                </h2>
+
+                <span>
+                    Pending review
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <p>
+                    Active Accounts
+                </p>
+
+                <h2 id="adminActiveMembers">
+                    0
+                </h2>
+
+                <span>
+                    Active Monarchs
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+                !
+            </div>
+
+            <div>
+
+                <p>
+                    Pending Accounts
+                </p>
+
+                <h2 id="adminPendingMembers">
+                    0
+                </h2>
+
+                <span>
+                    Awaiting review
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- MEMBER MANAGEMENT -->
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    MEMBERS
+                </p>
+
+                <h2>
+                    Monarch Accounts
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table class="investment-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Name
+                        </th>
+
+                        <th>
+                            Phone
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Joined
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="adminMembersTable">
+
+                    <tr>
+
+                        <td colspan="5">
+                            Loading Monarch accounts...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- INVESTMENT REQUESTS -->
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    INVESTMENTS
+                </p>
+
+                <h2>
+                    Investment Requests
+                </h2>
+
+            </div>
+
+            <span class="coming-soon">
+                ADMIN CONTROL
+            </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table class="investment-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Member
+                        </th>
+
+                        <th>
+                            Package
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                        <th>
+                            Payment
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="adminInvestmentsTable">
+
+                    <tr>
+
+                        <td colspan="6">
+                            Loading investment requests...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- CAPITAL / PROFIT -->
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    ACCOUNT MANAGEMENT
+                </p>
+
+                <h2>
+                    Capital & Profit
+                </h2>
+
+            </div>
+
+            <span class="coming-soon">
+                NEXT PHASE
+            </span>
+
+        </div>
+
+
+        <div class="performance-placeholder">
+
+
+            <div class="performance-box">
+
+                <span>
+                    Total Capital
+                </span>
+
+                <strong>
+                    $0.00
+                </strong>
+
+            </div>
+
+
+            <div class="performance-box">
+
+                <span>
+                    Total Profit
+                </span>
+
+                <strong>
+                    $0.00
+                </strong>
+
+            </div>
+
+
+            <div class="performance-box">
+
+                <span>
+                    Total Value
+                </span>
+
+                <strong>
+                    $0.00
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+        <p class="placeholder-note">
+
+            Capital and profit management will be connected
+            after the secure financial records system is added.
+
+        </p>
+
+    </div>
+
+
+
+    <!-- TRANSACTIONS -->
+
+    <div class="dashboard-card">
+
+        <div class="dashboard-card-header">
+
+            <div>
+
+                <p class="section-label">
+                    TRANSACTIONS
+                </p>
+
+                <h2>
+                    Transaction Management
+                </h2>
+
+            </div>
+
+            <span class="coming-soon">
+                NEXT PHASE
+            </span>
+
+        </div>
+
+
+        <div class="empty-state">
+
+            <div class="empty-icon">
+                ⇄
+            </div>
+
+            <h3>
+                Transaction System
+            </h3>
+
+            <p>
+
+                Deposits, investment confirmations,
+                profit entries and withdrawals will be
+                managed from this section.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ADMIN NOTICE -->
+
+    <div class="dashboard-notice">
+
+        <div class="notice-icon">
+            !
+        </div>
+
+        <div>
+
+            <h3>
+                Administrator Security
+            </h3>
+
+            <p>
+
+                Administrative actions should only be performed
+                by authorized Monarch Codex administrators.
+                Member accounts must not be able to modify
+                their own role, account status, capital or profit.
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div class="footer-brand">
+
+            <a
+                href="index.html"
+                class="logo">
+
+                MONARCH<span>CODEX</span>
+
+            </a>
+
+            <p>
+                Learn. Build. Trade. Create.
+            </p>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="register.html">
+                Register
+            </a>
+
+            <a href="login.html">
+                Login
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2026 Monarch Codex. All rights reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+
+</body>
+</html>
