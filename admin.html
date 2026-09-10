@@ -1900,3 +1900,80 @@ async function refreshAdminData() {
     }
 }
 
+logoutBtn.addEventListener(
+    "click",
+    async () => {
+
+        clearMessage();
+
+        try {
+
+            const {
+                error
+            } =
+                await supabaseClient.auth.signOut();
+
+            if (error) {
+                throw error;
+            }
+
+            window.location.href =
+                "login.html";
+
+        } catch (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+            showMessage(
+                error.message ||
+                "Unable to log out."
+            );
+        }
+    }
+);
+
+
+async function initializeAdminPage() {
+
+    try {
+
+        await checkAdminAuthorization();
+
+        await refreshAdminData();
+
+    } catch (error) {
+
+        console.error(
+            "Admin initialization error:",
+            error
+        );
+
+        statsStatus.textContent =
+            "Unable to load.";
+
+        membersStatus.textContent =
+            "Unable to load.";
+
+        investmentsStatus.textContent =
+            "Unable to load.";
+
+        earningsStatus.textContent =
+            "Unable to load.";
+
+        showMessage(
+            error.message ||
+            "Unable to initialize the administrator page."
+        );
+    }
+}
+
+
+initializeAdminPage();
+
+</script>
+
+</body>
+</html>
