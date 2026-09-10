@@ -1,350 +1,650 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MONARCH CODEX | Admin Command Center</title>
 
-<link rel="stylesheet" href="style.css">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>MONARCH CODEX | Admin Command Center</title>
 
-<link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
->
+    <link rel="stylesheet" href="style.css">
 
-<style>
-    :root {
-        --gold: #D4AF37;
-        --black: #080808;
-        --dark: #111111;
-        --dark-card: #161616;
-        --border: rgba(212, 175, 55, 0.25);
-        --text: #f5f5f5;
-        --muted: #a0a0a0;
-    }
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
 
-    * {
-        box-sizing: border-box;
-    }
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
 
-    body {
-        margin: 0;
-        font-family: "Poppins", sans-serif;
-        background: var(--black);
-        color: var(--text);
-    }
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
-    .admin-page {
-        min-height: 100vh;
-        background: var(--black);
-    }
+    <style>
 
-    .admin-header {
-        padding: 18px 5%;
-        border-bottom: 1px solid var(--border);
-        background: #080808;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .admin-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .admin-brand h1 {
-        margin: 0;
-        font-size: 1.3rem;
-        color: var(--gold);
-    }
-
-    .admin-badge {
-        padding: 5px 10px;
-        border: 1px solid var(--gold);
-        color: var(--gold);
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 700;
-    }
-
-    .logout-btn {
-        border: 1px solid var(--gold);
-        background: transparent;
-        color: var(--gold);
-        padding: 9px 16px;
-        border-radius: 7px;
-        font-family: inherit;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .admin-container {
-        width: min(1400px, 92%);
-        margin: 0 auto;
-        padding: 35px 0 60px;
-    }
-
-    .page-title h2 {
-        margin: 0;
-        color: var(--gold);
-    }
-
-    .page-title p {
-        color: var(--muted);
-    }
-
-    .message-box {
-        display: none;
-        margin: 20px 0;
-        padding: 14px;
-        border-radius: 8px;
-        word-break: break-word;
-    }
-
-    .message-box.error {
-        display: block;
-        background: rgba(201, 75, 75, 0.1);
-        border: 1px solid rgba(201, 75, 75, 0.6);
-        color: #ffb0b0;
-    }
-
-    .message-box.success {
-        display: block;
-        background: rgba(76, 175, 114, 0.1);
-        border: 1px solid rgba(76, 175, 114, 0.6);
-        color: #a9f0c1;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 35px;
-    }
-
-    .stat-card {
-        background: var(--dark-card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
-    }
-
-    .stat-card span {
-        color: var(--muted);
-        font-size: 0.85rem;
-    }
-
-    .stat-card strong {
-        display: block;
-        color: var(--gold);
-        font-size: 2rem;
-        margin-top: 10px;
-    }
-
-    .section-card {
-        background: var(--dark);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 28px;
-    }
-
-    .section-heading {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 18px;
-    }
-
-    .section-heading h3 {
-        margin: 0;
-        color: var(--gold);
-    }
-
-    .section-status {
-        color: var(--muted);
-        font-size: 0.8rem;
-    }
-
-    .table-wrapper {
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        min-width: 800px;
-        border-collapse: collapse;
-    }
-
-    th,
-    td {
-        padding: 14px 12px;
-        text-align: left;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        font-size: 0.85rem;
-    }
-
-    th {
-        color: var(--gold);
-    }
-
-    .status {
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-    }
-
-    .status-pending {
-        color: var(--gold);
-    }
-
-    .status-active {
-        color: #7be6a1;
-    }
-
-    .status-blocked {
-        color: #ff9292;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-    }
-
-    .action-btn {
-        border: none;
-        border-radius: 6px;
-        padding: 8px 11px;
-        font-family: inherit;
-        cursor: pointer;
-    }
-
-    .activate-btn,
-    .confirm-btn {
-        background: var(--gold);
-        color: #000;
-    }
-
-    .block-btn,
-    .reject-btn {
-        background: transparent;
-        color: #ff9696;
-        border: 1px solid #c94b4b;
-    }
-
-    .loading-text,
-    .empty-text {
-        color: var(--muted);
-    }
-
-    .error-text {
-        color: #ff9696;
-    }
-
-    @media (max-width: 900px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+        :root {
+            --gold: #D4AF37;
+            --black: #080808;
+            --dark: #111111;
+            --dark-card: #161616;
+            --border: rgba(212, 175, 55, 0.25);
+            --text: #f5f5f5;
+            --muted: #a0a0a0;
         }
-    }
 
-    @media (max-width: 600px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: var(--black);
+            color: var(--text);
+        }
+
+        .admin-page {
+            min-height: 100vh;
+            background: var(--black);
+        }
+
+        .admin-header {
+            padding: 18px 5%;
+            border-bottom: 1px solid var(--border);
+            background: #080808;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-brand h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            color: var(--gold);
+        }
+
+        .admin-badge {
+            padding: 5px 10px;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            padding: 9px 16px;
+            border-radius: 7px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .logout-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .admin-container {
-            width: 94%;
+            width: min(1400px, 92%);
+            margin: 0 auto;
+            padding: 35px 0 60px;
         }
-    }
-</style>
 
-</head><body><div class="admin-page"><header class="admin-header">
-    <div class="admin-brand">
-        <h1>MONARCH CODEX</h1>
-        <span class="admin-badge">ADMIN</span>
-    </div>
+        .page-title h2 {
+            margin: 0;
+            color: var(--gold);
+        }
 
-    <button id="logoutBtn" class="logout-btn">
-        Logout
-    </button>
-</header>
+        .page-title p {
+            color: var(--muted);
+        }
 
-<main class="admin-container">
+        .message-box {
+            display: none;
+            margin: 20px 0;
+            padding: 14px;
+            border-radius: 8px;
+            word-break: break-word;
+        }
 
-    <div class="page-title">
-        <h2>Admin Command Center</h2>
-        <p>Manage Monarchs and investment requests.</p>
-    </div>
+        .message-box.error {
+            display: block;
+            background: rgba(201, 75, 75, 0.1);
+            border: 1px solid rgba(201, 75, 75, 0.6);
+            color: #ffb0b0;
+        }
 
-    <div id="messageBox" class="message-box"></div>
+        .message-box.success {
+            display: block;
+            background: rgba(76, 175, 114, 0.1);
+            border: 1px solid rgba(76, 175, 114, 0.6);
+            color: #a9f0c1;
+        }
 
-    <section>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 35px;
+        }
 
-        <div class="section-heading">
-            <h3>Overview</h3>
-            <span id="statsStatus" class="section-status"></span>
+        .stat-card {
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-card span {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .stat-card strong {
+            display: block;
+            color: var(--gold);
+            font-size: 2rem;
+            margin-top: 10px;
+        }
+
+        .section-card {
+            background: var(--dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .section-heading h3 {
+            margin: 0;
+            color: var(--gold);
+        }
+
+        .section-status {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.85rem;
+        }
+
+        th {
+            color: var(--gold);
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+        }
+
+        .status-pending {
+            color: var(--gold);
+        }
+
+        .status-active,
+        .status-confirmed {
+            color: #7be6a1;
+        }
+
+        .status-blocked,
+        .status-rejected {
+            color: #ff9292;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            border: none;
+            border-radius: 6px;
+            padding: 8px 11px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .activate-btn,
+        .confirm-btn,
+        .add-earning-btn {
+            background: var(--gold);
+            color: #000;
+        }
+
+        .block-btn,
+        .reject-btn,
+        .delete-earning-btn {
+            background: transparent;
+            color: #ff9696;
+            border: 1px solid #c94b4b;
+        }
+
+        .loading-text,
+        .empty-text {
+            color: var(--muted);
+        }
+
+        .error-text {
+            color: #ff9696;
+        }
+
+        .earning-form {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1.6fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group label {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 7px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: #0b0b0b;
+            color: var(--text);
+            font-family: inherit;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--gold);
+        }
+
+        .earning-submit {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 7px;
+            background: var(--gold);
+            color: #000;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .earning-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 1000px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .earning-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .earning-submit {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .admin-container {
+                width: 94%;
+            }
+
+            .earning-form {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-header {
+                padding: 15px 4%;
+            }
+
+            .admin-brand h1 {
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <header class="admin-header">
+
+        <div class="admin-brand">
+
+            <h1>MONARCH CODEX</h1>
+
+            <span class="admin-badge">
+                ADMIN
+            </span>
+
         </div>
 
-        <div class="stats-grid">
+        <button
+            id="logoutBtn"
+            class="logout-btn"
+        >
+            Logout
+        </button>
 
-            <div class="stat-card">
-                <span>Total Members</span>
-                <strong id="totalMembers">Loading...</strong>
-            </div>
+    </header>
 
-            <div class="stat-card">
-                <span>Pending Members</span>
-                <strong id="pendingMembers">Loading...</strong>
-            </div>
 
-            <div class="stat-card">
-                <span>Confirmed Investments</span>
-                <strong id="confirmedInvestments">Loading...</strong>
-            </div>
+    <main class="admin-container">
 
-            <div class="stat-card">
-                <span>Rejected Investments</span>
-                <strong id="rejectedInvestments">Loading...</strong>
-            </div>
+        <div class="page-title">
 
-        </div>
+            <h2>
+                Admin Command Center
+            </h2>
 
-    </section>
-
-    <section class="section-card">
-
-        <div class="section-heading">
-            <h3>Member Management</h3>
-            <span id="membersStatus" class="section-status"></span>
-        </div>
-
-        <div id="membersContent">
-            <p class="loading-text">Loading members...</p>
-        </div>
-
-    </section>
-
-    <section class="section-card">
-
-        <div class="section-heading">
-            <h3>Investment Requests</h3>
-            <span id="investmentsStatus" class="section-status"></span>
-        </div>
-
-        <div id="investmentsContent">
-            <p class="loading-text">
-                Loading investment requests...
+            <p>
+                Manage Monarchs, investments and earnings.
             </p>
+
         </div>
 
-    </section>
 
-</main>
+        <div
+            id="messageBox"
+            class="message-box"
+        ></div>
 
-</div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+
+        <section>
+
+            <div class="section-heading">
+
+                <h3>
+                    Overview
+                </h3>
+
+                <span
+                    id="statsStatus"
+                    class="section-status"
+                ></span>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <span>
+                        Total Members
+                    </span>
+
+                    <strong id="totalMembers">
+                        Loading...
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        Pending Members
+                    </span>
+
+                    <strong id="pendingMembers">
+                        Loading...
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        Confirmed Investments
+                    </span>
+
+                    <strong id="confirmedInvestments">
+                        Loading...
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        Rejected Investments
+                    </span>
+
+                    <strong id="rejectedInvestments">
+                        Loading...
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="section-card">
+
+            <div class="section-heading">
+
+                <h3>
+                    Member Management
+                </h3>
+
+                <span
+                    id="membersStatus"
+                    class="section-status"
+                ></span>
+
+            </div>
+
+            <div id="membersContent">
+
+                <p class="loading-text">
+                    Loading members...
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="section-card">
+
+            <div class="section-heading">
+
+                <h3>
+                    Investment Requests
+                </h3>
+
+                <span
+                    id="investmentsStatus"
+                    class="section-status"
+                ></span>
+
+            </div>
+
+            <div id="investmentsContent">
+
+                <p class="loading-text">
+                    Loading investment requests...
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <section class="section-card">
+
+            <div class="section-heading">
+
+                <h3>
+                    Earnings Management
+                </h3>
+
+                <span
+                    id="earningsStatus"
+                    class="section-status"
+                ></span>
+
+            </div>
+
+
+            <div class="earning-form">
+
+                <div class="form-group">
+
+                    <label for="earningMember">
+                        Select Monarch
+                    </label>
+
+                    <select id="earningMember">
+
+                        <option value="">
+                            Select a member
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="earningAmount">
+                        Earnings Amount
+                    </label>
+
+                    <input
+                        type="number"
+                        id="earningAmount"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="earningDescription">
+                        Description
+                    </label>
+
+                    <input
+                        type="text"
+                        id="earningDescription"
+                        maxlength="200"
+                        placeholder="e.g. Confirmed return"
+                    >
+
+                </div>
+
+
+                <button
+                    id="addEarningBtn"
+                    class="earning-submit"
+                >
+                    Add Earning
+                </button>
+
+            </div>
+
+
+            <div
+                id="earningsContent"
+                style="margin-top:25px;"
+            >
+
+                <p class="loading-text">
+                    Loading earnings...
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
 
 const SUPABASE_URL =
     "https://avaworleivncevaoqeny.supabase.co";
@@ -352,16 +652,24 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
+
 const supabaseClient =
     window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_PUBLISHABLE_KEY
     );
 
+
 let currentAdmin = null;
+
 let profilesData = [];
+
 let packagesData = [];
+
 let investmentsData = [];
+
+let earningsData = [];
+
 
 const totalMembersElement =
     document.getElementById("totalMembers");
@@ -375,11 +683,16 @@ const confirmedInvestmentsElement =
 const rejectedInvestmentsElement =
     document.getElementById("rejectedInvestments");
 
+
 const membersContent =
     document.getElementById("membersContent");
 
 const investmentsContent =
     document.getElementById("investmentsContent");
+
+const earningsContent =
+    document.getElementById("earningsContent");
+
 
 const membersStatus =
     document.getElementById("membersStatus");
@@ -387,14 +700,32 @@ const membersStatus =
 const investmentsStatus =
     document.getElementById("investmentsStatus");
 
+const earningsStatus =
+    document.getElementById("earningsStatus");
+
 const statsStatus =
     document.getElementById("statsStatus");
+
 
 const messageBox =
     document.getElementById("messageBox");
 
 const logoutBtn =
     document.getElementById("logoutBtn");
+
+
+const earningMember =
+    document.getElementById("earningMember");
+
+const earningAmount =
+    document.getElementById("earningAmount");
+
+const earningDescription =
+    document.getElementById("earningDescription");
+
+const addEarningBtn =
+    document.getElementById("addEarningBtn");
+
 
 function escapeHtml(value) {
 
@@ -413,6 +744,7 @@ function escapeHtml(value) {
         .replace(/'/g, "&#039;");
 }
 
+
 function showMessage(
     message,
     type = "error"
@@ -428,6 +760,7 @@ function showMessage(
         "block";
 }
 
+
 function clearMessage() {
 
     messageBox.textContent =
@@ -439,6 +772,7 @@ function clearMessage() {
     messageBox.style.display =
         "none";
 }
+
 
 function formatDate(dateValue) {
 
@@ -457,6 +791,7 @@ function formatDate(dateValue) {
         );
 }
 
+
 function formatAmount(amount) {
 
     const number =
@@ -467,14 +802,21 @@ function formatAmount(amount) {
     }
 
     return "$" +
-        number.toLocaleString();
+        number.toLocaleString(
+            undefined,
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
 }
+
 
 function getStatusClass(status) {
 
     const value =
         String(status || "")
-        .toLowerCase();
+            .toLowerCase();
 
     if (value === "pending") {
         return "status-pending";
@@ -497,6 +839,7 @@ function getStatusClass(status) {
     return "";
 }
 
+
 async function checkAdminAuthorization() {
 
     const {
@@ -506,6 +849,7 @@ async function checkAdminAuthorization() {
         await supabaseClient
             .auth
             .getUser();
+
 
     if (
         authError ||
@@ -517,6 +861,7 @@ async function checkAdminAuthorization() {
 
         return false;
     }
+
 
     const {
         data: profile,
@@ -530,6 +875,7 @@ async function checkAdminAuthorization() {
                 authData.user.id
             )
             .single();
+
 
     if (profileError) {
 
@@ -546,6 +892,7 @@ async function checkAdminAuthorization() {
         return false;
     }
 
+
     if (
         profile.role !== "admin" ||
         profile.status !== "active"
@@ -561,1183 +908,9 @@ async function checkAdminAuthorization() {
         return false;
     }
 
+
     currentAdmin =
         profile;
 
     return true;
 }
-
-async function loadProfiles() {
-
-    membersStatus.textContent =
-        "Loading...";
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("profiles")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
-
-    if (error) {
-
-        console.error(
-            "Could not load members:",
-            error
-        );
-
-        membersStatus.textContent =
-            "Error";
-
-        membersContent.innerHTML =
-            `
-            <p class="error-text">
-                Could not load members:
-                ${escapeHtml(error.message)}
-            </p>
-            `;
-
-        throw error;
-    }
-
-    profilesData =
-        data || [];
-
-    membersStatus.textContent =
-        profilesData.length +
-        " loaded";
-
-    renderMembers();
-}
-
-async function loadPackages() {
-
-const {
-    data,
-    error
-} =
-    await supabaseClient
-        .from("packages")
-        .select("*");
-
-if (error) {
-
-    console.error(
-        "Could not load packages:",
-        error
-    );
-
-    packagesData = [];
-
-    showMessage(
-        "Could not load packages: " +
-        error.message
-    );
-
-    return;
-}
-
-packagesData =
-    data || [];
-
-}
-
-async function loadInvestments() {
-
-investmentsStatus.textContent =
-    "Loading...";
-
-const {
-    data,
-    error
-} =
-    await supabaseClient
-        .from("investments")
-        .select("*")
-        .order(
-            "created_at",
-            {
-                ascending: false
-            }
-        );
-
-if (error) {
-
-    console.error(
-        "Could not load investments:",
-        error
-    );
-
-    investmentsStatus.textContent =
-        "Error";
-
-    investmentsContent.innerHTML =
-        `
-        <p class="error-text">
-            Could not load investment requests:
-            ${escapeHtml(error.message)}
-        </p>
-        `;
-
-    throw error;
-}
-
-investmentsData =
-    data || [];
-
-investmentsStatus.textContent =
-    investmentsData.length +
-    " loaded";
-
-renderInvestments();
-
-}
-
-function loadStatistics() {
-
-try {
-
-    const members =
-        profilesData.filter(
-            profile =>
-                profile.role === "member"
-        );
-
-    const pendingMembers =
-        members.filter(
-            profile =>
-                profile.status === "pending"
-        );
-
-    const confirmedInvestments =
-        investmentsData.filter(
-            investment =>
-                investment.status === "confirmed"
-        );
-
-    const rejectedInvestments =
-        investmentsData.filter(
-            investment =>
-                investment.status === "rejected"
-        );
-
-    totalMembersElement.textContent =
-        members.length;
-
-    pendingMembersElement.textContent =
-        pendingMembers.length;
-
-    confirmedInvestmentsElement.textContent =
-        confirmedInvestments.length;
-
-    rejectedInvestmentsElement.textContent =
-        rejectedInvestments.length;
-
-    statsStatus.textContent =
-        "Updated";
-
-} catch (error) {
-
-    console.error(
-        "Could not calculate statistics:",
-        error
-    );
-
-    statsStatus.textContent =
-        "Error";
-
-    totalMembersElement.textContent =
-        "Error";
-
-    pendingMembersElement.textContent =
-        "Error";
-
-    confirmedInvestmentsElement.textContent =
-        "Error";
-
-    rejectedInvestmentsElement.textContent =
-        "Error";
-
-    showMessage(
-        "Could not load statistics: " +
-        error.message
-    );
-}
-
-}
-
-function renderMembers() {
-
-/*
- * Only normal members are shown here.
- * Admin accounts are excluded so they
- * cannot accidentally be modified.
- */
-
-const members =
-    profilesData.filter(
-        profile =>
-            profile.role === "member"
-    );
-
-if (
-    members.length === 0
-) {
-
-    membersContent.innerHTML =
-        `
-        <p class="empty-text">
-            No members found.
-        </p>
-        `;
-
-    return;
-}
-
-let rows =
-    "";
-
-members.forEach(
-    member => {
-
-        const memberName =
-            escapeHtml(
-                member.full_name ||
-                "Unnamed Member"
-            );
-
-        const memberPhone =
-            escapeHtml(
-                member.phone ||
-                "N/A"
-            );
-
-        const memberStatus =
-            escapeHtml(
-                member.status ||
-                "unknown"
-            );
-
-        const statusClass =
-            getStatusClass(
-                member.status
-            );
-
-        let actionHtml =
-            "";
-
-        if (
-            member.status === "active"
-        ) {
-
-            actionHtml =
-                `
-                <div class="action-buttons">
-
-                    <button
-                        class="action-btn activate-btn"
-                        disabled
-                    >
-                        Active
-                    </button>
-
-                    <button
-                        class="action-btn block-btn"
-                        data-member-id="${member.id}"
-                        onclick="blockMember(this)"
-                    >
-                        Block
-                    </button>
-
-                </div>
-                `;
-
-        } else if (
-            member.status === "blocked"
-        ) {
-
-            actionHtml =
-                `
-                <div class="action-buttons">
-
-                    <button
-                        class="action-btn activate-btn"
-                        data-member-id="${member.id}"
-                        onclick="activateMember(this)"
-                    >
-                        Activate
-                    </button>
-
-                    <button
-                        class="action-btn block-btn"
-                        disabled
-                    >
-                        Blocked
-                    </button>
-
-                </div>
-                `;
-
-        } else {
-
-            actionHtml =
-                `
-                <div class="action-buttons">
-
-                    <button
-                        class="action-btn activate-btn"
-                        data-member-id="${member.id}"
-                        onclick="activateMember(this)"
-                    >
-                        Activate
-                    </button>
-
-                    <button
-                        class="action-btn block-btn"
-                        data-member-id="${member.id}"
-                        onclick="blockMember(this)"
-                    >
-                        Block
-                    </button>
-
-                </div>
-                `;
-        }
-
-        rows +=
-            `
-            <tr>
-
-                <td>
-                    ${memberName}
-                </td>
-
-                <td>
-                    ${memberPhone}
-                </td>
-
-                <td>
-                    <span class="status ${statusClass}">
-                        ${memberStatus}
-                    </span>
-                </td>
-
-                <td>
-                    ${formatDate(
-                        member.created_at
-                    )}
-                </td>
-
-                <td>
-                    ${actionHtml}
-                </td>
-
-            </tr>
-            `;
-    }
-);
-
-membersContent.innerHTML =
-    `
-    <div class="table-wrapper">
-
-        <table>
-
-            <thead>
-
-                <tr>
-                    <th>Full Name</th>
-                    <th>Phone</th>
-                    <th>Status</th>
-                    <th>Registration Date</th>
-                    <th>Action</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-                ${rows}
-            </tbody>
-
-        </table>
-
-    </div>
-    `;
-
-}
-
-function renderInvestments() {
-
-if (
-    investmentsData.length === 0
-) {
-
-    investmentsContent.innerHTML =
-        `
-        <p class="empty-text">
-            No investment requests found.
-        </p>
-        `;
-
-    return;
-}
-
-/*
- * Create maps for profiles and packages.
- * This avoids nested Supabase queries.
- */
-
-const profilesMap =
-    new Map();
-
-profilesData.forEach(
-    profile => {
-
-        profilesMap.set(
-            profile.id,
-            profile
-        );
-    }
-);
-
-const packagesMap =
-    new Map();
-
-packagesData.forEach(
-    packageItem => {
-
-        packagesMap.set(
-            packageItem.id,
-            packageItem
-        );
-    }
-);
-
-let rows =
-    "";
-
-investmentsData.forEach(
-    investment => {
-
-        const member =
-            profilesMap.get(
-                investment.user_id
-            );
-
-        const packageItem =
-            packagesMap.get(
-                investment.package_id
-            );
-
-        const memberName =
-            escapeHtml(
-                member?.full_name ||
-                "Unknown Member"
-            );
-
-        const packageName =
-            packageItem
-                ? (
-                    packageItem.name ||
-                    packageItem.title ||
-                    packageItem.amount ||
-                    packageItem.price ||
-                    "Package"
-                )
-                : "Unknown Package";
-
-        const paymentMethod =
-            escapeHtml(
-                investment.payment_method ||
-                "N/A"
-            );
-
-        const investmentStatus =
-            escapeHtml(
-                investment.status ||
-                "pending"
-            );
-
-        const statusClass =
-            getStatusClass(
-                investment.status
-            );
-
-        let actionHtml =
-            "";
-
-        if (
-            investment.status === "confirmed"
-        ) {
-
-            actionHtml =
-                `
-                <button
-                    class="action-btn confirm-btn"
-                    disabled
-                >
-                    Confirmed
-                </button>
-                `;
-
-        } else if (
-            investment.status === "rejected"
-        ) {
-
-            actionHtml =
-                `
-                <button
-                    class="action-btn reject-btn"
-                    disabled
-                >
-                    Rejected
-                </button>
-                `;
-
-        } else {
-
-            actionHtml =
-                `
-                <div class="action-buttons">
-
-                    <button
-                        class="action-btn confirm-btn"
-                        data-investment-id="${investment.id}"
-                        onclick="confirmInvestment(this)"
-                    >
-                        Confirm
-                    </button>
-
-                    <button
-                        class="action-btn reject-btn"
-                        data-investment-id="${investment.id}"
-                        onclick="rejectInvestment(this)"
-                    >
-                        Reject
-                    </button>
-
-                </div>
-                `;
-        }
-
-        rows +=
-            `
-            <tr>
-
-                <td>
-                    ${memberName}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        String(packageName)
-                    )}
-                </td>
-
-                <td>
-                    ${formatAmount(
-                        investment.amount
-                    )}
-                </td>
-
-                <td>
-                    ${paymentMethod}
-                </td>
-
-                <td>
-                    <span class="status ${statusClass}">
-                        ${investmentStatus}
-                    </span>
-                </td>
-
-                <td>
-                    ${formatDate(
-                        investment.created_at
-                    )}
-                </td>
-
-                <td>
-                    ${actionHtml}
-                </td>
-
-            </tr>
-            `;
-    }
-);
-
-investmentsContent.innerHTML =
-    `
-    <div class="table-wrapper">
-
-        <table>
-
-            <thead>
-
-                <tr>
-                    <th>Member</th>
-                    <th>Package</th>
-                    <th>Amount</th>
-                    <th>Payment Method</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-                ${rows}
-            </tbody>
-
-        </table>
-
-    </div>
-    `;
-
-}
-
-async function activateMember(button) {
-
-clearMessage();
-
-const memberId =
-    button.dataset.memberId;
-
-if (!memberId) {
-    return;
-}
-
-/*
- * Security check:
- * Only normal members can be modified.
- * Admin accounts can never be changed here.
- */
-
-const targetProfile =
-    profilesData.find(
-        profile =>
-            profile.id === memberId
-    );
-
-if (
-    !targetProfile ||
-    targetProfile.role !== "member"
-) {
-
-    showMessage(
-        "Security check failed: administrator accounts cannot be modified from member controls."
-    );
-
-    return;
-}
-
-button.disabled =
-    true;
-
-const originalText =
-    button.textContent;
-
-button.textContent =
-    "Updating...";
-
-const {
-    error
-} =
-    await supabaseClient
-        .from("profiles")
-        .update({
-            status: "active"
-        })
-        .eq(
-            "id",
-            memberId
-        )
-        .eq(
-            "role",
-            "member"
-        );
-
-if (error) {
-
-    console.error(
-        "Could not activate member:",
-        error
-    );
-
-    showMessage(
-        "Could not activate member: " +
-        error.message
-    );
-
-    button.disabled =
-        false;
-
-    button.textContent =
-        originalText;
-
-    return;
-}
-
-showMessage(
-    "Member activated successfully.",
-    "success"
-);
-
-await refreshAdminData();
-
-}
-
-async function blockMember(button) {
-
-clearMessage();
-
-const memberId =
-    button.dataset.memberId;
-
-if (!memberId) {
-    return;
-}
-
-/*
- * Security check:
- * Only normal members can be modified.
- * Admin accounts are protected.
- */
-
-const targetProfile =
-    profilesData.find(
-        profile =>
-            profile.id === memberId
-    );
-
-if (
-    !targetProfile ||
-    targetProfile.role !== "member"
-) {
-
-    showMessage(
-        "Security check failed: administrator accounts cannot be modified from member controls."
-    );
-
-    return;
-}
-
-button.disabled =
-    true;
-
-const originalText =
-    button.textContent;
-
-button.textContent =
-    "Updating...";
-
-const {
-    error
-} =
-    await supabaseClient
-        .from("profiles")
-        .update({
-            status: "blocked"
-        })
-        .eq(
-            "id",
-            memberId
-        )
-        .eq(
-            "role",
-            "member"
-        );
-
-if (error) {
-
-    console.error(
-        "Could not block member:",
-        error
-    );
-
-    showMessage(
-        "Could not block member: " +
-        error.message
-    );
-
-    button.disabled =
-        false;
-
-    button.textContent =
-        originalText;
-
-    return;
-}
-
-showMessage(
-    "Member blocked successfully.",
-    "success"
-);
-
-await refreshAdminData();
-
-}
-
-async function confirmInvestment(button) {
-
-clearMessage();
-
-const investmentId =
-    button.dataset.investmentId;
-
-if (!investmentId) {
-    return;
-}
-
-button.disabled =
-    true;
-
-const originalText =
-    button.textContent;
-
-button.textContent =
-    "Updating...";
-
-const {
-    error
-} =
-    await supabaseClient
-        .from("investments")
-        .update({
-            status: "confirmed"
-        })
-        .eq(
-            "id",
-            investmentId
-        );
-
-if (error) {
-
-    console.error(
-        "Could not confirm investment:",
-        error
-    );
-
-    showMessage(
-        "Could not confirm investment: " +
-        error.message
-    );
-
-    button.disabled =
-        false;
-
-    button.textContent =
-        originalText;
-
-    return;
-}
-
-showMessage(
-    "Investment confirmed successfully.",
-    "success"
-);
-
-await refreshAdminData();
-
-}
-
-async function rejectInvestment(button) {
-
-clearMessage();
-
-const investmentId =
-    button.dataset.investmentId;
-
-if (!investmentId) {
-    return;
-}
-
-button.disabled =
-    true;
-
-const originalText =
-    button.textContent;
-
-button.textContent =
-    "Updating...";
-
-const {
-    error
-} =
-    await supabaseClient
-        .from("investments")
-        .update({
-            status: "rejected"
-        })
-        .eq(
-            "id",
-            investmentId
-        );
-
-if (error) {
-
-    console.error(
-        "Could not reject investment:",
-        error
-    );
-
-    showMessage(
-        "Could not reject investment: " +
-        error.message
-    );
-
-    button.disabled =
-        false;
-
-    button.textContent =
-        originalText;
-
-    return;
-}
-
-showMessage(
-    "Investment rejected successfully.",
-    "success"
-);
-
-await refreshAdminData();
-
-}
-
-async function refreshAdminData() {
-
-membersStatus.textContent =
-    "Refreshing...";
-
-investmentsStatus.textContent =
-    "Refreshing...";
-
-statsStatus.textContent =
-    "Refreshing...";
-
-try {
-
-    /*
-     * Load all data separately.
-     * This avoids nested Supabase relationship queries.
-     */
-
-    await loadProfiles();
-
-    await loadPackages();
-
-    await loadInvestments();
-
-    /*
-     * Calculate statistics after
-     * profiles and investments are loaded.
-     */
-
-    loadStatistics();
-
-} catch (error) {
-
-    console.error(
-        "Admin data refresh failed:",
-        error
-    );
-
-    showMessage(
-        "Could not completely load Admin Command Center: " +
-        (
-            error.message ||
-            "Unknown error"
-        )
-    );
-
-    /*
-     * Ensure the page does not remain
-     * permanently in a loading state.
-     */
-
-    if (
-        membersStatus.textContent ===
-        "Loading..."
-    ) {
-
-        membersStatus.textContent =
-            "Error";
-    }
-
-    if (
-        investmentsStatus.textContent ===
-        "Loading..."
-    ) {
-
-        investmentsStatus.textContent =
-            "Error";
-    }
-
-    if (
-        statsStatus.textContent ===
-        "Loading..."
-    ) {
-
-        statsStatus.textContent =
-            "Error";
-    }
-}
-
-}
-
-/*
-
-* LOGOUT
-  */
-
-logoutBtn.addEventListener(
-"click",
-async function () {
-
-    logoutBtn.disabled =
-        true;
-
-    logoutBtn.textContent =
-        "Logging out...";
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .auth
-            .signOut();
-
-    if (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-
-        showMessage(
-            "Could not log out: " +
-            error.message
-        );
-
-        logoutBtn.disabled =
-            false;
-
-        logoutBtn.textContent =
-            "Logout";
-
-        return;
-    }
-
-    window.location.href =
-        "login.html";
-}
-
-);
-
-/*
-
-* PAGE INITIALIZATION
-  */
-
-async function initializeAdminPage() {
-
-try {
-
-    /*
-     * First verify that the
-     * currently logged-in user
-     * is an active administrator.
-     */
-
-    const isAuthorized =
-        await checkAdminAuthorization();
-
-    if (!isAuthorized) {
-        return;
-    }
-
-
-    /*
-     * Load Admin Command Center data.
-     */
-
-    await refreshAdminData();
-
-
-} catch (error) {
-
-    console.error(
-        "Admin page initialization failed:",
-        error
-    );
-
-    showMessage(
-        "Could not initialize Admin Command Center: " +
-        (
-            error.message ||
-            "Unknown error"
-        )
-    );
-
-
-    /*
-     * Never leave the original loading
-     * messages on the screen forever.
-     */
-
-    if (
-        membersContent.innerHTML.includes(
-            "Loading members..."
-        )
-    ) {
-
-        membersContent.innerHTML =
-            `
-            <p class="error-text">
-                Could not load members:
-                ${escapeHtml(
-                    error.message ||
-                    "Unknown error"
-                )}
-            </p>
-            `;
-    }
-
-
-    if (
-        investmentsContent.innerHTML.includes(
-            "Loading investment requests..."
-        )
-    ) {
-
-        investmentsContent.innerHTML =
-            `
-            <p class="error-text">
-                Could not load investment requests:
-                ${escapeHtml(
-                    error.message ||
-                    "Unknown error"
-                )}
-            </p>
-            `;
-    }
-}
-
-}
-
-/*
-
-* START ADMIN PAGE
-  */
-
-initializeAdminPage();
-
-</script></body>
-</html>
