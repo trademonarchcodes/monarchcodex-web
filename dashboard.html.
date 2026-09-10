@@ -428,3 +428,167 @@
             </div>
 
         </section>
+        <section class="dashboard-section">
+
+            <div class="section-title">
+                <h2>Earnings</h2>
+                <span>YOUR EARNINGS RECORD</span>
+            </div>
+
+            <div class="earnings-summary">
+
+                <div class="earning-total-card">
+                    <div class="stat-label">
+                        TOTAL EARNINGS
+                    </div>
+
+                    <div
+                        class="earning-total"
+                        id="totalEarnings"
+                    >
+                        $0.00
+                    </div>
+
+                    <p>
+                        Confirmed earnings recorded on your account.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="earnings-history-card">
+
+                <div class="history-header">
+                    <h3>Earnings History</h3>
+                </div>
+
+                <div
+                    id="earningsContent"
+                    class="table-wrapper"
+                >
+                    <div class="loading-card">
+                        Loading earnings...
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="dashboard-section">
+
+            <div class="section-title">
+                <h2>Investment History</h2>
+                <span>YOUR REQUESTS</span>
+            </div>
+
+            <div
+                id="historyContent"
+                class="history-card"
+            >
+                <div class="loading-card">
+                    Loading investment history...
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="dashboard-footer">
+        <div class="dashboard-container footer-inner">
+            <strong>MONARCH CODEX</strong>
+
+            <span>
+                Making The Kingdom Of GOD A Reality On The Earth.
+            </span>
+        </div>
+    </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const SUPABASE_URL =
+        "https://avaworleivncevaoqeny.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+        );
+
+    let currentUser = null;
+    let currentProfile = null;
+
+    let packagesData = [];
+    let investmentsData = [];
+    let earningsData = [];
+
+    let selectedPackage = null;
+    let selectedPaymentMethod = null;
+
+    const memberName =
+        document.getElementById("memberName");
+
+    const messageBox =
+        document.getElementById("messageBox");
+
+    const profileFullName =
+        document.getElementById("profileFullName");
+
+    const profilePhone =
+        document.getElementById("profilePhone");
+
+    const profileStatus =
+        document.getElementById("profileStatus");
+
+    const profileRole =
+        document.getElementById("profileRole");
+
+    const profileCreatedAt =
+        document.getElementById("profileCreatedAt");
+
+    const packagesContent =
+        document.getElementById("packagesContent");
+
+    const historyContent =
+        document.getElementById("historyContent");
+
+    const earningsContent =
+        document.getElementById("earningsContent");
+
+    const totalInvested =
+        document.getElementById("totalInvested");
+
+    const confirmedInvestments =
+        document.getElementById("confirmedInvestments");
+
+    const pendingInvestments =
+        document.getElementById("pendingInvestments");
+
+    const totalRequests =
+        document.getElementById("totalRequests");
+
+    const totalEarnings =
+        document.getElementById("totalEarnings");
+
+    const submitInvestmentBtn =
+        document.getElementById("submitInvestmentBtn");
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
