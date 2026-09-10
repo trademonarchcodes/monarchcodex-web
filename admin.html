@@ -1,372 +1,618 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>MONARCH CODEX | Admin Command Center</title>
 
-    <title>Admin Command Center | Monarch Codex</title>
+<link rel="stylesheet" href="style.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+<link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
 
-    <link rel="stylesheet" href="style.css">
+<style>
+    :root {
+        --gold: #D4AF37;
+        --black: #080808;
+        --dark: #111111;
+        --dark-card: #161616;
+        --border: rgba(212, 175, 55, 0.25);
+        --text: #f5f5f5;
+        --muted: #a0a0a0;
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
+    * {
+        box-sizing: border-box;
+    }
 
-<body>
+    body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: var(--black);
+        color: var(--text);
+    }
 
-<header class="site-header">
+    .admin-page {
+        min-height: 100vh;
+        background: var(--black);
+    }
 
-    <div class="container nav-container">
+    .admin-header {
+        padding: 18px 5%;
+        border-bottom: 1px solid var(--border);
+        background: #080808;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
 
-        <a href="index.html" class="logo">
-            MONARCH <span>CODEX</span>
-        </a>
+    .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-        <div style="display:flex;align-items:center;gap:12px;">
+    .admin-brand h1 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: var(--gold);
+    }
 
-            <span
-                id="adminBadge"
-                style="
-                    color:#D4AF37;
-                    font-size:12px;
-                    font-weight:600;
-                "
-            >
-                ADMIN
-            </span>
+    .admin-badge {
+        padding: 5px 10px;
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
 
-            <button
-                id="logoutBtn"
-                class="btn btn-outline"
-                onclick="logout()"
-            >
-                Logout
-            </button>
+    .logout-btn {
+        border: 1px solid var(--gold);
+        background: transparent;
+        color: var(--gold);
+        padding: 9px 16px;
+        border-radius: 7px;
+        font-family: inherit;
+        font-weight: 600;
+        cursor: pointer;
+    }
 
-        </div>
+    .admin-container {
+        width: min(1400px, 92%);
+        margin: 0 auto;
+        padding: 35px 0 60px;
+    }
 
+    .page-title h2 {
+        margin: 0;
+        color: var(--gold);
+    }
+
+    .page-title p {
+        color: var(--muted);
+    }
+
+    .message-box {
+        display: none;
+        margin: 20px 0;
+        padding: 14px;
+        border-radius: 8px;
+        word-break: break-word;
+    }
+
+    .message-box.error {
+        display: block;
+        background: rgba(201, 75, 75, 0.1);
+        border: 1px solid rgba(201, 75, 75, 0.6);
+        color: #ffb0b0;
+    }
+
+    .message-box.success {
+        display: block;
+        background: rgba(76, 175, 114, 0.1);
+        border: 1px solid rgba(76, 175, 114, 0.6);
+        color: #a9f0c1;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 35px;
+    }
+
+    .stat-card {
+        background: var(--dark-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .stat-card span {
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+
+    .stat-card strong {
+        display: block;
+        color: var(--gold);
+        font-size: 2rem;
+        margin-top: 10px;
+    }
+
+    .section-card {
+        background: var(--dark);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 28px;
+    }
+
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 18px;
+    }
+
+    .section-heading h3 {
+        margin: 0;
+        color: var(--gold);
+    }
+
+    .section-status {
+        color: var(--muted);
+        font-size: 0.8rem;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        min-width: 800px;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 14px 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        font-size: 0.85rem;
+    }
+
+    th {
+        color: var(--gold);
+    }
+
+    .status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+    }
+
+    .status-pending {
+        color: var(--gold);
+    }
+
+    .status-active {
+        color: #7be6a1;
+    }
+
+    .status-blocked {
+        color: #ff9292;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .action-btn {
+        border: none;
+        border-radius: 6px;
+        padding: 8px 11px;
+        font-family: inherit;
+        cursor: pointer;
+    }
+
+    .activate-btn,
+    .confirm-btn {
+        background: var(--gold);
+        color: #000;
+    }
+
+    .block-btn,
+    .reject-btn {
+        background: transparent;
+        color: #ff9696;
+        border: 1px solid #c94b4b;
+    }
+
+    .loading-text,
+    .empty-text {
+        color: var(--muted);
+    }
+
+    .error-text {
+        color: #ff9696;
+    }
+
+    @media (max-width: 900px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .admin-container {
+            width: 94%;
+        }
+    }
+</style>
+
+</head><body><div class="admin-page"><header class="admin-header">
+    <div class="admin-brand">
+        <h1>MONARCH CODEX</h1>
+        <span class="admin-badge">ADMIN</span>
     </div>
 
+    <button id="logoutBtn" class="logout-btn">
+        Logout
+    </button>
 </header>
 
+<main class="admin-container">
 
-<main>
+    <div class="page-title">
+        <h2>Admin Command Center</h2>
+        <p>Manage Monarchs and investment requests.</p>
+    </div>
 
-    <!-- ADMIN HERO -->
+    <div id="messageBox" class="message-box"></div>
 
-    <section class="hero dashboard-hero">
+    <section>
 
-        <div class="container">
+        <div class="section-heading">
+            <h3>Overview</h3>
+            <span id="statsStatus" class="section-status"></span>
+        </div>
 
-            <p class="eyebrow">
-                MONARCH CODEX
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <span>Total Members</span>
+                <strong id="totalMembers">Loading...</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Pending Members</span>
+                <strong id="pendingMembers">Loading...</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Confirmed Investments</span>
+                <strong id="confirmedInvestments">Loading...</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Rejected Investments</span>
+                <strong id="rejectedInvestments">Loading...</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+    <section class="section-card">
+
+        <div class="section-heading">
+            <h3>Member Management</h3>
+            <span id="membersStatus" class="section-status"></span>
+        </div>
+
+        <div id="membersContent">
+            <p class="loading-text">Loading members...</p>
+        </div>
+
+    </section>
+
+    <section class="section-card">
+
+        <div class="section-heading">
+            <h3>Investment Requests</h3>
+            <span id="investmentsStatus" class="section-status"></span>
+        </div>
+
+        <div id="investmentsContent">
+            <p class="loading-text">
+                Loading investment requests...
             </p>
-
-            <h1>
-                Admin <span>Command Center</span>
-            </h1>
-
-            <p>
-                Manage members, review investment requests,
-                and control account status.
-            </p>
-
-        </div>
-
-    </section>
-
-
-    <!-- OVERVIEW -->
-
-    <section class="section">
-
-        <div class="container">
-
-            <div class="section-heading">
-
-                <p class="eyebrow">
-                    OVERVIEW
-                </p>
-
-                <h2>
-                    Platform Overview
-                </h2>
-
-            </div>
-
-
-            <div class="packages-grid">
-
-                <div class="dashboard-card">
-
-                    <p class="eyebrow">
-                        MEMBERS
-                    </p>
-
-                    <strong
-                        id="totalMembers"
-                        style="
-                            display:block;
-                            color:#fff;
-                            font-size:36px;
-                        "
-                    >
-                        0
-                    </strong>
-
-                    <p>
-                        Registered members
-                    </p>
-
-                </div>
-
-
-                <div class="dashboard-card">
-
-                    <p class="eyebrow">
-                        PENDING
-                    </p>
-
-                    <strong
-                        id="pendingMembers"
-                        style="
-                            display:block;
-                            color:#f3b33d;
-                            font-size:36px;
-                        "
-                    >
-                        0
-                    </strong>
-
-                    <p>
-                        Awaiting review
-                    </p>
-
-                </div>
-
-
-                <div class="dashboard-card">
-
-                    <p class="eyebrow">
-                        CONFIRMED
-                    </p>
-
-                    <strong
-                        id="confirmedInvestments"
-                        style="
-                            display:block;
-                            color:#35d07f;
-                            font-size:36px;
-                        "
-                    >
-                        0
-                    </strong>
-
-                    <p>
-                        Confirmed requests
-                    </p>
-
-                </div>
-
-
-                <div class="dashboard-card">
-
-                    <p class="eyebrow">
-                        REJECTED
-                    </p>
-
-                    <strong
-                        id="rejectedInvestments"
-                        style="
-                            display:block;
-                            color:#ff5c5c;
-                            font-size:36px;
-                        "
-                    >
-                        0
-                    </strong>
-
-                    <p>
-                        Rejected requests
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- MEMBERS -->
-
-    <section class="section section-dark">
-
-        <div class="container">
-
-            <div class="section-heading">
-
-                <p class="eyebrow">
-                    MEMBERS
-                </p>
-
-                <h2>
-                    Member Management
-                </h2>
-
-                <p>
-                    Activate, block, and monitor member accounts.
-                </p>
-
-            </div>
-
-
-            <div class="dashboard-card">
-
-                <div class="table-wrapper">
-
-                    <table class="data-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>NAME</th>
-                                <th>ROLE</th>
-                                <th>STATUS</th>
-                                <th>CREATED</th>
-                                <th>ACTION</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="membersTable">
-
-                            <tr>
-
-                                <td colspan="5">
-                                    Loading members...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- INVESTMENTS -->
-
-    <section class="section">
-
-        <div class="container">
-
-            <div class="section-heading">
-
-                <p class="eyebrow">
-                    INVESTMENTS
-                </p>
-
-                <h2>
-                    Investment Requests
-                </h2>
-
-                <p>
-                    Review submitted investment requests.
-                </p>
-
-            </div>
-
-
-            <div class="dashboard-card">
-
-                <div class="table-wrapper">
-
-                    <table class="data-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>MEMBER</th>
-                                <th>EMAIL</th>
-                                <th>PACKAGE</th>
-                                <th>AMOUNT</th>
-                                <th>PAYMENT</th>
-                                <th>STATUS</th>
-                                <th>DATE</th>
-                                <th>ACTION</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="investmentsTable">
-
-                            <tr>
-
-                                <td colspan="8">
-                                    Loading investment requests...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
         </div>
 
     </section>
 
 </main>
 
+</div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
-<footer class="site-footer">
+const SUPABASE_URL =
+    "https://avaworleivncevaoqeny.supabase.co";
 
-    <div class="container">
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
-        <p>
-            © <span id="currentYear"></span>
-            Monarch Codex.
-            All rights reserved.
-        </p>
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
 
-    </div>
+let currentAdmin = null;
+let profilesData = [];
+let packagesData = [];
+let investmentsData = [];
 
-</footer>
+const totalMembersElement =
+    document.getElementById("totalMembers");
 
+const pendingMembersElement =
+    document.getElementById("pendingMembers");
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
+const confirmedInvestmentsElement =
+    document.getElementById("confirmedInvestments");
 
-<script>
+const rejectedInvestmentsElement =
+    document.getElementById("rejectedInvestments");
 
-document.getElementById("currentYear").textContent =
-    new Date().getFullYear();
+const membersContent =
+    document.getElementById("membersContent");
 
-</script>
+const investmentsContent =
+    document.getElementById("investmentsContent");
 
-</body>
-</html>
+const membersStatus =
+    document.getElementById("membersStatus");
+
+const investmentsStatus =
+    document.getElementById("investmentsStatus");
+
+const statsStatus =
+    document.getElementById("statsStatus");
+
+const messageBox =
+    document.getElementById("messageBox");
+
+const logoutBtn =
+    document.getElementById("logoutBtn");
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function showMessage(
+    message,
+    type = "error"
+) {
+
+    messageBox.textContent =
+        message;
+
+    messageBox.className =
+        "message-box " + type;
+
+    messageBox.style.display =
+        "block";
+}
+
+function clearMessage() {
+
+    messageBox.textContent =
+        "";
+
+    messageBox.className =
+        "message-box";
+
+    messageBox.style.display =
+        "none";
+}
+
+function formatDate(dateValue) {
+
+    if (!dateValue) {
+        return "N/A";
+    }
+
+    return new Date(dateValue)
+        .toLocaleDateString(
+            undefined,
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+}
+
+function formatAmount(amount) {
+
+    const number =
+        Number(amount);
+
+    if (Number.isNaN(number)) {
+        return "$0";
+    }
+
+    return "$" +
+        number.toLocaleString();
+}
+
+function getStatusClass(status) {
+
+    const value =
+        String(status || "")
+        .toLowerCase();
+
+    if (value === "pending") {
+        return "status-pending";
+    }
+
+    if (
+        value === "active" ||
+        value === "confirmed"
+    ) {
+        return "status-active";
+    }
+
+    if (
+        value === "blocked" ||
+        value === "rejected"
+    ) {
+        return "status-blocked";
+    }
+
+    return "";
+}
+
+async function checkAdminAuthorization() {
+
+    const {
+        data: authData,
+        error: authError
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+    if (
+        authError ||
+        !authData.user
+    ) {
+
+        window.location.href =
+            "login.html";
+
+        return false;
+    }
+
+    const {
+        data: profile,
+        error: profileError
+    } =
+        await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq(
+                "id",
+                authData.user.id
+            )
+            .single();
+
+    if (profileError) {
+
+        console.error(
+            "Could not verify admin:",
+            profileError
+        );
+
+        showMessage(
+            "Could not verify administrator profile: " +
+            profileError.message
+        );
+
+        return false;
+    }
+
+    if (
+        profile.role !== "admin" ||
+        profile.status !== "active"
+    ) {
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+        window.location.href =
+            "login.html";
+
+        return false;
+    }
+
+    currentAdmin =
+        profile;
+
+    return true;
+}
+
+async function loadProfiles() {
+
+    membersStatus.textContent =
+        "Loading...";
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("profiles")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+    if (error) {
+
+        console.error(
+            "Could not load members:",
+            error
+        );
+
+        membersStatus.textContent =
+            "Error";
+
+        membersContent.innerHTML =
+            `
+            <p class="error-text">
+                Could not load members:
+                ${escapeHtml(error.message)}
+            </p>
+            `;
+
+        throw error;
+    }
+
+    profilesData =
+        data || [];
+
+    membersStatus.textContent =
+        profilesData.length +
+        " loaded";
+
+    renderMembers();
+}
