@@ -592,3 +592,176 @@
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
+    function showMessage(message, type = "success") {
+        messageBox.textContent = message;
+        messageBox.className =
+            "message-box " + type;
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+    function clearMessage() {
+        messageBox.textContent = "";
+        messageBox.className = "message-box";
+    }
+
+    function formatAmount(amount) {
+        const number = Number(amount) || 0;
+
+        return new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            minimumFractionDigits: 2
+        }).format(number);
+    }
+
+    function formatDate(dateValue) {
+        if (!dateValue) {
+            return "—";
+        }
+
+        const date = new Date(dateValue);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleDateString(
+            "en-US",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+    }
+
+    function getStatusClass(status) {
+        const value =
+            String(status || "pending").toLowerCase();
+
+        if (value === "confirmed" ||
+            value === "active") {
+            return "status-confirmed";
+        }
+
+        if (value === "rejected" ||
+            value === "blocked") {
+            return "status-rejected";
+        }
+
+        return "status-pending";
+    }
+
+    async function checkMemberAuthorization() {
+
+        clearMessage();
+
+        const {
+            data: authData,
+            error: authError
+        } = await supabaseClient.auth.getUser();
+
+        if (authError || !authData.user) {
+            window.location.href = "login.html";
+            return false;
+        }
+
+        currentUser = authData.user;
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", currentUser.id)
+            .single();
+
+        if (profileError || !profile) {
+            showMessage(
+                "Unable to load your member profile.",
+                "error"
+            );
+            return false;
+        }
+
+        if (
+            profile.role === "admin" &&
+            profile.status === "active"
+        ) {
+            window.location.href = "admin.html";
+            return false;
+        }
+
+        if (profile.status === "blocked") {
+
+            await supabaseClient.auth.signOut();
+
+            window.location.href = "login.html";
+
+            return false;
+        }
+
+        currentProfile = profile;
+
+        return true;
+    }
+
+    function displayProfile() {
+
+        if (!currentProfile) {
+            return;
+        }
+
+        const name =
+            currentProfile.full_name || "Monarch";
+
+        memberName.textContent = name;
+
+        profileFullName.textContent =
+            currentProfile.full_name || "—";
+
+        profilePhone.textContent =
+            currentProfile.phone || "—";
+
+        profileStatus.textContent =
+            currentProfile.status || "—";
+
+        profileRole.textContent =
+            currentProfile.role || "member";
+
+        profileCreatedAt.textContent =
+            formatDate(currentProfile.created_at);
+    }
+
+    function getPackageName(pkg) {
+
+        if (!pkg) {
+            return "Investment Package";
+        }
+
+        return (
+            pkg.name ||
+            pkg.title ||
+            pkg.package_name ||
+            "Investment Package"
+        );
+    }
+
+    function getPackageAmount(pkg) {
+
+        if (!pkg) {
+            return 0;
+        }
+
+        return Number(
+            pkg.amount ??
+            pkg.price ??
+            pkg.package_amount ??
+            0
+        );
+    }
