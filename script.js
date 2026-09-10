@@ -1,35 +1,28 @@
-/* =========================================================
+/* =====================================================
    MONARCH CODEX
-   Main Application Script
-   ========================================================= */
+   Main JavaScript
+   ===================================================== */
 
-/* -----------------------------
-   SUPABASE CONFIGURATION
------------------------------ */
-
-const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
-
+const SUPABASE_URL =
+    "https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_KEY =
     "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+let db;
 
-let supabaseClient = null;
 
+/* =====================================================
+   START SUPABASE
+   ===================================================== */
 
-/* -----------------------------
-   INITIALIZE SUPABASE
------------------------------ */
+function startSupabase() {
 
-function initializeSupabase() {
-    if (
-        typeof window.supabase === "undefined" ||
-        !window.supabase.createClient
-    ) {
-        console.error("Supabase library has not loaded.");
+    if (!window.supabase) {
+        console.error("Supabase library not loaded.");
         return false;
     }
 
-    if (!supabaseClient) {
-        supabaseClient = window.supabase.createClient(
+    if (!db) {
+        db = window.supabase.createClient(
             SUPABASE_URL,
             SUPABASE_KEY
         );
@@ -39,589 +32,723 @@ function initializeSupabase() {
 }
 
 
-/* -----------------------------
-   HELPER FUNCTIONS
------------------------------ */
+/* =====================================================
+   GET ELEMENT
+   ===================================================== */
 
-function getElement(id) {
+function $(id) {
     return document.getElementById(id);
 }
 
 
-function setMessage(id, message, type = "") {
-    const element = getElement(id);
+/* =====================================================
+   PAGE READY
+   ===================================================== */
 
-    if (!element) return;
+document.addEventListener("DOMContentLoaded", function () {
 
-    element.textContent = message;
+    console.log("Monarch Codex JavaScript loaded.");
 
-    element.className = "form-message";
+    startSupabase();
 
-    if (type) {
-        element.classList.add(type);
-    }
-}
+    setupMobileMenu();
 
+    setupRegistration();
 
-function escapeHTML(value) {
-    if (value === null || value === undefined) {
-        return "";
-    }
+    setupLogin();
 
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+    setupInvestment();
+
+    setupLogout();
+
+    checkDashboard();
+
+});
 
 
-function formatAmount(amount) {
-    return "$" + Number(amount).toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
-
-function formatDate(date) {
-    if (!date) return "-";
-
-    return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-    });
-}
-
-
-/* -----------------------------
+/* =====================================================
    MOBILE MENU
------------------------------ */
+   ===================================================== */
 
 function setupMobileMenu() {
-    const menuButton = getElement("menuButton");
-    const navLinks = document.querySelector(".nav-links");
 
-    if (!menuButton || !navLinks) return;
+    const menuButton = $("menuButton");
+    const navLinks = $("navLinks");
 
-    menuButton.addEventListener("click", () => {
+    if (!menuButton || !navLinks) {
+        return;
+    }
+
+    menuButton.addEventListener("click", function () {
+
         navLinks.classList.toggle("active");
+
     });
+
 }
 
 
-/* -----------------------------
+/* =====================================================
    REGISTRATION
------------------------------ */
+   ===================================================== */
 
-async function handleRegistration(event) {
-    event.preventDefault();
+function setupRegistration() {
 
-    if (!initializeSupabase()) {
-        setMessage(
-            "registrationMessage",
-            "System is still loading. Please try again.",
-            "error"
-        );
+    const form = $("registrationForm");
+
+    if (!form) {
         return;
     }
 
-    const fullname = getElement("fullname")?.value.trim();
-    const email = getElement("email")?.value.trim();
-    const phone = getElement("phone")?.value.trim();
-    const password = getElement("password")?.value;
+    form.addEventListener("submit", async function (event) {
 
-    if (!fullname || !email || !phone || !password) {
-        setMessage(
-            "registrationMessage",
-            "Please complete all fields.",
-            "error"
-        );
-        return;
-    }
+        event.preventDefault();
 
-    if (password.length < 6) {
-        setMessage(
-            "registrationMessage",
-            "Password must be at least 6 characters.",
-            "error"
-        );
-        return;
-    }
-
-    const button = event.target.querySelector("button[type='submit']");
-
-    if (button) {
-        button.disabled = true;
-        button.textContent = "Creating Account...";
-    }
-
-    setMessage(
-        "registrationMessage",
-        "Creating your Monarch Codex account...",
-        ""
-    );
-
-    try {
-        const redirectURL =
-            window.location.origin +
-            window.location.pathname.replace(
-                "register.html",
-                "login.html"
+        if (!startSupabase()) {
+            showMessage(
+                "registrationMessage",
+                "System is loading. Please try again.",
+                "error"
             );
-
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    full_name: fullname,
-                    phone: phone
-                },
-                emailRedirectTo: redirectURL
-            }
-        });
-
-        if (error) {
-            throw error;
+            return;
         }
 
-        if (data.user) {
-            if (data.session) {
-                setMessage(
-                    "registrationMessage",
-                    "Account created successfully. Redirecting to login...",
-                    "success"
-                );
+        const fullname =
+            $("fullname").value.trim();
 
-                setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 1500);
+        const email =
+            $("email").value.trim();
 
-            } else {
-                setMessage(
-                    "registrationMessage",
-                    "Account created. Please check your email and confirm your account before logging in.",
-                    "success"
-                );
-            }
-        }
+        const phone =
+            $("phone").value.trim();
 
-    } catch (error) {
+        const password =
+            $("password").value;
 
-        console.error("Registration error:", error);
 
-        setMessage(
-            "registrationMessage",
-            error.message || "Registration failed. Please try again.",
-            "error"
-        );
+        if (!fullname || !email || !phone || !password) {
 
-    } finally {
-
-        if (button) {
-            button.disabled = false;
-            button.textContent = "Create Account";
-        }
-    }
-}
-
-
-/* -----------------------------
-   LOGIN
------------------------------ */
-
-async function handleLogin(event) {
-    event.preventDefault();
-
-    if (!initializeSupabase()) {
-        setMessage(
-            "loginMessage",
-            "System is still loading. Please try again.",
-            "error"
-        );
-        return;
-    }
-
-    const email = getElement("loginEmail")?.value.trim();
-    const password = getElement("loginPassword")?.value;
-
-    if (!email || !password) {
-        setMessage(
-            "loginMessage",
-            "Please enter your email and password.",
-            "error"
-        );
-        return;
-    }
-
-    const button = event.target.querySelector("button[type='submit']");
-
-    if (button) {
-        button.disabled = true;
-        button.textContent = "Logging In...";
-    }
-
-    setMessage(
-        "loginMessage",
-        "Signing you in...",
-        ""
-    );
-
-    try {
-
-        const { data, error } =
-            await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-        if (error) {
-            throw error;
-        }
-
-        if (!data.session) {
-            throw new Error("Login session could not be created.");
-        }
-
-        setMessage(
-            "loginMessage",
-            "Login successful. Opening your dashboard...",
-            "success"
-        );
-
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 700);
-
-    } catch (error) {
-
-        console.error("Login error:", error);
-
-        setMessage(
-            "loginMessage",
-            error.message || "Login failed. Please check your details.",
-            "error"
-        );
-
-    } finally {
-
-        if (button) {
-            button.disabled = false;
-            button.textContent = "Login";
-        }
-    }
-}
-
-
-/* -----------------------------
-   GET CURRENT SESSION
------------------------------ */
-
-async function getCurrentSession() {
-    if (!initializeSupabase()) {
-        return null;
-    }
-
-    try {
-
-        const { data, error } =
-            await supabaseClient.auth.getSession();
-
-        if (error) {
-            console.error("Session error:", error);
-            return null;
-        }
-
-        return data.session;
-
-    } catch (error) {
-
-        console.error("Could not get session:", error);
-        return null;
-    }
-}
-
-
-/* -----------------------------
-   DASHBOARD PROTECTION
------------------------------ */
-
-async function protectDashboard() {
-
-    const isDashboard =
-        window.location.pathname.endsWith("dashboard.html");
-
-    if (!isDashboard) return;
-
-    const session = await getCurrentSession();
-
-    if (!session) {
-
-        window.location.href = "login.html";
-
-        return;
-    }
-
-    await loadDashboard(session.user);
-}
-
-
-/* -----------------------------
-   LOAD MEMBER PROFILE
------------------------------ */
-
-async function loadDashboard(user) {
-
-    if (!user || !supabaseClient) return;
-
-    try {
-
-        const { data: profile, error } =
-            await supabaseClient
-                .from("profiles")
-                .select("full_name, phone, role, status")
-                .eq("id", user.id)
-                .single();
-
-        if (error) {
-            throw error;
-        }
-
-        const dashboardName = getElement("dashboardName");
-        const profileName = getElement("profileName");
-        const profilePhone = getElement("profilePhone");
-        const profileStatus = getElement("profileStatus");
-
-        const name =
-            profile?.full_name ||
-            user.user_metadata?.full_name ||
-            "Monarch";
-
-        if (dashboardName) {
-            dashboardName.textContent = name;
-        }
-
-        if (profileName) {
-            profileName.textContent = name;
-        }
-
-        if (profilePhone) {
-            profilePhone.textContent =
-                profile?.phone || "Not provided";
-        }
-
-        if (profileStatus) {
-            profileStatus.textContent =
-                profile?.status || "pending";
-        }
-
-        await loadPackages();
-        await loadInvestmentHistory(user.id);
-
-    } catch (error) {
-
-        console.error("Dashboard error:", error);
-
-        setMessage(
-            "investmentMessage",
-            "Unable to load your account information.",
-            "error"
-        );
-    }
-}
-
-
-/* -----------------------------
-   LOAD INVESTMENT PACKAGES
------------------------------ */
-
-async function loadPackages() {
-
-    const packageSelect = getElement("packageSelect");
-
-    if (!packageSelect || !supabaseClient) return;
-
-    try {
-
-        const { data: packages, error } =
-            await supabaseClient
-                .from("packages")
-                .select("id, name, amount")
-                .eq("active", true)
-                .order("amount", {
-                    ascending: true
-                });
-
-        if (error) {
-            throw error;
-        }
-
-        packageSelect.innerHTML =
-            '<option value="">Select a package</option>';
-
-        if (!packages || packages.length === 0) {
-
-            packageSelect.innerHTML =
-                '<option value="">No packages available</option>';
+            showMessage(
+                "registrationMessage",
+                "Please fill in all fields.",
+                "error"
+            );
 
             return;
         }
 
-        packages.forEach((pkg) => {
 
-            const option = document.createElement("option");
+        if (password.length < 6) {
 
-            option.value = pkg.id;
+            showMessage(
+                "registrationMessage",
+                "Password must contain at least 6 characters.",
+                "error"
+            );
 
-            option.textContent =
-                `${pkg.name} — ${formatAmount(pkg.amount)}`;
-
-            packageSelect.appendChild(option);
-        });
-
-    } catch (error) {
-
-        console.error("Package loading error:", error);
-
-        packageSelect.innerHTML =
-            '<option value="">Unable to load packages</option>';
-    }
-}
-
-
-/* -----------------------------
-   INVESTMENT REQUEST
------------------------------ */
-
-async function handleInvestment(event) {
-
-    event.preventDefault();
-
-    if (!initializeSupabase()) {
-        setMessage(
-            "investmentMessage",
-            "System is still loading. Please try again.",
-            "error"
-        );
-        return;
-    }
-
-    const session = await getCurrentSession();
-
-    if (!session) {
-
-        window.location.href = "login.html";
-
-        return;
-    }
-
-    const packageId =
-        getElement("packageSelect")?.value;
-
-    const paymentMethod =
-        getElement("paymentMethod")?.value;
-
-    if (!packageId || !paymentMethod) {
-
-        setMessage(
-            "investmentMessage",
-            "Please select a package and payment method.",
-            "error"
-        );
-
-        return;
-    }
-
-    const button =
-        event.target.querySelector("button[type='submit']");
-
-    if (button) {
-        button.disabled = true;
-        button.textContent = "Submitting...";
-    }
-
-    setMessage(
-        "investmentMessage",
-        "Submitting your investment request...",
-        ""
-    );
-
-    try {
-
-        /*
-         IMPORTANT:
-         The database trigger automatically sets
-         the correct amount from the selected package.
-        */
-
-        const { error } =
-            await supabaseClient
-                .from("investments")
-                .insert({
-                    user_id: session.user.id,
-                    package_id: Number(packageId),
-                    payment_method: paymentMethod,
-                    status: "pending"
-                });
-
-        if (error) {
-            throw error;
+            return;
         }
 
-        setMessage(
-            "investmentMessage",
-            "Investment request submitted successfully. It is now pending review.",
-            "success"
-        );
 
-        const form = getElement("investmentForm");
-
-        if (form) {
-            form.reset();
-        }
-
-        await loadInvestmentHistory(session.user.id);
-
-    } catch (error) {
-
-        console.error("Investment error:", error);
-
-        setMessage(
-            "investmentMessage",
-            error.message ||
-            "Investment request could not be submitted.",
-            "error"
-        );
-
-    } finally {
+        const button =
+            form.querySelector("button[type='submit']");
 
         if (button) {
-            button.disabled = false;
-            button.textContent =
-                "Submit Investment Request";
+            button.disabled = true;
+            button.textContent = "Creating Account...";
         }
-    }
+
+
+        showMessage(
+            "registrationMessage",
+            "Creating your account...",
+            ""
+        );
+
+
+        try {
+
+            const loginPage =
+                window.location.origin +
+                window.location.pathname.replace(
+                    "register.html",
+                    "login.html"
+                );
+
+
+            const result =
+                await db.auth.signUp({
+
+                    email: email,
+
+                    password: password,
+
+                    options: {
+
+                        data: {
+                            full_name: fullname,
+                            phone: phone
+                        },
+
+                        emailRedirectTo: loginPage
+                    }
+
+                });
+
+
+            if (result.error) {
+                throw result.error;
+            }
+
+
+            showMessage(
+                "registrationMessage",
+                "Account created successfully. Check your email to confirm your account.",
+                "success"
+            );
+
+
+            form.reset();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "registrationMessage",
+                error.message ||
+                "Registration failed.",
+                "error"
+            );
+
+        }
+
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Create Account";
+
+        }
+
+    });
+
 }
 
 
-/* -----------------------------
-   INVESTMENT HISTORY
------------------------------ */
+/* =====================================================
+   LOGIN
+   ===================================================== */
 
-async function loadInvestmentHistory(userId) {
+function setupLogin() {
 
-    const history =
-        getElement("investmentHistory");
+    const form = $("loginForm");
 
-    if (!history || !supabaseClient) return;
+    if (!form) {
+        return;
+    }
+
+
+    form.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+
+        if (!startSupabase()) {
+
+            showMessage(
+                "loginMessage",
+                "System is loading. Please try again.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const email =
+            $("loginEmail").value.trim();
+
+        const password =
+            $("loginPassword").value;
+
+
+        if (!email || !password) {
+
+            showMessage(
+                "loginMessage",
+                "Please enter your email and password.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const button =
+            form.querySelector("button[type='submit']");
+
+
+        if (button) {
+
+            button.disabled = true;
+
+            button.textContent =
+                "Logging In...";
+
+        }
+
+
+        showMessage(
+            "loginMessage",
+            "Signing you in...",
+            ""
+        );
+
+
+        try {
+
+            const result =
+                await db.auth.signInWithPassword({
+
+                    email: email,
+
+                    password: password
+
+                });
+
+
+            if (result.error) {
+                throw result.error;
+            }
+
+
+            showMessage(
+                "loginMessage",
+                "Login successful. Opening dashboard...",
+                "success"
+            );
+
+
+            setTimeout(function () {
+
+                window.location.href =
+                    "dashboard.html";
+
+            }, 700);
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "loginMessage",
+                error.message ||
+                "Login failed.",
+                "error"
+            );
+
+        }
+
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Login";
+
+        }
+
+    });
+
+}
+
+
+/* =====================================================
+   DASHBOARD CHECK
+   ===================================================== */
+
+async function checkDashboard() {
+
+    const isDashboard =
+        window.location.pathname.endsWith(
+            "dashboard.html"
+        );
+
+
+    if (!isDashboard) {
+        return;
+    }
+
+
+    if (!startSupabase()) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    const result =
+        await db.auth.getSession();
+
+
+    if (result.error || !result.data.session) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    const user =
+        result.data.session.user;
+
+
+    await loadProfile(user);
+
+}
+
+
+/* =====================================================
+   LOAD PROFILE
+   ===================================================== */
+
+async function loadProfile(user) {
 
     try {
 
-        const { data, error } =
-            await supabaseClient
+        const result =
+            await db
+                .from("profiles")
+                .select(
+                    "full_name, phone, role, status"
+                )
+                .eq("id", user.id)
+                .single();
+
+
+        if (result.error) {
+            throw result.error;
+        }
+
+
+        const profile =
+            result.data;
+
+
+        const name =
+            profile.full_name ||
+            user.user_metadata?.full_name ||
+            "Monarch";
+
+
+        if ($("dashboardName")) {
+
+            $("dashboardName").textContent =
+                name;
+
+        }
+
+
+        if ($("profileName")) {
+
+            $("profileName").textContent =
+                name;
+
+        }
+
+
+        if ($("profilePhone")) {
+
+            $("profilePhone").textContent =
+                profile.phone ||
+                "Not provided";
+
+        }
+
+
+        if ($("profileStatus")) {
+
+            $("profileStatus").textContent =
+                profile.status ||
+                "pending";
+
+        }
+
+
+        await loadPackages();
+
+        await loadHistory(user.id);
+
+
+    } catch (error) {
+
+        console.error(
+            "Profile error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD PACKAGES
+   ===================================================== */
+
+async function loadPackages() {
+
+    const select =
+        $("packageSelect");
+
+
+    if (!select) {
+        return;
+    }
+
+
+    try {
+
+        const result =
+            await db
+                .from("packages")
+                .select(
+                    "id, name, amount"
+                )
+                .eq("active", true)
+                .order(
+                    "amount",
+                    {
+                        ascending: true
+                    }
+                );
+
+
+        if (result.error) {
+            throw result.error;
+        }
+
+
+        select.innerHTML =
+            '<option value="">Select a package</option>';
+
+
+        result.data.forEach(function (pkg) {
+
+            const option =
+                document.createElement("option");
+
+
+            option.value =
+                pkg.id;
+
+
+            option.textContent =
+                pkg.name +
+                " — $" +
+                Number(pkg.amount).toLocaleString();
+
+
+            select.appendChild(option);
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Package error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   INVESTMENT
+   ===================================================== */
+
+function setupInvestment() {
+
+    const form =
+        $("investmentForm");
+
+
+    if (!form) {
+        return;
+    }
+
+
+    form.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            if (!startSupabase()) {
+                return;
+            }
+
+
+            const sessionResult =
+                await db.auth.getSession();
+
+
+            if (
+                sessionResult.error ||
+                !sessionResult.data.session
+            ) {
+
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+
+            const user =
+                sessionResult.data.session.user;
+
+
+            const packageId =
+                $("packageSelect").value;
+
+
+            const paymentMethod =
+                $("paymentMethod").value;
+
+
+            if (!packageId || !paymentMethod) {
+
+                showMessage(
+                    "investmentMessage",
+                    "Please select a package and payment method.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const button =
+                form.querySelector(
+                    "button[type='submit']"
+                );
+
+
+            if (button) {
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Submitting...";
+
+            }
+
+
+            try {
+
+                const result =
+                    await db
+                        .from("investments")
+                        .insert({
+
+                            user_id:
+                                user.id,
+
+                            package_id:
+                                Number(packageId),
+
+                            payment_method:
+                                paymentMethod,
+
+                            status:
+                                "pending"
+
+                        });
+
+
+                if (result.error) {
+                    throw result.error;
+                }
+
+
+                showMessage(
+                    "investmentMessage",
+                    "Investment request submitted successfully.",
+                    "success"
+                );
+
+
+                form.reset();
+
+
+                await loadHistory(
+                    user.id
+                );
+
+
+            } catch (error) {
+
+                console.error(error);
+
+
+                showMessage(
+                    "investmentMessage",
+                    error.message ||
+                    "Request failed.",
+                    "error"
+                );
+
+            }
+
+
+            if (button) {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Submit Investment Request";
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   INVESTMENT HISTORY
+   ===================================================== */
+
+async function loadHistory(userId) {
+
+    const table =
+        $("investmentHistory");
+
+
+    if (!table) {
+        return;
+    }
+
+
+    try {
+
+        const result =
+            await db
                 .from("investments")
                 .select(`
                     id,
@@ -633,18 +760,29 @@ async function loadInvestmentHistory(userId) {
                         name
                     )
                 `)
-                .eq("user_id", userId)
-                .order("created_at", {
-                    ascending: false
-                });
+                .eq(
+                    "user_id",
+                    userId
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
 
-        if (error) {
-            throw error;
+
+        if (result.error) {
+            throw result.error;
         }
 
-        if (!data || data.length === 0) {
 
-            history.innerHTML = `
+        if (
+            !result.data ||
+            result.data.length === 0
+        ) {
+
+            table.innerHTML = `
                 <tr>
                     <td colspan="5">
                         No investment requests yet.
@@ -655,210 +793,218 @@ async function loadInvestmentHistory(userId) {
             return;
         }
 
-        history.innerHTML = "";
 
-        data.forEach((investment) => {
+        table.innerHTML = "";
 
-            const row =
-                document.createElement("tr");
 
-            const packageName =
-                investment.packages?.name ||
-                "Investment Package";
+        result.data.forEach(
+            function (investment) {
 
-            const payment =
-                investment.payment_method === "crypto"
-                    ? "Crypto Funding"
-                    : "Bank Account";
+                const row =
+                    document.createElement("tr");
 
-            const status =
-                investment.status || "pending";
 
-            row.innerHTML = `
-                <td>${escapeHTML(packageName)}</td>
+                const packageName =
+                    investment.packages?.name ||
+                    "Package";
 
-                <td>${escapeHTML(
-                    formatAmount(investment.amount)
-                )}</td>
 
-                <td>${escapeHTML(payment)}</td>
+                const payment =
+                    investment.payment_method ===
+                    "crypto"
+                        ? "Crypto Funding"
+                        : "Bank Account";
 
-                <td>
-                    <span class="status-badge status-${escapeHTML(status)}">
-                        ${escapeHTML(
-                            status.charAt(0).toUpperCase() +
-                            status.slice(1)
-                        )}
-                    </span>
-                </td>
 
-                <td>${escapeHTML(
-                    formatDate(investment.created_at)
-                )}</td>
-            `;
+                const status =
+                    investment.status ||
+                    "pending";
 
-            history.appendChild(row);
-        });
+
+                const amount =
+                    "$" +
+                    Number(
+                        investment.amount
+                    ).toLocaleString();
+
+
+                const date =
+                    new Date(
+                        investment.created_at
+                    ).toLocaleDateString();
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${escapeHTML(packageName)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(amount)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(payment)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(status)}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(date)}
+                    </td>
+
+                `;
+
+
+                table.appendChild(row);
+
+            }
+        );
+
 
     } catch (error) {
 
         console.error(
-            "Investment history error:",
+            "History error:",
             error
         );
 
-        history.innerHTML = `
+        table.innerHTML = `
             <tr>
                 <td colspan="5">
-                    Unable to load investment history.
+                    Unable to load history.
                 </td>
             </tr>
         `;
+
     }
+
 }
 
 
-/* -----------------------------
+/* =====================================================
    LOGOUT
------------------------------ */
+   ===================================================== */
 
-async function handleLogout() {
+function setupLogout() {
 
-    if (!initializeSupabase()) return;
+    const button =
+        $("logoutBtn");
 
-    const button = getElement("logoutBtn");
 
-    if (button) {
-        button.disabled = true;
-        button.textContent = "Logging out...";
+    if (!button) {
+        return;
     }
 
-    try {
 
-        const { error } =
-            await supabaseClient.auth.signOut();
+    button.addEventListener(
+        "click",
+        async function () {
 
-        if (error) {
-            throw error;
-        }
-
-        window.location.href = "login.html";
-
-    } catch (error) {
-
-        console.error("Logout error:", error);
-
-        if (button) {
-            button.disabled = false;
-            button.textContent = "Logout";
-        }
-
-        alert("Logout failed. Please try again.");
-    }
-}
+            if (!startSupabase()) {
+                return;
+            }
 
 
-/* -----------------------------
-   AUTH STATE LISTENER
------------------------------ */
+            button.disabled = true;
 
-function setupAuthListener() {
 
-    if (!initializeSupabase()) return;
+            const result =
+                await db.auth.signOut();
 
-    supabaseClient.auth.onAuthStateChange(
-        (event, session) => {
 
-            console.log(
-                "Auth event:",
-                event
-            );
+            if (result.error) {
 
-            /*
-             Do not automatically redirect
-             from login/register here.
-             The individual pages handle
-             their own navigation.
-            */
+                console.error(
+                    result.error
+                );
+
+                button.disabled = false;
+
+                alert(
+                    "Logout failed. Please try again."
+                );
+
+                return;
+            }
+
+
+            window.location.href =
+                "login.html";
 
         }
     );
+
 }
 
 
-/* -----------------------------
-   PAGE SETUP
------------------------------ */
+/* =====================================================
+   MESSAGE
+   ===================================================== */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async () => {
+function showMessage(
+    id,
+    message,
+    type
+) {
 
-        initializeSupabase();
-
-        setupMobileMenu();
-
-        setupAuthListener();
-
-
-        /* Registration page */
-
-        const registrationForm =
-            getElement("registrationForm");
-
-        if (registrationForm) {
-
-            registrationForm.addEventListener(
-                "submit",
-                handleRegistration
-            );
-        }
+    const element =
+        $(id);
 
 
-        /* Login page */
-
-        const loginForm =
-            getElement("loginForm");
-
-        if (loginForm) {
-
-            loginForm.addEventListener(
-                "submit",
-                handleLogin
-            );
-        }
-
-
-        /* Investment form */
-
-        const investmentForm =
-            getElement("investmentForm");
-
-        if (investmentForm) {
-
-            investmentForm.addEventListener(
-                "submit",
-                handleInvestment
-            );
-        }
-
-
-        /* Logout */
-
-        const logoutBtn =
-            getElement("logoutBtn");
-
-        if (logoutBtn) {
-
-            logoutBtn.addEventListener(
-                "click",
-                handleLogout
-            );
-        }
-
-
-        /* Protect dashboard */
-
-        await protectDashboard();
+    if (!element) {
+        return;
     }
-);
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        "form-message";
+
+
+    if (type) {
+
+        element.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SECURITY HELPER
+   ===================================================== */
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
