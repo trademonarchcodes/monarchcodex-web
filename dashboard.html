@@ -1,2147 +1,623 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8"><meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>MONARCH CODEX | Member Dashboard</title>
-
-<link
-    rel="stylesheet"
-    href="style.css"
->
-
-<link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
->
-
-<link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
->
-
-<link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
->
-
-<style>
-
-    :root {
-        --gold: #D4AF37;
-        --black: #080808;
-        --dark: #111111;
-        --dark-card: #161616;
-        --border: rgba(212, 175, 55, 0.25);
-        --text: #f5f5f5;
-        --muted: #a0a0a0;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        font-family: "Poppins", sans-serif;
-        background: var(--black);
-        color: var(--text);
-    }
-
-    .dashboard-page {
-        min-height: 100vh;
-        background:
-            radial-gradient(
-                circle at top right,
-                rgba(212, 175, 55, 0.08),
-                transparent 30%
-            ),
-            var(--black);
-    }
-
-    .dashboard-header {
-        padding: 18px 5%;
-        border-bottom:
-            1px solid var(--border);
-
-        background:
-            rgba(8, 8, 8, 0.97);
-
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-
-    .dashboard-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .dashboard-brand h1 {
-        margin: 0;
-        color: var(--gold);
-        font-size: clamp(
-            1rem,
-            4vw,
-            1.4rem
-        );
-        letter-spacing: 1px;
-    }
-
-    .member-badge {
-        padding: 5px 10px;
-        border:
-            1px solid var(--gold);
-
-        color: var(--gold);
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 700;
-    }
-
-    .logout-btn {
-        border:
-            1px solid var(--gold);
-
-        background: transparent;
-        color: var(--gold);
-
-        padding: 9px 16px;
-        border-radius: 7px;
-
-        font-family: inherit;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .dashboard-container {
-        width: min(
-            1200px,
-            92%
-        );
-
-        margin: 0 auto;
-
-        padding:
-            35px 0 60px;
-    }
-
-    .welcome-section {
-        margin-bottom: 30px;
-    }
-
-    .welcome-section h2 {
-        margin: 0;
-        color: var(--gold);
-
-        font-size: clamp(
-            1.5rem,
-            5vw,
-            2.2rem
-        );
-    }
-
-    .welcome-section p {
-        margin: 8px 0 0;
-        color: var(--muted);
-    }
-
-    .message-box {
-        display: none;
-
-        margin-bottom: 20px;
-        padding: 14px 16px;
-
-        border-radius: 8px;
-
-        word-break: break-word;
-    }
-
-    .message-box.error {
-        display: block;
-
-        background:
-            rgba(201, 75, 75, 0.1);
-
-        border:
-            1px solid rgba(201, 75, 75, 0.6);
-
-        color: #ffb0b0;
-    }
-
-    .message-box.success {
-        display: block;
-
-        background:
-            rgba(76, 175, 114, 0.1);
-
-        border:
-            1px solid rgba(76, 175, 114, 0.6);
-
-        color: #a9f0c1;
-    }
-
-    .profile-card {
-        background:
-            var(--dark-card);
-
-        border:
-            1px solid var(--border);
-
-        border-radius: 12px;
-
-        padding: 22px;
-
-        margin-bottom: 30px;
-    }
-
-    .profile-card h3 {
-        margin-top: 0;
-        color: var(--gold);
-    }
-
-    .profile-grid {
-        display: grid;
-
-        grid-template-columns:
-            repeat(
-                3,
-                1fr
-            );
-
-        gap: 20px;
-    }
-
-    .profile-item span {
-        display: block;
-
-        color: var(--muted);
-
-        font-size: 0.8rem;
-
-        margin-bottom: 5px;
-    }
-
-    .profile-item strong {
-        font-size: 0.95rem;
-        word-break: break-word;
-    }
-
-    .section-card {
-        background:
-            var(--dark);
-
-        border:
-            1px solid var(--border);
-
-        border-radius: 12px;
-
-        padding: 22px;
-
-        margin-bottom: 30px;
-    }
-
-    .section-card h3 {
-        margin-top: 0;
-        color: var(--gold);
-    }
-
-    .section-description {
-        color: var(--muted);
-        font-size: 0.9rem;
-
-        margin-bottom: 22px;
-    }
-
-    .packages-grid {
-        display: grid;
-
-        grid-template-columns:
-            repeat(
-                3,
-                1fr
-            );
-
-        gap: 16px;
-    }
-
-    .package-card {
-        background:
-            var(--dark-card);
-
-        border:
-            1px solid var(--border);
-
-        border-radius: 10px;
-
-        padding: 20px;
-
-        cursor: pointer;
-
-        transition:
-            0.2s ease;
-
-        text-align: center;
-    }
-
-    .package-card:hover {
-        transform:
-            translateY(-2px);
-
-        border-color:
-            var(--gold);
-    }
-
-    .package-card.selected {
-        border:
-            2px solid var(--gold);
-
-        box-shadow:
-            0 0 20px
-            rgba(
-                212,
-                175,
-                55,
-                0.12
-            );
-    }
-
-    .package-name {
-        color:
-            var(--muted);
-
-        font-size:
-            0.85rem;
-    }
-
-    .package-amount {
-        display: block;
-
-        color:
-            var(--gold);
-
-        font-size:
-            1.5rem;
-
-        font-weight:
-            700;
-
-        margin-top:
-            8px;
-    }
-
-    .payment-methods {
-        display: grid;
-
-        grid-template-columns:
-            repeat(
-                2,
-                1fr
-            );
-
-        gap: 16px;
-
-        margin-top:
-            20px;
-    }
-
-    .payment-method {
-        background:
-            var(--dark-card);
-
-        border:
-            1px solid var(--border);
-
-        border-radius:
-            10px;
-
-        padding:
-            18px;
-
-        cursor:
-            pointer;
-
-        text-align:
-            center;
-
-        transition:
-            0.2s ease;
-    }
-
-    .payment-method.selected {
-        border:
-            2px solid var(--gold);
-    }
-
-    .payment-method strong {
-        display:
-            block;
-
-        color:
-            var(--gold);
-
-        margin-bottom:
-            5px;
-    }
-
-    .payment-method span {
-        color:
-            var(--muted);
-
-        font-size:
-            0.8rem;
-    }
-
-    .submit-investment-btn {
-        width: 100%;
-
-        margin-top:
-            22px;
-
-        border:
-            none;
-
-        background:
-            var(--gold);
-
-        color:
-            #000;
-
-        padding:
-            14px;
-
-        border-radius:
-            8px;
-
-        font-family:
-            inherit;
-
-        font-weight:
-            700;
-
-        cursor:
-            pointer;
-    }
-
-    .submit-investment-btn:disabled {
-        opacity:
-            0.6;
-
-        cursor:
-            not-allowed;
-    }
-
-    .table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-
-        min-width:
-            650px;
-
-        border-collapse:
-            collapse;
-    }
-
-    th,
-    td {
-        padding:
-            14px 12px;
-
-        text-align:
-            left;
-
-        border-bottom:
-            1px solid
-            rgba(
-                255,
-                255,
-                255,
-                0.08
-            );
-
-        font-size:
-            0.85rem;
-    }
-
-    th {
-        color:
-            var(--gold);
-    }
-
-    .status {
-        display:
-            inline-block;
-
-        padding:
-            5px 10px;
-
-        border-radius:
-            20px;
-
-        font-size:
-            0.72rem;
-
-        text-transform:
-            capitalize;
-    }
-
-    .status-pending {
-        color:
-            var(--gold);
-    }
-
-    .status-confirmed {
-        color:
-            #7be6a1;
-    }
-
-    .status-rejected {
-        color:
-            #ff9292;
-    }
-
-    .loading-text,
-    .empty-text {
-        color:
-            var(--muted);
-    }
-
-    .error-text {
-        color:
-            #ff9696;
-    }
-
-    @media (
-        max-width: 900px
-    ) {
-
-        .profile-grid {
-            grid-template-columns:
-                1fr 1fr;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MONARCH CODEX | Member Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
         }
 
-        .packages-grid {
-            grid-template-columns:
-                1fr 1fr;
+        body {
+            margin: 0;
+            background: #050505;
+            color: #ffffff;
+            font-family: "Poppins", sans-serif;
         }
-    }
 
-    @media (
-        max-width: 600px
-    ) {
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
 
         .dashboard-header {
-            padding:
-                15px 4%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(5, 5, 5, 0.96);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+            backdrop-filter: blur(12px);
         }
 
-        .member-badge {
-            font-size:
-                0.6rem;
+        .header-inner {
+            width: min(1180px, 92%);
+            margin: auto;
+            min-height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
 
-            padding:
-                4px 7px;
+        .brand {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #d4af37;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .monarch-badge {
+            border: 1px solid rgba(212, 175, 55, 0.45);
+            color: #d4af37;
+            padding: 7px 13px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .logout-btn {
-            padding:
-                8px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: transparent;
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
 
-            font-size:
-                0.75rem;
+        .logout-btn:hover {
+            border-color: #d4af37;
+            color: #d4af37;
         }
 
         .dashboard-container {
-            width:
-                94%;
-
-            padding-top:
-                25px;
+            width: min(1180px, 92%);
+            margin: 0 auto;
+            padding: 45px 0 70px;
         }
 
-        .profile-grid {
-            grid-template-columns:
-                1fr;
+        .welcome-section {
+            margin-bottom: 30px;
+        }
+
+        .welcome-section h1 {
+            margin: 0 0 8px;
+            font-size: clamp(27px, 5vw, 42px);
+            line-height: 1.2;
+        }
+
+        .welcome-section h1 span {
+            color: #d4af37;
+        }
+
+        .welcome-section p {
+            margin: 0;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .message-box {
+            display: none;
+            margin-bottom: 25px;
+            padding: 14px 17px;
+            border-radius: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(212, 175, 55, 0.08);
+            color: #eeeeee;
+            font-size: 14px;
+        }
+
+        .message-box.show {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(
+                145deg,
+                rgba(255,255,255,0.055),
+                rgba(255,255,255,0.018)
+            );
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 16px;
+            padding: 22px;
+            min-height: 125px;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 25px;
+            font-weight: 700;
+            color: #d4af37;
+            word-break: break-word;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: linear-gradient(
+                145deg,
+                rgba(255,255,255,0.045),
+                rgba(255,255,255,0.015)
+            );
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            border-radius: 18px;
+            padding: 25px;
+        }
+
+        .card h2 {
+            margin: 0 0 20px;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 13px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .profile-row:last-child {
+            border-bottom: 0;
+        }
+
+        .profile-label {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .profile-value {
+            text-align: right;
+            font-size: 13px;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .status-active {
+            color: #d4af37;
+        }
+
+        .status-pending {
+            color: #e0b84a;
+        }
+
+        .status-confirmed {
+            color: #7fdc9b;
+        }
+
+        .status-rejected {
+            color: #ef7777;
+        }
+
+        .status-blocked {
+            color: #ef7777;
+        }
+
+        .loading {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .packages-section {
+            margin-bottom: 24px;
         }
 
         .packages-grid {
-            grid-template-columns:
-                1fr 1fr;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
         }
 
-        .payment-methods {
-            grid-template-columns:
-                1fr;
+        .package-card {
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.025);
+            border-radius: 14px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.2s ease;
         }
 
-        .section-card {
-            padding:
-                16px;
+        .package-card:hover {
+            border-color: rgba(212,175,55,0.55);
+            transform: translateY(-2px);
         }
-    }
 
-</style>
+        .package-card.selected {
+            border-color: #d4af37;
+            background: rgba(212,175,55,0.08);
+            box-shadow: 0 0 0 1px rgba(212,175,55,0.15);
+        }
 
-</head><body><div class="dashboard-page"><header class="dashboard-header">
+        .package-name {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
 
-    <div class="dashboard-brand">
+        .package-amount {
+            font-size: 25px;
+            font-weight: 700;
+            color: #d4af37;
+        }
 
-        <h1>
-            MONARCH CODEX
-        </h1>
+        .package-check {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(212,175,55,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #050505;
+        }
 
-        <span class="member-badge">
-            MONARCH
-        </span>
+        .package-card.selected .package-check {
+            background: #d4af37;
+            border-color: #d4af37;
+        }
 
+        .payment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .payment-option {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 18px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .payment-option:hover {
+            border-color: rgba(212,175,55,0.55);
+        }
+
+        .payment-option.selected {
+            border-color: #d4af37;
+            background: rgba(212,175,55,0.08);
+        }
+
+        .payment-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .payment-description {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .submit-section {
+            margin-top: 24px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            border: 0;
+            background: #d4af37;
+            color: #050505;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .history-section {
+            margin-top: 24px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .history-table th {
+            text-align: left;
+            color: #888;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .history-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 12px;
+        }
+
+        .empty-state {
+            padding: 25px 5px;
+            color: #777;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header-inner {
+                min-height: 68px;
+            }
+
+            .brand {
+                font-size: 16px;
+            }
+
+            .monarch-badge {
+                display: none;
+            }
+
+            .dashboard-container {
+                padding-top: 30px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+                min-height: 105px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .packages-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 19px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .packages-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="dashboard-header">
+    <div class="header-inner">
+        <div class="brand">MONARCH CODEX</div>
+
+        <div class="header-right">
+            <div class="monarch-badge">MONARCH</div>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
     </div>
-
-    <button
-        id="logoutBtn"
-        class="logout-btn"
-    >
-        Logout
-    </button>
-
 </header>
 
+<main class="dashboard-container">
 
-<main
-    class="dashboard-container"
->
-
-    <section
-        class="welcome-section"
-    >
-
-        <h2>
-            Welcome,
-            <span id="memberName">
-                Monarch
-            </span>
-        </h2>
-
-        <p>
-            Manage your Monarch Codex
-            investment requests.
-        </p>
-
+    <section class="welcome-section">
+        <h1>Welcome, <span id="memberName">Monarch</span></h1>
+        <p>Your MONARCH CODEX command center.</p>
     </section>
 
+    <div id="messageBox" class="message-box"></div>
 
-    <div
-        id="messageBox"
-        class="message-box"
-    ></div>
+    <section class="stats-grid">
 
+        <div class="stat-card">
+            <div class="stat-label">TOTAL INVESTED</div>
+            <div id="totalInvested" class="stat-value">$0</div>
+        </div>
 
-    <!-- PROFILE -->
+        <div class="stat-card">
+            <div class="stat-label">CONFIRMED</div>
+            <div id="confirmedInvestments" class="stat-value">0</div>
+        </div>
 
-    <section
-        class="profile-card"
-    >
+        <div class="stat-card">
+            <div class="stat-label">PENDING</div>
+            <div id="pendingInvestments" class="stat-value">0</div>
+        </div>
 
-        <h3>
-            Your Profile
-        </h3>
-
-        <div
-            class="profile-grid"
-        >
-
-            <div
-                class="profile-item"
-            >
-
-                <span>
-                    Full Name
-                </span>
-
-                <strong
-                    id="profileFullName"
-                >
-                    Loading...
-                </strong>
-
-            </div>
-
-
-            <div
-                class="profile-item"
-            >
-
-                <span>
-                    Phone
-                </span>
-
-                <strong
-                    id="profilePhone"
-                >
-                    Loading...
-                </strong>
-
-            </div>
-
-
-            <div
-                class="profile-item"
-            >
-
-                <span>
-                    Account Status
-                </span>
-
-                <strong
-                    id="profileStatus"
-                >
-                    Loading...
-                </strong>
-
-            </div>
-
+        <div class="stat-card">
+            <div class="stat-label">REQUESTS</div>
+            <div id="totalRequests" class="stat-value">0</div>
         </div>
 
     </section>
 
+    <section class="dashboard-grid">
 
-    <!-- INVESTMENT PACKAGES -->
+        <div class="card">
+            <h2>Your Profile</h2>
 
-    <section
-        class="section-card"
-    >
+            <div class="profile-row">
+                <span class="profile-label">Full Name</span>
+                <span id="profileFullName" class="profile-value">Loading...</span>
+            </div>
 
-        <h3>
-            Investment Packages
-        </h3>
+            <div class="profile-row">
+                <span class="profile-label">Phone</span>
+                <span id="profilePhone" class="profile-value">Loading...</span>
+            </div>
 
-        <p
-            class="section-description"
-        >
-            Select an investment package
-            to begin your request.
-        </p>
+            <div class="profile-row">
+                <span class="profile-label">Account Status</span>
+                <span id="profileStatus" class="profile-value">Loading...</span>
+            </div>
+        </div>
 
-        <div
-            id="packagesContent"
-            class="packages-grid"
-        >
+        <div class="card">
+            <h2>Account Overview</h2>
 
-            <p
-                class="loading-text"
-            >
-                Loading packages...
-            </p>
+            <div class="profile-row">
+                <span class="profile-label">Member Type</span>
+                <span class="profile-value status-active">MONARCH</span>
+            </div>
 
+            <div class="profile-row">
+                <span class="profile-label">Role</span>
+                <span id="profileRole" class="profile-value">Member</span>
+            </div>
+
+            <div class="profile-row">
+                <span class="profile-label">Member Since</span>
+                <span id="memberSince" class="profile-value">Loading...</span>
+            </div>
         </div>
 
     </section>
 
+    <section class="card packages-section">
+        <h2>Investment Packages</h2>
 
-    <!-- PAYMENT METHOD -->
+        <div id="packagesContent" class="packages-grid">
+            <div class="loading">Loading investment packages...</div>
+        </div>
+    </section>
 
-    <section
-        class="section-card"
-    >
+    <section class="card">
+        <h2>Payment Method</h2>
 
-        <h3>
-            Payment Method
-        </h3>
-
-        <p
-            class="section-description"
-        >
-            Select how you intend to fund
-            your investment request.
-        </p>
-
-        <div
-            class="payment-methods"
-        >
+        <div class="payment-grid">
 
             <div
-                class="payment-method"
-                data-method="bank"
+                class="payment-option"
+                data-payment="bank"
                 onclick="selectPaymentMethod(this)"
             >
-
-                <strong>
-                    Bank Account
-                </strong>
-
-                <span>
-                    Manual bank payment
-                    verification
-                </span>
-
+                <div class="payment-title">Bank Account</div>
+                <div class="payment-description">
+                    Submit your request for bank payment instructions.
+                </div>
             </div>
 
-
             <div
-                class="payment-method"
-                data-method="crypto"
+                class="payment-option"
+                data-payment="crypto"
                 onclick="selectPaymentMethod(this)"
             >
-
-                <strong>
-                    Crypto Funding
-                </strong>
-
-                <span>
-                    Manual crypto payment
-                    verification
-                </span>
-
+                <div class="payment-title">Crypto Funding</div>
+                <div class="payment-description">
+                    Submit your request for crypto payment instructions.
+                </div>
             </div>
 
         </div>
+    </section>
 
+    <section class="card submit-section">
+        <h2>Submit Investment Request</h2>
 
-        <button
-            id="submitInvestmentBtn"
-            class="submit-investment-btn"
-        >
+        <p style="color:#888;font-size:13px;line-height:1.7;margin-top:-5px;">
+            Select an investment package and payment method, then submit your
+            request. Payment verification is handled manually by MONARCH CODEX.
+        </p>
+
+        <button id="submitInvestmentBtn" class="submit-btn">
             Submit Investment Request
         </button>
-
     </section>
 
+    <section class="card history-section">
+        <h2>Investment History</h2>
 
-    <!-- INVESTMENT HISTORY -->
-
-    <section
-        class="section-card"
-    >
-
-        <h3>
-            Investment History
-        </h3>
-
-        <div
-            id="investmentHistoryContent"
-        >
-
-            <p
-                class="loading-text"
-            >
-                Loading investment history...
-            </p>
-
+        <div class="table-wrapper">
+            <div id="historyContent">
+                <div class="loading">Loading investment history...</div>
+            </div>
         </div>
-
     </section>
 
 </main>
-
-</div><!-- SUPABASE --><script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script><script>
-
-const SUPABASE_URL =
-    "https://avaworleivncevaoqeny.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-    );
-
-
-let currentUser = null;
-
-let currentProfile = null;
-
-let packagesData = [];
-
-let investmentsData = [];
-
-let selectedPackage = null;
-
-let selectedPaymentMethod = null;
-
-
-const memberNameElement =
-    document.getElementById(
-        "memberName"
-    );
-
-const profileFullNameElement =
-    document.getElementById(
-        "profileFullName"
-    );
-
-const profilePhoneElement =
-    document.getElementById(
-        "profilePhone"
-    );
-
-const profileStatusElement =
-    document.getElementById(
-        "profileStatus"
-    );
-
-const packagesContent =
-    document.getElementById(
-        "packagesContent"
-    );
-
-const investmentHistoryContent =
-    document.getElementById(
-        "investmentHistoryContent"
-    );
-
-const messageBox =
-    document.getElementById(
-        "messageBox"
-    );
-
-const logoutBtn =
-    document.getElementById(
-        "logoutBtn"
-    );
-
-const submitInvestmentBtn =
-    document.getElementById(
-        "submitInvestmentBtn"
-    );
-
-
-function escapeHtml(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-
-function showMessage(
-    message,
-    type = "error"
-) {
-
-    messageBox.textContent =
-        message;
-
-    messageBox.className =
-        "message-box " +
-        type;
-
-    messageBox.style.display =
-        "block";
-}
-
-
-function clearMessage() {
-
-    messageBox.textContent =
-        "";
-
-    messageBox.className =
-        "message-box";
-
-    messageBox.style.display =
-        "none";
-}
-
-
-function formatAmount(amount) {
-
-    const number =
-        Number(amount);
-
-    if (
-        Number.isNaN(number)
-    ) {
-        return "$0";
-    }
-
-    return "$" +
-        number.toLocaleString(
-            undefined,
-            {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            }
-        );
-}
-
-
-function formatDate(dateValue) {
-
-    if (!dateValue) {
-        return "N/A";
-    }
-
-    try {
-
-        return new Date(
-            dateValue
-        )
-            .toLocaleDateString(
-                undefined,
-                {
-                    year:
-                        "numeric",
-
-                    month:
-                        "short",
-
-                    day:
-                        "numeric"
-                }
-            );
-
-    } catch (error) {
-
-        return "N/A";
-    }
-}
-
-function getStatusClass(status) {
-
-const value =
-    String(
-        status || ""
-    ).toLowerCase();
-
-if (
-    value === "pending"
-) {
-
-    return "status-pending";
-}
-
-if (
-    value === "confirmed"
-) {
-
-    return "status-confirmed";
-}
-
-if (
-    value === "rejected"
-) {
-
-    return "status-rejected";
-}
-
-return "";
-
-}
-
-async function checkMemberAuthorization() {
-
-const {
-    data: authData,
-    error: authError
-} =
-    await supabaseClient
-        .auth
-        .getUser();
-
-
-if (
-    authError ||
-    !authData.user
-) {
-
-    window.location.href =
-        "login.html";
-
-    return false;
-}
-
-
-currentUser =
-    authData.user;
-
-
-const {
-    data: profile,
-    error: profileError
-} =
-    await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq(
-            "id",
-            currentUser.id
-        )
-        .single();
-
-
-if (
-    profileError
-) {
-
-    console.error(
-        "Could not load member profile:",
-        profileError
-    );
-
-    showMessage(
-        "Could not load your profile: " +
-        profileError.message
-    );
-
-    return false;
-}
-
-
-/*
- * Admin accounts should use
- * the Admin Command Center.
- */
-
-if (
-    profile.role === "admin"
-) {
-
-    window.location.href =
-        "admin.html";
-
-    return false;
-}
-
-
-/*
- * Blocked members cannot
- * use the dashboard.
- */
-
-if (
-    profile.status === "blocked"
-) {
-
-    await supabaseClient
-        .auth
-        .signOut();
-
-    window.location.href =
-        "login.html";
-
-    return false;
-}
-
-
-currentProfile =
-    profile;
-
-
-return true;
-
-}
-
-function displayProfile() {
-
-if (
-    !currentProfile
-) {
-    return;
-}
-
-
-const fullName =
-    currentProfile.full_name ||
-    "Monarch";
-
-
-memberNameElement.textContent =
-    fullName;
-
-
-profileFullNameElement.textContent =
-    fullName;
-
-
-profilePhoneElement.textContent =
-    currentProfile.phone ||
-    "Not provided";
-
-
-profileStatusElement.textContent =
-    currentProfile.status ||
-    "Unknown";
-
-}
-
-async function loadPackages() {
-
-packagesContent.innerHTML =
-    `
-    <p class="loading-text">
-        Loading packages...
-    </p>
-    `;
-
-
-const {
-    data,
-    error
-} =
-    await supabaseClient
-        .from("packages")
-        .select("*");
-
-
-if (
-    error
-) {
-
-    console.error(
-        "Could not load packages:",
-        error
-    );
-
-
-    packagesContent.innerHTML =
-        `
-        <p class="error-text">
-            Could not load packages:
-            ${escapeHtml(
-                error.message
-            )}
-        </p>
-        `;
-
-
-    return;
-}
-
-
-packagesData =
-    data || [];
-
-
-renderPackages();
-
-}
-
-function renderPackages() {
-
-if (
-    packagesData.length === 0
-) {
-
-    packagesContent.innerHTML =
-        `
-        <p class="empty-text">
-            No investment packages
-            are currently available.
-        </p>
-        `;
-
-    return;
-}
-
-
-let cards =
-    "";
-
-
-packagesData.forEach(
-    packageItem => {
-
-        /*
-         * Support common column names
-         * without depending on a
-         * specific package display field.
-         */
-
-        const packageAmount =
-            packageItem.amount ||
-            packageItem.price ||
-            0;
-
-
-        const packageTitle =
-            packageItem.name ||
-            packageItem.title ||
-            "Investment Package";
-
-
-        cards +=
-            `
-            <div
-                class="package-card"
-                data-package-id="${packageItem.id}"
-                onclick="selectPackage(this)"
-            >
-
-                <span
-                    class="package-name"
-                >
-                    ${escapeHtml(
-                        packageTitle
-                    )}
-                </span>
-
-                <strong
-                    class="package-amount"
-                >
-                    ${formatAmount(
-                        packageAmount
-                    )}
-                </strong>
-
-            </div>
-            `;
-    }
-);
-
-
-packagesContent.innerHTML =
-    cards;
-
-}
-
-function selectPackage(element) {
-
-clearMessage();
-
-
-const packageId =
-    element.dataset.packageId;
-
-
-if (
-    !packageId
-) {
-    return;
-}
-
-
-/*
- * Find selected package
- * from the separately loaded
- * packages array.
- */
-
-const packageItem =
-    packagesData.find(
-        item =>
-            String(item.id) ===
-            String(packageId)
-    );
-
-
-if (
-    !packageItem
-) {
-
-    showMessage(
-        "Could not select this package."
-    );
-
-    return;
-}
-
-
-selectedPackage =
-    packageItem;
-
-
-/*
- * Remove selected styling
- * from all package cards.
- */
-
-document
-    .querySelectorAll(
-        ".package-card"
-    )
-    .forEach(
-        card => {
-
-            card.classList.remove(
-                "selected"
-            );
-        }
-    );
-
-
-element.classList.add(
-    "selected"
-);
-
-}
-
-function selectPaymentMethod(
-element
-) {
-
-clearMessage();
-
-
-const method =
-    element.dataset.method;
-
-
-if (
-    !method
-) {
-    return;
-}
-
-
-selectedPaymentMethod =
-    method;
-
-
-/*
- * Remove selected styling
- * from all payment methods.
- */
-
-document
-    .querySelectorAll(
-        ".payment-method"
-    )
-    .forEach(
-        paymentElement => {
-
-            paymentElement
-                .classList
-                .remove(
-                    "selected"
-                );
-        }
-    );
-
-
-element.classList.add(
-    "selected"
-);
-
-}
-
-async function loadInvestmentHistory() {
-
-investmentHistoryContent.innerHTML =
-    `
-    <p class="loading-text">
-        Loading investment history...
-    </p>
-    `;
-
-
-if (
-    !currentUser
-) {
-
-    investmentHistoryContent.innerHTML =
-        `
-        <p class="error-text">
-            Could not identify
-            the current member.
-        </p>
-        `;
-
-    return;
-}
-
-
-const {
-    data,
-    error
-} =
-    await supabaseClient
-        .from("investments")
-        .select("*")
-        .eq(
-            "user_id",
-            currentUser.id
-        )
-        .order(
-            "created_at",
-            {
-                ascending: false
-            }
-        );
-
-
-if (
-    error
-) {
-
-    console.error(
-        "Could not load investment history:",
-        error
-    );
-
-
-    investmentHistoryContent.innerHTML =
-        `
-        <p class="error-text">
-            Could not load investment history:
-            ${escapeHtml(
-                error.message
-            )}
-        </p>
-        `;
-
-
-    return;
-}
-
-
-investmentsData =
-    data || [];
-
-
-renderInvestmentHistory();
-
-}
-
-function renderInvestmentHistory() {
-
-if (
-    investmentsData.length === 0
-) {
-
-    investmentHistoryContent.innerHTML =
-        `
-        <p class="empty-text">
-            You have not submitted any
-            investment requests yet.
-        </p>
-        `;
-
-    return;
-}
-
-
-/*
- * Create a package lookup map
- * from the separately loaded
- * packages data.
- */
-
-const packagesMap =
-    new Map();
-
-
-packagesData.forEach(
-    packageItem => {
-
-        packagesMap.set(
-            String(packageItem.id),
-            packageItem
-        );
-    }
-);
-
-
-let rows =
-    "";
-
-
-investmentsData.forEach(
-    investment => {
-
-        const packageItem =
-            packagesMap.get(
-                String(
-                    investment.package_id
-                )
-            );
-
-
-        const packageName =
-            packageItem
-                ? (
-                    packageItem.name ||
-                    packageItem.title ||
-                    "Investment Package"
-                )
-                : "Unknown Package";
-
-
-        const packageAmount =
-            investment.amount ||
-            packageItem?.amount ||
-            packageItem?.price ||
-            0;
-
-
-        const paymentMethod =
-            investment.payment_method ===
-            "bank"
-                ? "Bank Account"
-                : investment.payment_method ===
-                "crypto"
-                    ? "Crypto Funding"
-                    : escapeHtml(
-                        investment.payment_method ||
-                        "N/A"
-                    );
-
-
-        const investmentStatus =
-            investment.status ||
-            "pending";
-
-
-        const statusClass =
-            getStatusClass(
-                investmentStatus
-            );
-
-
-        rows +=
-            `
-            <tr>
-
-                <td>
-                    ${escapeHtml(
-                        String(
-                            packageName
-                        )
-                    )}
-                </td>
-
-                <td>
-                    ${formatAmount(
-                        packageAmount
-                    )}
-                </td>
-
-                <td>
-                    ${paymentMethod}
-                </td>
-
-                <td>
-                    <span
-                        class="status ${statusClass}"
-                    >
-                        ${escapeHtml(
-                            investmentStatus
-                        )}
-                    </span>
-                </td>
-
-                <td>
-                    ${formatDate(
-                        investment.created_at
-                    )}
-                </td>
-
-            </tr>
-            `;
-    }
-);
-
-
-investmentHistoryContent.innerHTML =
-    `
-    <div
-        class="table-wrapper"
-    >
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        Package
-                    </th>
-
-                    <th>
-                        Amount
-                    </th>
-
-                    <th>
-                        Payment Method
-                    </th>
-
-                    <th>
-                        Status
-                    </th>
-
-                    <th>
-                        Date
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                ${rows}
-
-            </tbody>
-
-        </table>
-
-    </div>
-    `;
-
-}
-
-/*
-
-* SUBMIT INVESTMENT REQUEST
-  */
-
-submitInvestmentBtn.addEventListener(
-"click",
-async function () {
-
-    clearMessage();
-
-
-    /*
-     * Make sure the member
-     * is still authenticated.
-     */
-
-    if (
-        !currentUser ||
-        !currentProfile
-    ) {
-
-        showMessage(
-            "Your session could not be verified. Please log in again."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Blocked members cannot
-     * submit investment requests.
-     */
-
-    if (
-        currentProfile.status ===
-        "blocked"
-    ) {
-
-        showMessage(
-            "Your account is currently blocked."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Require package selection.
-     */
-
-    if (
-        !selectedPackage
-    ) {
-
-        showMessage(
-            "Please select an investment package."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Require payment method.
-     */
-
-    if (
-        !selectedPaymentMethod
-    ) {
-
-        showMessage(
-            "Please select a payment method."
-        );
-
-        return;
-    }
-
-
-    const packageAmount =
-        Number(
-            selectedPackage.amount ||
-            selectedPackage.price ||
-            0
-        );
-
-
-    if (
-        !packageAmount ||
-        packageAmount <= 0
-    ) {
-
-        showMessage(
-            "The selected package has an invalid amount."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Prevent duplicate button clicks
-     * while the request is being sent.
-     */
-
-    submitInvestmentBtn.disabled =
-        true;
-
-
-    const originalButtonText =
-        submitInvestmentBtn.textContent;
-
-
-    submitInvestmentBtn.textContent =
-        "Submitting...";
-
-
-    /*
-     * Create investment request.
-     *
-     * Payment verification is manual.
-     * The request starts as pending.
-     */
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("investments")
-            .insert({
-                user_id:
-                    currentUser.id,
-
-                package_id:
-                    selectedPackage.id,
-
-                amount:
-                    packageAmount,
-
-                payment_method:
-                    selectedPaymentMethod,
-
-                status:
-                    "pending"
-            });
-
-
-    if (
-        error
-    ) {
-
-        console.error(
-            "Could not submit investment request:",
-            error
-        );
-
-
-        showMessage(
-            "Could not submit investment request: " +
-            error.message
-        );
-
-
-        submitInvestmentBtn.disabled =
-            false;
-
-
-        submitInvestmentBtn.textContent =
-            originalButtonText;
-
-
-        return;
-    }
-
-
-    showMessage(
-        "Investment request submitted successfully. Payment verification will be handled manually.",
-        "success"
-    );
-
-
-    /*
-     * Reset selections.
-     */
-
-    selectedPackage =
-        null;
-
-
-    selectedPaymentMethod =
-        null;
-
-
-    document
-        .querySelectorAll(
-            ".package-card"
-        )
-        .forEach(
-            card => {
-
-                card.classList.remove(
-                    "selected"
-                );
-            }
-        );
-
-
-    document
-        .querySelectorAll(
-            ".payment-method"
-        )
-        .forEach(
-            paymentElement => {
-
-                paymentElement
-                    .classList
-                    .remove(
-                        "selected"
-                    );
-            }
-        );
-
-
-    /*
-     * Reload investment history
-     * so the new pending request
-     * appears immediately.
-     */
-
-    await loadInvestmentHistory();
-
-
-    submitInvestmentBtn.disabled =
-        false;
-
-
-    submitInvestmentBtn.textContent =
-        originalButtonText;
-}
-
-);
-
-/*
-
-* LOGOUT
-  */
-
-logoutBtn.addEventListener(
-"click",
-async function () {
-
-    clearMessage();
-
-    logoutBtn.disabled =
-        true;
-
-    logoutBtn.textContent =
-        "Logging out...";
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .auth
-            .signOut();
-
-
-    if (
-        error
-    ) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-
-        showMessage(
-            "Could not log out: " +
-            error.message
-        );
-
-        logoutBtn.disabled =
-            false;
-
-        logoutBtn.textContent =
-            "Logout";
-
-        return;
-    }
-
-
-    window.location.href =
-        "login.html";
-}
-
-);
-
-/*
-
-* INITIALIZE DASHBOARD
-  */
-
-async function initializeDashboard() {
-
-try {
-
-    /*
-     * Verify the current session
-     * and member profile first.
-     */
-
-    const authorized =
-        await checkMemberAuthorization();
-
-
-    if (
-        !authorized
-    ) {
-        return;
-    }
-
-
-    /*
-     * Display the member's
-     * profile information.
-     */
-
-    displayProfile();
-
-
-    /*
-     * Load packages first.
-     * Investment history uses the
-     * package information to display
-     * package names correctly.
-     */
-
-    await loadPackages();
-
-
-    /*
-     * Load the member's investment
-     * history separately.
-     */
-
-    await loadInvestmentHistory();
-
-
-} catch (error) {
-
-    console.error(
-        "Dashboard initialization failed:",
-        error
-    );
-
-
-    showMessage(
-        "Could not initialize your dashboard: " +
-        (
-            error.message ||
-            "Unknown error"
-        )
-    );
-
-
-    /*
-     * Never leave loading messages
-     * on the screen forever.
-     */
-
-    if (
-        packagesContent.textContent
-            .includes(
-                "Loading packages..."
-            )
-    ) {
-
-        packagesContent.innerHTML =
-            `
-            <p class="error-text">
-                Could not load packages:
-                ${escapeHtml(
-                    error.message ||
-                    "Unknown error"
-                )}
-            </p>
-            `;
-    }
-
-
-    if (
-        investmentHistoryContent.textContent
-            .includes(
-                "Loading investment history..."
-            )
-    ) {
-
-        investmentHistoryContent.innerHTML =
-            `
-            <p class="error-text">
-                Could not load investment history:
-                ${escapeHtml(
-                    error.message ||
-                    "Unknown error"
-                )}
-            </p>
-            `;
-    }
-}
-
-}
-
-/*
-
-* START DASHBOARD
-  */
-
-initializeDashboard();
-
-</script></body>
-</html>
