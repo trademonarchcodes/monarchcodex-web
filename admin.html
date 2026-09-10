@@ -45,6 +45,7 @@
             <button
                 id="logoutBtn"
                 class="btn btn-outline"
+                onclick="logout()"
             >
                 Logout
             </button>
@@ -58,7 +59,7 @@
 
 <main>
 
-    <!-- HEADER -->
+    <!-- ADMIN HERO -->
 
     <section class="hero dashboard-hero">
 
@@ -82,7 +83,7 @@
     </section>
 
 
-    <!-- STATISTICS -->
+    <!-- OVERVIEW -->
 
     <section class="section">
 
@@ -134,7 +135,7 @@
                     </p>
 
                     <strong
-                        id="pendingInvestments"
+                        id="pendingMembers"
                         style="
                             display:block;
                             color:#f3b33d;
@@ -238,30 +239,15 @@
 
                             <tr>
 
-                                <th>
-                                    NAME
-                                </th>
-
-                                <th>
-                                    ROLE
-                                </th>
-
-                                <th>
-                                    STATUS
-                                </th>
-
-                                <th>
-                                    CREATED
-                                </th>
-
-                                <th>
-                                    ACTION
-                                </th>
+                                <th>NAME</th>
+                                <th>ROLE</th>
+                                <th>STATUS</th>
+                                <th>CREATED</th>
+                                <th>ACTION</th>
 
                             </tr>
 
                         </thead>
-
 
                         <tbody id="membersTable">
 
@@ -319,42 +305,18 @@
 
                             <tr>
 
-                                <th>
-                                    MEMBER
-                                </th>
-
-                                <th>
-                                    EMAIL
-                                </th>
-
-                                <th>
-                                    PACKAGE
-                                </th>
-
-                                <th>
-                                    AMOUNT
-                                </th>
-
-                                <th>
-                                    PAYMENT
-                                </th>
-
-                                <th>
-                                    STATUS
-                                </th>
-
-                                <th>
-                                    DATE
-                                </th>
-
-                                <th>
-                                    ACTION
-                                </th>
+                                <th>MEMBER</th>
+                                <th>EMAIL</th>
+                                <th>PACKAGE</th>
+                                <th>AMOUNT</th>
+                                <th>PAYMENT</th>
+                                <th>STATUS</th>
+                                <th>DATE</th>
+                                <th>ACTION</th>
 
                             </tr>
 
                         </thead>
-
 
                         <tbody id="investmentsTable">
 
