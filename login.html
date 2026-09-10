@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
 
@@ -9,178 +8,148 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <meta
-        name="description"
-        content="Login to your Monarch Codex account."
-    >
-
     <title>Login | Monarch Codex</title>
 
-    <link rel="stylesheet" href="style.css">
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-        defer
-    ></script>
-
-    <script src="script.js" defer></script>
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
 
 <body>
 
-<header class="navbar">
+    <!-- HEADER -->
+    <header class="site-header">
+        <div class="container nav-container">
 
-    <div class="container">
+            <a href="index.html" class="logo">
+                MONARCH <span>CODEX</span>
+            </a>
 
-        <a href="index.html" class="logo">
-            MONARCH <span>CODEX</span>
-        </a>
-
-        <a
-            href="index.html"
-            class="btn btn-secondary"
-        >
-            ← Home
-        </a>
-
-    </div>
-
-</header>
-
-
-<main>
-
-<section
-    class="login-section"
-    style="min-height:calc(100vh - 78px);"
->
-
-    <div class="container">
-
-        <div class="section-heading">
-
-            <span class="eyebrow">
-                Member Access
-            </span>
-
-            <h2>
-                Enter The
-                <span class="text-gold">
-                    Codex
-                </span>
-            </h2>
-
-            <p>
-                Access your Monarch Codex account.
-            </p>
+            <nav class="main-nav">
+                <a href="index.html">Home</a>
+                <a href="register.html">Register</a>
+            </nav>
 
         </div>
+    </header>
 
 
-        <div class="form-container">
+    <!-- LOGIN SECTION -->
+    <main class="auth-page">
+
+        <div class="auth-card">
+
+            <div class="auth-header">
+                <p class="eyebrow">MONARCH CODEX</p>
+
+                <h1>Welcome Back</h1>
+
+                <p>
+                    Login to access your Monarch Codex dashboard.
+                </p>
+            </div>
+
 
             <form id="loginForm">
 
                 <div class="form-group">
-
-                    <label for="loginEmail">
+                    <label for="email">
                         Email Address
                     </label>
 
                     <input
                         type="email"
-                        id="loginEmail"
+                        id="email"
+                        name="email"
                         placeholder="Enter your email"
                         autocomplete="email"
                         required
                     >
-
                 </div>
 
 
                 <div class="form-group">
-
-                    <label for="loginPassword">
+                    <label for="password">
                         Password
                     </label>
 
                     <input
                         type="password"
-                        id="loginPassword"
+                        id="password"
+                        name="password"
                         placeholder="Enter your password"
                         autocomplete="current-password"
                         required
                     >
-
                 </div>
 
 
                 <button
                     type="submit"
-                    class="btn btn-primary"
+                    class="btn btn-primary auth-submit"
                 >
                     Login
                 </button>
-
-
-                <div
-                    id="loginMessage"
-                    class="form-message"
-                ></div>
 
             </form>
 
 
             <div
-                style="
-                    text-align:center;
-                    margin-top:22px;
-                    color:#888;
-                    font-size:.85rem;
-                "
-            >
+                id="loginMessage"
+                class="form-message"
+            ></div>
 
-                Don't have an account?
 
-                <a
-                    href="register.html"
-                    style="color:#d4af37;font-weight:600;"
-                >
-                    Become a Monarch
-                </a>
+            <div class="auth-footer">
+
+                <p>
+                    Don't have an account?
+                    <a href="register.html">
+                        Create an account
+                    </a>
+                </p>
+
+                <p>
+                    <a href="index.html">
+                        ← Back to Monarch Codex
+                    </a>
+                </p>
 
             </div>
 
         </div>
 
-    </div>
-
-</section>
-
-</main>
+    </main>
 
 
-<footer>
+    <!-- FOOTER -->
+    <footer class="site-footer">
 
-    <div class="container">
+        <div class="container">
 
-        <h3>
-            MONARCH CODEX
-        </h3>
+            <p>
+                ©
+                <span id="currentYear"></span>
+                Monarch Codex.
+                All rights reserved.
+            </p>
 
-        <p>
-            Learn. Build. Trade. Create.
-        </p>
+        </div>
 
-        <p style="margin-top:15px;">
-            © 2026 Monarch Codex.
-            All rights reserved.
-        </p>
+    </footer>
 
-    </div>
 
-</footer>
+    <!-- SUPABASE MUST LOAD BEFORE SCRIPT.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="script.js"></script>
+
+
+    <script>
+        document.getElementById("currentYear").textContent =
+            new Date().getFullYear();
+    </script>
 
 </body>
-
 </html>
