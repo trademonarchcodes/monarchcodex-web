@@ -1534,3 +1534,434 @@ renderInvestmentHistory();
 
 }
 
+function renderInvestmentHistory() {
+
+if (
+    investmentsData.length === 0
+) {
+
+    investmentHistoryContent.innerHTML =
+        `
+        <p class="empty-text">
+            You have not submitted any
+            investment requests yet.
+        </p>
+        `;
+
+    return;
+}
+
+
+/*
+ * Create a package lookup map
+ * from the separately loaded
+ * packages data.
+ */
+
+const packagesMap =
+    new Map();
+
+
+packagesData.forEach(
+    packageItem => {
+
+        packagesMap.set(
+            String(packageItem.id),
+            packageItem
+        );
+    }
+);
+
+
+let rows =
+    "";
+
+
+investmentsData.forEach(
+    investment => {
+
+        const packageItem =
+            packagesMap.get(
+                String(
+                    investment.package_id
+                )
+            );
+
+
+        const packageName =
+            packageItem
+                ? (
+                    packageItem.name ||
+                    packageItem.title ||
+                    "Investment Package"
+                )
+                : "Unknown Package";
+
+
+        const packageAmount =
+            investment.amount ||
+            packageItem?.amount ||
+            packageItem?.price ||
+            0;
+
+
+        const paymentMethod =
+            investment.payment_method ===
+            "bank"
+                ? "Bank Account"
+                : investment.payment_method ===
+                "crypto"
+                    ? "Crypto Funding"
+                    : escapeHtml(
+                        investment.payment_method ||
+                        "N/A"
+                    );
+
+
+        const investmentStatus =
+            investment.status ||
+            "pending";
+
+
+        const statusClass =
+            getStatusClass(
+                investmentStatus
+            );
+
+
+        rows +=
+            `
+            <tr>
+
+                <td>
+                    ${escapeHtml(
+                        String(
+                            packageName
+                        )
+                    )}
+                </td>
+
+                <td>
+                    ${formatAmount(
+                        packageAmount
+                    )}
+                </td>
+
+                <td>
+                    ${paymentMethod}
+                </td>
+
+                <td>
+                    <span
+                        class="status ${statusClass}"
+                    >
+                        ${escapeHtml(
+                            investmentStatus
+                        )}
+                    </span>
+                </td>
+
+                <td>
+                    ${formatDate(
+                        investment.created_at
+                    )}
+                </td>
+
+            </tr>
+            `;
+    }
+);
+
+
+investmentHistoryContent.innerHTML =
+    `
+    <div
+        class="table-wrapper"
+    >
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Package
+                    </th>
+
+                    <th>
+                        Amount
+                    </th>
+
+                    <th>
+                        Payment Method
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Date
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${rows}
+
+            </tbody>
+
+        </table>
+
+    </div>
+    `;
+
+}
+
+/*
+
+* SUBMIT INVESTMENT REQUEST
+  */
+
+submitInvestmentBtn.addEventListener(
+"click",
+async function () {
+
+    clearMessage();
+
+
+    /*
+     * Make sure the member
+     * is still authenticated.
+     */
+
+    if (
+        !currentUser ||
+        !currentProfile
+    ) {
+
+        showMessage(
+            "Your session could not be verified. Please log in again."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Blocked members cannot
+     * submit investment requests.
+     */
+
+    if (
+        currentProfile.status ===
+        "blocked"
+    ) {
+
+        showMessage(
+            "Your account is currently blocked."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Require package selection.
+     */
+
+    if (
+        !selectedPackage
+    ) {
+
+        showMessage(
+            "Please select an investment package."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Require payment method.
+     */
+
+    if (
+        !selectedPaymentMethod
+    ) {
+
+        showMessage(
+            "Please select a payment method."
+        );
+
+        return;
+    }
+
+
+    const packageAmount =
+        Number(
+            selectedPackage.amount ||
+            selectedPackage.price ||
+            0
+        );
+
+
+    if (
+        !packageAmount ||
+        packageAmount <= 0
+    ) {
+
+        showMessage(
+            "The selected package has an invalid amount."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Prevent duplicate button clicks
+     * while the request is being sent.
+     */
+
+    submitInvestmentBtn.disabled =
+        true;
+
+
+    const originalButtonText =
+        submitInvestmentBtn.textContent;
+
+
+    submitInvestmentBtn.textContent =
+        "Submitting...";
+
+
+    /*
+     * Create investment request.
+     *
+     * Payment verification is manual.
+     * The request starts as pending.
+     */
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .from("investments")
+            .insert({
+                user_id:
+                    currentUser.id,
+
+                package_id:
+                    selectedPackage.id,
+
+                amount:
+                    packageAmount,
+
+                payment_method:
+                    selectedPaymentMethod,
+
+                status:
+                    "pending"
+            });
+
+
+    if (
+        error
+    ) {
+
+        console.error(
+            "Could not submit investment request:",
+            error
+        );
+
+
+        showMessage(
+            "Could not submit investment request: " +
+            error.message
+        );
+
+
+        submitInvestmentBtn.disabled =
+            false;
+
+
+        submitInvestmentBtn.textContent =
+            originalButtonText;
+
+
+        return;
+    }
+
+
+    showMessage(
+        "Investment request submitted successfully. Payment verification will be handled manually.",
+        "success"
+    );
+
+
+    /*
+     * Reset selections.
+     */
+
+    selectedPackage =
+        null;
+
+
+    selectedPaymentMethod =
+        null;
+
+
+    document
+        .querySelectorAll(
+            ".package-card"
+        )
+        .forEach(
+            card => {
+
+                card.classList.remove(
+                    "selected"
+                );
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".payment-method"
+        )
+        .forEach(
+            paymentElement => {
+
+                paymentElement
+                    .classList
+                    .remove(
+                        "selected"
+                    );
+            }
+        );
+
+
+    /*
+     * Reload investment history
+     * so the new pending request
+     * appears immediately.
+     */
+
+    await loadInvestmentHistory();
+
+
+    submitInvestmentBtn.disabled =
+        false;
+
+
+    submitInvestmentBtn.textContent =
+        originalButtonText;
+}
+
+);
+
