@@ -1,85 +1,94 @@
-/* =====================================================
+/* =========================================================
    MONARCH CODEX
-   Main JavaScript
-   ===================================================== */
+   Supabase + Member Dashboard + Admin Command Center
+   ========================================================= */
 
 const SUPABASE_URL =
     "https://avaworleivncevaoqeny.supabase.co";
+
 const SUPABASE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-let db;
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JiPjIh";
 
 
-/* =====================================================
-   START SUPABASE
-   ===================================================== */
+/* =========================================================
+   SUPABASE INITIALIZATION
+   ========================================================= */
 
-function startSupabase() {
+let supabaseClient = null;
 
-    if (!window.supabase) {
-        console.error("Supabase library not loaded.");
-        return false;
+function getSupabase() {
+
+    if (!supabaseClient) {
+
+        if (
+            typeof window.supabase === "undefined" ||
+            typeof window.supabase.createClient !== "function"
+        ) {
+            throw new Error("Supabase library has not loaded yet.");
+        }
+
+        supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
     }
 
-    if (!db) {
-        db = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
-    }
-
-    return true;
+    return supabaseClient;
 }
 
 
-/* =====================================================
-   GET ELEMENT
-   ===================================================== */
-
-function $(id) {
-    return document.getElementById(id);
-}
-
-
-/* =====================================================
+/* =========================================================
    PAGE READY
-   ===================================================== */
+   ========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async () => {
 
-    console.log("Monarch Codex JavaScript loaded.");
+    try {
 
-    startSupabase();
+        setupMobileMenu();
 
-    setupMobileMenu();
+        setupRegistration();
 
-    setupRegistration();
+        setupLogin();
 
-    setupLogin();
+        setupLogout();
 
-    setupInvestment();
+        setupAdminLogout();
 
-    setupLogout();
+        await setupMemberDashboard();
 
-    checkDashboard();
+        await setupAdminDashboard();
+
+    } catch (error) {
+
+        console.error(
+            "Monarch Codex error:",
+            error
+        );
+
+    }
 
 });
 
 
-/* =====================================================
+/* =========================================================
    MOBILE MENU
-   ===================================================== */
+   ========================================================= */
 
 function setupMobileMenu() {
 
-    const menuButton = $("menuButton");
-    const navLinks = $("navLinks");
+    const menuButton =
+        document.getElementById("menuButton");
+
+    const navLinks =
+        document.getElementById("navLinks");
 
     if (!menuButton || !navLinks) {
         return;
     }
 
-    menuButton.addEventListener("click", function () {
+    menuButton.addEventListener("click", () => {
 
         navLinks.classList.toggle("active");
 
@@ -88,149 +97,139 @@ function setupMobileMenu() {
 }
 
 
-/* =====================================================
+/* =========================================================
    REGISTRATION
-   ===================================================== */
+   ========================================================= */
 
 function setupRegistration() {
 
-    const form = $("registrationForm");
+    const form =
+        document.getElementById("registrationForm");
 
     if (!form) {
         return;
     }
 
-    form.addEventListener("submit", async function (event) {
+    form.addEventListener("submit", async (event) => {
 
         event.preventDefault();
 
-        if (!startSupabase()) {
-            showMessage(
-                "registrationMessage",
-                "System is loading. Please try again.",
-                "error"
+        const message =
+            document.getElementById(
+                "registrationMessage"
             );
-            return;
-        }
 
-        const fullname =
-            $("fullname").value.trim();
+        const fullName =
+            document.getElementById(
+                "fullname"
+            ).value.trim();
 
         const email =
-            $("email").value.trim();
+            document.getElementById(
+                "email"
+            ).value.trim();
 
         const phone =
-            $("phone").value.trim();
+            document.getElementById(
+                "phone"
+            ).value.trim();
 
         const password =
-            $("password").value;
+            document.getElementById(
+                "password"
+            ).value;
 
+        if (!fullName || !email || !password) {
 
-        if (!fullname || !email || !phone || !password) {
-
-            showMessage(
-                "registrationMessage",
-                "Please fill in all fields.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (password.length < 6) {
-
-            showMessage(
-                "registrationMessage",
-                "Password must contain at least 6 characters.",
-                "error"
-            );
+            if (message) {
+                message.textContent =
+                    "Please complete all required fields.";
+            }
 
             return;
         }
-
-
-        const button =
-            form.querySelector("button[type='submit']");
-
-        if (button) {
-            button.disabled = true;
-            button.textContent = "Creating Account...";
-        }
-
-
-        showMessage(
-            "registrationMessage",
-            "Creating your account...",
-            ""
-        );
-
 
         try {
 
-            const loginPage =
-                window.location.origin +
-                window.location.pathname.replace(
-                    "register.html",
-                    "login.html"
-                );
+            const supabase =
+                getSupabase();
 
+            if (message) {
+                message.textContent =
+                    "Creating your Monarch account...";
+            }
 
-            const result =
-                await db.auth.signUp({
+            const {
+                data,
+                error
+            } = await supabase.auth.signUp({
 
-                    email: email,
+                email: email,
 
-                    password: password,
+                password: password,
 
-                    options: {
+                options: {
 
-                        data: {
-                            full_name: fullname,
-                            phone: phone
-                        },
+                    data: {
 
-                        emailRedirectTo: loginPage
+                        full_name: fullName,
+
+                        phone: phone
+
                     }
 
-                });
+                }
+
+            });
 
 
-            if (result.error) {
-                throw result.error;
+            if (error) {
+                throw error;
             }
 
 
-            showMessage(
-                "registrationMessage",
-                "Account created successfully. Check your email to confirm your account.",
-                "success"
-            );
+            if (message) {
 
+                if (
+                    data.user &&
+                    data.session
+                ) {
+
+                    message.textContent =
+                        "Account created successfully. Redirecting...";
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    }, 1000);
+
+                } else {
+
+                    message.textContent =
+                        "Account created. Please check your email to confirm your account.";
+
+                }
+
+            }
 
             form.reset();
 
-
         } catch (error) {
 
-            console.error(error);
-
-            showMessage(
-                "registrationMessage",
-                error.message ||
-                "Registration failed.",
-                "error"
+            console.error(
+                "Registration error:",
+                error
             );
 
-        }
+            if (message) {
 
+                message.textContent =
+                    error.message ||
+                    "Registration failed.";
 
-        if (button) {
-
-            button.disabled = false;
-
-            button.textContent =
-                "Create Account";
+            }
 
         }
 
@@ -239,128 +238,113 @@ function setupRegistration() {
 }
 
 
-/* =====================================================
+/* =========================================================
    LOGIN
-   ===================================================== */
+   ========================================================= */
 
 function setupLogin() {
 
-    const form = $("loginForm");
+    const form =
+        document.getElementById("loginForm");
 
     if (!form) {
         return;
     }
 
-
-    form.addEventListener("submit", async function (event) {
+    form.addEventListener("submit", async (event) => {
 
         event.preventDefault();
 
-
-        if (!startSupabase()) {
-
-            showMessage(
-                "loginMessage",
-                "System is loading. Please try again.",
-                "error"
+        const message =
+            document.getElementById(
+                "loginMessage"
             );
 
-            return;
-        }
-
-
         const email =
-            $("loginEmail").value.trim();
+            document.getElementById(
+                "loginEmail"
+            ).value.trim();
 
         const password =
-            $("loginPassword").value;
+            document.getElementById(
+                "loginPassword"
+            ).value;
 
 
         if (!email || !password) {
 
-            showMessage(
-                "loginMessage",
-                "Please enter your email and password.",
-                "error"
-            );
+            if (message) {
+                message.textContent =
+                    "Please enter your email and password.";
+            }
 
             return;
         }
 
 
-        const button =
-            form.querySelector("button[type='submit']");
-
-
-        if (button) {
-
-            button.disabled = true;
-
-            button.textContent =
-                "Logging In...";
-
-        }
-
-
-        showMessage(
-            "loginMessage",
-            "Signing you in...",
-            ""
-        );
-
-
         try {
 
-            const result =
-                await db.auth.signInWithPassword({
+            const supabase =
+                getSupabase();
 
-                    email: email,
-
-                    password: password
-
-                });
-
-
-            if (result.error) {
-                throw result.error;
+            if (message) {
+                message.textContent =
+                    "Signing you in...";
             }
 
 
-            showMessage(
-                "loginMessage",
-                "Login successful. Opening dashboard...",
-                "success"
-            );
+            const {
+                data,
+                error
+            } = await supabase.auth.signInWithPassword({
+
+                email: email,
+
+                password: password
+
+            });
 
 
-            setTimeout(function () {
+            if (error) {
+                throw error;
+            }
+
+
+            if (!data.session) {
+                throw new Error(
+                    "Login succeeded but no session was created."
+                );
+            }
+
+
+            if (message) {
+                message.textContent =
+                    "Login successful. Redirecting...";
+            }
+
+
+            setTimeout(() => {
 
                 window.location.href =
                     "dashboard.html";
 
-            }, 700);
+            }, 500);
 
 
         } catch (error) {
 
-            console.error(error);
-
-            showMessage(
-                "loginMessage",
-                error.message ||
-                "Login failed.",
-                "error"
+            console.error(
+                "Login error:",
+                error
             );
 
-        }
+            if (message) {
 
+                message.textContent =
+                    error.message ||
+                    "Login failed.";
 
-        if (button) {
-
-            button.disabled = false;
-
-            button.textContent =
-                "Login";
+            }
 
         }
 
@@ -369,221 +353,309 @@ function setupLogin() {
 }
 
 
-/* =====================================================
-   DASHBOARD CHECK
-   ===================================================== */
+/* =========================================================
+   MEMBER DASHBOARD
+   ========================================================= */
 
-async function checkDashboard() {
+async function setupMemberDashboard() {
 
-    const isDashboard =
-        window.location.pathname.endsWith(
-            "dashboard.html"
+    const dashboardName =
+        document.getElementById(
+            "dashboardName"
         );
 
+    const investmentForm =
+        document.getElementById(
+            "investmentForm"
+        );
 
-    if (!isDashboard) {
+    /*
+       If none of the member-dashboard elements exist,
+       this isn't the member dashboard.
+    */
+
+    if (
+        !dashboardName &&
+        !investmentForm
+    ) {
         return;
     }
 
 
-    if (!startSupabase()) {
+    /*
+       Don't run member-dashboard logic on admin.html.
+    */
 
-        window.location.href =
-            "login.html";
-
+    if (
+        document.getElementById(
+            "adminTotalMembers"
+        )
+    ) {
         return;
     }
 
-
-    const result =
-        await db.auth.getSession();
-
-
-    if (result.error || !result.data.session) {
-
-        window.location.href =
-            "login.html";
-
-        return;
-    }
-
-
-    const user =
-        result.data.session.user;
-
-
-    await loadProfile(user);
-
-}
-
-
-/* =====================================================
-   LOAD PROFILE
-   ===================================================== */
-
-async function loadProfile(user) {
 
     try {
 
-        const result =
-            await db
-                .from("profiles")
-                .select(
-                    "full_name, phone, role, status"
-                )
-                .eq("id", user.id)
-                .single();
+        const supabase =
+            getSupabase();
 
 
-        if (result.error) {
-            throw result.error;
-        }
+        const {
+            data: {
+                session
+            }
+        } = await supabase.auth.getSession();
 
 
-        const profile =
-            result.data;
+        if (!session) {
 
+            window.location.href =
+                "login.html";
 
-        const name =
-            profile.full_name ||
-            user.user_metadata?.full_name ||
-            "Monarch";
-
-
-        if ($("dashboardName")) {
-
-            $("dashboardName").textContent =
-                name;
+            return;
 
         }
 
 
-        if ($("profileName")) {
-
-            $("profileName").textContent =
-                name;
-
-        }
-
-
-        if ($("profilePhone")) {
-
-            $("profilePhone").textContent =
-                profile.phone ||
-                "Not provided";
-
-        }
-
-
-        if ($("profileStatus")) {
-
-            $("profileStatus").textContent =
-                profile.status ||
-                "pending";
-
-        }
+        await loadMemberProfile(
+            session.user.id
+        );
 
 
         await loadPackages();
 
-        await loadHistory(user.id);
+
+        await loadInvestmentHistory(
+            session.user.id
+        );
+
+
+        setupInvestmentForm(
+            session.user.id
+        );
 
 
     } catch (error) {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD MEMBER PROFILE
+   ========================================================= */
+
+async function loadMemberProfile(
+    userId
+) {
+
+    const supabase =
+        getSupabase();
+
+
+    const {
+        data,
+        error
+    } = await supabase
+        .from("profiles")
+        .select(
+            "full_name, phone, role, status"
+        )
+        .eq("id", userId)
+        .single();
+
+
+    if (error) {
 
         console.error(
             "Profile error:",
             error
         );
 
+        return;
+
+    }
+
+
+    const dashboardName =
+        document.getElementById(
+            "dashboardName"
+        );
+
+    const profileName =
+        document.getElementById(
+            "profileName"
+        );
+
+    const profilePhone =
+        document.getElementById(
+            "profilePhone"
+        );
+
+    const profileStatus =
+        document.getElementById(
+            "profileStatus"
+        );
+
+    const profileStatusInfo =
+        document.getElementById(
+            "profileStatusInfo"
+        );
+
+
+    if (dashboardName) {
+
+        dashboardName.textContent =
+            data.full_name ||
+            "Monarch";
+
+    }
+
+
+    if (profileName) {
+
+        profileName.textContent =
+            data.full_name ||
+            "Not available";
+
+    }
+
+
+    if (profilePhone) {
+
+        profilePhone.textContent =
+            data.phone ||
+            "Not provided";
+
+    }
+
+
+    if (profileStatus) {
+
+        profileStatus.textContent =
+            capitalizeStatus(
+                data.status
+            );
+
+    }
+
+
+    if (profileStatusInfo) {
+
+        profileStatusInfo.textContent =
+            capitalizeStatus(
+                data.status
+            );
+
     }
 
 }
 
 
-/* =====================================================
+/* =========================================================
    LOAD PACKAGES
-   ===================================================== */
+   ========================================================= */
 
 async function loadPackages() {
 
     const select =
-        $("packageSelect");
-
+        document.getElementById(
+            "packageSelect"
+        );
 
     if (!select) {
         return;
     }
 
 
-    try {
-
-        const result =
-            await db
-                .from("packages")
-                .select(
-                    "id, name, amount"
-                )
-                .eq("active", true)
-                .order(
-                    "amount",
-                    {
-                        ascending: true
-                    }
-                );
+    const supabase =
+        getSupabase();
 
 
-        if (result.error) {
-            throw result.error;
-        }
+    const {
+        data,
+        error
+    } = await supabase
+        .from("packages")
+        .select(
+            "id, name, amount"
+        )
+        .eq(
+            "active",
+            true
+        )
+        .order(
+            "amount",
+            {
+                ascending: true
+            }
+        );
 
 
-        select.innerHTML =
-            '<option value="">Select a package</option>';
-
-
-        result.data.forEach(function (pkg) {
-
-            const option =
-                document.createElement("option");
-
-
-            option.value =
-                pkg.id;
-
-
-            option.textContent =
-                pkg.name +
-                " — $" +
-                Number(pkg.amount).toLocaleString();
-
-
-            select.appendChild(option);
-
-        });
-
-
-    } catch (error) {
+    if (error) {
 
         console.error(
             "Package error:",
             error
         );
 
+        return;
+
     }
+
+
+    select.innerHTML =
+        '<option value="">Select a package</option>';
+
+
+    data.forEach((pkg) => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+        option.value =
+            pkg.id;
+
+        option.textContent =
+            `${pkg.name} — $${Number(
+                pkg.amount
+            ).toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2
+                }
+            )}`;
+
+        select.appendChild(
+            option
+        );
+
+    });
 
 }
 
 
-/* =====================================================
-   INVESTMENT
-   ===================================================== */
+/* =========================================================
+   INVESTMENT FORM
+   ========================================================= */
 
-function setupInvestment() {
+function setupInvestmentForm(
+    userId
+) {
 
     const form =
-        $("investmentForm");
-
+        document.getElementById(
+            "investmentForm"
+        );
 
     if (!form) {
         return;
@@ -592,135 +664,119 @@ function setupInvestment() {
 
     form.addEventListener(
         "submit",
-        async function (event) {
+        async (event) => {
 
             event.preventDefault();
 
 
-            if (!startSupabase()) {
-                return;
-            }
+            const packageSelect =
+                document.getElementById(
+                    "packageSelect"
+                );
 
+            const paymentMethod =
+                document.getElementById(
+                    "paymentMethod"
+                );
 
-            const sessionResult =
-                await db.auth.getSession();
-
-
-            if (
-                sessionResult.error ||
-                !sessionResult.data.session
-            ) {
-
-                window.location.href =
-                    "login.html";
-
-                return;
-            }
-
-
-            const user =
-                sessionResult.data.session.user;
+            const message =
+                document.getElementById(
+                    "investmentMessage"
+                );
 
 
             const packageId =
-                $("packageSelect").value;
+                packageSelect.value;
+
+            const payment =
+                paymentMethod.value;
 
 
-            const paymentMethod =
-                $("paymentMethod").value;
+            if (
+                !packageId ||
+                !payment
+            ) {
 
+                if (message) {
 
-            if (!packageId || !paymentMethod) {
+                    message.textContent =
+                        "Please select a package and payment method.";
 
-                showMessage(
-                    "investmentMessage",
-                    "Please select a package and payment method.",
-                    "error"
-                );
+                }
 
                 return;
-            }
-
-
-            const button =
-                form.querySelector(
-                    "button[type='submit']"
-                );
-
-
-            if (button) {
-
-                button.disabled = true;
-
-                button.textContent =
-                    "Submitting...";
 
             }
 
 
             try {
 
-                const result =
-                    await db
-                        .from("investments")
-                        .insert({
-
-                            user_id:
-                                user.id,
-
-                            package_id:
-                                Number(packageId),
-
-                            payment_method:
-                                paymentMethod,
-
-                            status:
-                                "pending"
-
-                        });
+                const supabase =
+                    getSupabase();
 
 
-                if (result.error) {
-                    throw result.error;
+                if (message) {
+
+                    message.textContent =
+                        "Submitting your investment request...";
+
                 }
 
 
-                showMessage(
-                    "investmentMessage",
-                    "Investment request submitted successfully.",
-                    "success"
-                );
+                const {
+                    error
+                } = await supabase
+                    .from("investments")
+                    .insert({
+
+                        user_id:
+                            userId,
+
+                        package_id:
+                            Number(packageId),
+
+                        payment_method:
+                            payment
+
+                    });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                if (message) {
+
+                    message.textContent =
+                        "Investment request submitted successfully.";
+
+                }
 
 
                 form.reset();
 
 
-                await loadHistory(
-                    user.id
+                await loadInvestmentHistory(
+                    userId
                 );
 
 
             } catch (error) {
 
-                console.error(error);
-
-
-                showMessage(
-                    "investmentMessage",
-                    error.message ||
-                    "Request failed.",
-                    "error"
+                console.error(
+                    "Investment error:",
+                    error
                 );
 
-            }
 
+                if (message) {
 
-            if (button) {
+                    message.textContent =
+                        error.message ||
+                        "Unable to submit investment request.";
 
-                button.disabled = false;
-
-                button.textContent =
-                    "Submit Investment Request";
+                }
 
             }
 
@@ -730,170 +786,663 @@ function setupInvestment() {
 }
 
 
-/* =====================================================
+/* =========================================================
    INVESTMENT HISTORY
-   ===================================================== */
+   ========================================================= */
 
-async function loadHistory(userId) {
+async function loadInvestmentHistory(
+    userId
+) {
 
     const table =
-        $("investmentHistory");
-
+        document.getElementById(
+            "investmentHistory"
+        );
 
     if (!table) {
         return;
     }
 
 
-    try {
+    const supabase =
+        getSupabase();
 
-        const result =
-            await db
-                .from("investments")
-                .select(`
-                    id,
-                    amount,
-                    payment_method,
-                    status,
-                    created_at,
-                    packages (
-                        name
-                    )
-                `)
-                .eq(
-                    "user_id",
-                    userId
-                )
-                .order(
-                    "created_at",
+
+    const {
+        data,
+        error
+    } = await supabase
+        .from("investments")
+        .select(
+            `
+            id,
+            amount,
+            payment_method,
+            status,
+            created_at,
+            packages (
+                name
+            )
+            `
+        )
+        .eq(
+            "user_id",
+            userId
+        )
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Investment history error:",
+            error
+        );
+
+        table.innerHTML =
+            `<tr>
+                <td colspan="5">
+                    Unable to load investment history.
+                </td>
+            </tr>`;
+
+        return;
+
+    }
+
+
+    if (!data || data.length === 0) {
+
+        table.innerHTML =
+            `<tr>
+                <td colspan="5">
+                    No investment requests yet.
+                </td>
+            </tr>`;
+
+        return;
+
+    }
+
+
+    table.innerHTML = "";
+
+
+    data.forEach(
+        (investment) => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const packageName =
+                investment.packages &&
+                investment.packages.name
+                    ? investment.packages.name
+                    : "Investment Package";
+
+
+            const amount =
+                Number(
+                    investment.amount
+                ).toLocaleString(
+                    "en-US",
                     {
-                        ascending: false
+                        minimumFractionDigits: 2
                     }
                 );
 
 
-        if (result.error) {
-            throw result.error;
+            const payment =
+                investment.payment_method ===
+                "crypto"
+                    ? "Crypto"
+                    : "Bank";
+
+
+            const status =
+                capitalizeStatus(
+                    investment.status
+                );
+
+
+            const date =
+                new Date(
+                    investment.created_at
+                ).toLocaleDateString(
+                    "en-US",
+                    {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                    }
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${escapeHtml(packageName)}
+                </td>
+
+                <td>
+                    $${amount}
+                </td>
+
+                <td>
+                    ${payment}
+                </td>
+
+                <td>
+                    ${status}
+                </td>
+
+                <td>
+                    ${date}
+                </td>
+
+            `;
+
+
+            table.appendChild(
+                row
+            );
+
         }
+    );
+
+}
+
+
+/* =========================================================
+   ADMIN DASHBOARD
+   ========================================================= */
+
+async function setupAdminDashboard() {
+
+    const adminPage =
+        document.getElementById(
+            "adminTotalMembers"
+        );
+
+
+    if (!adminPage) {
+        return;
+    }
+
+
+    try {
+
+        const supabase =
+            getSupabase();
+
+
+        const {
+            data: {
+                session
+            }
+        } = await supabase.auth.getSession();
+
+
+        if (!session) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        /*
+           First verify that this account is actually
+           an active administrator.
+        */
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabase
+            .from("profiles")
+            .select(
+                "full_name, role, status"
+            )
+            .eq(
+                "id",
+                session.user.id
+            )
+            .single();
 
 
         if (
-            !result.data ||
-            result.data.length === 0
+            profileError ||
+            !profile ||
+            profile.role !== "admin" ||
+            profile.status !== "active"
         ) {
 
-            table.innerHTML = `
-                <tr>
-                    <td colspan="5">
-                        No investment requests yet.
-                    </td>
-                </tr>
-            `;
+            alert(
+                "Administrator access required."
+            );
+
+            window.location.href =
+                "dashboard.html";
 
             return;
+
         }
 
 
-        table.innerHTML = "";
+        await loadAdminMembers();
 
-
-        result.data.forEach(
-            function (investment) {
-
-                const row =
-                    document.createElement("tr");
-
-
-                const packageName =
-                    investment.packages?.name ||
-                    "Package";
-
-
-                const payment =
-                    investment.payment_method ===
-                    "crypto"
-                        ? "Crypto Funding"
-                        : "Bank Account";
-
-
-                const status =
-                    investment.status ||
-                    "pending";
-
-
-                const amount =
-                    "$" +
-                    Number(
-                        investment.amount
-                    ).toLocaleString();
-
-
-                const date =
-                    new Date(
-                        investment.created_at
-                    ).toLocaleDateString();
-
-
-                row.innerHTML = `
-
-                    <td>
-                        ${escapeHTML(packageName)}
-                    </td>
-
-                    <td>
-                        ${escapeHTML(amount)}
-                    </td>
-
-                    <td>
-                        ${escapeHTML(payment)}
-                    </td>
-
-                    <td>
-                        ${escapeHTML(status)}
-                    </td>
-
-                    <td>
-                        ${escapeHTML(date)}
-                    </td>
-
-                `;
-
-
-                table.appendChild(row);
-
-            }
-        );
+        await loadAdminInvestments();
 
 
     } catch (error) {
 
         console.error(
-            "History error:",
+            "Admin dashboard error:",
             error
         );
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    Unable to load history.
-                </td>
-            </tr>
-        `;
 
     }
 
 }
 
 
-/* =====================================================
-   LOGOUT
-   ===================================================== */
+/* =========================================================
+   LOAD ADMIN MEMBERS
+   ========================================================= */
+
+async function loadAdminMembers() {
+
+    const table =
+        document.getElementById(
+            "adminMembersTable"
+        );
+
+    if (!table) {
+        return;
+    }
+
+
+    const supabase =
+        getSupabase();
+
+
+    const {
+        data,
+        error
+    } = await supabase
+        .from("profiles")
+        .select(
+            "id, full_name, phone, role, status, created_at"
+        )
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Admin members error:",
+            error
+        );
+
+        table.innerHTML =
+            `<tr>
+                <td colspan="5">
+                    Unable to load members.
+                </td>
+            </tr>`;
+
+        return;
+
+    }
+
+
+    const total =
+        data.length;
+
+
+    const active =
+        data.filter(
+            member =>
+                member.status ===
+                "active"
+        ).length;
+
+
+    const pending =
+        data.filter(
+            member =>
+                member.status ===
+                "pending"
+        ).length;
+
+
+    setText(
+        "adminTotalMembers",
+        total
+    );
+
+    setText(
+        "adminActiveMembers",
+        active
+    );
+
+    setText(
+        "adminPendingMembers",
+        pending
+    );
+
+
+    if (data.length === 0) {
+
+        table.innerHTML =
+            `<tr>
+                <td colspan="5">
+                    No Monarch accounts found.
+                </td>
+            </tr>`;
+
+        return;
+
+    }
+
+
+    table.innerHTML = "";
+
+
+    data.forEach(
+        (member) => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const joined =
+                new Date(
+                    member.created_at
+                ).toLocaleDateString(
+                    "en-US",
+                    {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                    }
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${escapeHtml(
+                        member.full_name ||
+                        "Unnamed Monarch"
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        member.phone ||
+                        "Not provided"
+                    )}
+                </td>
+
+                <td>
+                    ${capitalizeStatus(
+                        member.status
+                    )}
+                </td>
+
+                <td>
+                    ${capitalizeStatus(
+                        member.role
+                    )}
+                </td>
+
+                <td>
+                    ${joined}
+                </td>
+
+            `;
+
+
+            table.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   LOAD ADMIN INVESTMENTS
+   ========================================================= */
+
+async function loadAdminInvestments() {
+
+    const table =
+        document.getElementById(
+            "adminInvestmentsTable"
+        );
+
+    if (!table) {
+        return;
+    }
+
+
+    const supabase =
+        getSupabase();
+
+
+    const {
+        data,
+        error
+    } = await supabase
+        .from("investments")
+        .select(
+            `
+            id,
+            amount,
+            payment_method,
+            status,
+            created_at,
+            profiles (
+                full_name
+            ),
+            packages (
+                name
+            )
+            `
+        )
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Admin investment error:",
+            error
+        );
+
+        table.innerHTML =
+            `<tr>
+                <td colspan="6">
+                    Unable to load investment requests.
+                </td>
+            </tr>`;
+
+        return;
+
+    }
+
+
+    const pending =
+        data.filter(
+            investment =>
+                investment.status ===
+                "pending"
+        ).length;
+
+
+    setText(
+        "adminInvestmentRequests",
+        pending
+    );
+
+
+    if (!data || data.length === 0) {
+
+        table.innerHTML =
+            `<tr>
+                <td colspan="6">
+                    No investment requests found.
+                </td>
+            </tr>`;
+
+        return;
+
+    }
+
+
+    table.innerHTML = "";
+
+
+    data.forEach(
+        (investment) => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const memberName =
+                investment.profiles &&
+                investment.profiles.full_name
+                    ? investment.profiles.full_name
+                    : "Unknown Monarch";
+
+
+            const packageName =
+                investment.packages &&
+                investment.packages.name
+                    ? investment.packages.name
+                    : "Package";
+
+
+            const amount =
+                Number(
+                    investment.amount
+                ).toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits: 2
+                    }
+                );
+
+
+            const payment =
+                investment.payment_method ===
+                "crypto"
+                    ? "Crypto"
+                    : "Bank";
+
+
+            const status =
+                capitalizeStatus(
+                    investment.status
+                );
+
+
+            const date =
+                new Date(
+                    investment.created_at
+                ).toLocaleDateString(
+                    "en-US",
+                    {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                    }
+                );
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${escapeHtml(
+                        memberName
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        packageName
+                    )}
+                </td>
+
+                <td>
+                    $${amount}
+                </td>
+
+                <td>
+                    ${payment}
+                </td>
+
+                <td>
+                    ${status}
+                </td>
+
+                <td>
+                    ${date}
+                </td>
+
+            `;
+
+
+            table.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   MEMBER LOGOUT
+   ========================================================= */
 
 function setupLogout() {
 
     const button =
-        $("logoutBtn");
-
+        document.getElementById(
+            "logoutBtn"
+        );
 
     if (!button) {
         return;
@@ -902,38 +1451,26 @@ function setupLogout() {
 
     button.addEventListener(
         "click",
-        async function () {
+        async () => {
 
-            if (!startSupabase()) {
-                return;
-            }
+            try {
 
+                const supabase =
+                    getSupabase();
 
-            button.disabled = true;
+                await supabase.auth.signOut();
 
+                window.location.href =
+                    "login.html";
 
-            const result =
-                await db.auth.signOut();
-
-
-            if (result.error) {
+            } catch (error) {
 
                 console.error(
-                    result.error
+                    "Logout error:",
+                    error
                 );
 
-                button.disabled = false;
-
-                alert(
-                    "Logout failed. Please try again."
-                );
-
-                return;
             }
-
-
-            window.location.href =
-                "login.html";
 
         }
     );
@@ -941,51 +1478,94 @@ function setupLogout() {
 }
 
 
-/* =====================================================
-   MESSAGE
-   ===================================================== */
+/* =========================================================
+   ADMIN LOGOUT
+   ========================================================= */
 
-function showMessage(
-    id,
-    message,
-    type
-) {
+function setupAdminLogout() {
 
-    const element =
-        $(id);
+    const button =
+        document.getElementById(
+            "adminLogoutBtn"
+        );
 
-
-    if (!element) {
+    if (!button) {
         return;
     }
 
 
-    element.textContent =
-        message;
+    button.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                const supabase =
+                    getSupabase();
+
+                await supabase.auth.signOut();
+
+                window.location.href =
+                    "login.html";
+
+            } catch (error) {
+
+                console.error(
+                    "Admin logout error:",
+                    error
+                );
+
+            }
+
+        }
+    );
+
+}
 
 
-    element.className =
-        "form-message";
+/* =========================================================
+   HELPERS
+   ========================================================= */
 
+function setText(
+    elementId,
+    value
+) {
 
-    if (type) {
-
-        element.classList.add(
-            type
+    const element =
+        document.getElementById(
+            elementId
         );
 
+    if (element) {
+        element.textContent =
+            value;
     }
 
 }
 
 
-/* =====================================================
-   SECURITY HELPER
-   ===================================================== */
+function capitalizeStatus(
+    value
+) {
 
-function escapeHTML(value) {
+    if (!value) {
+        return "Unknown";
+    }
 
-    return String(value ?? "")
+    return String(value)
+        .charAt(0)
+        .toUpperCase() +
+        String(value).slice(1);
+
+}
+
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
         .replace(
             /&/g,
             "&amp;"
