@@ -6,6 +6,7 @@ const supabase = window.supabase.createClient(
     SUPABASE_KEY
 );
 
+console.log("MONARCH CODEX SCRIPT LOADED");
 
 // =====================================================
 // HELPERS
