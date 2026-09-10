@@ -1511,3 +1511,233 @@ await refreshAdminData();
 
 }
 
+async function refreshAdminData() {
+
+membersStatus.textContent =
+    "Refreshing...";
+
+investmentsStatus.textContent =
+    "Refreshing...";
+
+statsStatus.textContent =
+    "Refreshing...";
+
+try {
+
+    /*
+     * Load all data separately.
+     * This avoids nested Supabase relationship queries.
+     */
+
+    await loadProfiles();
+
+    await loadPackages();
+
+    await loadInvestments();
+
+    /*
+     * Calculate statistics after
+     * profiles and investments are loaded.
+     */
+
+    loadStatistics();
+
+} catch (error) {
+
+    console.error(
+        "Admin data refresh failed:",
+        error
+    );
+
+    showMessage(
+        "Could not completely load Admin Command Center: " +
+        (
+            error.message ||
+            "Unknown error"
+        )
+    );
+
+    /*
+     * Ensure the page does not remain
+     * permanently in a loading state.
+     */
+
+    if (
+        membersStatus.textContent ===
+        "Loading..."
+    ) {
+
+        membersStatus.textContent =
+            "Error";
+    }
+
+    if (
+        investmentsStatus.textContent ===
+        "Loading..."
+    ) {
+
+        investmentsStatus.textContent =
+            "Error";
+    }
+
+    if (
+        statsStatus.textContent ===
+        "Loading..."
+    ) {
+
+        statsStatus.textContent =
+            "Error";
+    }
+}
+
+}
+
+/*
+
+* LOGOUT
+  */
+
+logoutBtn.addEventListener(
+"click",
+async function () {
+
+    logoutBtn.disabled =
+        true;
+
+    logoutBtn.textContent =
+        "Logging out...";
+
+    const {
+        error
+    } =
+        await supabaseClient
+            .auth
+            .signOut();
+
+    if (error) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+        showMessage(
+            "Could not log out: " +
+            error.message
+        );
+
+        logoutBtn.disabled =
+            false;
+
+        logoutBtn.textContent =
+            "Logout";
+
+        return;
+    }
+
+    window.location.href =
+        "login.html";
+}
+
+);
+
+/*
+
+* PAGE INITIALIZATION
+  */
+
+async function initializeAdminPage() {
+
+try {
+
+    /*
+     * First verify that the
+     * currently logged-in user
+     * is an active administrator.
+     */
+
+    const isAuthorized =
+        await checkAdminAuthorization();
+
+    if (!isAuthorized) {
+        return;
+    }
+
+
+    /*
+     * Load Admin Command Center data.
+     */
+
+    await refreshAdminData();
+
+
+} catch (error) {
+
+    console.error(
+        "Admin page initialization failed:",
+        error
+    );
+
+    showMessage(
+        "Could not initialize Admin Command Center: " +
+        (
+            error.message ||
+            "Unknown error"
+        )
+    );
+
+
+    /*
+     * Never leave the original loading
+     * messages on the screen forever.
+     */
+
+    if (
+        membersContent.innerHTML.includes(
+            "Loading members..."
+        )
+    ) {
+
+        membersContent.innerHTML =
+            `
+            <p class="error-text">
+                Could not load members:
+                ${escapeHtml(
+                    error.message ||
+                    "Unknown error"
+                )}
+            </p>
+            `;
+    }
+
+
+    if (
+        investmentsContent.innerHTML.includes(
+            "Loading investment requests..."
+        )
+    ) {
+
+        investmentsContent.innerHTML =
+            `
+            <p class="error-text">
+                Could not load investment requests:
+                ${escapeHtml(
+                    error.message ||
+                    "Unknown error"
+                )}
+            </p>
+            `;
+    }
+}
+
+}
+
+/*
+
+* START ADMIN PAGE
+  */
+
+initializeAdminPage();
+
+</script></body>
+</html>
