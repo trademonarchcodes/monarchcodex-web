@@ -1228,3 +1228,159 @@
         }
 
         initializeDashboard();
+    </script>
+
+    <style>
+        .dashboard-section {
+            margin-top: 28px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .info-card {
+            background: #111111;
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .info-card h3 {
+            margin: 0 0 8px;
+            color: #D4AF37;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .info-card p {
+            margin: 0;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .package-card {
+            background: #111111;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 16px;
+            padding: 22px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .package-card:hover {
+            border-color: #D4AF37;
+            transform: translateY(-2px);
+        }
+
+        .package-card.selected {
+            border: 2px solid #D4AF37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.12);
+        }
+
+        .package-card h3 {
+            margin: 0 0 10px;
+            color: #ffffff;
+            font-size: 18px;
+        }
+
+        .package-card .package-amount {
+            color: #D4AF37;
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .loading-card,
+        .empty-card {
+            background: #111111;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 14px;
+            padding: 24px;
+            text-align: center;
+            color: #aaa;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .payment-option {
+            background: #111111;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 14px;
+            padding: 20px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .payment-option.selected {
+            border-color: #D4AF37;
+            box-shadow: 0 0 18px rgba(212, 175, 55, 0.12);
+        }
+
+        .payment-option h3 {
+            margin: 0 0 6px;
+            color: #ffffff;
+        }
+
+        .payment-option p {
+            margin: 0;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .action-card {
+            background: #111111;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .primary-btn {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 18px;
+            background: #D4AF37;
+            color: #080808;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .primary-btn:hover {
+            opacity: 0.9;
+        }
+
+        .primary-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+    </style>
