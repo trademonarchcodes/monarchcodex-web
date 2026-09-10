@@ -1601,3 +1601,61 @@
             }
         }
     </style>
+    </style>
+
+    <script>
+        /* Final dashboard helpers */
+
+        function refreshSelectedPackageUI() {
+            document.querySelectorAll(".package-card").forEach(card => {
+                const packageId = card.getAttribute("data-package-id");
+
+                if (
+                    selectedPackage &&
+                    String(selectedPackage.id) === String(packageId)
+                ) {
+                    card.classList.add("selected");
+                } else {
+                    card.classList.remove("selected");
+                }
+            });
+        }
+
+        function refreshSelectedPaymentUI() {
+            document.querySelectorAll(".payment-option").forEach(option => {
+                const method = option.getAttribute("data-payment");
+
+                if (selectedPaymentMethod === method) {
+                    option.classList.add("selected");
+                } else {
+                    option.classList.remove("selected");
+                }
+            });
+        }
+
+        function updateSubmitButtonState() {
+            if (!submitInvestmentBtn) return;
+
+            const ready =
+                selectedPackage !== null &&
+                selectedPaymentMethod !== null;
+
+            submitInvestmentBtn.disabled = !ready;
+        }
+
+        const originalSelectPackage = selectPackage;
+        selectPackage = function(packageItem) {
+            originalSelectPackage(packageItem);
+            refreshSelectedPackageUI();
+            updateSubmitButtonState();
+        };
+
+        const originalSelectPaymentMethod = selectPaymentMethod;
+        selectPaymentMethod = function(method) {
+            originalSelectPaymentMethod(method);
+            refreshSelectedPaymentUI();
+            updateSubmitButtonState();
+        };
+
+        updateSubmitButtonState();
+    </script>
