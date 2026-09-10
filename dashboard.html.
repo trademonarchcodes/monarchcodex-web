@@ -1528,3 +1528,76 @@
             border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
     </style>
+        @media (max-width: 900px) {
+            .packages-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+            .dashboard {
+                padding: 16px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .profile-grid,
+            .overview-grid,
+            .payment-grid,
+            .packages-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 19px;
+            }
+
+            .earning-total {
+                font-size: 27px;
+            }
+
+            .package-card {
+                padding: 18px;
+            }
+
+            .info-card {
+                padding: 17px;
+            }
+
+            .action-card {
+                padding: 18px;
+            }
+
+            .earnings-table,
+            .history-table {
+                min-width: 600px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .dashboard {
+                padding: 12px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-value {
+                font-size: 21px;
+            }
+        }
+    </style>
