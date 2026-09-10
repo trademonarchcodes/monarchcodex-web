@@ -616,3 +616,589 @@ async function loadProfiles() {
 
     renderMembers();
 }
+
+async function loadPackages() {
+
+const {
+    data,
+    error
+} =
+    await supabaseClient
+        .from("packages")
+        .select("*");
+
+if (error) {
+
+    console.error(
+        "Could not load packages:",
+        error
+    );
+
+    packagesData = [];
+
+    showMessage(
+        "Could not load packages: " +
+        error.message
+    );
+
+    return;
+}
+
+packagesData =
+    data || [];
+
+}
+
+async function loadInvestments() {
+
+investmentsStatus.textContent =
+    "Loading...";
+
+const {
+    data,
+    error
+} =
+    await supabaseClient
+        .from("investments")
+        .select("*")
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+if (error) {
+
+    console.error(
+        "Could not load investments:",
+        error
+    );
+
+    investmentsStatus.textContent =
+        "Error";
+
+    investmentsContent.innerHTML =
+        `
+        <p class="error-text">
+            Could not load investment requests:
+            ${escapeHtml(error.message)}
+        </p>
+        `;
+
+    throw error;
+}
+
+investmentsData =
+    data || [];
+
+investmentsStatus.textContent =
+    investmentsData.length +
+    " loaded";
+
+renderInvestments();
+
+}
+
+function loadStatistics() {
+
+try {
+
+    const members =
+        profilesData.filter(
+            profile =>
+                profile.role === "member"
+        );
+
+    const pendingMembers =
+        members.filter(
+            profile =>
+                profile.status === "pending"
+        );
+
+    const confirmedInvestments =
+        investmentsData.filter(
+            investment =>
+                investment.status === "confirmed"
+        );
+
+    const rejectedInvestments =
+        investmentsData.filter(
+            investment =>
+                investment.status === "rejected"
+        );
+
+    totalMembersElement.textContent =
+        members.length;
+
+    pendingMembersElement.textContent =
+        pendingMembers.length;
+
+    confirmedInvestmentsElement.textContent =
+        confirmedInvestments.length;
+
+    rejectedInvestmentsElement.textContent =
+        rejectedInvestments.length;
+
+    statsStatus.textContent =
+        "Updated";
+
+} catch (error) {
+
+    console.error(
+        "Could not calculate statistics:",
+        error
+    );
+
+    statsStatus.textContent =
+        "Error";
+
+    totalMembersElement.textContent =
+        "Error";
+
+    pendingMembersElement.textContent =
+        "Error";
+
+    confirmedInvestmentsElement.textContent =
+        "Error";
+
+    rejectedInvestmentsElement.textContent =
+        "Error";
+
+    showMessage(
+        "Could not load statistics: " +
+        error.message
+    );
+}
+
+}
+
+function renderMembers() {
+
+/*
+ * Only normal members are shown here.
+ * Admin accounts are excluded so they
+ * cannot accidentally be modified.
+ */
+
+const members =
+    profilesData.filter(
+        profile =>
+            profile.role === "member"
+    );
+
+if (
+    members.length === 0
+) {
+
+    membersContent.innerHTML =
+        `
+        <p class="empty-text">
+            No members found.
+        </p>
+        `;
+
+    return;
+}
+
+let rows =
+    "";
+
+members.forEach(
+    member => {
+
+        const memberName =
+            escapeHtml(
+                member.full_name ||
+                "Unnamed Member"
+            );
+
+        const memberPhone =
+            escapeHtml(
+                member.phone ||
+                "N/A"
+            );
+
+        const memberStatus =
+            escapeHtml(
+                member.status ||
+                "unknown"
+            );
+
+        const statusClass =
+            getStatusClass(
+                member.status
+            );
+
+        let actionHtml =
+            "";
+
+        if (
+            member.status === "active"
+        ) {
+
+            actionHtml =
+                `
+                <div class="action-buttons">
+
+                    <button
+                        class="action-btn activate-btn"
+                        disabled
+                    >
+                        Active
+                    </button>
+
+                    <button
+                        class="action-btn block-btn"
+                        data-member-id="${member.id}"
+                        onclick="blockMember(this)"
+                    >
+                        Block
+                    </button>
+
+                </div>
+                `;
+
+        } else if (
+            member.status === "blocked"
+        ) {
+
+            actionHtml =
+                `
+                <div class="action-buttons">
+
+                    <button
+                        class="action-btn activate-btn"
+                        data-member-id="${member.id}"
+                        onclick="activateMember(this)"
+                    >
+                        Activate
+                    </button>
+
+                    <button
+                        class="action-btn block-btn"
+                        disabled
+                    >
+                        Blocked
+                    </button>
+
+                </div>
+                `;
+
+        } else {
+
+            actionHtml =
+                `
+                <div class="action-buttons">
+
+                    <button
+                        class="action-btn activate-btn"
+                        data-member-id="${member.id}"
+                        onclick="activateMember(this)"
+                    >
+                        Activate
+                    </button>
+
+                    <button
+                        class="action-btn block-btn"
+                        data-member-id="${member.id}"
+                        onclick="blockMember(this)"
+                    >
+                        Block
+                    </button>
+
+                </div>
+                `;
+        }
+
+        rows +=
+            `
+            <tr>
+
+                <td>
+                    ${memberName}
+                </td>
+
+                <td>
+                    ${memberPhone}
+                </td>
+
+                <td>
+                    <span class="status ${statusClass}">
+                        ${memberStatus}
+                    </span>
+                </td>
+
+                <td>
+                    ${formatDate(
+                        member.created_at
+                    )}
+                </td>
+
+                <td>
+                    ${actionHtml}
+                </td>
+
+            </tr>
+            `;
+    }
+);
+
+membersContent.innerHTML =
+    `
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Full Name</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Registration Date</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+                ${rows}
+            </tbody>
+
+        </table>
+
+    </div>
+    `;
+
+}
+
+function renderInvestments() {
+
+if (
+    investmentsData.length === 0
+) {
+
+    investmentsContent.innerHTML =
+        `
+        <p class="empty-text">
+            No investment requests found.
+        </p>
+        `;
+
+    return;
+}
+
+/*
+ * Create maps for profiles and packages.
+ * This avoids nested Supabase queries.
+ */
+
+const profilesMap =
+    new Map();
+
+profilesData.forEach(
+    profile => {
+
+        profilesMap.set(
+            profile.id,
+            profile
+        );
+    }
+);
+
+const packagesMap =
+    new Map();
+
+packagesData.forEach(
+    packageItem => {
+
+        packagesMap.set(
+            packageItem.id,
+            packageItem
+        );
+    }
+);
+
+let rows =
+    "";
+
+investmentsData.forEach(
+    investment => {
+
+        const member =
+            profilesMap.get(
+                investment.user_id
+            );
+
+        const packageItem =
+            packagesMap.get(
+                investment.package_id
+            );
+
+        const memberName =
+            escapeHtml(
+                member?.full_name ||
+                "Unknown Member"
+            );
+
+        const packageName =
+            packageItem
+                ? (
+                    packageItem.name ||
+                    packageItem.title ||
+                    packageItem.amount ||
+                    packageItem.price ||
+                    "Package"
+                )
+                : "Unknown Package";
+
+        const paymentMethod =
+            escapeHtml(
+                investment.payment_method ||
+                "N/A"
+            );
+
+        const investmentStatus =
+            escapeHtml(
+                investment.status ||
+                "pending"
+            );
+
+        const statusClass =
+            getStatusClass(
+                investment.status
+            );
+
+        let actionHtml =
+            "";
+
+        if (
+            investment.status === "confirmed"
+        ) {
+
+            actionHtml =
+                `
+                <button
+                    class="action-btn confirm-btn"
+                    disabled
+                >
+                    Confirmed
+                </button>
+                `;
+
+        } else if (
+            investment.status === "rejected"
+        ) {
+
+            actionHtml =
+                `
+                <button
+                    class="action-btn reject-btn"
+                    disabled
+                >
+                    Rejected
+                </button>
+                `;
+
+        } else {
+
+            actionHtml =
+                `
+                <div class="action-buttons">
+
+                    <button
+                        class="action-btn confirm-btn"
+                        data-investment-id="${investment.id}"
+                        onclick="confirmInvestment(this)"
+                    >
+                        Confirm
+                    </button>
+
+                    <button
+                        class="action-btn reject-btn"
+                        data-investment-id="${investment.id}"
+                        onclick="rejectInvestment(this)"
+                    >
+                        Reject
+                    </button>
+
+                </div>
+                `;
+        }
+
+        rows +=
+            `
+            <tr>
+
+                <td>
+                    ${memberName}
+                </td>
+
+                <td>
+                    ${escapeHtml(
+                        String(packageName)
+                    )}
+                </td>
+
+                <td>
+                    ${formatAmount(
+                        investment.amount
+                    )}
+                </td>
+
+                <td>
+                    ${paymentMethod}
+                </td>
+
+                <td>
+                    <span class="status ${statusClass}">
+                        ${investmentStatus}
+                    </span>
+                </td>
+
+                <td>
+                    ${formatDate(
+                        investment.created_at
+                    )}
+                </td>
+
+                <td>
+                    ${actionHtml}
+                </td>
+
+            </tr>
+            `;
+    }
+);
+
+investmentsContent.innerHTML =
+    `
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Member</th>
+                    <th>Package</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+                ${rows}
+            </tbody>
+
+        </table>
+
+    </div>
+    `;
+
+}
