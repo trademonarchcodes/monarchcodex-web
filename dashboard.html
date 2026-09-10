@@ -1037,3 +1037,500 @@ function formatDate(dateValue) {
         return "N/A";
     }
 }
+
+function getStatusClass(status) {
+
+const value =
+    String(
+        status || ""
+    ).toLowerCase();
+
+if (
+    value === "pending"
+) {
+
+    return "status-pending";
+}
+
+if (
+    value === "confirmed"
+) {
+
+    return "status-confirmed";
+}
+
+if (
+    value === "rejected"
+) {
+
+    return "status-rejected";
+}
+
+return "";
+
+}
+
+async function checkMemberAuthorization() {
+
+const {
+    data: authData,
+    error: authError
+} =
+    await supabaseClient
+        .auth
+        .getUser();
+
+
+if (
+    authError ||
+    !authData.user
+) {
+
+    window.location.href =
+        "login.html";
+
+    return false;
+}
+
+
+currentUser =
+    authData.user;
+
+
+const {
+    data: profile,
+    error: profileError
+} =
+    await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq(
+            "id",
+            currentUser.id
+        )
+        .single();
+
+
+if (
+    profileError
+) {
+
+    console.error(
+        "Could not load member profile:",
+        profileError
+    );
+
+    showMessage(
+        "Could not load your profile: " +
+        profileError.message
+    );
+
+    return false;
+}
+
+
+/*
+ * Admin accounts should use
+ * the Admin Command Center.
+ */
+
+if (
+    profile.role === "admin"
+) {
+
+    window.location.href =
+        "admin.html";
+
+    return false;
+}
+
+
+/*
+ * Blocked members cannot
+ * use the dashboard.
+ */
+
+if (
+    profile.status === "blocked"
+) {
+
+    await supabaseClient
+        .auth
+        .signOut();
+
+    window.location.href =
+        "login.html";
+
+    return false;
+}
+
+
+currentProfile =
+    profile;
+
+
+return true;
+
+}
+
+function displayProfile() {
+
+if (
+    !currentProfile
+) {
+    return;
+}
+
+
+const fullName =
+    currentProfile.full_name ||
+    "Monarch";
+
+
+memberNameElement.textContent =
+    fullName;
+
+
+profileFullNameElement.textContent =
+    fullName;
+
+
+profilePhoneElement.textContent =
+    currentProfile.phone ||
+    "Not provided";
+
+
+profileStatusElement.textContent =
+    currentProfile.status ||
+    "Unknown";
+
+}
+
+async function loadPackages() {
+
+packagesContent.innerHTML =
+    `
+    <p class="loading-text">
+        Loading packages...
+    </p>
+    `;
+
+
+const {
+    data,
+    error
+} =
+    await supabaseClient
+        .from("packages")
+        .select("*");
+
+
+if (
+    error
+) {
+
+    console.error(
+        "Could not load packages:",
+        error
+    );
+
+
+    packagesContent.innerHTML =
+        `
+        <p class="error-text">
+            Could not load packages:
+            ${escapeHtml(
+                error.message
+            )}
+        </p>
+        `;
+
+
+    return;
+}
+
+
+packagesData =
+    data || [];
+
+
+renderPackages();
+
+}
+
+function renderPackages() {
+
+if (
+    packagesData.length === 0
+) {
+
+    packagesContent.innerHTML =
+        `
+        <p class="empty-text">
+            No investment packages
+            are currently available.
+        </p>
+        `;
+
+    return;
+}
+
+
+let cards =
+    "";
+
+
+packagesData.forEach(
+    packageItem => {
+
+        /*
+         * Support common column names
+         * without depending on a
+         * specific package display field.
+         */
+
+        const packageAmount =
+            packageItem.amount ||
+            packageItem.price ||
+            0;
+
+
+        const packageTitle =
+            packageItem.name ||
+            packageItem.title ||
+            "Investment Package";
+
+
+        cards +=
+            `
+            <div
+                class="package-card"
+                data-package-id="${packageItem.id}"
+                onclick="selectPackage(this)"
+            >
+
+                <span
+                    class="package-name"
+                >
+                    ${escapeHtml(
+                        packageTitle
+                    )}
+                </span>
+
+                <strong
+                    class="package-amount"
+                >
+                    ${formatAmount(
+                        packageAmount
+                    )}
+                </strong>
+
+            </div>
+            `;
+    }
+);
+
+
+packagesContent.innerHTML =
+    cards;
+
+}
+
+function selectPackage(element) {
+
+clearMessage();
+
+
+const packageId =
+    element.dataset.packageId;
+
+
+if (
+    !packageId
+) {
+    return;
+}
+
+
+/*
+ * Find selected package
+ * from the separately loaded
+ * packages array.
+ */
+
+const packageItem =
+    packagesData.find(
+        item =>
+            String(item.id) ===
+            String(packageId)
+    );
+
+
+if (
+    !packageItem
+) {
+
+    showMessage(
+        "Could not select this package."
+    );
+
+    return;
+}
+
+
+selectedPackage =
+    packageItem;
+
+
+/*
+ * Remove selected styling
+ * from all package cards.
+ */
+
+document
+    .querySelectorAll(
+        ".package-card"
+    )
+    .forEach(
+        card => {
+
+            card.classList.remove(
+                "selected"
+            );
+        }
+    );
+
+
+element.classList.add(
+    "selected"
+);
+
+}
+
+function selectPaymentMethod(
+element
+) {
+
+clearMessage();
+
+
+const method =
+    element.dataset.method;
+
+
+if (
+    !method
+) {
+    return;
+}
+
+
+selectedPaymentMethod =
+    method;
+
+
+/*
+ * Remove selected styling
+ * from all payment methods.
+ */
+
+document
+    .querySelectorAll(
+        ".payment-method"
+    )
+    .forEach(
+        paymentElement => {
+
+            paymentElement
+                .classList
+                .remove(
+                    "selected"
+                );
+        }
+    );
+
+
+element.classList.add(
+    "selected"
+);
+
+}
+
+async function loadInvestmentHistory() {
+
+investmentHistoryContent.innerHTML =
+    `
+    <p class="loading-text">
+        Loading investment history...
+    </p>
+    `;
+
+
+if (
+    !currentUser
+) {
+
+    investmentHistoryContent.innerHTML =
+        `
+        <p class="error-text">
+            Could not identify
+            the current member.
+        </p>
+        `;
+
+    return;
+}
+
+
+const {
+    data,
+    error
+} =
+    await supabaseClient
+        .from("investments")
+        .select("*")
+        .eq(
+            "user_id",
+            currentUser.id
+        )
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+
+if (
+    error
+) {
+
+    console.error(
+        "Could not load investment history:",
+        error
+    );
+
+
+    investmentHistoryContent.innerHTML =
+        `
+        <p class="error-text">
+            Could not load investment history:
+            ${escapeHtml(
+                error.message
+            )}
+        </p>
+        `;
+
+
+    return;
+}
+
+
+investmentsData =
+    data || [];
+
+
+renderInvestmentHistory();
+
+}
+
