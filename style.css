@@ -4881,3 +4881,76 @@ body {
         font-size: 23px;
     }
 }
+
+/* =========================================================
+   MONARCH CODEX
+   DASHBOARD + ADMIN COMPATIBILITY LAYER
+   ========================================================= */
+
+/* Keep admin-specific status badges independent */
+.admin-page .status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+/* Prevent global form rules from making admin controls too large */
+.admin-page input,
+.admin-page select,
+.admin-page textarea {
+    box-sizing: border-box;
+}
+
+/* Admin tables should remain horizontally usable on mobile */
+.admin-page .table-wrap,
+.admin-page .table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Keep long UIDs from destroying table layout */
+.admin-page .uid-cell {
+    white-space: nowrap;
+}
+
+/* Keep admin action buttons aligned */
+.admin-page .action-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Receipt preview must stay inside the modal */
+.admin-page .receipt-preview img,
+.admin-page .receipt-preview iframe {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+/* Mobile admin tables */
+@media (max-width: 750px) {
+    .admin-page .table-wrap,
+    .admin-page .table-container {
+        overflow-x: auto;
+    }
+
+    .admin-page table {
+        min-width: 850px;
+    }
+
+    .admin-page .action-buttons {
+        flex-wrap: nowrap;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    .admin-page .action-buttons {
+        flex-wrap: wrap;
+    }
+}
