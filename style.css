@@ -3940,3 +3940,387 @@ tbody tr:hover {
         width: 100%;
     }
 }
+
+/* =========================================================
+   PART 11/12 — ADMIN DASHBOARD COMPATIBILITY
+   ========================================================= */
+
+/* ---------- ADMIN PAGE ---------- */
+
+.admin-page {
+    min-height: 100vh;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* ---------- ADMIN HEADER ---------- */
+
+.admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.96);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.admin-brand {
+    color: var(--text-primary);
+}
+
+.admin-brand span {
+    color: var(--accent-gold);
+}
+
+.admin-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 9px;
+    border-radius: 999px;
+    color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.10);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ---------- ADMIN LOGOUT ---------- */
+
+.admin-header .logout-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 8px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.admin-header .logout-btn:hover {
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+/* ---------- ADMIN CONTAINER ---------- */
+
+.admin-container {
+    width: min(1250px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 45px 0 70px;
+}
+
+/* ---------- ADMIN PAGE TITLE ---------- */
+
+.page-title {
+    margin: 0 0 30px;
+    color: var(--text-primary);
+    font-size: clamp(27px, 5vw, 38px);
+    font-weight: 800;
+}
+
+.page-title span {
+    color: var(--accent-gold);
+}
+
+/* ---------- ADMIN MESSAGE ---------- */
+
+.admin-page .message-box {
+    margin-bottom: 22px;
+}
+
+/* ---------- ADMIN STATS ---------- */
+
+.admin-page .stats-grid {
+    margin-bottom: 30px;
+}
+
+/* ---------- ADMIN STAT CARD ---------- */
+
+.admin-page .stat-card {
+    min-height: 120px;
+}
+
+/* ---------- ADMIN SECTION CARD ---------- */
+
+.admin-page .section-card {
+    margin-bottom: 25px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+}
+
+/* ---------- ADMIN SECTION HEADING ---------- */
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+    color: var(--text-primary);
+    font-size: 20px;
+    font-weight: 750;
+}
+
+.section-heading h2,
+.section-heading h3 {
+    margin: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+/* ---------- ADMIN SECTION STATUS ---------- */
+
+.section-status {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.09);
+    border: 1px solid rgba(212, 175, 55, 0.20);
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* ---------- ADMIN TABLE ---------- */
+
+.admin-page .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-page table {
+    min-width: 760px;
+}
+
+.admin-page th {
+    white-space: nowrap;
+}
+
+.admin-page td {
+    vertical-align: middle;
+}
+
+/* ---------- ADMIN ACTION BUTTONS ---------- */
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.action-btn:hover {
+    color: #111;
+}
+
+/* ---------- ADMIN ACTION VARIANTS ---------- */
+
+.activate-btn {
+    border-color: rgba(76, 175, 80, 0.35);
+    color: #a8e6b0;
+}
+
+.activate-btn:hover {
+    background: #a8e6b0;
+    border-color: #a8e6b0;
+}
+
+.confirm-btn {
+    border-color: rgba(212, 175, 55, 0.40);
+    color: var(--accent-gold);
+}
+
+.confirm-btn:hover {
+    background: var(--accent-gold);
+    border-color: var(--accent-gold);
+}
+
+.add-earning-btn {
+    border-color: rgba(33, 150, 243, 0.35);
+    color: #9dccff;
+}
+
+.add-earning-btn:hover {
+    background: #9dccff;
+    border-color: #9dccff;
+}
+
+.block-btn,
+.reject-btn {
+    border-color: rgba(244, 67, 54, 0.35);
+    color: #ffaaaa;
+}
+
+.block-btn:hover,
+.reject-btn:hover {
+    background: #ffaaaa;
+    border-color: #ffaaaa;
+}
+
+.delete-earning-btn {
+    border-color: rgba(244, 67, 54, 0.35);
+    color: #ffaaaa;
+}
+
+.delete-earning-btn:hover {
+    background: #ffaaaa;
+    border-color: #ffaaaa;
+}
+
+/* ---------- ADMIN EARNING FORM ---------- */
+
+.earning-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    padding: 20px;
+    margin-top: 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+}
+
+.earning-form .form-group {
+    margin-bottom: 0;
+}
+
+.earning-form .form-group:last-child {
+    grid-column: 1 / -1;
+}
+
+.earning-submit {
+    width: fit-content;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid var(--accent-gold);
+    border-radius: 8px;
+    background: var(--accent-gold);
+    color: #111;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.earning-submit:hover {
+    background: var(--accent-light);
+}
+
+/* ---------- ADMIN STATUS COLORS ---------- */
+
+.admin-page .status-pending {
+    color: #ffd98a;
+}
+
+.admin-page .status-active,
+.admin-page .status-confirmed {
+    color: #a8e6b0;
+}
+
+.admin-page .status-blocked,
+.admin-page .status-rejected {
+    color: #ffaaaa;
+}
+
+/* ---------- ADMIN RESPONSIVE ---------- */
+
+@media (max-width: 800px) {
+    .admin-container {
+        width: calc(100% - 30px);
+        padding-top: 32px;
+    }
+
+    .earning-form {
+        grid-template-columns: 1fr;
+    }
+
+    .earning-form .form-group:last-child {
+        grid-column: auto;
+    }
+
+    .action-buttons {
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-container {
+        width: calc(100% - 24px);
+        padding-top: 25px;
+    }
+
+    .page-title {
+        margin-bottom: 22px;
+        font-size: 27px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        font-size: 18px;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+    }
+
+    .action-btn {
+        width: 100%;
+    }
+
+    .earning-form {
+        padding: 16px;
+    }
+
+    .earning-submit {
+        width: 100%;
+    }
+}
+
+@media (max-width: 380px) {
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}
