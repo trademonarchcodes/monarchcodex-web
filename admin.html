@@ -12,7 +12,10 @@
 
     <title>MONARCH CODEX | Admin Command Center</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
     <link
         rel="preconnect"
@@ -26,23 +29,37 @@
     >
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
     >
 
-
     <style>
 
+        /* =====================================================
+           MONARCH CODEX ADMIN — INTERNAL STRUCTURE
+           ===================================================== */
+
         :root {
-            --gold: #D4AF37;
-            --black: #080808;
-            --dark: #111111;
-            --dark-card: #161616;
-            --border: rgba(212, 175, 55, 0.25);
-            --text: #f5f5f5;
-            --muted: #a0a0a0;
-            --green: #7be6a1;
-            --red: #ff9292;
+            --admin-gold: #D4AF37;
+            --admin-gold-light: #f0d878;
+
+            --admin-black: #080808;
+            --admin-dark: #101010;
+            --admin-card: #161616;
+            --admin-card-2: #1b1b1b;
+
+            --admin-border:
+                rgba(212, 175, 55, 0.25);
+
+            --admin-border-soft:
+                rgba(255, 255, 255, 0.08);
+
+            --admin-text: #f5f5f5;
+            --admin-muted: #9b9b9b;
+
+            --admin-green: #7be6a1;
+            --admin-red: #ff9292;
+            --admin-blue: #82b8ff;
         }
 
 
@@ -51,17 +68,32 @@
         }
 
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+
         body {
             margin: 0;
-            font-family: "Poppins", sans-serif;
-            background: var(--black);
-            color: var(--text);
+            padding: 0;
+
+            background:
+                var(--admin-black);
+
+            color:
+                var(--admin-text);
+
+            font-family:
+                "Poppins",
+                Arial,
+                sans-serif;
         }
 
 
         button,
         input,
-        select {
+        select,
+        textarea {
             font-family: inherit;
         }
 
@@ -71,173 +103,328 @@
         }
 
 
-        .admin-page {
-            min-height: 100vh;
-            background: var(--black);
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
         }
 
 
-        /* =================================================
+        /* =====================================================
+           ADMIN PAGE
+           ===================================================== */
+
+        .admin-page {
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(212,175,55,0.06),
+                    transparent 32%
+                ),
+                var(--admin-black);
+        }
+
+
+        /* =====================================================
            HEADER
-        ================================================= */
+           ===================================================== */
 
         .admin-header {
-            padding: 18px 5%;
-            border-bottom: 1px solid var(--border);
-            background: #080808;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            gap: 15px;
-
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+
+            width: 100%;
+
+            padding:
+                16px 5%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            background:
+                rgba(8,8,8,0.96);
+
+            border-bottom:
+                1px solid var(--admin-border);
+
+            backdrop-filter:
+                blur(12px);
         }
 
 
         .admin-brand {
             display: flex;
             align-items: center;
+
             gap: 12px;
+
+            min-width: 0;
         }
 
 
         .admin-brand h1 {
             margin: 0;
-            font-size: 1.3rem;
-            color: var(--gold);
+
+            color:
+                var(--admin-gold);
+
+            font-size:
+                1.25rem;
+
+            font-weight:
+                800;
+
+            letter-spacing:
+                0.04em;
+
+            white-space:
+                nowrap;
         }
 
 
         .admin-badge {
-            padding: 5px 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
 
-            border: 1px solid var(--gold);
-            color: var(--gold);
+            padding:
+                5px 10px;
 
-            border-radius: 20px;
+            border:
+                1px solid var(--admin-gold);
 
-            font-size: 0.7rem;
-            font-weight: 700;
+            border-radius:
+                999px;
+
+            color:
+                var(--admin-gold);
+
+            background:
+                rgba(212,175,55,0.06);
+
+            font-size:
+                0.68rem;
+
+            font-weight:
+                700;
+
+            letter-spacing:
+                0.08em;
         }
 
 
         .logout-btn {
-            border: 1px solid var(--gold);
-            background: transparent;
-            color: var(--gold);
+            border:
+                1px solid var(--admin-gold);
 
-            padding: 9px 16px;
-            border-radius: 7px;
+            background:
+                transparent;
 
-            font-family: inherit;
-            font-weight: 600;
+            color:
+                var(--admin-gold);
 
-            cursor: pointer;
+            padding:
+                9px 17px;
+
+            border-radius:
+                8px;
+
+            font-size:
+                0.82rem;
+
+            font-weight:
+                700;
 
             transition:
-                background 0.2s ease,
-                color 0.2s ease;
+                0.2s ease;
         }
 
 
         .logout-btn:hover {
-            background: var(--gold);
-            color: #000;
+            background:
+                var(--admin-gold);
+
+            color:
+                #000;
         }
 
 
-        .logout-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-
-        /* =================================================
+        /* =====================================================
            MAIN CONTAINER
-        ================================================= */
+           ===================================================== */
 
         .admin-container {
-            width: min(1400px, 92%);
-            margin: 0 auto;
+            width:
+                min(1450px, 92%);
 
-            padding: 35px 0 60px;
+            margin:
+                0 auto;
+
+            padding:
+                38px 0 70px;
         }
 
 
+        /* =====================================================
+           PAGE TITLE
+           ===================================================== */
+
         .page-title {
-            margin-bottom: 25px;
+            margin-bottom:
+                25px;
         }
 
 
         .page-title h2 {
-            margin: 0;
-            color: var(--gold);
+            margin:
+                0 0 7px;
+
+            color:
+                var(--admin-gold);
+
+            font-size:
+                clamp(1.45rem, 3vw, 2rem);
+
+            font-weight:
+                800;
         }
 
 
         .page-title p {
-            color: var(--muted);
-            margin-bottom: 0;
+            margin:
+                0;
+
+            color:
+                var(--admin-muted);
+
+            font-size:
+                0.9rem;
         }
 
 
-        /* =================================================
-           MESSAGE
-        ================================================= */
+        /* =====================================================
+           MESSAGE BOX
+           ===================================================== */
 
         .message-box {
             display: none;
 
-            margin: 20px 0;
+            margin:
+                18px 0;
 
-            padding: 14px;
+            padding:
+                13px 15px;
 
-            border-radius: 8px;
+            border-radius:
+                9px;
 
-            word-break: break-word;
+            line-height:
+                1.5;
+
+            font-size:
+                0.85rem;
+
+            word-break:
+                break-word;
         }
 
 
         .message-box.error {
             display: block;
 
-            background: rgba(201, 75, 75, 0.1);
+            color:
+                #ffb0b0;
 
-            border: 1px solid rgba(201, 75, 75, 0.6);
+            background:
+                rgba(201,75,75,0.10);
 
-            color: #ffb0b0;
+            border:
+                1px solid rgba(201,75,75,0.55);
         }
 
 
         .message-box.success {
             display: block;
 
-            background: rgba(76, 175, 114, 0.1);
+            color:
+                #a9f0c1;
 
-            border: 1px solid rgba(76, 175, 114, 0.6);
+            background:
+                rgba(76,175,114,0.10);
 
-            color: #a9f0c1;
+            border:
+                1px solid rgba(76,175,114,0.55);
         }
 
 
-        .message-box.warning {
+        .message-box.info {
             display: block;
 
-            background: rgba(212, 175, 55, 0.1);
+            color:
+                #a9caff;
 
-            border: 1px solid rgba(212, 175, 55, 0.5);
+            background:
+                rgba(70,120,220,0.10);
 
-            color: #f5d979;
+            border:
+                1px solid rgba(70,120,220,0.45);
         }
 
 
-        /* =================================================
-           OVERVIEW STATS
-        ================================================= */
+        /* =====================================================
+           OVERVIEW
+           ===================================================== */
+
+        .overview-section {
+            margin-bottom:
+                30px;
+        }
+
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom:
+                16px;
+        }
+
+
+        .section-heading h3 {
+            margin:
+                0;
+
+            color:
+                var(--admin-gold);
+
+            font-size:
+                1.05rem;
+
+            font-weight:
+                700;
+        }
+
+
+        .section-status {
+            color:
+                var(--admin-muted);
+
+            font-size:
+                0.75rem;
+        }
+
+
+        /* =====================================================
+           STATISTICS
+           ===================================================== */
 
         .stats-grid {
             display: grid;
@@ -245,1315 +432,1230 @@
             grid-template-columns:
                 repeat(5, minmax(0, 1fr));
 
-            gap: 16px;
-
-            margin-bottom: 35px;
+            gap:
+                14px;
         }
 
 
         .stat-card {
-            background: var(--dark-card);
-
-            border: 1px solid var(--border);
-
-            border-radius: 12px;
-
-            padding: 20px;
-
             min-width: 0;
 
-            transition:
-                transform 0.2s ease,
-                border-color 0.2s ease;
-        }
+            padding:
+                19px;
 
+            border:
+                1px solid var(--admin-border);
 
-        .stat-card:hover {
-            transform: translateY(-2px);
+            border-radius:
+                12px;
 
-            border-color:
-                rgba(212, 175, 55, 0.55);
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--admin-card),
+                    var(--admin-dark)
+                );
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,0.16);
         }
 
 
         .stat-card span {
-            color: var(--muted);
+            display: block;
 
-            font-size: 0.8rem;
+            color:
+                var(--admin-muted);
 
-            line-height: 1.4;
+            font-size:
+                0.76rem;
+
+            line-height:
+                1.4;
         }
 
 
         .stat-card strong {
             display: block;
 
-            color: var(--gold);
+            margin-top:
+                9px;
 
-            font-size: 1.8rem;
+            color:
+                var(--admin-gold);
 
-            margin-top: 10px;
+            font-size:
+                clamp(1.35rem, 2.5vw, 1.9rem);
 
-            word-break: break-word;
+            font-weight:
+                800;
+
+            line-height:
+                1.2;
+
+            word-break:
+                break-word;
         }
 
 
-        .stat-card.total-invested strong {
-            font-size: 1.55rem;
+        .stat-card.invested-card strong {
+            font-size:
+                clamp(1.05rem, 2vw, 1.55rem);
         }
 
 
-        /* =================================================
-           SECTION CARDS
-        ================================================= */
+        /* =====================================================
+           GENERAL SECTION CARD
+           ===================================================== */
 
         .section-card {
-            background: var(--dark);
+            margin-bottom:
+                28px;
 
-            border: 1px solid var(--border);
+            padding:
+                20px;
 
-            border-radius: 12px;
+            border:
+                1px solid var(--admin-border);
 
-            padding: 20px;
+            border-radius:
+                12px;
 
-            margin-bottom: 28px;
+            background:
+                var(--admin-dark);
 
-            overflow: hidden;
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.12);
         }
 
 
-        .section-heading {
-            display: flex;
-
-            justify-content: space-between;
-            align-items: center;
-
-            gap: 12px;
-
-            margin-bottom: 18px;
-
-            flex-wrap: wrap;
-        }
-
-
-        .section-heading h3 {
-            margin: 0;
-
-            color: var(--gold);
-        }
-
-
-        .section-status {
-            color: var(--muted);
-
-            font-size: 0.8rem;
-        }
-
-
-        /* =================================================
-           TABLES
-        ================================================= */
+        /* =====================================================
+           TABLE WRAPPER
+           ===================================================== */
 
         .table-wrapper {
             width: 100%;
 
-            overflow-x: auto;
+            overflow-x:
+                auto;
 
-            -webkit-overflow-scrolling: touch;
+            -webkit-overflow-scrolling:
+                touch;
+        }
+
+
+        .table-wrapper::-webkit-scrollbar {
+            height:
+                7px;
+        }
+
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background:
+                #0b0b0b;
+        }
+
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background:
+                rgba(212,175,55,0.35);
+
+            border-radius:
+                10px;
         }
 
 
         table {
-            width: 100%;
+            width:
+                100%;
 
-            min-width: 850px;
+            min-width:
+                850px;
 
-            border-collapse: collapse;
+            border-collapse:
+                collapse;
         }
 
 
         th,
         td {
-            padding: 14px 12px;
+            padding:
+                13px 11px;
 
-            text-align: left;
+            text-align:
+                left;
 
             border-bottom:
-                1px solid rgba(255,255,255,0.08);
+                1px solid var(--admin-border-soft);
 
-            font-size: 0.82rem;
+            vertical-align:
+                middle;
 
-            vertical-align: middle;
+            font-size:
+                0.8rem;
         }
 
 
         th {
-            color: var(--gold);
+            color:
+                var(--admin-gold);
 
-            font-weight: 600;
+            font-weight:
+                700;
 
-            white-space: nowrap;
+            white-space:
+                nowrap;
         }
 
 
         td {
-            color: var(--text);
+            color:
+                #dedede;
         }
 
 
         tbody tr:hover {
             background:
-                rgba(255,255,255,0.025);
+                rgba(255,255,255,0.018);
         }
 
 
-        /* =================================================
-           UID
-        ================================================= */
-
-        .monarch-uid {
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 7px;
-
-            color: var(--gold);
-
-            font-weight: 700;
-
-            white-space: nowrap;
-        }
-
-
-        .uid-copy-btn {
-            border: 1px solid
-                rgba(212,175,55,0.35);
-
-            background:
-                rgba(212,175,55,0.06);
-
-            color: var(--gold);
-
-            padding: 4px 7px;
-
-            border-radius: 5px;
-
-            font-size: 0.7rem;
-
-            cursor: pointer;
-
-            transition:
-                background 0.2s ease,
-                border-color 0.2s ease;
-        }
-
-
-        .uid-copy-btn:hover {
-            background:
-                rgba(212,175,55,0.15);
-
-            border-color:
-                rgba(212,175,55,0.65);
-        }
-
-
-        /* =================================================
+        /* =====================================================
            STATUS
-        ================================================= */
+           ===================================================== */
 
         .status {
-            display: inline-block;
+            display:
+                inline-flex;
 
-            padding: 5px 10px;
+            align-items:
+                center;
 
-            border-radius: 20px;
+            justify-content:
+                center;
 
-            font-size: 0.72rem;
+            padding:
+                4px 9px;
 
-            font-weight: 600;
+            border-radius:
+                999px;
 
-            text-transform: capitalize;
+            font-size:
+                0.68rem;
 
-            white-space: nowrap;
+            font-weight:
+                700;
+
+            text-transform:
+                capitalize;
+
+            white-space:
+                nowrap;
         }
 
 
         .status-pending {
-            color: var(--gold);
+            color:
+                var(--admin-gold);
 
             background:
                 rgba(212,175,55,0.08);
+
+            border:
+                1px solid rgba(212,175,55,0.25);
         }
 
 
-        .status-active,
         .status-confirmed,
         .status-approved,
-        .status-completed {
-            color: var(--green);
+        .status-active {
+            color:
+                var(--admin-green);
 
             background:
                 rgba(123,230,161,0.08);
+
+            border:
+                1px solid rgba(123,230,161,0.20);
         }
 
 
-        .status-blocked,
-        .status-rejected {
-            color: var(--red);
+        .status-rejected,
+        .status-blocked {
+            color:
+                var(--admin-red);
 
+            background:
+                rgba(255,146,146,0.08);
+
+            border:
+                1px solid rgba(255,146,146,0.20);
+        }
+
+
+        /* =====================================================
+           ACTION BUTTONS
+           ===================================================== */
+
+        .action-buttons {
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            flex-wrap:
+                wrap;
+
+            gap:
+                7px;
+        }
+
+
+        .action-btn {
+            border:
+                1px solid transparent;
+
+            border-radius:
+                6px;
+
+            padding:
+                7px 10px;
+
+            font-size:
+                0.72rem;
+
+            font-weight:
+                700;
+
+            transition:
+                0.2s ease;
+        }
+
+
+        .action-btn:hover:not(:disabled) {
+            transform:
+                translateY(-1px);
+        }
+
+
+        .activate-btn,
+        .confirm-btn {
+            background:
+                var(--admin-gold);
+
+            color:
+                #000;
+        }
+
+
+        .activate-btn:hover:not(:disabled),
+        .confirm-btn:hover:not(:disabled) {
+            background:
+                var(--admin-gold-light);
+        }
+
+
+        .block-btn,
+        .reject-btn {
+            color:
+                var(--admin-red);
+
+            background:
+                transparent;
+
+            border-color:
+                rgba(255,146,146,0.45);
+        }
+
+
+        .block-btn:hover:not(:disabled),
+        .reject-btn:hover:not(:disabled) {
             background:
                 rgba(255,146,146,0.08);
         }
 
 
-        /* =================================================
-           ACTION BUTTONS
-        ================================================= */
+        .view-btn {
+            color:
+                var(--admin-blue);
 
-        .action-buttons {
-            display: flex;
-
-            gap: 8px;
-
-            flex-wrap: wrap;
-        }
-
-
-        .action-btn {
-            border: none;
-
-            border-radius: 6px;
-
-            padding: 8px 11px;
-
-            font-family: inherit;
-
-            cursor: pointer;
-
-            font-size: 0.76rem;
-
-            transition:
-                opacity 0.2s ease,
-                transform 0.2s ease;
-        }
-
-
-        .action-btn:hover {
-            transform: translateY(-1px);
-        }
-
-
-        .action-btn:disabled {
-            opacity: 0.55;
-
-            cursor: not-allowed;
-
-            transform: none;
-        }
-
-
-        .activate-btn,
-        .confirm-btn,
-        .add-earning-btn {
-            background: var(--gold);
-
-            color: #000;
-        }
-
-
-        .block-btn,
-        .reject-btn,
-        .delete-earning-btn {
-            background: transparent;
-
-            color: #ff9696;
-
-            border: 1px solid #c94b4b;
-        }
-
-
-        .view-receipt-btn {
             background:
-                rgba(212,175,55,0.12);
+                rgba(130,184,255,0.08);
 
-            color: var(--gold);
+            border-color:
+                rgba(130,184,255,0.35);
+        }
+
+
+        .view-btn:hover:not(:disabled) {
+            background:
+                rgba(130,184,255,0.15);
+        }
+
+
+        /* =====================================================
+           UID
+           ===================================================== */
+
+        .uid-cell {
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+
+            color:
+                var(--admin-gold);
+
+            font-weight:
+                700;
+
+            white-space:
+                nowrap;
+        }
+
+
+        .uid-copy-btn {
+            padding:
+                3px 6px;
 
             border:
-                1px solid rgba(212,175,55,0.4);
+                1px solid rgba(212,175,55,0.30);
+
+            border-radius:
+                5px;
+
+            background:
+                transparent;
+
+            color:
+                var(--admin-gold);
+
+            font-size:
+                0.65rem;
         }
 
 
-        /* =================================================
+        .uid-copy-btn:hover {
+            background:
+                rgba(212,175,55,0.10);
+        }
+
+
+        /* =====================================================
            LOADING / EMPTY / ERROR
-        ================================================= */
+           ===================================================== */
 
         .loading-text,
         .empty-text {
-            color: var(--muted);
+            color:
+                var(--admin-muted);
+
+            margin:
+                10px 0;
         }
 
 
         .error-text {
-            color: #ff9696;
+            color:
+                var(--admin-red);
+
+            margin:
+                10px 0;
         }
 
 
-        /* =================================================
-           INVESTMENT / PAYMENT DETAILS
-        ================================================= */
-
-        .investment-details {
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 5px;
-        }
-
-
-        .investment-details strong {
-            color: var(--text);
-        }
-
-
-        .investment-details small {
-            color: var(--muted);
-
-            font-size: 0.72rem;
-        }
-
-
-        .payment-details {
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 4px;
-        }
-
-
-        .payment-details strong {
-            color: var(--text);
-        }
-
-
-        .payment-details small {
-            color: var(--muted);
-
-            font-size: 0.7rem;
-        }
-
-
-        .receipt-status {
-            font-size: 0.72rem;
-
-            color: var(--muted);
-        }
-
-
-        .receipt-status.pending {
-            color: var(--gold);
-        }
-
-
-        .receipt-status.approved {
-            color: var(--green);
-        }
-
-
-        .receipt-status.rejected {
-            color: var(--red);
-        }
-
-
-        /* =================================================
+        /* =====================================================
            EARNINGS FORM
-        ================================================= */
+           ===================================================== */
 
         .earning-form {
-            display: grid;
+            display:
+                grid;
 
             grid-template-columns:
-                1.4fr 1fr 1.6fr auto;
+                1.4fr 1fr 1.7fr auto;
 
-            gap: 12px;
+            gap:
+                12px;
 
-            align-items: end;
+            align-items:
+                end;
         }
 
 
         .form-group {
-            display: flex;
+            display:
+                flex;
 
-            flex-direction: column;
+            flex-direction:
+                column;
 
-            gap: 7px;
+            gap:
+                7px;
         }
 
 
         .form-group label {
-            color: var(--muted);
+            color:
+                var(--admin-muted);
 
-            font-size: 0.8rem;
+            font-size:
+                0.75rem;
+
+            font-weight:
+                500;
         }
 
 
         .form-group input,
         .form-group select {
-            width: 100%;
+            width:
+                100%;
 
-            padding: 12px;
-
-            border-radius: 7px;
+            padding:
+                11px 12px;
 
             border:
-                1px solid rgba(212, 175, 55, 0.3);
+                1px solid rgba(212,175,55,0.28);
 
-            background: #0b0b0b;
+            border-radius:
+                7px;
 
-            color: var(--text);
+            outline:
+                none;
 
-            font-family: inherit;
+            background:
+                #0b0b0b;
 
-            outline: none;
+            color:
+                var(--admin-text);
+
+            font-size:
+                0.8rem;
         }
 
 
         .form-group input:focus,
         .form-group select:focus {
-            border-color: var(--gold);
+            border-color:
+                var(--admin-gold);
+
+            box-shadow:
+                0 0 0 2px rgba(212,175,55,0.08);
         }
 
 
         .earning-submit {
-            padding: 12px 16px;
+            padding:
+                11px 16px;
 
-            border: none;
+            border:
+                none;
 
-            border-radius: 7px;
+            border-radius:
+                7px;
 
-            background: var(--gold);
+            background:
+                var(--admin-gold);
 
-            color: #000;
+            color:
+                #000;
 
-            font-family: inherit;
+            font-size:
+                0.8rem;
 
-            font-weight: 700;
+            font-weight:
+                800;
 
-            cursor: pointer;
+            white-space:
+                nowrap;
         }
 
 
-        .earning-submit:disabled {
-            opacity: 0.6;
-
-            cursor: not-allowed;
+        .earning-submit:hover:not(:disabled) {
+            background:
+                var(--admin-gold-light);
         }
 
 
-        /* =================================================
+        /* =====================================================
            RECEIPT MODAL
-        ================================================= */
+           ===================================================== */
 
         .receipt-modal {
-            position: fixed;
+            position:
+                fixed;
 
-            inset: 0;
+            inset:
+                0;
 
-            z-index: 1000;
+            z-index:
+                2000;
 
-            display: none;
+            display:
+                none;
 
-            align-items: center;
+            align-items:
+                center;
 
-            justify-content: center;
+            justify-content:
+                center;
 
-            padding: 20px;
+            padding:
+                20px;
 
             background:
                 rgba(0,0,0,0.82);
+
+            backdrop-filter:
+                blur(7px);
         }
 
 
-        .receipt-modal.show {
-            display: flex;
+        .receipt-modal.active {
+            display:
+                flex;
         }
 
 
         .receipt-modal-content {
-            width: min(900px, 100%);
+            width:
+                min(900px, 100%);
 
-            max-height: 90vh;
+            max-height:
+                92vh;
 
-            overflow: auto;
-
-            background: #111;
+            overflow:
+                hidden auto;
 
             border:
-                1px solid var(--border);
+                1px solid var(--admin-border);
 
-            border-radius: 14px;
+            border-radius:
+                14px;
 
-            padding: 20px;
+            background:
+                var(--admin-card);
+
+            box-shadow:
+                0 25px 80px rgba(0,0,0,0.55);
         }
 
 
         .receipt-modal-header {
-            display: flex;
+            position:
+                sticky;
 
-            justify-content: space-between;
+            top:
+                0;
 
-            align-items: center;
+            z-index:
+                2;
 
-            gap: 15px;
+            display:
+                flex;
 
-            margin-bottom: 15px;
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                15px;
+
+            padding:
+                15px 18px;
+
+            background:
+                #111;
+
+            border-bottom:
+                1px solid var(--admin-border-soft);
         }
 
 
         .receipt-modal-header h3 {
-            margin: 0;
+            margin:
+                0;
 
-            color: var(--gold);
+            color:
+                var(--admin-gold);
+
+            font-size:
+                1rem;
         }
 
 
-        .receipt-close {
-            border: 1px solid
-                rgba(255,255,255,0.15);
+        .receipt-close-btn {
+            width:
+                34px;
 
-            background: transparent;
+            height:
+                34px;
 
-            color: var(--text);
+            border:
+                1px solid rgba(255,255,255,0.15);
 
-            width: 36px;
+            border-radius:
+                50%;
 
-            height: 36px;
+            background:
+                transparent;
 
-            border-radius: 50%;
+            color:
+                #fff;
 
-            cursor: pointer;
+            font-size:
+                1.1rem;
+        }
 
-            font-size: 1rem;
+
+        .receipt-modal-body {
+            padding:
+                18px;
         }
 
 
         .receipt-preview {
-            width: 100%;
+            margin-top:
+                18px;
 
-            min-height: 300px;
+            width:
+                100%;
 
-            border-radius: 8px;
+            min-height:
+                250px;
 
-            background: #080808;
+            display:
+                flex;
 
-            display: flex;
+            align-items:
+                center;
 
-            align-items: center;
+            justify-content:
+                center;
 
-            justify-content: center;
+            overflow:
+                hidden;
 
-            overflow: hidden;
+            border:
+                1px solid var(--admin-border-soft);
+
+            border-radius:
+                9px;
+
+            background:
+                #080808;
         }
 
 
         .receipt-preview img {
-            max-width: 100%;
+            display:
+                block;
 
-            max-height: 70vh;
+            max-width:
+                100%;
 
-            object-fit: contain;
+            max-height:
+                65vh;
+
+            object-fit:
+                contain;
         }
 
 
         .receipt-preview iframe {
-            width: 100%;
+            width:
+                100%;
 
-            height: 70vh;
+            height:
+                65vh;
 
-            border: none;
+            border:
+                none;
         }
 
 
-        /* =================================================
+        /* =====================================================
            RESPONSIVE
-        ================================================= */
+           ===================================================== */
 
-        @media (max-width: 1200px) {
+        @media (max-width: 1150px) {
 
             .stats-grid {
                 grid-template-columns:
                     repeat(3, minmax(0, 1fr));
             }
 
-        }
-
-
-        @media (max-width: 1000px) {
-
-            .stats-grid {
+            .earning-form {
                 grid-template-columns:
                     repeat(2, minmax(0, 1fr));
             }
-
-
-            .earning-form {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-
 
             .earning-submit {
-                width: 100%;
+                width:
+                    100%;
             }
-
         }
 
 
-        @media (max-width: 600px) {
+        @media (max-width: 750px) {
+
+            .admin-header {
+                padding:
+                    14px 4%;
+            }
+
+            .admin-container {
+                width:
+                    94%;
+
+                padding-top:
+                    28px;
+            }
 
             .stats-grid {
                 grid-template-columns:
                     repeat(2, minmax(0, 1fr));
 
-                gap: 10px;
+                gap:
+                    10px;
             }
-
 
             .stat-card {
-                padding: 15px;
+                padding:
+                    15px;
             }
-
-
-            .stat-card strong {
-                font-size: 1.4rem;
-            }
-
-
-            .stat-card.total-invested strong {
-                font-size: 1.15rem;
-            }
-
-
-            .admin-container {
-                width: 94%;
-
-                padding-top: 25px;
-            }
-
 
             .earning-form {
-                grid-template-columns: 1fr;
+                grid-template-columns:
+                    1fr;
             }
-
-
-            .admin-header {
-                padding: 15px 4%;
-            }
-
-
-            .admin-brand h1 {
-                font-size: 1rem;
-            }
-
-
-            .admin-badge {
-                font-size: 0.6rem;
-            }
-
 
             .section-card {
-                padding: 15px;
+                padding:
+                    15px;
             }
-
         }
 
 
-        @media (max-width: 400px) {
+        @media (max-width: 480px) {
 
-            .stats-grid {
-                grid-template-columns: 1fr;
+            .admin-brand {
+                gap:
+                    7px;
             }
 
+            .admin-brand h1 {
+                font-size:
+                    0.9rem;
+            }
+
+            .admin-badge {
+                padding:
+                    4px 7px;
+
+                font-size:
+                    0.58rem;
+            }
+
+            .logout-btn {
+                padding:
+                    8px 10px;
+
+                font-size:
+                    0.7rem;
+            }
+
+            .stats-grid {
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+            .stat-card strong {
+                font-size:
+                    1.25rem;
+            }
+
+            .stat-card.invested-card strong {
+                font-size:
+                    0.95rem;
+            }
+
+            .section-heading {
+                align-items:
+                    flex-start;
+
+                flex-direction:
+                    column;
+            }
         }
 
     </style>
 
 </head>
-/* =========================================================
-   ADMIN PART 2/12 — BODY, HEADER & OVERVIEW
-   ========================================================= */
+
 
 <body>
 
-<div class="admin-page">
-
-
-    <!-- =====================================================
-         ADMIN HEADER
-    ===================================================== -->
-
-    <header class="admin-header">
-
-        <div class="admin-brand">
-
-            <h1>MONARCH CODEX</h1>
-
-            <span class="admin-badge">
-                ADMIN
-            </span>
-
-        </div>
-
-
-        <button
-            type="button"
-            class="logout-btn"
-            id="adminLogoutBtn"
-            onclick="adminLogout()"
-        >
-            Logout
-        </button>
-
-    </header>
-
-
-
-    <!-- =====================================================
-         MAIN ADMIN CONTAINER
-    ===================================================== -->
-
-    <main class="admin-container">
+    <div class="admin-page">
 
 
         <!-- =================================================
-             PAGE TITLE
-        ================================================= -->
+             ADMIN HEADER
+             ================================================= -->
 
-        <div class="page-title">
+        <header class="admin-header">
 
-            <h2>
-                Admin Command Center
-            </h2>
+            <div class="admin-brand">
 
-            <p>
-                Manage members, investments, payment receipts
-                and earnings from one place.
-            </p>
+                <h1>
+                    MONARCH CODEX
+                </h1>
 
-        </div>
+                <span class="admin-badge">
+                    ADMIN
+                </span>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="logout-btn"
+                onclick="adminLogout()"
+            >
+                Logout
+            </button>
+
+        </header>
 
 
         <!-- =================================================
-             GLOBAL MESSAGE
-        ================================================= -->
+             MAIN ADMIN CONTAINER
+             ================================================= -->
 
-        <div
-            id="adminMessage"
-            class="message-box"
-            role="alert"
-        ></div>
+        <main class="admin-container">
 
 
+            <!-- PAGE TITLE -->
 
-        <!-- =================================================
-             OVERVIEW STATISTICS
-        ================================================= -->
+            <div class="page-title">
 
-        <section
-            class="stats-grid"
-            id="adminStatsGrid"
-        >
+                <h2>
+                    Admin Command Center
+                </h2>
 
-
-            <!-- TOTAL MEMBERS -->
-
-            <div class="stat-card">
-
-                <span>
-                    Total Members
-                </span>
-
-                <strong id="totalMembers">
-                    0
-                </strong>
+                <p>
+                    Manage Monarchs, investments,
+                    payments, receipts and earnings.
+                </p>
 
             </div>
 
 
-            <!-- PENDING MEMBERS -->
+            <!-- GLOBAL MESSAGE -->
 
-            <div class="stat-card">
-
-                <span>
-                    Pending Members
-                </span>
-
-                <strong id="pendingMembers">
-                    0
-                </strong>
-
-            </div>
+            <div
+                id="messageBox"
+                class="message-box"
+                role="alert"
+                aria-live="polite"
+            ></div>
 
 
-            <!-- TOTAL INVESTED -->
+            <!-- =================================================
+                 OVERVIEW
+                 ================================================= -->
 
-            <div class="stat-card total-invested">
+            <section
+                class="overview-section"
+                id="overviewSection"
+            >
 
-                <span>
-                    Total Invested
-                </span>
-
-                <strong id="totalInvestedAdmin">
-                    $0.00
-                </strong>
-
-            </div>
-
-
-            <!-- CONFIRMED INVESTMENTS -->
-
-            <div class="stat-card">
-
-                <span>
-                    Confirmed Investments
-                </span>
-
-                <strong id="confirmedInvestments">
-                    0
-                </strong>
-
-            </div>
-
-
-            <!-- REJECTED INVESTMENTS -->
-
-            <div class="stat-card">
-
-                <span>
-                    Rejected Investments
-                </span>
-
-                <strong id="rejectedInvestments">
-                    0
-                </strong>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-             MEMBERS SECTION
-        ================================================= -->
-
-        <section
-            class="section-card"
-            id="membersSection"
-        >
-
-            <div class="section-heading">
-
-                <div>
+                <div class="section-heading">
 
                     <h3>
-                        Members
+                        Overview
                     </h3>
 
                     <span
+                        id="statsStatus"
                         class="section-status"
-                        id="membersStatus"
-                    >
-                        Loading members...
-                    </span>
+                    ></span>
 
                 </div>
 
-            </div>
+
+                <div class="stats-grid">
 
 
-            <div class="table-wrapper">
+                    <!-- TOTAL MEMBERS -->
 
-                <table>
+                    <div class="stat-card">
 
-                    <thead>
+                        <span>
+                            Total Members
+                        </span>
 
-                        <tr>
+                        <strong id="totalMembers">
+                            Loading...
+                        </strong>
 
-                            <th>
-                                Member
-                            </th>
-
-                            <th>
-                                Monarch UID
-                            </th>
-
-                            <th>
-                                Phone
-                            </th>
-
-                            <th>
-                                Role
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Joined
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                    </div>
 
 
-                    <tbody
-                        id="membersTableBody"
-                    >
+                    <!-- PENDING MEMBERS -->
 
-                        <tr>
+                    <div class="stat-card">
 
-                            <td
-                                colspan="7"
-                                class="loading-text"
-                            >
-                                Loading members...
-                            </td>
+                        <span>
+                            Pending Members
+                        </span>
 
-                        </tr>
+                        <strong id="pendingMembers">
+                            Loading...
+                        </strong>
 
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
+                    </div>
 
 
+                    <!-- TOTAL INVESTED -->
 
-        <!-- =================================================
-             INVESTMENT REQUESTS SECTION
-        ================================================= -->
+                    <div class="stat-card invested-card">
 
-        <section
-            class="section-card"
-            id="investmentsSection"
-        >
+                        <span>
+                            Total Invested
+                        </span>
 
-            <div class="section-heading">
+                        <strong id="totalInvestedAdmin">
+                            Loading...
+                        </strong>
 
-                <div>
+                    </div>
+
+
+                    <!-- CONFIRMED -->
+
+                    <div class="stat-card">
+
+                        <span>
+                            Confirmed Investments
+                        </span>
+
+                        <strong id="confirmedInvestments">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                    <!-- REJECTED -->
+
+                    <div class="stat-card">
+
+                        <span>
+                            Rejected Investments
+                        </span>
+
+                        <strong id="rejectedInvestments">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 MEMBER MANAGEMENT
+                 ================================================= -->
+
+            <section
+                class="section-card"
+                id="membersSection"
+            >
+
+                <div class="section-heading">
+
+                    <h3>
+                        Member Management
+                    </h3>
+
+                    <span
+                        id="membersStatus"
+                        class="section-status"
+                    ></span>
+
+                </div>
+
+
+                <div id="membersContent">
+
+                    <p class="loading-text">
+                        Loading members...
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 INVESTMENT REQUESTS
+                 ================================================= -->
+
+            <section
+                class="section-card"
+                id="investmentRequestsSection"
+            >
+
+                <div class="section-heading">
 
                     <h3>
                         Investment Requests
                     </h3>
 
                     <span
-                        class="section-status"
                         id="investmentsStatus"
-                    >
-                        Loading investment requests...
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="table-wrapper">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Member
-                            </th>
-
-                            <th>
-                                UID
-                            </th>
-
-                            <th>
-                                Package
-                            </th>
-
-                            <th>
-                                Investment
-                            </th>
-
-                            <th>
-                                Payment
-                            </th>
-
-                            <th>
-                                Receipt
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody
-                        id="investmentRequestsBody"
-                    >
-
-                        <tr>
-
-                            <td
-                                colspan="9"
-                                class="loading-text"
-                            >
-                                Loading investment requests...
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-             EARNINGS MANAGEMENT
-        ================================================= -->
-
-        <section
-            class="section-card"
-            id="earningsSection"
-        >
-
-            <div class="section-heading">
-
-                <div>
-
-                    <h3>
-                        Add Member Earnings
-                    </h3>
-
-                    <span
                         class="section-status"
-                    >
-                        Add profit/earnings to a member account.
-                    </span>
+                    ></span>
 
                 </div>
 
-            </div>
+
+                <div id="investmentsContent">
+
+                    <p class="loading-text">
+                        Loading investment requests...
+                    </p>
+
+                </div>
+
+            </section>
 
 
-            <form
-                id="earningForm"
-                class="earning-form"
+            <!-- =================================================
+                 EARNINGS MANAGEMENT
+                 ================================================= -->
+
+            <section
+                class="section-card"
+                id="earningsSection"
             >
 
-
-                <!-- MEMBER -->
-
-                <div class="form-group">
-
-                    <label
-                        for="earningMember"
-                    >
-                        Member
-                    </label>
-
-                    <select
-                        id="earningMember"
-                        required
-                    >
-
-                        <option value="">
-                            Select member
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- AMOUNT -->
-
-                <div class="form-group">
-
-                    <label
-                        for="earningAmount"
-                    >
-                        Amount (USD)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="earningAmount"
-                        min="0.01"
-                        step="0.01"
-                        placeholder="0.00"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- DESCRIPTION -->
-
-                <div class="form-group">
-
-                    <label
-                        for="earningDescription"
-                    >
-                        Description
-                    </label>
-
-                    <input
-                        type="text"
-                        id="earningDescription"
-                        placeholder="Investment profit"
-                    >
-
-                </div>
-
-
-                <!-- SUBMIT -->
-
-                <button
-                    type="submit"
-                    class="earning-submit"
-                    id="addEarningBtn"
-                >
-                    Add Earnings
-                </button>
-
-            </form>
-
-        </section>
-
-
-
-        <!-- =================================================
-             EARNINGS HISTORY
-        ================================================= -->
-
-        <section
-            class="section-card"
-            id="earningsHistorySection"
-        >
-
-            <div class="section-heading">
-
-                <div>
+                <div class="section-heading">
 
                     <h3>
-                        Earnings History
+                        Earnings Management
                     </h3>
 
                     <span
-                        class="section-status"
                         id="earningsStatus"
-                    >
-                        Loading earnings...
-                    </span>
+                        class="section-status"
+                    ></span>
 
                 </div>
 
-            </div>
+
+                <div class="earning-form">
 
 
-            <div class="table-wrapper">
+                    <div class="form-group">
 
-                <table>
+                        <label for="earningMember">
+                            Select Monarch
+                        </label>
 
-                    <thead>
+                        <select id="earningMember">
 
-                        <tr>
+                            <option value="">
+                                Select a member
+                            </option>
 
-                            <th>
-                                Member
-                            </th>
+                        </select>
 
-                            <th>
-                                UID
-                            </th>
-
-                            <th>
-                                Amount
-                            </th>
-
-                            <th>
-                                Description
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                    </div>
 
 
-                    <tbody
-                        id="earningsTableBody"
+                    <div class="form-group">
+
+                        <label for="earningAmount">
+                            Earnings Amount
+                        </label>
+
+                        <input
+                            type="number"
+                            id="earningAmount"
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="earningDescription">
+                            Description
+                        </label>
+
+                        <input
+                            type="text"
+                            id="earningDescription"
+                            maxlength="200"
+                            placeholder="e.g. Confirmed return"
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="addEarningBtn"
+                        class="earning-submit"
                     >
-
-                        <tr>
-
-                            <td
-                                colspan="6"
-                                class="loading-text"
-                            >
-                                Loading earnings...
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
+                        Add Earning
+                    </button>
 
 
-    </main>
+                </div>
+
+
+                <div
+                    id="earningsContent"
+                    style="margin-top:25px;"
+                >
+
+                    <p class="loading-text">
+                        Loading earnings...
+                    </p>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+
+    </div>
 
 
     <!-- =====================================================
          RECEIPT MODAL
-    ===================================================== -->
+         ===================================================== -->
 
     <div
         id="receiptModal"
@@ -1576,7 +1678,7 @@
 
                 <button
                     type="button"
-                    class="receipt-close"
+                    class="receipt-close-btn"
                     onclick="closeReceiptModal()"
                     aria-label="Close receipt"
                 >
@@ -1586,20 +1688,14 @@
             </div>
 
 
-            <div
-                id="receiptModalInfo"
-                class="payment-details"
-            ></div>
+            <div class="receipt-modal-body">
 
+                <div id="receiptModalInfo"></div>
 
-            <div
-                id="receiptPreview"
-                class="receipt-preview"
-            >
-
-                <span class="loading-text">
-                    Loading receipt...
-                </span>
+                <div
+                    id="receiptPreview"
+                    class="receipt-preview"
+                ></div>
 
             </div>
 
@@ -1610,5240 +1706,21 @@
 
     <!-- =====================================================
          SUPABASE
-    ===================================================== -->
+         ===================================================== -->
 
     <script
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 3/12 — SUPABASE, STATE, UTILITIES & AUTH
-       ========================================================= */
 
-    const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
 
-    const SUPABASE_PUBLISHABLE_KEY =
-        "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JIh";
-
-    const supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-    );
-
-
-    /* =========================================================
-       GLOBAL ADMIN STATE
-       ========================================================= */
-
-    let currentAdmin = null;
-
-    let profilesData = [];
-    let packagesData = [];
-    let investmentsData = [];
-    let receiptsData = [];
-    let earningsData = [];
-
-
-    /* =========================================================
-       DOM REFERENCES
-       ========================================================= */
-
-    const adminMessage =
-        document.getElementById("adminMessage");
-
-    const totalMembersEl =
-        document.getElementById("totalMembers");
-
-    const pendingMembersEl =
-        document.getElementById("pendingMembers");
-
-    const totalInvestedAdminEl =
-        document.getElementById("totalInvestedAdmin");
-
-    const confirmedInvestmentsEl =
-        document.getElementById("confirmedInvestments");
-
-    const rejectedInvestmentsEl =
-        document.getElementById("rejectedInvestments");
-
-    const membersTableBody =
-        document.getElementById("membersTableBody");
-
-    const investmentRequestsBody =
-        document.getElementById("investmentRequestsBody");
-
-    const earningMemberEl =
-        document.getElementById("earningMember");
-
-    const earningAmountEl =
-        document.getElementById("earningAmount");
-
-    const earningDescriptionEl =
-        document.getElementById("earningDescription");
-
-    const addEarningBtn =
-        document.getElementById("addEarningBtn");
-
-    const earningsStatusEl =
-        document.getElementById("earningsStatus");
-
-    const earningsTableBody =
-        document.getElementById("earningsTableBody");
-
-    const receiptModal =
-        document.getElementById("receiptModal");
-
-    const receiptModalTitle =
-        document.getElementById("receiptModalTitle");
-
-    const receiptModalInfo =
-        document.getElementById("receiptModalInfo");
-
-    const receiptPreview =
-        document.getElementById("receiptPreview");
-
-
-    /* =========================================================
-       HTML ESCAPING
-       Prevents database content from being interpreted as HTML.
-       ========================================================= */
-
-    function escapeHtml(value) {
-
-        if (value === null || value === undefined) {
-            return "";
-        }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-
-    /* =========================================================
-       MESSAGE HELPERS
-       ========================================================= */
-
-    function showAdminMessage(message, type = "info") {
-
-        if (!adminMessage) {
-            return;
-        }
-
-        adminMessage.textContent = message;
-
-        adminMessage.className =
-            "admin-message " + type;
-
-        adminMessage.style.display = "block";
-    }
-
-
-    function clearAdminMessage() {
-
-        if (!adminMessage) {
-            return;
-        }
-
-        adminMessage.textContent = "";
-
-        adminMessage.className =
-            "admin-message";
-
-        adminMessage.style.display = "none";
-    }
-
-
-    function showEarningsStatus(message, type = "info") {
-
-        if (!earningsStatusEl) {
-            return;
-        }
-
-        earningsStatusEl.textContent = message;
-
-        earningsStatusEl.className =
-            "form-status " + type;
-
-        earningsStatusEl.style.display = "block";
-    }
-
-
-    function clearEarningsStatus() {
-
-        if (!earningsStatusEl) {
-            return;
-        }
-
-        earningsStatusEl.textContent = "";
-
-        earningsStatusEl.className =
-            "form-status";
-
-        earningsStatusEl.style.display = "none";
-    }
-
-
-    /* =========================================================
-       DATE FORMATTER
-       ========================================================= */
-
-    function formatDate(dateValue) {
-
-        if (!dateValue) {
-            return "—";
-        }
-
-        const date = new Date(dateValue);
-
-        if (Number.isNaN(date.getTime())) {
-            return "—";
-        }
-
-        return date.toLocaleString("en-NG", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    }
-
-
-    /* =========================================================
-       NUMBER FORMATTERS
-       ========================================================= */
-
-    function formatNumber(value, decimals = 2) {
-
-        const number = Number(value);
-
-        if (!Number.isFinite(number)) {
-            return "0";
-        }
-
-        return number.toLocaleString("en-US", {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals
-        });
-    }
-
-
-    function formatUsd(value) {
-
-        const number = Number(value);
-
-        if (!Number.isFinite(number)) {
-            return "$0.00";
-        }
-
-        return "$" + number.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
-
-
-    function formatNaira(value) {
-
-        const number = Number(value);
-
-        if (!Number.isFinite(number)) {
-            return "₦0.00";
-        }
-
-        return "₦" + number.toLocaleString("en-NG", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
-
-
-    /* =========================================================
-       PAYMENT AMOUNT FORMATTER
-       ========================================================= */
-
-    function formatPaymentAmount(receipt) {
-
-        if (!receipt) {
-            return "—";
-        }
-
-        const amount = Number(receipt.amount);
-
-        if (!Number.isFinite(amount)) {
-            return "—";
-        }
-
-        if (
-            String(receipt.payment_method || "")
-                .toLowerCase() === "bank"
-        ) {
-            return formatNaira(amount);
-        }
-
-        return formatUsd(amount);
-    }
-
-
-    /* =========================================================
-       STATUS NORMALIZATION
-       ========================================================= */
-
-    function normalizeStatus(status) {
-
-        if (!status) {
-            return "pending";
-        }
-
-        return String(status)
-            .trim()
-            .toLowerCase();
-    }
-
-
-    function getStatusLabel(status) {
-
-        const normalized =
-            normalizeStatus(status);
-
-        const labels = {
-            pending: "Pending",
-            confirmed: "Confirmed",
-            approved: "Approved",
-            rejected: "Rejected",
-            active: "Active",
-            completed: "Completed"
-        };
-
-        return labels[normalized] ||
-            normalized.charAt(0).toUpperCase() +
-            normalized.slice(1);
-    }
-
-
-    function getStatusClass(status) {
-
-        const normalized =
-            normalizeStatus(status);
-
-        const allowed = [
-            "pending",
-            "confirmed",
-            "approved",
-            "rejected",
-            "active",
-            "completed"
-        ];
-
-        if (allowed.includes(normalized)) {
-            return normalized;
-        }
-
-        return "pending";
-    }
-
-
-    /* =========================================================
-       CLIP LONG TEXT
-       ========================================================= */
-
-    function shortenText(value, maxLength = 32) {
-
-        if (!value) {
-            return "—";
-        }
-
-        const text = String(value);
-
-        if (text.length <= maxLength) {
-            return text;
-        }
-
-        return text.substring(0, maxLength) + "…";
-    }
-
-
-    /* =========================================================
-       COPY TO CLIPBOARD
-       ========================================================= */
-
-    async function copyText(text, button = null) {
-
-        if (!text) {
-            return;
-        }
-
-        try {
-
-            await navigator.clipboard.writeText(
-                String(text)
-            );
-
-            if (button) {
-
-                const original =
-                    button.textContent;
-
-                button.textContent = "Copied!";
-
-                setTimeout(() => {
-                    button.textContent = original;
-                }, 1200);
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Clipboard copy failed:",
-                error
-            );
-
-            try {
-
-                const temporary =
-                    document.createElement("textarea");
-
-                temporary.value = String(text);
-
-                temporary.style.position = "fixed";
-                temporary.style.opacity = "0";
-
-                document.body.appendChild(
-                    temporary
-                );
-
-                temporary.focus();
-                temporary.select();
-
-                document.execCommand("copy");
-
-                temporary.remove();
-
-                if (button) {
-
-                    const original =
-                        button.textContent;
-
-                    button.textContent = "Copied!";
-
-                    setTimeout(() => {
-                        button.textContent = original;
-                    }, 1200);
-                }
-
-            } catch (fallbackError) {
-
-                console.error(
-                    "Fallback copy failed:",
-                    fallbackError
-                );
-
-                showAdminMessage(
-                    "Unable to copy the UID.",
-                    "error"
-                );
-            }
-        }
-    }
-
-
-    /* =========================================================
-       COPY MEMBER UID
-       ========================================================= */
-
-    async function copyMemberUid(uid, button) {
-
-        if (!uid) {
-            showAdminMessage(
-                "This member does not have a UID.",
-                "error"
-            );
-            return;
-        }
-
-        await copyText(uid, button);
-    }
-
-
-    /* =========================================================
-       ADMIN LOGOUT
-       ========================================================= */
-
-    async function adminLogout() {
-
-        try {
-
-            const { error } =
-                await supabaseClient.auth.signOut();
-
-            if (error) {
-                throw error;
-            }
-
-            window.location.href = "login.html";
-
-        } catch (error) {
-
-            console.error(
-                "Admin logout error:",
-                error
-            );
-
-            showAdminMessage(
-                "Unable to log out. Please try again.",
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       ADMIN AUTHORIZATION
-       ========================================================= */
-
-    async function checkAdminAuthorization() {
-
-        clearAdminMessage();
-
-        try {
-
-            const {
-                data: sessionData,
-                error: sessionError
-            } = await supabaseClient.auth.getSession();
-
-            if (sessionError) {
-                throw sessionError;
-            }
-
-            const session =
-                sessionData?.session;
-
-            if (!session || !session.user) {
-
-                window.location.href =
-                    "login.html";
-
-                return false;
-            }
-
-            const user =
-                session.user;
-
-            const {
-                data: profile,
-                error: profileError
-            } = await supabaseClient
-                .from("profiles")
-                .select("*")
-                .eq("id", user.id)
-                .maybeSingle();
-
-            if (profileError) {
-                throw profileError;
-            }
-
-            if (!profile) {
-
-                showAdminMessage(
-                    "Administrator profile not found.",
-                    "error"
-                );
-
-                await supabaseClient.auth.signOut();
-
-                setTimeout(() => {
-                    window.location.href =
-                        "login.html";
-                }, 1200);
-
-                return false;
-            }
-
-            const role =
-                String(profile.role || "")
-                    .trim()
-                    .toLowerCase();
-
-            const status =
-                String(profile.status || "")
-                    .trim()
-                    .toLowerCase();
-
-            if (
-                role !== "admin" ||
-                status !== "active"
-            ) {
-
-                showAdminMessage(
-                    "Access denied. Administrator privileges are required.",
-                    "error"
-                );
-
-                await supabaseClient.auth.signOut();
-
-                setTimeout(() => {
-                    window.location.href =
-                        "login.html";
-                }, 1500);
-
-                return false;
-            }
-
-            currentAdmin = {
-                authUser: user,
-                profile: profile
-            };
-
-            return true;
-
-        } catch (error) {
-
-            console.error(
-                "Admin authorization error:",
-                error
-            );
-
-            showAdminMessage(
-                "Unable to verify administrator access.",
-                "error"
-            );
-
-            return false;
-        }
-    }
-
-
-    /* =========================================================
-       SAFE DATABASE ERROR MESSAGE
-       ========================================================= */
-
-    function getDatabaseErrorMessage(error) {
-
-        if (!error) {
-            return "An unknown database error occurred.";
-        }
-
-        if (error.message) {
-            return error.message;
-        }
-
-        if (error.details) {
-            return error.details;
-        }
-
-        return "An unexpected database error occurred.";
-    }
-
-
-    /* =========================================================
-       GLOBAL EXPORTS
-       ========================================================= */
-
-    window.adminLogout = adminLogout;
-    
-    window.copyMemberUid = copyMemberUid;
-
-    window.copyText = copyText;
-
-</script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 4/12 — LOAD MEMBERS & PACKAGES
-       ========================================================= */
-
-
-    /* =========================================================
-       LOAD ALL MEMBERS
-       ========================================================= */
-
-    async function loadProfiles() {
-
-        if (!membersTableBody) {
-            return;
-        }
-
-        membersTableBody.innerHTML = `
-            <tr>
-                <td colspan="7" class="loading-cell">
-                    Loading members...
-                </td>
-            </tr>
-        `;
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("profiles")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
-
-            if (error) {
-                throw error;
-            }
-
-            profilesData = Array.isArray(data)
-                ? data
-                : [];
-
-            updateMemberStatistics();
-
-            renderMembers();
-
-            populateEarningMembers();
-
-        } catch (error) {
-
-            console.error(
-                "Error loading profiles:",
-                error
-            );
-
-            profilesData = [];
-
-            if (membersTableBody) {
-                membersTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="empty-cell">
-                            Unable to load members.
-                        </td>
-                    </tr>
-                `;
-            }
-
-            showAdminMessage(
-                "Unable to load member information: " +
-                getDatabaseErrorMessage(error),
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       UPDATE MEMBER STATISTICS
-       ========================================================= */
-
-    function updateMemberStatistics() {
-
-        const totalMembers =
-            profilesData.length;
-
-        const pendingMembers =
-            profilesData.filter(profile => {
-
-                const status =
-                    String(profile.status || "")
-                        .trim()
-                        .toLowerCase();
-
-                return status === "pending";
-
-            }).length;
-
-        if (totalMembersEl) {
-            totalMembersEl.textContent =
-                totalMembers.toLocaleString("en-US");
-        }
-
-        if (pendingMembersEl) {
-            pendingMembersEl.textContent =
-                pendingMembers.toLocaleString("en-US");
-        }
-    }
-
-
-    /* =========================================================
-       GET MEMBER BY USER ID
-       ========================================================= */
-
-    function getMemberById(userId) {
-
-        if (!userId) {
-            return null;
-        }
-
-        return profilesData.find(
-            profile =>
-                String(profile.id) === String(userId)
-        ) || null;
-    }
-
-
-    /* =========================================================
-       GET MEMBER NAME
-       ========================================================= */
-
-    function getMemberName(userId) {
-
-        const member =
-            getMemberById(userId);
-
-        if (!member) {
-            return "Unknown Member";
-        }
-
-        return (
-            member.full_name ||
-            member.name ||
-            member.email ||
-            "Unknown Member"
-        );
-    }
-
-
-    /* =========================================================
-       GET MEMBER UID
-       ========================================================= */
-
-    function getMemberUid(userId) {
-
-        const member =
-            getMemberById(userId);
-
-        if (!member) {
-            return "—";
-        }
-
-        return member.uid || "—";
-    }
-
-
-    /* =========================================================
-       GET MEMBER PHONE
-       ========================================================= */
-
-    function getMemberPhone(userId) {
-
-        const member =
-            getMemberById(userId);
-
-        if (!member) {
-            return "—";
-        }
-
-        return (
-            member.phone ||
-            member.phone_number ||
-            "—"
-        );
-    }
-
-
-    /* =========================================================
-       RENDER MEMBERS TABLE
-       ========================================================= */
-
-    function renderMembers() {
-
-        if (!membersTableBody) {
-            return;
-        }
-
-        if (!profilesData.length) {
-
-            membersTableBody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="empty-cell">
-                        No members found.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        membersTableBody.innerHTML =
-            profilesData.map(profile => {
-
-                const fullName =
-                    profile.full_name ||
-                    profile.name ||
-                    profile.email ||
-                    "Unnamed Member";
-
-                const uid =
-                    profile.uid || "—";
-
-                const phone =
-                    profile.phone ||
-                    profile.phone_number ||
-                    "—";
-
-                const role =
-                    profile.role ||
-                    "member";
-
-                const status =
-                    normalizeStatus(
-                        profile.status || "pending"
-                    );
-
-                const joined =
-                    formatDate(
-                        profile.created_at
-                    );
-
-                const statusClass =
-                    getStatusClass(status);
-
-                const uidButton =
-                    uid !== "—"
-                        ? `
-                            <button
-                                type="button"
-                                class="uid-copy-btn"
-                                onclick="copyMemberUid(
-                                    '${escapeHtml(uid)}',
-                                    this
-                                )"
-                                title="Copy Monarch UID"
-                            >
-                                Copy
-                            </button>
-                          `
-                        : "";
-
-                return `
-                    <tr>
-
-                        <td>
-                            <div class="member-name">
-                                ${escapeHtml(fullName)}
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="uid-cell">
-                                <span class="monarch-uid">
-                                    ${escapeHtml(uid)}
-                                </span>
-
-                                ${uidButton}
-                            </div>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(phone)}
-                        </td>
-
-                        <td>
-                            <span class="role-badge">
-                                ${escapeHtml(role)}
-                            </span>
-                        </td>
-
-                        <td>
-                            <span class="status-badge ${statusClass}">
-                                ${escapeHtml(
-                                    getStatusLabel(status)
-                                )}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(joined)}
-                        </td>
-
-                        <td>
-                            <div class="table-actions">
-
-                                <button
-                                    type="button"
-                                    class="action-btn"
-                                    onclick="viewMemberDetails(
-                                        '${escapeHtml(profile.id)}'
-                                    )"
-                                >
-                                    View
-                                </button>
-
-                            </div>
-                        </td>
-
-                    </tr>
-                `;
-
-            }).join("");
-    }
-
-
-    /* =========================================================
-       MEMBER DETAILS
-       ========================================================= */
-
-    function viewMemberDetails(userId) {
-
-        const member =
-            getMemberById(userId);
-
-        if (!member) {
-
-            showAdminMessage(
-                "Member information could not be found.",
-                "error"
-            );
-
-            return;
-        }
-
-        const name =
-            member.full_name ||
-            member.name ||
-            member.email ||
-            "Unnamed Member";
-
-        const uid =
-            member.uid || "—";
-
-        const phone =
-            member.phone ||
-            member.phone_number ||
-            "—";
-
-        const email =
-            member.email ||
-            "—";
-
-        const role =
-            member.role ||
-            "member";
-
-        const status =
-            member.status ||
-            "pending";
-
-        const created =
-            formatDate(member.created_at);
-
-        showAdminMessage(
-            `${name} | UID: ${uid} | Phone: ${phone} | ` +
-            `Email: ${email} | Role: ${role} | ` +
-            `Status: ${getStatusLabel(status)} | ` +
-            `Joined: ${created}`,
-            "info"
-        );
-    }
-
-
-    /* =========================================================
-       LOAD PACKAGES
-       ========================================================= */
-
-    async function loadPackages() {
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("packages")
-                .select("*")
-                .order("amount", {
-                    ascending: true
-                });
-
-            if (error) {
-                throw error;
-            }
-
-            packagesData = Array.isArray(data)
-                ? data
-                : [];
-
-        } catch (error) {
-
-            console.error(
-                "Error loading packages:",
-                error
-            );
-
-            packagesData = [];
-
-            showAdminMessage(
-                "Unable to load packages: " +
-                getDatabaseErrorMessage(error),
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       GET PACKAGE BY ID
-       ========================================================= */
-
-    function getPackageById(packageId) {
-
-        if (!packageId) {
-            return null;
-        }
-
-        return packagesData.find(
-            pkg =>
-                String(pkg.id) === String(packageId)
-        ) || null;
-    }
-
-
-    /* =========================================================
-       GET PACKAGE NAME
-       ========================================================= */
-
-    function getPackageName(packageId) {
-
-        const pkg =
-            getPackageById(packageId);
-
-        if (!pkg) {
-            return "Unknown Package";
-        }
-
-        return (
-            pkg.name ||
-            pkg.title ||
-            `Package ${pkg.id}`
-        );
-    }
-
-
-    /* =========================================================
-       GET PACKAGE AMOUNT
-       ========================================================= */
-
-    function getPackageAmount(packageId) {
-
-        const pkg =
-            getPackageById(packageId);
-
-        if (!pkg) {
-            return 0;
-        }
-
-        return Number(
-            pkg.amount ||
-            pkg.price ||
-            0
-        );
-    }
-
-
-    /* =========================================================
-       POPULATE EARNING MEMBER SELECT
-       ========================================================= */
-
-    function populateEarningMembers() {
-
-        if (!earningMemberEl) {
-            return;
-        }
-
-        const members =
-            profilesData.filter(profile => {
-
-                const role =
-                    String(profile.role || "")
-                        .trim()
-                        .toLowerCase();
-
-                return role !== "admin";
-
-            });
-
-        if (!members.length) {
-
-            earningMemberEl.innerHTML = `
-                <option value="">
-                    No members available
-                </option>
-            `;
-
-            return;
-        }
-
-        earningMemberEl.innerHTML = `
-            <option value="">
-                Select member
-            </option>
-
-            ${members.map(member => {
-
-                const name =
-                    member.full_name ||
-                    member.name ||
-                    member.email ||
-                    "Unnamed Member";
-
-                const uid =
-                    member.uid ||
-                    "NO UID";
-
-                return `
-                    <option value="${escapeHtml(member.id)}">
-                        ${escapeHtml(name)}
-                        — ${escapeHtml(uid)}
-                    </option>
-                `;
-
-            }).join("")}
-        `;
-    }
-
-
-    /* =========================================================
-       GLOBAL EXPORTS
-       ========================================================= */
-
-    window.viewMemberDetails =
-        viewMemberDetails;
-
-</script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 5/12 — LOAD INVESTMENTS & RECEIPTS
-       ========================================================= */
-
-
-    /* =========================================================
-       LOAD INVESTMENTS
-       ========================================================= */
-
-    async function loadInvestments() {
-
-        if (investmentRequestsBody) {
-            investmentRequestsBody.innerHTML = `
-                <tr>
-                    <td colspan="9" class="loading-cell">
-                        Loading investment requests...
-                    </td>
-                </tr>
-            `;
-        }
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("investments")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
-
-            if (error) {
-                throw error;
-            }
-
-            investmentsData = Array.isArray(data)
-                ? data
-                : [];
-
-            await loadReceipts();
-
-            updateInvestmentStatistics();
-
-            renderInvestments();
-
-        } catch (error) {
-
-            console.error(
-                "Error loading investments:",
-                error
-            );
-
-            investmentsData = [];
-
-            if (investmentRequestsBody) {
-                investmentRequestsBody.innerHTML = `
-                    <tr>
-                        <td colspan="9" class="empty-cell">
-                            Unable to load investment requests.
-                        </td>
-                    </tr>
-                `;
-            }
-
-            showAdminMessage(
-                "Unable to load investment requests: " +
-                getDatabaseErrorMessage(error),
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       LOAD PAYMENT RECEIPTS
-       ========================================================= */
-
-    async function loadReceipts() {
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("payment_receipts")
-                .select("*")
-                .order("uploaded_at", {
-                    ascending: false
-                });
-
-            if (error) {
-                throw error;
-            }
-
-            receiptsData = Array.isArray(data)
-                ? data
-                : [];
-
-        } catch (error) {
-
-            console.error(
-                "Error loading payment receipts:",
-                error
-            );
-
-            receiptsData = [];
-
-            /*
-             * Do not stop the entire admin dashboard if
-             * receipt metadata cannot currently be read.
-             *
-             * This also allows the rest of the investment
-             * information to remain visible.
-             */
-        }
-    }
-
-
-    /* =========================================================
-       FIND RECEIPT FOR INVESTMENT
-       ========================================================= */
-
-    function getReceiptForInvestment(investmentId) {
-
-        if (!investmentId) {
-            return null;
-        }
-
-        return receiptsData.find(
-            receipt =>
-                String(receipt.investment_id) ===
-                String(investmentId)
-        ) || null;
-    }
-
-
-    /* =========================================================
-       UPDATE INVESTMENT STATISTICS
-       ========================================================= */
-
-    function updateInvestmentStatistics() {
-
-        let totalInvested = 0;
-
-        let confirmedCount = 0;
-
-        let rejectedCount = 0;
-
-        investmentsData.forEach(investment => {
-
-            const status =
-                normalizeStatus(
-                    investment.status
-                );
-
-            /*
-             * Confirmed investments count toward
-             * the total invested amount.
-             *
-             * Active and completed investments are
-             * also considered invested.
-             */
-            if (
-                status === "confirmed" ||
-                status === "approved" ||
-                status === "active" ||
-                status === "completed"
-            ) {
-                totalInvested += Number(
-                    investment.amount || 0
-                );
-            }
-
-            if (status === "confirmed") {
-                confirmedCount++;
-            }
-
-            if (status === "rejected") {
-                rejectedCount++;
-            }
-        });
-
-
-        if (totalInvestedAdminEl) {
-
-            totalInvestedAdminEl.textContent =
-                formatUsd(totalInvested);
-        }
-
-
-        if (confirmedInvestmentsEl) {
-
-            confirmedInvestmentsEl.textContent =
-                confirmedCount.toLocaleString(
-                    "en-US"
-                );
-        }
-
-
-        if (rejectedInvestmentsEl) {
-
-            rejectedInvestmentsEl.textContent =
-                rejectedCount.toLocaleString(
-                    "en-US"
-                );
-        }
-    }
-
-
-    /* =========================================================
-       GET RECEIPT STATUS
-       ========================================================= */
-
-    function getReceiptStatus(investment) {
-
-        const receipt =
-            getReceiptForInvestment(
-                investment?.id
-            );
-
-        if (receipt) {
-            return receipt.verification_status ||
-                "pending";
-        }
-
-        return "pending";
-    }
-
-
-    /* =========================================================
-       GET RECEIPT FILE NAME
-       ========================================================= */
-
-    function getReceiptFileName(investment) {
-
-        const receipt =
-            getReceiptForInvestment(
-                investment?.id
-            );
-
-        if (!receipt) {
-            return "No receipt";
-        }
-
-        return receipt.file_name ||
-            "Receipt uploaded";
-    }
-
-
-    /* =========================================================
-       GET PAYMENT METHOD LABEL
-       ========================================================= */
-
-    function getPaymentMethodLabel(method) {
-
-        if (!method) {
-            return "—";
-        }
-
-        const normalized =
-            String(method)
-                .trim()
-                .toLowerCase();
-
-        if (normalized === "bank") {
-            return "Bank Transfer";
-        }
-
-        if (normalized === "crypto") {
-            return "Crypto";
-        }
-
-        return String(method);
-    }
-
-
-    /* =========================================================
-       GET CRYPTO NETWORK FROM RECEIPT
-       ========================================================= */
-
-    function getReceiptNetwork(receipt) {
-
-        if (!receipt) {
-            return "";
-        }
-
-        /*
-         * The current payment_receipts table does not
-         * necessarily contain crypto_network.
-         *
-         * Check possible future/extended fields without
-         * breaking the current schema.
-         */
-        return (
-            receipt.crypto_network ||
-            receipt.network ||
-            ""
-        );
-    }
-
-
-    /* =========================================================
-       GET INVESTMENT PAYMENT INFORMATION
-       ========================================================= */
-
-    function getInvestmentPaymentInfo(investment) {
-
-        const receipt =
-            getReceiptForInvestment(
-                investment?.id
-            );
-
-        const method =
-            receipt?.payment_method ||
-            investment?.payment_method ||
-            "";
-
-        const paymentAmount =
-            receipt
-                ? formatPaymentAmount(receipt)
-                : "—";
-
-        const network =
-            getReceiptNetwork(receipt);
-
-        return {
-            receipt,
-            method: getPaymentMethodLabel(method),
-            paymentAmount,
-            network
-        };
-    }
-
-
-    /* =========================================================
-       RENDER INVESTMENTS
-       ========================================================= */
-
-    function renderInvestments() {
-
-        if (!investmentRequestsBody) {
-            return;
-        }
-
-        if (!investmentsData.length) {
-
-            investmentRequestsBody.innerHTML = `
-                <tr>
-                    <td colspan="9" class="empty-cell">
-                        No investment requests found.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-
-        investmentRequestsBody.innerHTML =
-            investmentsData.map(investment => {
-
-                const memberName =
-                    getMemberName(
-                        investment.user_id
-                    );
-
-                const memberUid =
-                    getMemberUid(
-                        investment.user_id
-                    );
-
-                const packageName =
-                    getPackageName(
-                        investment.package_id
-                    );
-
-                const investmentAmount =
-                    Number(
-                        investment.amount || 0
-                    );
-
-                const paymentInfo =
-                    getInvestmentPaymentInfo(
-                        investment
-                    );
-
-                const receipt =
-                    paymentInfo.receipt;
-
-                const investmentStatus =
-                    normalizeStatus(
-                        investment.status
-                    );
-
-                const receiptStatus =
-                    getReceiptStatus(
-                        investment
-                    );
-
-                const receiptFile =
-                    getReceiptFileName(
-                        investment
-                    );
-
-                const investmentDate =
-                    formatDate(
-                        investment.created_at
-                    );
-
-
-                const actionButtons = `
-                    <div class="table-actions">
-
-                        ${
-                            receipt
-                            ? `
-                                <button
-                                    type="button"
-                                    class="action-btn view-receipt-btn"
-                                    onclick="viewReceipt(
-                                        '${escapeHtml(investment.id)}'
-                                    )"
-                                >
-                                    View Receipt
-                                </button>
-                              `
-                            : ""
-                        }
-
-                        ${
-                            investmentStatus === "pending"
-                            ? `
-                                <button
-                                    type="button"
-                                    class="action-btn confirm-btn"
-                                    onclick="updateInvestmentStatus(
-                                        '${escapeHtml(investment.id)}',
-                                        'confirmed'
-                                    )"
-                                >
-                                    Confirm
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="action-btn reject-btn"
-                                    onclick="updateInvestmentStatus(
-                                        '${escapeHtml(investment.id)}',
-                                        'rejected'
-                                    )"
-                                >
-                                    Reject
-                                </button>
-                              `
-                            : ""
-                        }
-
-                        ${
-                            investmentStatus === "confirmed"
-                            ? `
-                                <span class="action-complete">
-                                    Confirmed
-                                </span>
-                              `
-                            : ""
-                        }
-
-                        ${
-                            investmentStatus === "rejected"
-                            ? `
-                                <span class="action-rejected">
-                                    Rejected
-                                </span>
-                              `
-                            : ""
-                        }
-
-                    </div>
-                `;
-
-
-                return `
-                    <tr>
-
-                        <td>
-                            <div class="member-name">
-                                ${escapeHtml(memberName)}
-                            </div>
-                        </td>
-
-                        <td>
-                            <span class="monarch-uid">
-                                ${escapeHtml(memberUid)}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(packageName)}
-                        </td>
-
-                        <td>
-                            <strong>
-                                ${formatUsd(investmentAmount)}
-                            </strong>
-                        </td>
-
-                        <td>
-                            <div class="payment-info-cell">
-
-                                <span>
-                                    ${escapeHtml(
-                                        paymentInfo.method
-                                    )}
-                                </span>
-
-                                ${
-                                    paymentInfo.paymentAmount !== "—"
-                                    ? `
-                                        <small>
-                                            ${escapeHtml(
-                                                paymentInfo.paymentAmount
-                                            )}
-                                        </small>
-                                      `
-                                    : ""
-                                }
-
-                                ${
-                                    paymentInfo.network
-                                    ? `
-                                        <small>
-                                            ${escapeHtml(
-                                                paymentInfo.network
-                                            )}
-                                        </small>
-                                      `
-                                    : ""
-                                }
-
-                            </div>
-                        </td>
-
-                        <td>
-                            <div class="receipt-cell">
-
-                                <span
-                                    class="receipt-file-name"
-                                    title="${escapeHtml(
-                                        receiptFile
-                                    )}"
-                                >
-                                    ${escapeHtml(
-                                        shortenText(
-                                            receiptFile,
-                                            28
-                                        )
-                                    )}
-                                </span>
-
-                                <span
-                                    class="status-badge ${getStatusClass(
-                                        receiptStatus
-                                    )}"
-                                >
-                                    ${escapeHtml(
-                                        getStatusLabel(
-                                            receiptStatus
-                                        )
-                                    )}
-                                </span>
-
-                            </div>
-                        </td>
-
-                        <td>
-                            <span
-                                class="status-badge ${getStatusClass(
-                                    investmentStatus
-                                )}"
-                            >
-                                ${escapeHtml(
-                                    getStatusLabel(
-                                        investmentStatus
-                                    )
-                                )}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                investmentDate
-                            )}
-                        </td>
-
-                        <td>
-                            ${actionButtons}
-                        </td>
-
-                    </tr>
-                `;
-
-            }).join("");
-    }
-
-
-    /* =========================================================
-       GLOBAL EXPORTS
-       ========================================================= */
-
-    window.viewReceipt =
-        viewReceipt;
-
-    window.updateInvestmentStatus =
-        updateInvestmentStatus;
-
-</script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 6/12 — INVESTMENT CONFIRM / REJECT LOGIC
-       ========================================================= */
-
-
-    /* =========================================================
-       UPDATE INVESTMENT STATUS
-       ========================================================= */
-
-    async function updateInvestmentStatus(
-        investmentId,
-        newStatus
-    ) {
-
-        const normalizedStatus =
-            normalizeStatus(newStatus);
-
-        if (!investmentId) {
-
-            showAdminMessage(
-                "Investment ID is missing.",
-                "error"
-            );
-
-            return;
-        }
-
-        if (
-            ![
-                "confirmed",
-                "rejected"
-            ].includes(normalizedStatus)
-        ) {
-
-            showAdminMessage(
-                "Invalid investment status.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const investment =
-            investmentsData.find(
-                item =>
-                    String(item.id) ===
-                    String(investmentId)
-            );
-
-
-        if (!investment) {
-
-            showAdminMessage(
-                "Investment request could not be found.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const memberName =
-            getMemberName(
-                investment.user_id
-            );
-
-
-        const actionText =
-            normalizedStatus === "confirmed"
-                ? "confirm this investment"
-                : "reject this investment";
-
-
-        const confirmedByAdmin =
-            window.confirm(
-                `Are you sure you want to ${actionText} for ${memberName}?`
-            );
-
-
-        if (!confirmedByAdmin) {
-            return;
-        }
-
-
-        showAdminMessage(
-            normalizedStatus === "confirmed"
-                ? "Confirming investment..."
-                : "Rejecting investment...",
-            "info"
-        );
-
-
-        try {
-
-            /* =================================================
-               STEP 1 — UPDATE INVESTMENT
-               ================================================= */
-
-            const {
-                error: investmentError
-            } = await supabaseClient
-                .from("investments")
-                .update({
-                    status: normalizedStatus,
-                    updated_at: new Date().toISOString()
-                })
-                .eq("id", investmentId);
-
-
-            if (investmentError) {
-                throw investmentError;
-            }
-
-
-            /* =================================================
-               STEP 2 — UPDATE RECEIPT STATUS
-               ================================================= */
-
-            const receipt =
-                getReceiptForInvestment(
-                    investmentId
-                );
-
-
-            if (receipt) {
-
-                const receiptStatus =
-                    normalizedStatus === "confirmed"
-                        ? "approved"
-                        : "rejected";
-
-
-                const {
-                    error: receiptError
-                } = await supabaseClient
-                    .from("payment_receipts")
-                    .update({
-                        verification_status:
-                            receiptStatus,
-
-                        reviewed_at:
-                            new Date().toISOString()
-                    })
-                    .eq("id", receipt.id);
-
-
-                if (receiptError) {
-
-                    /*
-                     * The investment itself has already
-                     * been updated successfully.
-                     *
-                     * Do not pretend the receipt update
-                     * succeeded if Supabase rejected it.
-                     */
-                    console.error(
-                        "Receipt status update failed:",
-                        receiptError
-                    );
-
-                    showAdminMessage(
-                        `Investment ${
-                            normalizedStatus === "confirmed"
-                                ? "confirmed"
-                                : "rejected"
-                        }, but receipt status could not be updated. ` +
-                        getDatabaseErrorMessage(
-                            receiptError
-                        ),
-                        "warning"
-                    );
-
-                } else {
-
-                    receipt.verification_status =
-                        receiptStatus;
-
-                    receipt.reviewed_at =
-                        new Date().toISOString();
-                }
-            }
-
-
-            /* =================================================
-               STEP 3 — UPDATE LOCAL INVESTMENT DATA
-               ================================================= */
-
-            investment.status =
-                normalizedStatus;
-
-            investment.updated_at =
-                new Date().toISOString();
-
-
-            /* =================================================
-               STEP 4 — REFRESH ADMIN UI
-               ================================================= */
-
-            updateInvestmentStatistics();
-
-            renderInvestments();
-
-
-            /*
-             * Also refresh the receipt list so the UI
-             * always reflects the database.
-             */
-            await loadReceipts();
-
-            updateInvestmentStatistics();
-
-            renderInvestments();
-
-
-            /* =================================================
-               SUCCESS MESSAGE
-               ================================================= */
-
-            showAdminMessage(
-                normalizedStatus === "confirmed"
-                    ? "Investment confirmed successfully."
-                    : "Investment rejected successfully.",
-                "success"
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Investment status update error:",
-                error
-            );
-
-
-            showAdminMessage(
-                "Unable to update investment status: " +
-                getDatabaseErrorMessage(error),
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       QUICK CONFIRM HELPER
-       ========================================================= */
-
-    async function confirmInvestment(
-        investmentId
-    ) {
-
-        return updateInvestmentStatus(
-            investmentId,
-            "confirmed"
-        );
-    }
-
-
-    /* =========================================================
-       QUICK REJECT HELPER
-       ========================================================= */
-
-    async function rejectInvestment(
-        investmentId
-    ) {
-
-        return updateInvestmentStatus(
-            investmentId,
-            "rejected"
-        );
-    }
-
-
-    /* =========================================================
-       FIND INVESTMENT
-       ========================================================= */
-
-    function getInvestmentById(
-        investmentId
-    ) {
-
-        if (!investmentId) {
-            return null;
-        }
-
-        return investmentsData.find(
-            investment =>
-                String(investment.id) ===
-                String(investmentId)
-        ) || null;
-    }
-
-
-    /* =========================================================
-       GET RECEIPT BY ID
-       ========================================================= */
-
-    function getReceiptById(
-        receiptId
-    ) {
-
-        if (!receiptId) {
-            return null;
-        }
-
-        return receiptsData.find(
-            receipt =>
-                String(receipt.id) ===
-                String(receiptId)
-        ) || null;
-    }
-
-
-    /* =========================================================
-       INVESTMENT SUMMARY
-       ========================================================= */
-
-    function getInvestmentSummary(
-        investmentId
-    ) {
-
-        const investment =
-            getInvestmentById(
-                investmentId
-            );
-
-        if (!investment) {
-            return null;
-        }
-
-        const member =
-            getMemberById(
-                investment.user_id
-            );
-
-        const packageData =
-            getPackageById(
-                investment.package_id
-            );
-
-        const receipt =
-            getReceiptForInvestment(
-                investment.id
-            );
-
-        return {
-            investment,
-            member,
-            packageData,
-            receipt
-        };
-    }
-
-
-    /* =========================================================
-       EXPORT HELPERS
-       ========================================================= */
-
-    window.confirmInvestment =
-        confirmInvestment;
-
-    window.rejectInvestment =
-        rejectInvestment;
-
-</script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 7/12 — SECURE RECEIPT VIEWING
-       ========================================================= */
-
-
-    /* =========================================================
-       CREATE SECURE RECEIPT URL
-       ========================================================= */
-
-    async function createReceiptSignedUrl(
-        filePath
-    ) {
-
-        if (!filePath) {
-            throw new Error(
-                "Receipt file path is missing."
-            );
-        }
-
-        /*
-         * The bucket is PRIVATE.
-         *
-         * We deliberately create a temporary signed URL
-         * instead of exposing the receipt publicly.
-         */
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .storage
-            .from("payment-receipts")
-            .createSignedUrl(
-                filePath,
-                300
-            );
-
-        if (error) {
-            throw error;
-        }
-
-        if (!data?.signedUrl) {
-            throw new Error(
-                "Supabase did not return a receipt URL."
-            );
-        }
-
-        return data.signedUrl;
-    }
-
-
-    /* =========================================================
-       OPEN RECEIPT MODAL
-       ========================================================= */
-
-    async function viewReceipt(
-        investmentId
-    ) {
-
-        if (!receiptModal) {
-            return;
-        }
-
-        const summary =
-            getInvestmentSummary(
-                investmentId
-            );
-
-
-        if (!summary) {
-
-            showAdminMessage(
-                "Investment information could not be found.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const {
-            investment,
-            member,
-            packageData,
-            receipt
-        } = summary;
-
-
-        if (!receipt) {
-
-            showAdminMessage(
-                "No payment receipt has been uploaded for this investment.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const memberName =
-            member?.full_name ||
-            member?.name ||
-            member?.email ||
-            "Unknown Member";
-
-
-        const memberUid =
-            member?.uid ||
-            "—";
-
-
-        const packageName =
-            packageData?.name ||
-            packageData?.title ||
-            "Unknown Package";
-
-
-        const investmentAmount =
-            Number(
-                investment.amount || 0
-            );
-
-
-        const paymentMethod =
-            getPaymentMethodLabel(
-                receipt.payment_method
-            );
-
-
-        const paymentAmount =
-            formatPaymentAmount(
-                receipt
-            );
-
-
-        const receiptStatus =
-            receipt.verification_status ||
-            "pending";
-
-
-        const uploadedDate =
-            formatDate(
-                receipt.uploaded_at
-            );
-
-
-        const fileName =
-            receipt.file_name ||
-            "Payment receipt";
-
-
-        const fileType =
-            receipt.file_type ||
-            "Unknown";
-
-
-        const fileSize =
-            receipt.file_size
-                ? formatFileSize(
-                    receipt.file_size
-                )
-                : "Unknown";
-
+    <script>
 
         /* =====================================================
-           MODAL HEADER
+           PART 1 ENDS HERE
            ===================================================== */
 
-        if (receiptModalTitle) {
-
-            receiptModalTitle.textContent =
-                "Payment Receipt";
-        }
-
-
-        /* =====================================================
-           MODAL INFORMATION
-           ===================================================== */
-
-        if (receiptModalInfo) {
-
-            receiptModalInfo.innerHTML = `
-                <div class="receipt-detail-grid">
-
-                    <div>
-                        <span>Member</span>
-                        <strong>
-                            ${escapeHtml(memberName)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Monarch UID</span>
-                        <strong class="monarch-uid">
-                            ${escapeHtml(memberUid)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Package</span>
-                        <strong>
-                            ${escapeHtml(packageName)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Investment</span>
-                        <strong>
-                            ${formatUsd(investmentAmount)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Payment Method</span>
-                        <strong>
-                            ${escapeHtml(paymentMethod)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Payment Amount</span>
-                        <strong>
-                            ${escapeHtml(paymentAmount)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Receipt Status</span>
-                        <strong>
-                            <span class="status-badge ${getStatusClass(
-                                receiptStatus
-                            )}">
-                                ${escapeHtml(
-                                    getStatusLabel(
-                                        receiptStatus
-                                    )
-                                )}
-                            </span>
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Uploaded</span>
-                        <strong>
-                            ${escapeHtml(uploadedDate)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>File Name</span>
-                        <strong>
-                            ${escapeHtml(fileName)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>File Type</span>
-                        <strong>
-                            ${escapeHtml(fileType)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>File Size</span>
-                        <strong>
-                            ${escapeHtml(fileSize)}
-                        </strong>
-                    </div>
-
-                </div>
-            `;
-        }
-
-
-        /* =====================================================
-           SHOW LOADING STATE
-           ===================================================== */
-
-        if (receiptPreview) {
-
-            receiptPreview.innerHTML = `
-                <div class="receipt-loading">
-                    Loading secure receipt...
-                </div>
-            `;
-        }
-
-
-        receiptModal.classList.add("show");
-
-        receiptModal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-
-        /* =====================================================
-           CREATE TEMPORARY SIGNED URL
-           ===================================================== */
-
-        try {
-
-            const signedUrl =
-                await createReceiptSignedUrl(
-                    receipt.file_path
-                );
-
-
-            const fileTypeLower =
-                String(
-                    receipt.file_type || ""
-                ).toLowerCase();
-
-
-            const fileNameLower =
-                String(
-                    receipt.file_name || ""
-                ).toLowerCase();
-
-
-            const isPdf =
-                fileTypeLower ===
-                    "application/pdf" ||
-                fileNameLower.endsWith(".pdf");
-
-
-            const isImage =
-                fileTypeLower.startsWith(
-                    "image/"
-                ) ||
-                /\.(jpg|jpeg|png|webp)$/i
-                    .test(fileNameLower);
-
-
-            if (receiptPreview) {
-
-                if (isPdf) {
-
-                    receiptPreview.innerHTML = `
-                        <iframe
-                            src="${escapeHtml(
-                                signedUrl
-                            )}"
-                            title="Payment Receipt"
-                            class="receipt-pdf-frame"
-                            loading="lazy"
-                        ></iframe>
-
-                        <a
-                            href="${escapeHtml(
-                                signedUrl
-                            )}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="receipt-open-link"
-                        >
-                            Open Receipt in New Tab
-                        </a>
-                    `;
-
-                } else if (isImage) {
-
-                    receiptPreview.innerHTML = `
-                        <img
-                            src="${escapeHtml(
-                                signedUrl
-                            )}"
-                            alt="Payment receipt"
-                            class="receipt-image"
-                        />
-
-                        <a
-                            href="${escapeHtml(
-                                signedUrl
-                            )}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="receipt-open-link"
-                        >
-                            Open Receipt in New Tab
-                        </a>
-                    `;
-
-                } else {
-
-                    receiptPreview.innerHTML = `
-                        <div class="receipt-file-fallback">
-
-                            <p>
-                                This receipt file type
-                                cannot be previewed here.
-                            </p>
-
-                            <a
-                                href="${escapeHtml(
-                                    signedUrl
-                                )}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="receipt-open-link"
-                            >
-                                Open Receipt
-                            </a>
-
-                        </div>
-                    `;
-                }
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "Receipt viewing error:",
-                error
-            );
-
-
-            if (receiptPreview) {
-
-                receiptPreview.innerHTML = `
-                    <div class="receipt-error">
-
-                        <strong>
-                            Unable to load receipt
-                        </strong>
-
-                        <p>
-                            ${escapeHtml(
-                                getDatabaseErrorMessage(
-                                    error
-                                )
-                            )}
-                        </p>
-
-                    </div>
-                `;
-            }
-
-
-            showAdminMessage(
-                "Unable to securely open the payment receipt.",
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       FILE SIZE FORMATTER
-       ========================================================= */
-
-    function formatFileSize(
-        bytes
-    ) {
-
-        const size =
-            Number(bytes);
-
-
-        if (
-            !Number.isFinite(size) ||
-            size <= 0
-        ) {
-            return "0 Bytes";
-        }
-
-
-        const units = [
-            "Bytes",
-            "KB",
-            "MB",
-            "GB"
-        ];
-
-
-        const index =
-            Math.floor(
-                Math.log(size) /
-                Math.log(1024)
-            );
-
-
-        const safeIndex =
-            Math.min(
-                index,
-                units.length - 1
-            );
-
-
-        const converted =
-            size /
-            Math.pow(
-                1024,
-                safeIndex
-            );
-
-
-        return (
-            converted.toFixed(
-                safeIndex === 0
-                    ? 0
-                    : 2
-            ) +
-            " " +
-            units[safeIndex]
-        );
-    }
-
-
-    /* =========================================================
-       CLOSE RECEIPT MODAL
-       ========================================================= */
-
-    function closeReceiptModal() {
-
-        if (!receiptModal) {
-            return;
-        }
-
-
-        receiptModal.classList.remove(
-            "show"
-        );
-
-
-        receiptModal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-
-        if (receiptPreview) {
-
-            /*
-             * Remove the iframe/image from the DOM so the
-             * temporary signed URL is no longer actively
-             * displayed.
-             */
-            receiptPreview.innerHTML = "";
-        }
-
-
-        if (receiptModalInfo) {
-            receiptModalInfo.innerHTML = "";
-        }
-    }
-
-
-    /* =========================================================
-       CLOSE MODAL WHEN CLICKING OUTSIDE CONTENT
-       ========================================================= */
-
-    if (receiptModal) {
-
-        receiptModal.addEventListener(
-            "click",
-            function(event) {
-
-                if (
-                    event.target ===
-                    receiptModal
-                ) {
-                    closeReceiptModal();
-                }
-
-            }
-        );
-    }
-
-
-    /* =========================================================
-       ESC KEY CLOSE
-       ========================================================= */
-
-    document.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (
-                event.key === "Escape" &&
-                receiptModal &&
-                receiptModal.classList.contains("show")
-            ) {
-                closeReceiptModal();
-            }
-
-        }
-    );
-
-
-    /* =========================================================
-       GLOBAL EXPORT
-       ========================================================= */
-
-    window.closeReceiptModal =
-        closeReceiptModal;
-
-</script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 8/12 — EARNINGS MANAGEMENT
-       ========================================================= */
-
-
-    /* =========================================================
-       LOAD EARNINGS
-       ========================================================= */
-
-    async function loadEarnings() {
-
-        if (earningsTableBody) {
-
-            earningsTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="loading-cell">
-                        Loading earnings...
-                    </td>
-                </tr>
-            `;
-        }
-
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("earnings")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            earningsData =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
-
-            renderEarnings();
-
-
-        } catch (error) {
-
-            console.error(
-                "Error loading earnings:",
-                error
-            );
-
-
-            earningsData = [];
-
-
-            if (earningsTableBody) {
-
-                earningsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-cell">
-                            Unable to load earnings.
-                        </td>
-                    </tr>
-                `;
-            }
-
-
-            showAdminMessage(
-                "Unable to load earnings: " +
-                getDatabaseErrorMessage(error),
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       GET EARNING MEMBER
-       ========================================================= */
-
-    function getEarningMember(
-        earning
-    ) {
-
-        if (!earning) {
-            return null;
-        }
-
-        return getMemberById(
-            earning.user_id
-        );
-    }
-
-
-    /* =========================================================
-       RENDER EARNINGS
-       ========================================================= */
-
-    function renderEarnings() {
-
-        if (!earningsTableBody) {
-            return;
-        }
-
-
-        if (!earningsData.length) {
-
-            earningsTableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="empty-cell">
-                        No earnings recorded yet.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-
-        earningsTableBody.innerHTML =
-            earningsData.map(earning => {
-
-                const member =
-                    getEarningMember(
-                        earning
-                    );
-
-
-                const memberName =
-                    member?.full_name ||
-                    member?.name ||
-                    member?.email ||
-                    "Unknown Member";
-
-
-                const memberUid =
-                    member?.uid ||
-                    "—";
-
-
-                const amount =
-                    Number(
-                        earning.amount || 0
-                    );
-
-
-                const description =
-                    earning.description ||
-                    "—";
-
-
-                const status =
-                    normalizeStatus(
-                        earning.status ||
-                        "confirmed"
-                    );
-
-
-                const date =
-                    formatDate(
-                        earning.created_at
-                    );
-
-
-                return `
-                    <tr>
-
-                        <td>
-                            <div class="member-name">
-                                ${escapeHtml(
-                                    memberName
-                                )}
-                            </div>
-                        </td>
-
-                        <td>
-                            <span class="monarch-uid">
-                                ${escapeHtml(
-                                    memberUid
-                                )}
-                            </span>
-                        </td>
-
-                        <td>
-                            <strong>
-                                ${formatUsd(amount)}
-                            </strong>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                description
-                            )}
-                        </td>
-
-                        <td>
-                            <span
-                                class="status-badge ${getStatusClass(
-                                    status
-                                )}"
-                            >
-                                ${escapeHtml(
-                                    getStatusLabel(
-                                        status
-                                    )
-                                )}
-                            </span>
-                        </td>
-
-                        <td>
-                            ${escapeHtml(date)}
-                        </td>
-
-                    </tr>
-                `;
-
-            }).join("");
-    }
-
-
-    /* =========================================================
-       ADD EARNING
-       ========================================================= */
-
-    async function addEarning(
-        event
-    ) {
-
-        if (event) {
-            event.preventDefault();
-        }
-
-
-        clearEarningsStatus();
-
-
-        if (!earningMemberEl) {
-            return;
-        }
-
-
-        const userId =
-            earningMemberEl.value;
-
-
-        const amount =
-            Number(
-                earningAmountEl?.value || 0
-            );
-
-
-        const description =
-            earningDescriptionEl?.value
-                ?.trim() || "";
-
-
-        /* =====================================================
-           VALIDATION
-           ===================================================== */
-
-        if (!userId) {
-
-            showEarningsStatus(
-                "Please select a member.",
-                "error"
-            );
-
-            earningMemberEl.focus();
-
-            return;
-        }
-
-
-        if (
-            !Number.isFinite(amount) ||
-            amount <= 0
-        ) {
-
-            showEarningsStatus(
-                "Please enter a valid earning amount.",
-                "error"
-            );
-
-            earningAmountEl?.focus();
-
-            return;
-        }
-
-
-        if (!description) {
-
-            showEarningsStatus(
-                "Please enter an earning description.",
-                "error"
-            );
-
-            earningDescriptionEl?.focus();
-
-            return;
-        }
-
-
-        const member =
-            getMemberById(userId);
-
-
-        const memberName =
-            member?.full_name ||
-            member?.name ||
-            member?.email ||
-            "this member";
-
-
-        const confirmed =
-            window.confirm(
-                `Add ${formatUsd(amount)} earning to ${memberName}?`
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-
-
-        /* =====================================================
-           DISABLE BUTTON
-           ===================================================== */
-
-        const originalButtonText =
-            addEarningBtn?.textContent ||
-            "Add Earning";
-
-
-        if (addEarningBtn) {
-
-            addEarningBtn.disabled = true;
-
-            addEarningBtn.textContent =
-                "Adding...";
-        }
-
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("earnings")
-                .insert({
-                    user_id: userId,
-                    amount: amount,
-                    description: description,
-                    status: "confirmed"
-                })
-                .select()
-                .single();
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (data) {
-
-                earningsData.unshift(
-                    data
-                );
-            }
-
-
-            renderEarnings();
-
-
-            /* =================================================
-               RESET FORM
-               ================================================= */
-
-            if (earningMemberEl) {
-                earningMemberEl.value = "";
-            }
-
-            if (earningAmountEl) {
-                earningAmountEl.value = "";
-            }
-
-            if (earningDescriptionEl) {
-                earningDescriptionEl.value = "";
-            }
-
-
-            showEarningsStatus(
-                "Earning added successfully.",
-                "success"
-            );
-
-
-            showAdminMessage(
-                `Earning of ${formatUsd(amount)} added for ${memberName}.`,
-                "success"
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Add earning error:",
-                error
-            );
-
-
-            showEarningsStatus(
-                "Unable to add earning: " +
-                getDatabaseErrorMessage(error),
-                "error"
-            );
-
-
-        } finally {
-
-            if (addEarningBtn) {
-
-                addEarningBtn.disabled = false;
-
-                addEarningBtn.textContent =
-                    originalButtonText;
-            }
-        }
-    }
-
-
-    /* =========================================================
-       EARNING FORM SUBMISSION
-       ========================================================= */
-
-    const earningForm =
-        document.getElementById(
-            "earningForm"
-        );
-
-
-    if (earningForm) {
-
-        earningForm.addEventListener(
-            "submit",
-            addEarning
-        );
-    }
-
-
-    /* =========================================================
-       FALLBACK BUTTON HANDLER
-       ========================================================= */
-
-    if (
-        addEarningBtn &&
-        !earningForm
-    ) {
-
-        addEarningBtn.addEventListener(
-            "click",
-            addEarning
-        );
-    }
-
-
-    /* =========================================================
-       GLOBAL EXPORT
-       ========================================================= */
-
-    window.addEarning =
-        addEarning;
-
-</script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 9/12 — ADMIN DATA REFRESH & DASHBOARD HELPERS
-       ========================================================= */
-
-
-    /* =========================================================
-       REFRESH ALL ADMIN DATA
-       ========================================================= */
-
-    async function refreshAdminData() {
-
-        showAdminMessage(
-            "Refreshing admin data...",
-            "info"
-        );
-
-
-        try {
-
-            await Promise.all([
-                loadProfiles(),
-                loadPackages(),
-                loadEarnings()
-            ]);
-
-
-            /*
-             * Investments are loaded separately because
-             * their rendering depends on receipts.
-             */
-            await loadInvestments();
-
-
-            showAdminMessage(
-                "Admin data refreshed successfully.",
-                "success"
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Admin refresh error:",
-                error
-            );
-
-
-            showAdminMessage(
-                "Some admin data could not be refreshed.",
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       CALCULATE TOTAL INVESTED
-       ========================================================= */
-
-    function calculateTotalInvested() {
-
-        return investmentsData.reduce(
-            (total, investment) => {
-
-                const status =
-                    normalizeStatus(
-                        investment.status
-                    );
-
-
-                if (
-                    status === "confirmed" ||
-                    status === "approved" ||
-                    status === "active" ||
-                    status === "completed"
-                ) {
-
-                    return total +
-                        Number(
-                            investment.amount || 0
-                        );
-                }
-
-
-                return total;
-
-            },
-            0
-        );
-    }
-
-
-    /* =========================================================
-       GET CONFIRMED INVESTMENTS
-       ========================================================= */
-
-    function getConfirmedInvestments() {
-
-        return investmentsData.filter(
-            investment => {
-
-                const status =
-                    normalizeStatus(
-                        investment.status
-                    );
-
-                return status === "confirmed";
-            }
-        );
-    }
-
-
-    /* =========================================================
-       GET PENDING INVESTMENTS
-       ========================================================= */
-
-    function getPendingInvestments() {
-
-        return investmentsData.filter(
-            investment => {
-
-                return normalizeStatus(
-                    investment.status
-                ) === "pending";
-
-            }
-        );
-    }
-
-
-    /* =========================================================
-       GET REJECTED INVESTMENTS
-       ========================================================= */
-
-    function getRejectedInvestments() {
-
-        return investmentsData.filter(
-            investment => {
-
-                return normalizeStatus(
-                    investment.status
-                ) === "rejected";
-
-            }
-        );
-    }
-
-
-    /* =========================================================
-       GET MEMBER INVESTMENTS
-       ========================================================= */
-
-    function getMemberInvestments(
-        userId
-    ) {
-
-        if (!userId) {
-            return [];
-        }
-
-        return investmentsData.filter(
-            investment =>
-                String(investment.user_id) ===
-                String(userId)
-        );
-    }
-
-
-    /* =========================================================
-       GET MEMBER EARNINGS
-       ========================================================= */
-
-    function getMemberEarnings(
-        userId
-    ) {
-
-        if (!userId) {
-            return [];
-        }
-
-        return earningsData.filter(
-            earning =>
-                String(earning.user_id) ===
-                String(userId)
-        );
-    }
-
-
-    /* =========================================================
-       GET MEMBER TOTAL INVESTMENT
-       ========================================================= */
-
-    function getMemberTotalInvestment(
-        userId
-    ) {
-
-        const memberInvestments =
-            getMemberInvestments(
-                userId
-            );
-
-
-        return memberInvestments.reduce(
-            (total, investment) => {
-
-                const status =
-                    normalizeStatus(
-                        investment.status
-                    );
-
-
-                if (
-                    status === "confirmed" ||
-                    status === "approved" ||
-                    status === "active" ||
-                    status === "completed"
-                ) {
-
-                    return total +
-                        Number(
-                            investment.amount || 0
-                        );
-                }
-
-
-                return total;
-
-            },
-            0
-        );
-    }
-
-
-    /* =========================================================
-       GET MEMBER TOTAL EARNINGS
-       ========================================================= */
-
-    function getMemberTotalEarnings(
-        userId
-    ) {
-
-        const memberEarnings =
-            getMemberEarnings(
-                userId
-            );
-
-
-        return memberEarnings.reduce(
-            (total, earning) => {
-
-                const status =
-                    normalizeStatus(
-                        earning.status ||
-                        "confirmed"
-                    );
-
-
-                if (
-                    status === "confirmed" ||
-                    status === "approved" ||
-                    status === "active" ||
-                    status === "completed"
-                ) {
-
-                    return total +
-                        Number(
-                            earning.amount || 0
-                        );
-                }
-
-
-                return total;
-
-            },
-            0
-        );
-    }
-
-
-    /* =========================================================
-       ADMIN SUMMARY OBJECT
-       ========================================================= */
-
-    function getAdminSummary() {
-
-        return {
-
-            totalMembers:
-                profilesData.length,
-
-            pendingMembers:
-                profilesData.filter(
-                    profile =>
-                        normalizeStatus(
-                            profile.status
-                        ) === "pending"
-                ).length,
-
-            totalInvested:
-                calculateTotalInvested(),
-
-            confirmedInvestments:
-                getConfirmedInvestments()
-                    .length,
-
-            pendingInvestments:
-                getPendingInvestments()
-                    .length,
-
-            rejectedInvestments:
-                getRejectedInvestments()
-                    .length,
-
-            totalEarnings:
-                earningsData.reduce(
-                    (total, earning) =>
-                        total +
-                        Number(
-                            earning.amount || 0
-                        ),
-                    0
-                )
-        };
-    }
-
-
-    /* =========================================================
-       REFRESH STATISTIC CARDS
-       ========================================================= */
-
-    function refreshStatisticCards() {
-
-        const summary =
-            getAdminSummary();
-
-
-        if (totalMembersEl) {
-
-            totalMembersEl.textContent =
-                summary.totalMembers
-                    .toLocaleString("en-US");
-        }
-
-
-        if (pendingMembersEl) {
-
-            pendingMembersEl.textContent =
-                summary.pendingMembers
-                    .toLocaleString("en-US");
-        }
-
-
-        if (totalInvestedAdminEl) {
-
-            totalInvestedAdminEl.textContent =
-                formatUsd(
-                    summary.totalInvested
-                );
-        }
-
-
-        if (confirmedInvestmentsEl) {
-
-            confirmedInvestmentsEl.textContent =
-                summary.confirmedInvestments
-                    .toLocaleString("en-US");
-        }
-
-
-        if (rejectedInvestmentsEl) {
-
-            rejectedInvestmentsEl.textContent =
-                summary.rejectedInvestments
-                    .toLocaleString("en-US");
-        }
-    }
-
-
-    /* =========================================================
-       SEARCH MEMBERS
-       ========================================================= */
-
-    function searchMembers(
-        searchTerm
-    ) {
-
-        const term =
-            String(searchTerm || "")
-                .trim()
-                .toLowerCase();
-
-
-        if (!term) {
-
-            renderMembers();
-
-            return;
-        }
-
-
-        const originalProfiles =
-            profilesData;
-
-
-        const filtered =
-            originalProfiles.filter(
-                profile => {
-
-                    const name =
-                        String(
-                            profile.full_name ||
-                            profile.name ||
-                            ""
-                        ).toLowerCase();
-
-
-                    const email =
-                        String(
-                            profile.email ||
-                            ""
-                        ).toLowerCase();
-
-
-                    const phone =
-                        String(
-                            profile.phone ||
-                            profile.phone_number ||
-                            ""
-                        ).toLowerCase();
-
-
-                    const uid =
-                        String(
-                            profile.uid ||
-                            ""
-                        ).toLowerCase();
-
-
-                    return (
-                        name.includes(term) ||
-                        email.includes(term) ||
-                        phone.includes(term) ||
-                        uid.includes(term)
-                    );
-                }
-            );
-
-
-        const backup =
-            profilesData;
-
-
-        profilesData =
-            filtered;
-
-
-        renderMembers();
-
-
-        profilesData =
-            backup;
-    }
-
-
-    /* =========================================================
-       REFRESH AFTER INVESTMENT ACTION
-       ========================================================= */
-
-    async function refreshAfterInvestmentAction() {
-
-        await loadInvestments();
-
-        refreshStatisticCards();
-    }
-
-
-    /* =========================================================
-       WINDOW EXPORTS
-       ========================================================= */
-
-    window.refreshAdminData =
-        refreshAdminData;
-
-    window.refreshStatisticCards =
-        refreshStatisticCards;
-
-    window.searchMembers =
-        searchMembers;
-
-    window.getAdminSummary =
-        getAdminSummary;
-
-</script>
-<script>
-    /* =========================================================
-       MONARCH CODEX — ADMIN PANEL
-       PART 10/12 — TABLE FILTERS, RECEIPT REVIEW & UI EVENTS
-       ========================================================= */
-
-
-    /* =========================================================
-       INVESTMENT FILTER
-       ========================================================= */
-
-    function filterInvestments(
-        statusFilter = "all"
-    ) {
-
-        const normalizedFilter =
-            String(statusFilter || "all")
-                .trim()
-                .toLowerCase();
-
-
-        if (normalizedFilter === "all") {
-
-            renderInvestments();
-
-            return;
-        }
-
-
-        const originalInvestments =
-            investmentsData;
-
-
-        const filteredInvestments =
-            originalInvestments.filter(
-                investment => {
-
-                    const status =
-                        normalizeStatus(
-                            investment.status
-                        );
-
-                    return status ===
-                        normalizedFilter;
-                }
-            );
-
-
-        investmentsData =
-            filteredInvestments;
-
-
-        renderInvestments();
-
-
-        investmentsData =
-            originalInvestments;
-    }
-
-
-    /* =========================================================
-       RECEIPT FILTER
-       ========================================================= */
-
-    function filterReceiptStatus(
-        statusFilter = "all"
-    ) {
-
-        const normalizedFilter =
-            String(statusFilter || "all")
-                .trim()
-                .toLowerCase();
-
-
-        if (normalizedFilter === "all") {
-
-            renderInvestments();
-
-            return;
-        }
-
-
-        const originalInvestments =
-            investmentsData;
-
-
-        const filteredInvestments =
-            originalInvestments.filter(
-                investment => {
-
-                    const receipt =
-                        getReceiptForInvestment(
-                            investment.id
-                        );
-
-
-                    if (!receipt) {
-                        return false;
-                    }
-
-
-                    const receiptStatus =
-                        normalizeStatus(
-                            receipt.verification_status
-                        );
-
-
-                    return receiptStatus ===
-                        normalizedFilter;
-                }
-            );
-
-
-        investmentsData =
-            filteredInvestments;
-
-
-        renderInvestments();
-
-
-        investmentsData =
-            originalInvestments;
-    }
-
-
-    /* =========================================================
-       REFRESH SINGLE INVESTMENT
-       ========================================================= */
-
-    async function refreshInvestment(
-        investmentId
-    ) {
-
-        if (!investmentId) {
-            return;
-        }
-
-
-        try {
-
-            const {
-                data,
-                error
-            } = await supabaseClient
-                .from("investments")
-                .select("*")
-                .eq("id", investmentId)
-                .maybeSingle();
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (!data) {
-                return;
-            }
-
-
-            const index =
-                investmentsData.findIndex(
-                    investment =>
-                        String(investment.id) ===
-                        String(investmentId)
-                );
-
-
-            if (index !== -1) {
-
-                investmentsData[index] =
-                    data;
-
-            } else {
-
-                investmentsData.unshift(
-                    data
-                );
-            }
-
-
-            await loadReceipts();
-
-            updateInvestmentStatistics();
-
-            renderInvestments();
-
-
-        } catch (error) {
-
-            console.error(
-                "Single investment refresh error:",
-                error
-            );
-        }
-    }
-
-
-    /* =========================================================
-       REVIEW RECEIPT STATUS DIRECTLY
-       ========================================================= */
-
-    async function updateReceiptStatus(
-        receiptId,
-        newStatus
-    ) {
-
-        const normalizedStatus =
-            normalizeStatus(
-                newStatus
-            );
-
-
-        if (!receiptId) {
-
-            showAdminMessage(
-                "Receipt ID is missing.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (
-            ![
-                "pending",
-                "approved",
-                "rejected"
-            ].includes(
-                normalizedStatus
-            )
-        ) {
-
-            showAdminMessage(
-                "Invalid receipt status.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const receipt =
-            getReceiptById(
-                receiptId
-            );
-
-
-        if (!receipt) {
-
-            showAdminMessage(
-                "Receipt could not be found.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        try {
-
-            const {
-                error
-            } = await supabaseClient
-                .from("payment_receipts")
-                .update({
-                    verification_status:
-                        normalizedStatus,
-
-                    reviewed_at:
-                        normalizedStatus === "pending"
-                            ? null
-                            : new Date().toISOString()
-                })
-                .eq("id", receiptId);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            receipt.verification_status =
-                normalizedStatus;
-
-
-            receipt.reviewed_at =
-                normalizedStatus === "pending"
-                    ? null
-                    : new Date().toISOString();
-
-
-            renderInvestments();
-
-
-            showAdminMessage(
-                `Receipt marked as ${getStatusLabel(
-                    normalizedStatus
-                )}.`,
-                "success"
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Receipt status update error:",
-                error
-            );
-
-
-            showAdminMessage(
-                "Unable to update receipt status: " +
-                getDatabaseErrorMessage(error),
-                "error"
-            );
-        }
-    }
-
-
-    /* =========================================================
-       PAYMENT METHOD DISPLAY
-       ========================================================= */
-
-    function getPaymentMethodClass(
-        paymentMethod
-    ) {
-
-        const method =
-            String(
-                paymentMethod || ""
-            )
-                .trim()
-                .toLowerCase();
-
-
-        if (method === "bank") {
-            return "bank";
-        }
-
-
-        if (method === "crypto") {
-            return "crypto";
-        }
-
-
-        return "other";
-    }
-
-
-    /* =========================================================
-       FORMAT NETWORK
-       ========================================================= */
-
-    function formatNetworkName(
-        network
-    ) {
-
-        if (!network) {
-            return "";
-        }
-
-
-        const normalized =
-            String(network)
-                .trim()
-                .toUpperCase();
-
-
-        const networkNames = {
-
-            BEP20:
-                "BEP20",
-
-            ARBITRUM:
-                "Arbitrum",
-
-            TON:
-                "TON",
-
-            TRC20:
-                "TRC20",
-
-            SOLANA:
-                "Solana",
-
-            ERC20:
-                "Ethereum ERC20"
-        };
-
-
-        return (
-            networkNames[normalized] ||
-            network
-        );
-    }
-
-
-    /* =========================================================
-       CLOSE MESSAGE AUTOMATICALLY
-       ========================================================= */
-
-    let adminMessageTimer = null;
-
-
-    function showTemporaryAdminMessage(
-        message,
-        type = "info",
-        duration = 4000
-    ) {
-
-        showAdminMessage(
-            message,
-            type
-        );
-
-
-        if (adminMessageTimer) {
-            clearTimeout(
-                adminMessageTimer
-            );
-        }
-
-
-        adminMessageTimer =
-            setTimeout(() => {
-
-                clearAdminMessage();
-
-            }, duration);
-    }
-
-
-    /* =========================================================
-       PREVENT MODAL BODY SCROLL
-       ========================================================= */
-
-    function updateBodyModalState() {
-
-        if (
-            receiptModal &&
-            receiptModal.classList.contains(
-                "show"
-            )
-        ) {
-
-            document.body.style.overflow =
-                "hidden";
-
-        } else {
-
-            document.body.style.overflow =
-                "";
-        }
-    }
-
-
-    if (receiptModal) {
-
-        const observer =
-            new MutationObserver(
-                updateBodyModalState
-            );
-
-
-        observer.observe(
-            receiptModal,
-            {
-                attributes: true,
-                attributeFilter: [
-                    "class"
-                ]
-            }
-        );
-    }
-
-
-    /* =========================================================
-       HANDLE AUTH STATE CHANGES
-       ========================================================= */
-
-    supabaseClient.auth.onAuthStateChange(
-        (event, session) => {
-
-            console.log(
-                "Admin auth event:",
-                event
-            );
-
-
-            if (
-                event === "SIGNED_OUT" ||
-                !session
-            ) {
-
-                if (
-                    !window.location.pathname
-                        .endsWith(
-                            "login.html"
-                        )
-                ) {
-
-                    window.location.href =
-                        "login.html";
-                }
-            }
-        }
-    );
-
-
-    /* =========================================================
-       GLOBAL EXPORTS
-       ========================================================= */
-
-    window.filterInvestments =
-        filterInvestments;
-
-    window.filterReceiptStatus =
-        filterReceiptStatus;
-
-    window.refreshInvestment =
-        refreshInvestment;
-
-    window.updateReceiptStatus =
-        updateReceiptStatus;
-
-    window.formatNetworkName =
-        formatNetworkName;
-
-</script>
-/* =========================================================
-   ADMIN INITIALIZATION
-   ========================================================= */
-
-async function initializeAdmin() {
-    try {
-        clearAdminMessage();
-
-        /*
-         * Step 1 — Verify that a logged-in user exists
-         * and that the user has admin privileges.
-         */
-        const authorized = await checkAdminAuthorization();
-
-        if (!authorized) {
-            return;
-        }
-
-        showAdminMessage("Loading admin dashboard...", "info");
-
-        /*
-         * Step 2 — Load all required database data.
-         *
-         * The order is intentional:
-         * profiles → packages → investments → receipts → earnings
-         */
-        await loadProfiles();
-
-        await loadPackages();
-
-        await loadInvestments();
-
-        await loadEarnings();
-
-        /*
-         * Step 3 — Refresh all statistic cards.
-         */
-        refreshStatisticCards();
-
-        /*
-         * Step 4 — Populate the earnings member selector.
-         */
-        populateEarningMembers();
-
-        /*
-         * Step 5 — Render all tables again after everything
-         * has finished loading.
-         */
-        renderMembers();
-
-        renderInvestments();
-
-        renderEarnings();
-
-        clearAdminMessage();
-
-    } catch (error) {
-        console.error("Admin initialization error:", error);
-
-        showAdminMessage(
-            getDatabaseErrorMessage(error),
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   AUTHENTICATION SESSION CHECK
-   ========================================================= */
-
-async function verifyAdminSession() {
-    try {
-        const {
-            data: { session },
-            error
-        } = await supabaseClient.auth.getSession();
-
-        if (error) {
-            console.error("Session error:", error);
-
-            showAdminMessage(
-                "Unable to verify your login session.",
-                "error"
-            );
-
-            return false;
-        }
-
-        if (!session || !session.user) {
-            console.warn("No active admin session.");
-
-            window.location.href = "login.html";
-
-            return false;
-        }
-
-        currentAdmin = session.user;
-
-        return true;
-
-    } catch (error) {
-        console.error("verifyAdminSession error:", error);
-
-        window.location.href = "login.html";
-
-        return false;
-    }
-}
-
-
-/* =========================================================
-   AUTH STATE MONITOR
-   ========================================================= */
-
-supabaseClient.auth.onAuthStateChange((event, session) => {
-
-    console.log("Admin auth event:", event);
-
-    if (event === "SIGNED_OUT") {
-        currentAdmin = null;
-
-        window.location.href = "login.html";
-
-        return;
-    }
-
-    if (session && session.user) {
-        currentAdmin = session.user;
-    }
-});
-
-
-/* =========================================================
-   ADMIN PAGE REFRESH
-   ========================================================= */
-
-async function reloadAdminDashboard() {
-    const refreshButton = document.getElementById("refreshAdminBtn");
-
-    if (refreshButton) {
-        refreshButton.disabled = true;
-        refreshButton.textContent = "Refreshing...";
-    }
-
-    try {
-        await refreshAdminData();
-
-        renderMembers();
-        renderInvestments();
-        renderEarnings();
-
-        refreshStatisticCards();
-
-        populateEarningMembers();
-
-        showAdminMessage(
-            "Admin dashboard refreshed successfully.",
-            "success"
-        );
-
-        setTimeout(() => {
-            clearAdminMessage();
-        }, 2500);
-
-    } catch (error) {
-        console.error("Dashboard refresh error:", error);
-
-        showAdminMessage(
-            getDatabaseErrorMessage(error),
-            "error"
-        );
-
-    } finally {
-
-        if (refreshButton) {
-            refreshButton.disabled = false;
-            refreshButton.textContent = "Refresh";
-        }
-    }
-}
-
-
-/* =========================================================
-   OPTIONAL REFRESH BUTTON
-   ========================================================= */
-
-function createRefreshButtonHandler() {
-
-    const existingButton =
-        document.getElementById("refreshAdminBtn");
-
-    if (existingButton) {
-        existingButton.addEventListener(
-            "click",
-            reloadAdminDashboard
-        );
-    }
-}
-
-
-/* =========================================================
-   TABLE SEARCH HELPERS
-   ========================================================= */
-
-function setupAdminSearchInputs() {
-
-    const memberSearch =
-        document.getElementById("memberSearch");
-
-    if (memberSearch) {
-
-        memberSearch.addEventListener("input", function () {
-
-            const query = this.value.trim();
-
-            if (!query) {
-                renderMembers();
-                return;
-            }
-
-            searchMembers(query);
-        });
-    }
-
-
-    const investmentSearch =
-        document.getElementById("investmentSearch");
-
-    if (investmentSearch) {
-
-        investmentSearch.addEventListener("input", function () {
-
-            const query =
-                this.value.trim().toLowerCase();
-
-            if (!query) {
-                renderInvestments();
-                return;
-            }
-
-            const originalData = investmentsData;
-
-            const filtered =
-                originalData.filter(investment => {
-
-                    const member =
-                        getMemberById(investment.user_id);
-
-                    const memberName =
-                        member
-                            ? (
-                                member.full_name ||
-                                member.name ||
-                                member.email ||
-                                ""
-                              )
-                            : "";
-
-                    const uid =
-                        member
-                            ? getMemberUid(member)
-                            : "";
-
-                    const packageName =
-                        getPackageName(
-                            investment.package_id
-                        );
-
-                    const paymentMethod =
-                        getPaymentMethod(
-                            investment
-                        );
-
-                    return (
-                        memberName
-                            .toLowerCase()
-                            .includes(query) ||
-
-                        uid
-                            .toLowerCase()
-                            .includes(query) ||
-
-                        packageName
-                            .toLowerCase()
-                            .includes(query) ||
-
-                        paymentMethod
-                            .toLowerCase()
-                            .includes(query)
-                    );
-                });
-
-            investmentsData = filtered;
-
-            renderInvestments();
-
-            investmentsData = originalData;
-        });
-    }
-}
-
-
-/* =========================================================
-   STATUS FILTER SELECTORS
-   ========================================================= */
-
-function setupStatusFilters() {
-
-    const investmentFilter =
-        document.getElementById("investmentStatusFilter");
-
-    if (investmentFilter) {
-
-        investmentFilter.addEventListener(
-            "change",
-            function () {
-
-                const value =
-                    this.value.trim();
-
-                if (!value) {
-                    renderInvestments();
-                    return;
-                }
-
-                filterInvestments(value);
-            }
-        );
-    }
-
-
-    const receiptFilter =
-        document.getElementById("receiptStatusFilter");
-
-    if (receiptFilter) {
-
-        receiptFilter.addEventListener(
-            "change",
-            function () {
-
-                const value =
-                    this.value.trim();
-
-                if (!value) {
-                    renderInvestments();
-                    return;
-                }
-
-                filterReceiptStatus(value);
-            }
-        );
-    }
-}
-
-
-/* =========================================================
-   FORM VALIDATION
-   ========================================================= */
-
-function setupEarningFormValidation() {
-
-    if (!earningForm) {
-        return;
-    }
-
-    earningForm.addEventListener("input", () => {
-
-        if (earningsStatus) {
-            clearEarningsStatus();
-        }
-    });
-}
-
-
-/* =========================================================
-   KEYBOARD SHORTCUTS
-   ========================================================= */
-
-document.addEventListener("keydown", function (event) {
-
-    /*
-     * Escape closes the receipt modal.
-     */
-    if (event.key === "Escape") {
-
-        const modal =
-            document.getElementById("receiptModal");
-
-        if (
-            modal &&
-            modal.classList.contains("active")
-        ) {
-            closeReceiptModal();
-        }
-    }
-
-
-    /*
-     * Ctrl + R / Cmd + R is left to the browser.
-     *
-     * Ctrl + Shift + R is also left untouched.
-     *
-     * Ctrl + Shift + A provides a convenient
-     * admin refresh shortcut.
-     */
-    if (
-        event.shiftKey &&
-        event.ctrlKey &&
-        event.key.toLowerCase() === "a"
-    ) {
-
-        event.preventDefault();
-
-        reloadAdminDashboard();
-    }
-});
-
-
-/* =========================================================
-   VISIBILITY REFRESH
-   ========================================================= */
-
-document.addEventListener(
-    "visibilitychange",
-    async function () {
-
-        if (
-            document.visibilityState === "visible" &&
-            currentAdmin
-        ) {
-
-            try {
-
-                await refreshAdminData();
-
-                renderMembers();
-                renderInvestments();
-                renderEarnings();
-
-                refreshStatisticCards();
-
-                populateEarningMembers();
-
-            } catch (error) {
-
-                console.error(
-                    "Visibility refresh error:",
-                    error
-                );
-            }
-        }
-    }
-);
-
-
-/* =========================================================
-   DOM READY
-   ========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
-
-        console.log(
-            "MONARCH CODEX ADMIN — Initializing..."
-        );
-
-        /*
-         * Verify the authentication session first.
-         */
-        const sessionValid =
-            await verifyAdminSession();
-
-        if (!sessionValid) {
-            return;
-        }
-
-        /*
-         * Connect optional controls.
-         */
-        createRefreshButtonHandler();
-
-        setupAdminSearchInputs();
-
-        setupStatusFilters();
-
-        setupEarningFormValidation();
-
-        /*
-         * Load the complete admin dashboard.
-         */
-        await initializeAdmin();
-
-        console.log(
-            "MONARCH CODEX ADMIN — Ready."
-        );
-    }
-);
-
-
-/* =========================================================
-   WINDOW EXPORTS
-   ========================================================= */
-
-window.initializeAdmin =
-    initializeAdmin;
-
-window.reloadAdminDashboard =
-    reloadAdminDashboard;
-
-window.refreshAdminDashboard =
-    reloadAdminDashboard;
-
-window.verifyAdminSession =
-    verifyAdminSession;
-
-window.searchMembers =
-    searchMembers;
-
-window.filterInvestments =
-    filterInvestments;
-
-window.filterReceiptStatus =
-    filterReceiptStatus;
-/* =========================================================
-   FINAL ADMIN UTILITIES
-   ========================================================= */
-
-/*
- * Safely reload the page while preserving the current
- * authenticated Supabase session.
- */
-function hardRefreshAdmin() {
-    window.location.reload();
-}
-
-
-/*
- * Scroll to the top of the admin dashboard.
- */
-function scrollAdminToTop() {
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-}
-
-
-/*
- * Scroll to the investment requests section.
- */
-function scrollToInvestments() {
-
-    const section =
-        document.getElementById(
-            "investmentRequestsSection"
-        );
-
-    if (section) {
-        section.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-        return;
-    }
-
-    const table =
-        document.getElementById(
-            "investmentRequestsBody"
-        );
-
-    if (table) {
-        table.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }
-}
-
-
-/*
- * Scroll to the members section.
- */
-function scrollToMembers() {
-
-    const section =
-        document.getElementById(
-            "membersSection"
-        );
-
-    if (section) {
-        section.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-        return;
-    }
-
-    const table =
-        document.getElementById(
-            "membersTableBody"
-        );
-
-    if (table) {
-        table.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }
-}
-
-
-/*
- * Scroll to earnings.
- */
-function scrollToEarnings() {
-
-    const section =
-        document.getElementById(
-            "earningsSection"
-        );
-
-    if (section) {
-        section.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-        return;
-    }
-
-    const table =
-        document.getElementById(
-            "earningsTableBody"
-        );
-
-    if (table) {
-        table.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }
-}
-
-
-/* =========================================================
-   SAFE NUMBER HELPERS
-   ========================================================= */
-
-function safeNumber(value, fallback = 0) {
-
-    const number =
-        Number(value);
-
-    return Number.isFinite(number)
-        ? number
-        : fallback;
-}
-
-
-function safeInteger(value, fallback = 0) {
-
-    const number =
-        parseInt(value, 10);
-
-    return Number.isFinite(number)
-        ? number
-        : fallback;
-}
-
-
-/* =========================================================
-   SAFE DATE HELPERS
-   ========================================================= */
-
-function isValidDate(value) {
-
-    if (!value) {
-        return false;
-    }
-
-    const date =
-        new Date(value);
-
-    return !Number.isNaN(
-        date.getTime()
-    );
-}
-
-
-function formatDateTime(value) {
-
-    if (!isValidDate(value)) {
-        return "—";
-    }
-
-    return new Intl.DateTimeFormat(
-        "en-NG",
-        {
-            dateStyle: "medium",
-            timeStyle: "short"
-        }
-    ).format(new Date(value));
-}
-
-
-/* =========================================================
-   DATABASE ERROR LOGGER
-   ========================================================= */
-
-function logAdminDatabaseError(
-    operation,
-    error
-) {
-
-    console.error(
-        `[MONARCH CODEX ADMIN] ${operation}`,
-        error
-    );
-}
-
-
-/* =========================================================
-   RECEIPT ERROR MESSAGE
-   ========================================================= */
-
-function getReceiptPermissionMessage(error) {
-
-    if (!error) {
-        return "Unable to access payment receipt.";
-    }
-
-    const message =
-        String(
-            error.message ||
-            error.error_description ||
-            error.details ||
-            ""
-        ).toLowerCase();
-
-
-    if (
-        message.includes("permission") ||
-        message.includes("policy") ||
-        message.includes("rls") ||
-        message.includes("row-level")
-    ) {
-
-        return (
-            "Receipt access was blocked by database " +
-            "permissions. Check the admin RLS/storage policies."
-        );
-    }
-
-
-    if (
-        message.includes("bucket") ||
-        message.includes("storage")
-    ) {
-
-        return (
-            "Payment receipt storage could not be accessed. " +
-            "Check the payment-receipts storage bucket and policies."
-        );
-    }
-
-
-    return (
-        error.message ||
-        "Unable to access payment receipt."
-    );
-}
-
-
-/* =========================================================
-   EMPTY STATE HELPERS
-   ========================================================= */
-
-function renderEmptyTableRow(
-    tableBody,
-    columnCount,
-    message
-) {
-
-    if (!tableBody) {
-        return;
-    }
-
-    tableBody.innerHTML = `
-        <tr>
-            <td
-                colspan="${columnCount}"
-                style="
-                    text-align:center;
-                    padding:30px 20px;
-                    color:#999;
-                "
-            >
-                ${escapeHtml(message)}
-            </td>
-        </tr>
-    `;
-}
-
-
-/* =========================================================
-   CONNECTION TEST
-   ========================================================= */
-
-async function testAdminConnection() {
-
-    try {
-
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("profiles")
-            .select("id")
-            .limit(1);
-
-        if (error) {
-            throw error;
-        }
-
-        console.log(
-            "Monarch Codex database connection: OK"
-        );
-
-        return true;
-
-    } catch (error) {
-
-        logAdminDatabaseError(
-            "Database connection test",
-            error
-        );
-
-        return false;
-    }
-}
-
-
-/* =========================================================
-   ADMIN PAGE DEBUG INFORMATION
-   ========================================================= */
-
-function getAdminDebugInfo() {
-
-    return {
-        adminUser:
-            currentAdmin
-                ? currentAdmin.id
-                : null,
-
-        profiles:
-            profilesData.length,
-
-        packages:
-            packagesData.length,
-
-        investments:
-            investmentsData.length,
-
-        receipts:
-            receiptsData.length,
-
-        earnings:
-            earningsData.length,
-
-        confirmedInvestments:
-            getConfirmedInvestments().length,
-
-        pendingInvestments:
-            getPendingInvestments().length,
-
-        rejectedInvestments:
-            getRejectedInvestments().length
-    };
-}
-
-
-/* =========================================================
-   GLOBAL EXPORTS
-   ========================================================= */
-
-window.hardRefreshAdmin =
-    hardRefreshAdmin;
-
-window.scrollAdminToTop =
-    scrollAdminToTop;
-
-window.scrollToInvestments =
-    scrollToInvestments;
-
-window.scrollToMembers =
-    scrollToMembers;
-
-window.scrollToEarnings =
-    scrollToEarnings;
-
-window.testAdminConnection =
-    testAdminConnection;
-
-window.getAdminDebugInfo =
-    getAdminDebugInfo;
-
-window.formatDateTime =
-    formatDateTime;
-
-
-/* =========================================================
-   FINAL PAGE LOAD LOG
-   ========================================================= */
-
-console.log(
-    "%cMONARCH CODEX ADMIN",
-    "font-size:20px;font-weight:bold;"
-);
-
-console.log(
-    "Admin interface script loaded."
-);
-
-console.log(
-    "Receipt system: payment-receipts"
-);
-
-console.log(
-    "Investment confirmation status: confirmed"
-);
-
-</script>
+    </script>
 
 </body>
+
 </html>
