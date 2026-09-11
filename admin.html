@@ -6570,3 +6570,789 @@ initializeAdmin();
 /* =========================================================
    PART 9 ENDS HERE
    ========================================================= */      
+
+
+   /* =========================================================
+   ADMIN.HTML — PART 10/12
+   MEMBER EARNINGS MANAGEMENT
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   LOAD EARNINGS
+   --------------------------------------------------------- */
+
+async function loadEarnings() {
+
+    try {
+
+        if (earningsStatus) {
+
+            earningsStatus.textContent =
+                "Loading earnings...";
+        }
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("earnings")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
+
+
+        if (error) {
+
+            /*
+             * If the earnings table does not exist yet,
+             * keep the admin page usable.
+             */
+
+            console.error(
+                "Earnings loading error:",
+                error
+            );
+
+            earningsData = [];
+
+
+            if (earningsStatus) {
+
+                earningsStatus.textContent =
+                    "Earnings data unavailable.";
+            }
+
+
+            renderEarnings();
+
+            return;
+        }
+
+
+        earningsData =
+            data || [];
+
+
+        if (earningsStatus) {
+
+            earningsStatus.textContent =
+                `${earningsData.length} earning record(s).`;
+        }
+
+
+        renderEarnings();
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected earnings loading error:",
+            error
+        );
+
+        earningsData = [];
+
+        renderEarnings();
+
+
+        if (earningsStatus) {
+
+            earningsStatus.textContent =
+                "Unable to load earnings.";
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   EARNING HELPERS
+   --------------------------------------------------------- */
+
+function getEarningMember(
+    earning
+) {
+
+    if (!earning) {
+        return null;
+    }
+
+
+    return getMemberById(
+        earning.user_id ||
+        earning.member_id ||
+        earning.profile_id
+    );
+}
+
+
+function getEarningMemberName(
+    earning
+) {
+
+    const member =
+        getEarningMember(
+            earning
+        );
+
+
+    if (!member) {
+        return "Unknown Member";
+    }
+
+
+    return (
+        member.full_name ||
+        member.name ||
+        member.username ||
+        member.email ||
+        "Unnamed Member"
+    );
+}
+
+
+function getEarningMemberUid(
+    earning
+) {
+
+    const member =
+        getEarningMember(
+            earning
+        );
+
+
+    return member?.uid || "—";
+}
+
+
+function getEarningAmount(
+    earning
+) {
+
+    if (!earning) {
+        return 0;
+    }
+
+
+    return Number(
+        earning.amount ??
+        earning.earning_amount ??
+        earning.profit ??
+        0
+    ) || 0;
+}
+
+
+function getEarningDescription(
+    earning
+) {
+
+    if (!earning) {
+        return "";
+    }
+
+
+    return (
+        earning.description ||
+        earning.note ||
+        earning.title ||
+        "Earning"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   RENDER EARNINGS
+   --------------------------------------------------------- */
+
+function renderEarnings(
+    data = earningsData
+) {
+
+    if (!earningsContent) {
+        return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+        earningsContent.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    💰
+                </div>
+
+                <h3>
+                    No Earnings Yet
+                </h3>
+
+                <p>
+                    No member earnings have been
+                    recorded yet.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    let html = `
+
+        <div class="table-wrapper">
+
+            <table class="admin-table earnings-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Member</th>
+                        <th>UID</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+    `;
+
+
+    data.forEach(earning => {
+
+        const memberName =
+            getEarningMemberName(
+                earning
+            );
+
+
+        const uid =
+            getEarningMemberUid(
+                earning
+            );
+
+
+        const amount =
+            getEarningAmount(
+                earning
+            );
+
+
+        const description =
+            getEarningDescription(
+                earning
+            );
+
+
+        const date =
+            formatDateTime(
+                earning.created_at
+            );
+
+
+        html += `
+
+            <tr>
+
+                <td>
+                    <strong>
+                        ${escapeHtml(
+                            memberName
+                        )}
+                    </strong>
+                </td>
+
+
+                <td>
+
+                    <div class="uid-cell">
+
+                        <span>
+                            ${escapeHtml(
+                                uid
+                            )}
+                        </span>
+
+                        ${
+                            uid !== "—"
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="uid-copy-btn"
+                                        onclick="copyMemberUid(
+                                            '${escapeHtml(
+                                                uid
+                                            )}'
+                                        )"
+                                    >
+                                        Copy
+                                    </button>
+                                  `
+                                : ""
+                        }
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <strong class="investment-amount">
+                        ${formatUsd(
+                            amount
+                        )}
+                    </strong>
+
+                </td>
+
+
+                <td>
+                    ${escapeHtml(
+                        description
+                    )}
+                </td>
+
+
+                <td>
+                    ${escapeHtml(
+                        date
+                    )}
+                </td>
+
+
+                <td>
+
+                    <button
+                        type="button"
+                        class="reject-btn"
+                        onclick="deleteEarning(
+                            '${escapeHtml(
+                                earning.id
+                            )}'
+                        )"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+    });
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+
+
+    earningsContent.innerHTML =
+        html;
+}
+
+
+/* ---------------------------------------------------------
+   ADD EARNING
+   --------------------------------------------------------- */
+
+async function addEarning() {
+
+    if (!earningMember) {
+        return;
+    }
+
+
+    const userId =
+        earningMember.value;
+
+
+    const amount =
+        Number(
+            earningAmount?.value || 0
+        );
+
+
+    const description =
+        String(
+            earningDescription?.value || ""
+        ).trim();
+
+
+    if (!userId) {
+
+        showEarningsStatus(
+            "Please select a member.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (
+        !Number.isFinite(amount) ||
+        amount <= 0
+    ) {
+
+        showEarningsStatus(
+            "Please enter a valid earning amount.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    try {
+
+        if (addEarningBtn) {
+
+            addEarningBtn.disabled =
+                true;
+
+            addEarningBtn.textContent =
+                "Adding...";
+        }
+
+
+        const insertData = {
+            user_id: userId,
+            amount: amount
+        };
+
+
+        if (description) {
+
+            insertData.description =
+                description;
+        }
+
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("earnings")
+            .insert(
+                insertData
+            )
+            .select()
+            .single();
+
+
+        if (error) {
+
+            console.error(
+                "Add earning error:",
+                error
+            );
+
+
+            showEarningsStatus(
+                getDatabaseErrorMessage(
+                    error,
+                    "Unable to add earning."
+                ),
+                "error"
+            );
+
+            return;
+        }
+
+
+        earningsData.unshift(
+            data
+        );
+
+
+        renderEarnings();
+
+
+        /*
+         * Clear form after successful insertion.
+         */
+
+        if (earningAmount) {
+            earningAmount.value = "";
+        }
+
+
+        if (earningDescription) {
+            earningDescription.value = "";
+        }
+
+
+        if (earningMember) {
+            earningMember.value = "";
+        }
+
+
+        showEarningsStatus(
+            "Earning added successfully.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected add earning error:",
+            error
+        );
+
+
+        showEarningsStatus(
+            "An unexpected error occurred.",
+            "error"
+        );
+
+
+    } finally {
+
+        if (addEarningBtn) {
+
+            addEarningBtn.disabled =
+                false;
+
+            addEarningBtn.textContent =
+                "Add Earning";
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   DELETE EARNING
+   --------------------------------------------------------- */
+
+async function deleteEarning(
+    earningId
+) {
+
+    if (!earningId) {
+        return;
+    }
+
+
+    const earning =
+        earningsData.find(
+            item =>
+                String(item.id) ===
+                String(earningId)
+        );
+
+
+    if (!earning) {
+
+        showEarningsStatus(
+            "Earning record not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const memberName =
+        getEarningMemberName(
+            earning
+        );
+
+
+    const amount =
+        getEarningAmount(
+            earning
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Delete this earning record?\n\n` +
+            `Member: ${memberName}\n` +
+            `Amount: $${amount.toLocaleString()}\n\n` +
+            `This action cannot be undone.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const {
+            error
+        } = await supabaseClient
+            .from("earnings")
+            .delete()
+            .eq(
+                "id",
+                earningId
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Delete earning error:",
+                error
+            );
+
+
+            showEarningsStatus(
+                getDatabaseErrorMessage(
+                    error,
+                    "Unable to delete earning."
+                ),
+                "error"
+            );
+
+            return;
+        }
+
+
+        earningsData =
+            earningsData.filter(
+                item =>
+                    String(item.id) !==
+                    String(earningId)
+            );
+
+
+        renderEarnings();
+
+
+        showEarningsStatus(
+            "Earning deleted successfully.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected delete earning error:",
+            error
+        );
+
+
+        showEarningsStatus(
+            "An unexpected error occurred.",
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   EARNINGS SEARCH
+   --------------------------------------------------------- */
+
+function searchEarnings(
+    query
+) {
+
+    const search =
+        String(query || "")
+            .trim()
+            .toLowerCase();
+
+
+    if (!search) {
+
+        renderEarnings(
+            earningsData
+        );
+
+        return;
+    }
+
+
+    const filtered =
+        earningsData.filter(
+            earning => {
+
+                const values = [
+
+                    getEarningMemberName(
+                        earning
+                    ),
+
+                    getEarningMemberUid(
+                        earning
+                    ),
+
+                    getEarningDescription(
+                        earning
+                    ),
+
+                    getEarningAmount(
+                        earning
+                    )
+
+                ];
+
+
+                return values.some(
+                    value =>
+                        String(value || "")
+                            .toLowerCase()
+                            .includes(search)
+                );
+            }
+        );
+
+
+    renderEarnings(
+        filtered
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNINGS BUTTON
+   --------------------------------------------------------- */
+
+if (addEarningBtn) {
+
+    addEarningBtn.addEventListener(
+        "click",
+        addEarning
+    );
+}
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.loadEarnings =
+    loadEarnings;
+
+window.renderEarnings =
+    renderEarnings;
+
+window.addEarning =
+    addEarning;
+
+window.deleteEarning =
+    deleteEarning;
+
+window.searchEarnings =
+    searchEarnings;
+
+
+/* =========================================================
+   PART 10 ENDS HERE
+   ========================================================= */     
