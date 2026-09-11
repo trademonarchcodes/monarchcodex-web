@@ -2223,3 +2223,310 @@ nav ul a:hover {
         font-size: 26px;
     }
 }
+
+/* =========================================================
+   PART 5/12 — DASHBOARD HEADER & WELCOME AREA
+   ========================================================= */
+
+/* ---------- DASHBOARD PAGE ---------- */
+
+.dashboard-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(212, 175, 55, 0.06),
+            transparent 32%
+        ),
+        var(--bg-primary);
+}
+
+/* ---------- DASHBOARD HEADER ---------- */
+
+.dashboard-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.94);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.dashboard-header .container {
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* ---------- DASHBOARD BRAND ---------- */
+
+.dashboard-header .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.dashboard-header .brand span {
+    color: var(--accent-gold);
+}
+
+.dashboard-header .brand:hover {
+    color: var(--text-primary);
+}
+
+/* ---------- DASHBOARD LOGOUT ---------- */
+
+.dashboard-header .logout-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 9px 17px;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        color 0.25s ease,
+        border-color 0.25s ease,
+        background 0.25s ease;
+}
+
+.dashboard-header .logout-btn:hover {
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.07);
+}
+
+/* ---------- DASHBOARD MAIN ---------- */
+
+.dashboard-main {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 48px 0 80px;
+}
+
+/* ---------- WELCOME SECTION ---------- */
+
+.welcome-section {
+    position: relative;
+    margin-bottom: 35px;
+    padding: 34px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(212, 175, 55, 0.09),
+            rgba(255, 255, 255, 0.015)
+        ),
+        var(--bg-card);
+}
+
+.welcome-section::before {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    right: -70px;
+    top: -90px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 50%;
+}
+
+.welcome-section::after {
+    content: "";
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    right: 25px;
+    bottom: -65px;
+    border: 1px solid rgba(212, 175, 55, 0.08);
+    border-radius: 50%;
+}
+
+.welcome-section .eyebrow {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 9px;
+}
+
+.welcome-section h1 {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: var(--text-primary);
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.15;
+    font-weight: 800;
+}
+
+.welcome-section h1 span {
+    color: var(--accent-gold);
+}
+
+.welcome-section p {
+    position: relative;
+    z-index: 1;
+    max-width: 650px;
+    margin: 12px 0 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* ---------- DASHBOARD EYEBROW ---------- */
+
+.dashboard-main .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--accent-gold);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.dashboard-main .eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--accent-gold);
+}
+
+/* ---------- DASHBOARD SECTION SPACING ---------- */
+
+.dashboard-section {
+    margin-top: 35px;
+}
+
+.dashboard-section:first-of-type {
+    margin-top: 0;
+}
+
+/* ---------- SECTION TITLE ---------- */
+
+.section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin: 0 0 20px;
+    color: var(--text-primary);
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 750;
+}
+
+.section-title span {
+    color: var(--accent-gold);
+}
+
+/* ---------- DASHBOARD CONTENT CONTAINER ---------- */
+
+.dashboard-main > .container {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+}
+
+/* ---------- DASHBOARD RESPONSIVE ---------- */
+
+@media (max-width: 800px) {
+    .dashboard-header .container {
+        min-height: 68px;
+    }
+
+    .dashboard-header .brand {
+        font-size: 19px;
+    }
+
+    .dashboard-main {
+        width: min(100% - 30px, 1180px);
+        padding: 35px 0 60px;
+    }
+
+    .welcome-section {
+        padding: 27px 24px;
+        margin-bottom: 28px;
+    }
+
+    .section-title {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-header .container {
+        min-height: 64px;
+    }
+
+    .dashboard-header .brand {
+        font-size: 17px;
+    }
+
+    .dashboard-header .logout-btn {
+        min-height: 38px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .dashboard-main {
+        width: calc(100% - 24px);
+        padding-top: 25px;
+    }
+
+    .welcome-section {
+        padding: 23px 19px;
+        border-radius: 14px;
+    }
+
+    .welcome-section h1 {
+        font-size: 27px;
+    }
+
+    .welcome-section p {
+        font-size: 14px;
+    }
+
+    .dashboard-section {
+        margin-top: 28px;
+    }
+
+    .section-title {
+        font-size: 19px;
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 380px) {
+    .dashboard-header .brand {
+        font-size: 15px;
+    }
+
+    .dashboard-header .logout-btn {
+        padding: 7px 9px;
+        font-size: 12px;
+    }
+
+    .welcome-section h1 {
+        font-size: 24px;
+    }
+}
