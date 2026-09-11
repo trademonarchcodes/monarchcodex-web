@@ -883,17 +883,21 @@
 
 
                 const total =
-                    (data || []).reduce(
-                        function (sum, item) {
+    (data || [])
+        .filter(function (item) {
+            return item.status === "confirmed";
+        })
+        .reduce(
+            function (sum, item) {
 
-                            return sum +
-                                (Number(
-                                    item.amount
-                                ) || 0);
+                return sum +
+                    (Number(
+                        item.amount
+                    ) || 0);
 
-                        },
-                        0
-                    );
+            },
+            0
+        );
 
 
                 document.getElementById(
