@@ -1720,7 +1720,706 @@
            ===================================================== */
 
     </script>
+        /* =====================================================
+           ADMIN PART 2/12 — SUPABASE + STATE + DOM REFERENCES
+           ===================================================== */
 
+        const SUPABASE_URL =
+            "https://avaworleivncevaoqeny.supabase.co";
+
+        const SUPABASE_KEY =
+            "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+
+        /* =====================================================
+           APPLICATION STATE
+           ===================================================== */
+
+        let currentAdmin = null;
+
+        let profilesData = [];
+
+        let packagesData = [];
+
+        let investmentsData = [];
+
+        let receiptsData = [];
+
+        let earningsData = [];
+
+
+        /* =====================================================
+           DOM REFERENCES
+           ===================================================== */
+
+        const messageBox =
+            document.getElementById("messageBox");
+
+        const statsStatus =
+            document.getElementById("statsStatus");
+
+        const membersStatus =
+            document.getElementById("membersStatus");
+
+        const investmentsStatus =
+            document.getElementById("investmentsStatus");
+
+        const earningsStatus =
+            document.getElementById("earningsStatus");
+
+
+        const totalMembers =
+            document.getElementById("totalMembers");
+
+        const pendingMembers =
+            document.getElementById("pendingMembers");
+
+        const totalInvestedAdmin =
+            document.getElementById("totalInvestedAdmin");
+
+        const confirmedInvestments =
+            document.getElementById("confirmedInvestments");
+
+        const rejectedInvestments =
+            document.getElementById("rejectedInvestments");
+
+
+        const membersContent =
+            document.getElementById("membersContent");
+
+        const investmentsContent =
+            document.getElementById(
+                "investmentsContent"
+            );
+
+        const earningsContent =
+            document.getElementById(
+                "earningsContent"
+            );
+
+
+        const earningMember =
+            document.getElementById(
+                "earningMember"
+            );
+
+        const earningAmount =
+            document.getElementById(
+                "earningAmount"
+            );
+
+        const earningDescription =
+            document.getElementById(
+                "earningDescription"
+            );
+
+        const addEarningBtn =
+            document.getElementById(
+                "addEarningBtn"
+            );
+
+
+        const receiptModal =
+            document.getElementById(
+                "receiptModal"
+            );
+
+        const receiptModalTitle =
+            document.getElementById(
+                "receiptModalTitle"
+            );
+
+        const receiptModalInfo =
+            document.getElementById(
+                "receiptModalInfo"
+            );
+
+        const receiptPreview =
+            document.getElementById(
+                "receiptPreview"
+            );
+
+
+        /* =====================================================
+           HTML ESCAPE
+           ===================================================== */
+
+        function escapeHtml(value) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return "";
+            }
+
+            return String(value)
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+        }
+
+
+        /* =====================================================
+           ADMIN MESSAGE
+           ===================================================== */
+
+        function showAdminMessage(
+            message,
+            type = "info"
+        ) {
+
+            if (!messageBox) {
+                return;
+            }
+
+            messageBox.textContent =
+                message || "";
+
+            messageBox.className =
+                "message-box " + type;
+        }
+
+
+        function clearAdminMessage() {
+
+            if (!messageBox) {
+                return;
+            }
+
+            messageBox.textContent = "";
+
+            messageBox.className =
+                "message-box";
+        }
+
+
+        /* =====================================================
+           EARNINGS STATUS
+           ===================================================== */
+
+        function showEarningsStatus(
+            message,
+            type = "info"
+        ) {
+
+            if (!earningsStatus) {
+                return;
+            }
+
+            earningsStatus.textContent =
+                message || "";
+
+            earningsStatus.style.color =
+                type === "error"
+                    ? "#ff9292"
+                    : type === "success"
+                        ? "#7be6a1"
+                        : "#9b9b9b";
+        }
+
+
+        function clearEarningsStatus() {
+
+            if (!earningsStatus) {
+                return;
+            }
+
+            earningsStatus.textContent = "";
+        }
+
+
+        /* =====================================================
+           DATE FORMATTERS
+           ===================================================== */
+
+        function formatDate(value) {
+
+            if (!value) {
+                return "—";
+            }
+
+            const date =
+                new Date(value);
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+                return "—";
+            }
+
+            return new Intl.DateTimeFormat(
+                "en-NG",
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric"
+                }
+            ).format(date);
+        }
+
+
+        function formatDateTime(value) {
+
+            if (!value) {
+                return "—";
+            }
+
+            const date =
+                new Date(value);
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+                return "—";
+            }
+
+            return new Intl.DateTimeFormat(
+                "en-NG",
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit"
+                }
+            ).format(date);
+        }
+
+
+        /* =====================================================
+           NUMBER FORMATTERS
+           ===================================================== */
+
+        function formatNumber(value) {
+
+            const number =
+                Number(value);
+
+            if (
+                !Number.isFinite(number)
+            ) {
+                return "0";
+            }
+
+            return new Intl.NumberFormat(
+                "en-NG"
+            ).format(number);
+        }
+
+
+        function formatUsd(value) {
+
+            const number =
+                Number(value);
+
+            if (
+                !Number.isFinite(number)
+            ) {
+                return "$0.00";
+            }
+
+            return new Intl.NumberFormat(
+                "en-US",
+                {
+                    style: "currency",
+                    currency: "USD",
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            ).format(number);
+        }
+
+
+        function formatNaira(value) {
+
+            const number =
+                Number(value);
+
+            if (
+                !Number.isFinite(number)
+            ) {
+                return "₦0.00";
+            }
+
+            return new Intl.NumberFormat(
+                "en-NG",
+                {
+                    style: "currency",
+                    currency: "NGN",
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            ).format(number);
+        }
+
+
+        function formatPaymentAmount(
+            amount,
+            method
+        ) {
+
+            const value =
+                Number(amount);
+
+            if (
+                !Number.isFinite(value)
+            ) {
+                return "—";
+            }
+
+            const normalized =
+                String(method || "")
+                    .toLowerCase()
+                    .trim();
+
+
+            if (
+                normalized === "bank" ||
+                normalized === "bank_transfer" ||
+                normalized === "bank transfer"
+            ) {
+                return formatNaira(value);
+            }
+
+
+            if (
+                normalized === "crypto" ||
+                normalized === "usdt"
+            ) {
+                return formatUsd(value);
+            }
+
+
+            return formatNumber(value);
+        }
+
+
+        /* =====================================================
+           STATUS NORMALIZATION
+           ===================================================== */
+
+        function normalizeStatus(status) {
+
+            return String(
+                status || "pending"
+            )
+                .trim()
+                .toLowerCase()
+                .replace(
+                    /\s+/g,
+                    "_"
+                );
+        }
+
+
+        function getStatusLabel(status) {
+
+            const normalized =
+                normalizeStatus(status);
+
+            const labels = {
+                pending: "Pending",
+                confirmed: "Confirmed",
+                approved: "Approved",
+                rejected: "Rejected",
+                active: "Active",
+                completed: "Completed",
+                blocked: "Blocked"
+            };
+
+            return (
+                labels[normalized] ||
+                normalized
+                    .replace(
+                        /_/g,
+                        " "
+                    )
+                    .replace(
+                        /\b\w/g,
+                        char =>
+                            char.toUpperCase()
+                    )
+            );
+        }
+
+
+        function getStatusClass(status) {
+
+            const normalized =
+                normalizeStatus(status);
+
+            return (
+                "status status-" +
+                normalized
+            );
+        }
+
+
+        /* =====================================================
+           TEXT HELPERS
+           ===================================================== */
+
+        function shortenText(
+            value,
+            maxLength = 30
+        ) {
+
+            const text =
+                String(value || "");
+
+            if (
+                text.length <= maxLength
+            ) {
+                return text;
+            }
+
+            return (
+                text.substring(
+                    0,
+                    maxLength - 3
+                ) + "..."
+            );
+        }
+
+
+        /* =====================================================
+           COPY HELPERS
+           ===================================================== */
+
+        async function copyText(value) {
+
+            if (
+                value === null ||
+                value === undefined ||
+                value === ""
+            ) {
+                return false;
+            }
+
+            try {
+
+                if (
+                    navigator.clipboard &&
+                    window.isSecureContext
+                ) {
+
+                    await navigator
+                        .clipboard
+                        .writeText(
+                            String(value)
+                        );
+
+                } else {
+
+                    const textarea =
+                        document.createElement(
+                            "textarea"
+                        );
+
+                    textarea.value =
+                        String(value);
+
+                    textarea.style.position =
+                        "fixed";
+
+                    textarea.style.opacity =
+                        "0";
+
+                    document.body.appendChild(
+                        textarea
+                    );
+
+                    textarea.focus();
+
+                    textarea.select();
+
+                    document.execCommand(
+                        "copy"
+                    );
+
+                    textarea.remove();
+                }
+
+                return true;
+
+            } catch (error) {
+
+                console.error(
+                    "Copy failed:",
+                    error
+                );
+
+                return false;
+            }
+        }
+
+
+        async function copyMemberUid(uid) {
+
+            const success =
+                await copyText(uid);
+
+            showAdminMessage(
+                success
+                    ? `UID ${uid} copied.`
+                    : "Unable to copy UID.",
+                success
+                    ? "success"
+                    : "error"
+            );
+
+            setTimeout(
+                clearAdminMessage,
+                1800
+            );
+        }
+
+
+        /* =====================================================
+           ADMIN LOGOUT
+           ===================================================== */
+
+        async function adminLogout() {
+
+            try {
+
+                const {
+                    error
+                } =
+                    await supabaseClient.auth.signOut();
+
+                if (error) {
+                    throw error;
+                }
+
+                currentAdmin = null;
+
+                window.location.href =
+                    "login.html";
+
+            } catch (error) {
+
+                console.error(
+                    "Admin logout error:",
+                    error
+                );
+
+                showAdminMessage(
+                    "Unable to sign out. Please try again.",
+                    "error"
+                );
+            }
+        }
+
+
+        /* =====================================================
+           DATABASE ERROR HANDLER
+           ===================================================== */
+
+        function getDatabaseErrorMessage(
+            error
+        ) {
+
+            if (!error) {
+                return (
+                    "An unexpected database error occurred."
+                );
+            }
+
+            const message =
+                String(
+                    error.message ||
+                    error.error_description ||
+                    error.details ||
+                    ""
+                );
+
+
+            if (
+                message
+                    .toLowerCase()
+                    .includes("permission")
+            ) {
+                return (
+                    "Database permission denied. " +
+                    "Check the Supabase RLS policies."
+                );
+            }
+
+
+            if (
+                message
+                    .toLowerCase()
+                    .includes("row-level")
+            ) {
+                return (
+                    "Database access was blocked by " +
+                    "Row Level Security."
+                );
+            }
+
+
+            if (
+                message
+                    .toLowerCase()
+                    .includes("relation")
+            ) {
+                return (
+                    "A required database table could not " +
+                    "be found."
+                );
+            }
+
+
+            return (
+                message ||
+                "Unable to complete the database request."
+            );
+        }
+
+
+        /* =====================================================
+           GLOBAL EXPORTS
+           ===================================================== */
+
+        window.adminLogout =
+            adminLogout;
+
+        window.copyText =
+            copyText;
+
+        window.copyMemberUid =
+            copyMemberUid;
+    
 </body>
 
 </html>
