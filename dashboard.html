@@ -713,3 +713,530 @@
             }
 
         </script>
+        <script>
+
+            function selectPaymentMethod(method) {
+
+                selectedPaymentMethod = method;
+
+
+                document.getElementById(
+                    "selectedPaymentMethod"
+                ).textContent =
+                    method === "bank"
+                        ? "Bank Account"
+                        : "Crypto Funding";
+
+
+                document
+                    .querySelectorAll(".payment-card")
+                    .forEach(function (card) {
+
+                        card.classList.remove(
+                            "selected"
+                        );
+
+                    });
+
+
+                const selectedCard =
+                    method === "bank"
+                        ? document.getElementById(
+                            "bankPayment"
+                        )
+                        : document.getElementById(
+                            "cryptoPayment"
+                        );
+
+
+                selectedCard.classList.add(
+                    "selected"
+                );
+
+            }
+
+
+
+            async function submitInvestment() {
+
+                const message =
+                    document.getElementById(
+                        "investmentMessage"
+                    );
+
+
+                if (!selectedPackage) {
+
+                    message.textContent =
+                        "Please select an investment package.";
+
+                    return;
+
+                }
+
+
+                if (!selectedPaymentMethod) {
+
+                    message.textContent =
+                        "Please select a payment method.";
+
+                    return;
+
+                }
+
+
+                const button =
+                    document.getElementById(
+                        "submitInvestmentBtn"
+                    );
+
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Submitting...";
+
+
+                const {
+                    error
+                } = await supabaseClient
+                    .from("investments")
+                    .insert([{
+
+                        user_id:
+                            currentUser.id,
+
+                        package_id:
+                            selectedPackage.id,
+
+                        amount:
+                            selectedPackage.amount,
+
+                        payment_method:
+                            selectedPaymentMethod,
+
+                        status:
+                            "pending"
+
+                    }]);
+
+
+                if (error) {
+
+                    console.error(error);
+
+                    message.textContent =
+                        "Unable to submit request. Please try again.";
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Submit Investment Request";
+
+                    return;
+
+                }
+
+
+                message.textContent =
+                    "Investment request submitted successfully.";
+
+
+                await loadInvestments();
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Submit Investment Request";
+
+            }
+
+
+
+            async function loadInvestments() {
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                    .from("investments")
+                    .select("*")
+                    .eq(
+                        "user_id",
+                        currentUser.id
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    );
+
+
+                if (error) {
+
+                    console.error(error);
+
+                    return;
+
+                }
+
+
+                const total =
+                    (data || []).reduce(
+                        function (sum, item) {
+
+                            return sum +
+                                (Number(
+                                    item.amount
+                                ) || 0);
+
+                        },
+                        0
+                    );
+
+
+                document.getElementById(
+                    "statInvestment"
+                ).textContent =
+                    "$" +
+                    total.toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2
+                        }
+                    );
+
+
+                const container =
+                    document.getElementById(
+                        "investmentHistory"
+                    );
+
+
+                if (!data || data.length === 0) {
+
+                    container.innerHTML =
+                        `<div class="empty-state">
+                            No investment requests yet.
+                        </div>`;
+
+                    return;
+
+                }
+
+
+                container.innerHTML = "";
+
+
+                data.forEach(
+                    function (item) {
+
+                        const pkg =
+                            packagesData.find(
+                                function (p) {
+
+                                    return p.id ===
+                                        item.package_id;
+
+                                }
+                            );
+
+
+                        const row =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        row.className =
+                            "history-item";
+
+
+                        row.innerHTML = `
+                            <strong>
+                                ${pkg
+                                    ? pkg.name
+                                    : "Investment Package"}
+                            </strong>
+
+                            <span>
+                                $${Number(
+                                    item.amount
+                                ).toLocaleString()}
+                            </span>
+
+                            <small>
+                                ${item.payment_method === "bank"
+                                    ? "Bank Account"
+                                    : "Crypto Funding"}
+                            </small>
+
+                            <small>
+                                Status: ${item.status}
+                            </small>
+                        `;
+
+
+                        container.appendChild(row);
+
+                    }
+                );
+
+            }
+
+
+
+            async function loadEarnings() {
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                    .from("earnings")
+                    .select("*")
+                    .eq(
+                        "user_id",
+                        currentUser.id
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    );
+
+
+                if (error) {
+
+                    console.error(error);
+
+                    return;
+
+                }
+
+
+                const list =
+                    document.getElementById(
+                        "earningsList"
+                    );
+
+
+                let total = 0;
+
+
+                if (!data || data.length === 0) {
+
+                    list.innerHTML =
+                        `<div class="empty-state">
+                            No earnings available yet.
+                        </div>`;
+
+                } else {
+
+                    list.innerHTML = "";
+
+
+                    data.forEach(
+                        function (earning) {
+
+                            total +=
+                                Number(
+                                    earning.amount
+                                ) || 0;
+
+
+                            const item =
+                                document.createElement(
+                                    "div"
+                                );
+
+
+                            item.className =
+                                "earning-item";
+
+
+                            item.innerHTML = `
+                                <strong>
+                                    $${Number(
+                                        earning.amount
+                                    ).toLocaleString()}
+                                </strong>
+
+                                <span>
+                                    ${earning.description || "Earning"}
+                                </span>
+
+                                <small>
+                                    ${earning.status || "confirmed"}
+                                </small>
+                            `;
+
+
+                            list.appendChild(item);
+
+                        }
+                    );
+
+                }
+
+
+                document.getElementById(
+                    "totalEarnings"
+                ).textContent =
+                    "$" +
+                    total.toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2
+                        }
+                    );
+
+
+                document.getElementById(
+                    "statEarnings"
+                ).textContent =
+                    "$" +
+                    total.toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2
+                        }
+                    );
+
+            }
+
+
+
+            async function logout() {
+
+                await supabaseClient
+                    .auth
+                    .signOut();
+
+
+                window.location.href =
+                    "login.html";
+
+            }
+
+
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                function () {
+
+                    loadDashboard();
+
+                }
+            );
+
+        </script>
+
+
+        <style>
+
+            .selected {
+
+                border-color:
+                    #D4AF37 !important;
+
+                box-shadow:
+                    0 0 15px
+                    rgba(
+                        212,
+                        175,
+                        55,
+                        0.25
+                    );
+
+            }
+
+
+            .message-box {
+
+                margin-top: 15px;
+
+                color: #D4AF37;
+
+            }
+
+
+            .empty-state {
+
+                padding: 25px;
+
+                text-align: center;
+
+                opacity: 0.7;
+
+            }
+
+
+            .history-item,
+            .earning-item {
+
+                display: flex;
+
+                flex-direction: column;
+
+                gap: 6px;
+
+                padding: 18px;
+
+                margin-bottom: 12px;
+
+                border:
+                    1px solid
+                    rgba(
+                        212,
+                        175,
+                        55,
+                        0.2
+                    );
+
+                border-radius: 12px;
+
+            }
+
+
+            .history-item span,
+            .earning-item span {
+
+                opacity: 0.8;
+
+            }
+
+
+            .history-item small,
+            .earning-item small {
+
+                opacity: 0.6;
+
+            }
+
+
+            .primary-btn {
+
+                margin-top: 20px;
+
+                width: 100%;
+
+                padding: 14px;
+
+                border: none;
+
+                border-radius: 10px;
+
+                cursor: pointer;
+
+            }
+
+        </style>
+
+
+    </main>
+
+</body>
+
+</html>
