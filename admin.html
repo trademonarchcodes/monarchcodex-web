@@ -6185,3 +6185,388 @@ window.searchMembersFinal =
 /* =========================================================
    PART 8 ENDS HERE
    ========================================================= */    
+
+
+  /* =========================================================
+   ADMIN.HTML — PART 9/12
+   ADMIN INITIALIZATION & DATA REFRESH
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   INITIAL PAGE STATE
+   --------------------------------------------------------- */
+
+function setAdminLoadingState(
+    loading
+) {
+
+    if (loading) {
+
+        if (statsStatus) {
+            statsStatus.textContent =
+                "Loading dashboard data...";
+        }
+
+        if (membersStatus) {
+            membersStatus.textContent =
+                "Loading members...";
+        }
+
+        if (investmentsStatus) {
+            investmentsStatus.textContent =
+                "Loading investment requests...";
+        }
+
+        if (earningsStatus) {
+            earningsStatus.textContent =
+                "Loading earnings...";
+        }
+
+    } else {
+
+        if (statsStatus) {
+            statsStatus.textContent =
+                "Dashboard data loaded.";
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   LOAD ALL ADMIN DATA
+   --------------------------------------------------------- */
+
+async function loadAllAdminData() {
+
+    setAdminLoadingState(true);
+
+
+    try {
+
+        /*
+         * Load packages first because investment rendering
+         * uses package_id to display the package name.
+         */
+
+        await loadPackages();
+
+
+        /*
+         * Load members.
+         */
+
+        await loadProfiles();
+
+
+        /*
+         * Load investments.
+         */
+
+        await loadInvestments();
+
+
+        /*
+         * Load payment receipts.
+         */
+
+        await loadReceipts();
+
+
+        /*
+         * Re-render investment table after receipts
+         * have been loaded.
+         */
+
+        renderInvestments(
+            investmentsData
+        );
+
+
+        /*
+         * Re-render members with management controls.
+         */
+
+        renderMembersWithActions(
+            profilesData
+        );
+
+
+        /*
+         * Recalculate investment statistics.
+         */
+
+        updateInvestmentStatistics();
+
+
+        /*
+         * Populate earning member selector.
+         */
+
+        populateEarningMembers();
+
+
+        /*
+         * Load earnings data if the earnings system
+         * exists in the database.
+         */
+
+        await loadEarnings();
+
+
+        setAdminLoadingState(false);
+
+
+        console.log(
+            "Admin dashboard loaded successfully."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin data loading error:",
+            error
+        );
+
+
+        setAdminLoadingState(false);
+
+
+        showAdminMessage(
+            "Some admin data could not be loaded. Check the console for details.",
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   REFRESH EVERYTHING
+   --------------------------------------------------------- */
+
+async function refreshAdminDashboard() {
+
+    const button =
+        document.querySelector(
+            "#refreshAdminBtn"
+        );
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.dataset.originalText =
+            button.textContent;
+
+        button.textContent =
+            "Refreshing...";
+    }
+
+
+    try {
+
+        await loadAllAdminData();
+
+        showAdminMessage(
+            "Admin dashboard refreshed.",
+            "success"
+        );
+
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                button.dataset.originalText ||
+                "Refresh";
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   AUTH STATE MONITOR
+   --------------------------------------------------------- */
+
+function listenForAuthChanges() {
+
+    supabaseClient.auth.onAuthStateChange(
+        async (event, session) => {
+
+            console.log(
+                "Auth state changed:",
+                event
+            );
+
+
+            /*
+             * If the admin session disappears,
+             * return to login.
+             */
+
+            if (
+                event === "SIGNED_OUT" ||
+                !session
+            ) {
+
+                currentAdmin = null;
+
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+
+            /*
+             * When a new session is established,
+             * verify that the user is still an admin.
+             */
+
+            if (
+                event === "SIGNED_IN" ||
+                event === "TOKEN_REFRESHED"
+            ) {
+
+                const authorized =
+                    await checkAdminAuthorization();
+
+
+                if (!authorized) {
+                    return;
+                }
+            }
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   ADMIN SESSION CHECK
+   --------------------------------------------------------- */
+
+async function initializeAdmin() {
+
+    try {
+
+        const authorized =
+            await checkAdminAuthorization();
+
+
+        if (!authorized) {
+            return;
+        }
+
+
+        /*
+         * The authorization function already ensures
+         * that the current session belongs to an admin.
+         */
+
+
+        await loadAllAdminData();
+
+
+        /*
+         * Listen for future authentication changes.
+         */
+
+        listenForAuthChanges();
+
+
+        console.log(
+            "Monarch Codex Admin initialized."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin initialization failed:",
+            error
+        );
+
+
+        showAdminMessage(
+            "Unable to initialize the admin dashboard.",
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   PAGE VISIBILITY REFRESH
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "visibilitychange",
+    async function() {
+
+        /*
+         * When the admin returns to the browser tab,
+         * refresh the data so newly submitted investments
+         * and receipts are visible.
+         */
+
+        if (
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            if (currentAdmin) {
+
+                await loadAllAdminData();
+            }
+        }
+    }
+);
+
+
+/* ---------------------------------------------------------
+   OPTIONAL REFRESH BUTTON
+   --------------------------------------------------------- */
+
+const refreshAdminButton =
+    document.querySelector(
+        "#refreshAdminBtn"
+    );
+
+
+if (refreshAdminButton) {
+
+    refreshAdminButton.addEventListener(
+        "click",
+        refreshAdminDashboard
+    );
+}
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.loadAllAdminData =
+    loadAllAdminData;
+
+window.refreshAdminDashboard =
+    refreshAdminDashboard;
+
+window.initializeAdmin =
+    initializeAdmin;
+
+
+/* =========================================================
+   START ADMIN APPLICATION
+   ========================================================= */
+
+initializeAdmin();
+
+
+/* =========================================================
+   PART 9 ENDS HERE
+   ========================================================= */      
