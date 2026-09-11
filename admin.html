@@ -4724,9 +4724,22 @@ async function resetInvestmentToPending(
 
 async function updateReceiptStatus(
     investmentId,
+async function updateReceiptStatus(
+    investmentId,
     verificationStatus,
-    adminNote = null
+    adminNote = ""
 ) {
+
+    if (!investmentId) {
+
+        showAdminMessage(
+            "Invalid investment request.",
+            "error"
+        );
+
+        return false;
+    }
+
 
     const receipt =
         getReceiptForInvestment(
@@ -4769,27 +4782,31 @@ async function updateReceiptStatus(
 
     try {
 
+        const reviewedAt =
+            verificationStatus === "pending"
+                ? null
+                : new Date().toISOString();
+
+
         const updateData = {
             verification_status:
                 verificationStatus,
             reviewed_at:
-                new Date().toISOString()
+                reviewedAt,
+            admin_note:
+                adminNote || null
         };
 
 
-        if (adminNote !== null) {
-            updateData.admin_note =
-                adminNote;
-        }
-
-
-        const { data, error } =
-            await supabaseClient
-                .from("payment_receipts")
-                .update(updateData)
-                .eq("id", receipt.id)
-                .select()
-                .single();
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("payment_receipts")
+            .update(updateData)
+            .eq("id", receipt.id)
+            .select()
+            .single();
 
 
         if (error) {
@@ -4802,7 +4819,7 @@ async function updateReceiptStatus(
             showAdminMessage(
                 getDatabaseErrorMessage(
                     error,
-                    "Unable to update receipt status."
+                    "Unable to update payment receipt."
                 ),
                 "error"
             );
@@ -4811,7 +4828,11 @@ async function updateReceiptStatus(
         }
 
 
-        const index =
+        /* ---------------------------------------------
+           UPDATE LOCAL RECEIPT DATA
+           --------------------------------------------- */
+
+        const receiptIndex =
             receiptsData.findIndex(
                 item =>
                     String(item.id) ===
@@ -4819,24 +4840,49 @@ async function updateReceiptStatus(
             );
 
 
-        if (index !== -1) {
+        if (receiptIndex !== -1) {
 
-            receiptsData[index] = {
-                ...receiptsData[index],
+            receiptsData[
+                receiptIndex
+            ] = {
+
+                ...receiptsData[
+                    receiptIndex
+                ],
+
                 ...(data || {}),
+
                 verification_status:
-                    verificationStatus
+                    verificationStatus,
+
+                reviewed_at:
+                    reviewedAt,
+
+                admin_note:
+                    adminNote || null
             };
         }
 
+
+        /* ---------------------------------------------
+           REFRESH INVESTMENT TABLE
+           --------------------------------------------- */
 
         renderInvestments(
             investmentsData
         );
 
 
+        /* ---------------------------------------------
+           SUCCESS MESSAGE
+           --------------------------------------------- */
+
         showAdminMessage(
-            "Payment receipt status updated.",
+            verificationStatus === "approved"
+                ? "Payment receipt approved successfully."
+                : verificationStatus === "rejected"
+                    ? "Payment receipt rejected successfully."
+                    : "Payment receipt status reset successfully.",
             "success"
         );
 
@@ -4851,10 +4897,12 @@ async function updateReceiptStatus(
             error
         );
 
+
         showAdminMessage(
-            "An unexpected error occurred while updating the receipt.",
+            "An unexpected error occurred while updating the payment receipt.",
             "error"
         );
+
 
         return false;
     }
