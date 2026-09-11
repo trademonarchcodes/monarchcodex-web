@@ -7685,6 +7685,442 @@ console.log(
    END OF JAVASCRIPT
    ========================================================= */
 
+/* =========================================================
+   MONARCH CODEX — DASHBOARD FIX PATCH
+   Crypto Wallet Visibility + Confirmed Investments
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   FIX 1: CRYPTO NETWORK / WALLET DISPLAY
+--------------------------------------------------------- */
+
+function selectCryptoNetwork(network) {
+
+    selectedCryptoNetwork = network || null;
+    selectedPaymentDetails = null;
+
+    const walletBox =
+        document.getElementById("cryptoWalletBox");
+
+    const networkDisplay =
+        document.getElementById("selectedCryptoNetwork");
+
+    const walletAddress =
+        document.getElementById("cryptoWalletAddress");
+
+    const minimumAmount =
+        document.getElementById("cryptoMinimumAmount");
+
+    const feeAmount =
+        document.getElementById("cryptoFeeAmount");
+
+    const totalAmount =
+        document.getElementById("cryptoTotalAmount");
+
+    const instructions =
+        document.getElementById("cryptoInstructions");
+
+    /* No network selected */
+    if (!network) {
+
+        if (walletBox) {
+            walletBox.style.display = "none";
+        }
+
+        if (networkDisplay) {
+            networkDisplay.textContent = "—";
+        }
+
+        if (walletAddress) {
+            walletAddress.textContent = "—";
+        }
+
+        if (minimumAmount) {
+            minimumAmount.textContent = "$0.00 USDT";
+        }
+
+        if (feeAmount) {
+            feeAmount.textContent = "$0.00 USDT";
+        }
+
+        if (totalAmount) {
+            totalAmount.textContent = "$0.00 USDT";
+        }
+
+        if (instructions) {
+            instructions.textContent =
+                "Select a crypto network to view the payment instructions.";
+        }
+
+        updateInvestmentFormState();
+
+        return;
+    }
+
+
+    /* Find selected network */
+    const cryptoRow =
+        paymentDetailsData.find(
+            item =>
+                item.payment_type === "crypto" &&
+                String(item.crypto_network || "")
+                    .trim()
+                    .toLowerCase() ===
+                String(network)
+                    .trim()
+                    .toLowerCase()
+        );
+
+
+    /* Network not found */
+    if (!cryptoRow) {
+
+        selectedCryptoNetwork = null;
+        selectedPaymentDetails = null;
+
+        if (walletBox) {
+            walletBox.style.display = "none";
+        }
+
+        showDashboardMessage(
+            "The selected crypto network is unavailable.",
+            "error"
+        );
+
+        updateInvestmentFormState();
+
+        return;
+    }
+
+
+    /* Save selected payment details */
+    selectedPaymentDetails = cryptoRow;
+
+
+    /* Network */
+    if (networkDisplay) {
+        networkDisplay.textContent =
+            cryptoRow.crypto_network ||
+            network;
+    }
+
+
+    /* Wallet address */
+    if (walletAddress) {
+
+        walletAddress.textContent =
+            cryptoRow.wallet_address ||
+            "Wallet address unavailable";
+
+    }
+
+
+    /* Minimum */
+    if (minimumAmount) {
+
+        minimumAmount.textContent =
+            formatPaymentAmount(
+                cryptoRow.minimum_amount,
+                cryptoRow.currency || "USD"
+            );
+
+    }
+
+
+    /* Fee */
+    if (feeAmount) {
+
+        feeAmount.textContent =
+            formatPaymentAmount(
+                cryptoRow.fee_amount,
+                cryptoRow.currency || "USD"
+            );
+
+    }
+
+
+    /* Total */
+    if (totalAmount) {
+
+        totalAmount.textContent =
+            formatPaymentAmount(
+                cryptoRow.total_amount,
+                cryptoRow.currency || "USD"
+            );
+
+    }
+
+
+    /* Instructions */
+    if (instructions) {
+
+        instructions.textContent =
+            cryptoRow.instructions ||
+            "Send the required USDT amount to the wallet address above, then upload your payment receipt.";
+
+    }
+
+
+    /*
+       IMPORTANT FIX:
+       The wallet container starts with display:none.
+       Make it visible after a valid network is selected.
+    */
+    if (walletBox) {
+
+        walletBox.style.display = "block";
+
+        walletBox.removeAttribute("hidden");
+
+    }
+
+
+    /* Make sure crypto details are visible */
+    const cryptoDetails =
+        document.getElementById("cryptoDetails");
+
+    if (cryptoDetails) {
+        cryptoDetails.style.display = "block";
+    }
+
+
+    /* Make sure payment panel is visible */
+    const paymentPanel =
+        document.getElementById("paymentDetailsPanel");
+
+    if (paymentPanel) {
+        paymentPanel.style.display = "block";
+    }
+
+
+    /* Update payment summary */
+    if (typeof updatePaymentSummary === "function") {
+        updatePaymentSummary();
+    }
+
+
+    /* Update form state */
+    updateInvestmentFormState();
+
+}
+
+
+/* ---------------------------------------------------------
+   FIX 2: CONFIRMED INVESTMENTS MUST COUNT
+--------------------------------------------------------- */
+
+function updateInvestmentStats(investments) {
+
+    let totalInvested = 0;
+
+    let activeInvestments = 0;
+
+    let pendingRequests = 0;
+
+
+    if (!Array.isArray(investments)) {
+        investments = [];
+    }
+
+
+    investments.forEach(investment => {
+
+        const amount =
+            Number(
+                investment.amount || 0
+            );
+
+
+        const status =
+            String(
+                investment.status || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        /*
+           CONFIRMED is now treated as a valid
+           investment alongside approved, active
+           and completed.
+        */
+
+        const isConfirmedInvestment =
+            [
+                "confirmed",
+                "approved",
+                "active",
+                "completed"
+            ].includes(status);
+
+
+        if (isConfirmedInvestment) {
+
+            totalInvested += amount;
+
+        }
+
+
+        /*
+           Active investment count.
+           A confirmed investment is now active
+           from the member's perspective.
+        */
+
+        if (
+            [
+                "confirmed",
+                "approved",
+                "active"
+            ].includes(status)
+        ) {
+
+            activeInvestments++;
+
+        }
+
+
+        /*
+           Only genuinely pending requests remain
+           in the pending request count.
+        */
+
+        if (status === "pending") {
+
+            pendingRequests++;
+
+        }
+
+    });
+
+
+    /* -----------------------------------------------------
+       TOTAL INVESTED
+    ----------------------------------------------------- */
+
+    setText(
+        "totalInvested",
+        `$${totalInvested.toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        )}`
+    );
+
+
+    /* -----------------------------------------------------
+       ACTIVE INVESTMENTS
+    ----------------------------------------------------- */
+
+    setText(
+        "activeInvestments",
+        String(activeInvestments)
+    );
+
+
+    /* -----------------------------------------------------
+       ACCOUNT OVERVIEW — TOTAL INVESTMENT
+    ----------------------------------------------------- */
+
+    setText(
+        "overviewInvestment",
+        `$${totalInvested.toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        )}`
+    );
+
+
+    /* -----------------------------------------------------
+       ACCOUNT OVERVIEW — PENDING REQUESTS
+    ----------------------------------------------------- */
+
+    setText(
+        "overviewRequests",
+        String(pendingRequests)
+    );
+
+}
+
+
+/* ---------------------------------------------------------
+   FORCE CURRENT DASHBOARD TO RECALCULATE
+--------------------------------------------------------- */
+
+async function refreshInvestmentStatsNow() {
+
+    if (!currentUser) {
+        return;
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("investments")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        updateInvestmentStats(
+            data || []
+        );
+
+
+        renderInvestmentHistory(
+            data || []
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Investment statistics refresh error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   GLOBAL ACCESS
+--------------------------------------------------------- */
+
+window.selectCryptoNetwork =
+    selectCryptoNetwork;
+
+window.updateInvestmentStats =
+    updateInvestmentStats;
+
+window.refreshInvestmentStatsNow =
+    refreshInvestmentStatsNow;
+
+
+/* =========================================================
+   END MONARCH CODEX DASHBOARD FIX PATCH
+   ========================================================= */
+        
 </script>
 
 </body>
