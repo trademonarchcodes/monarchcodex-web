@@ -3327,3 +3327,272 @@ nav ul a:hover {
         width: 100%;
     }
 }
+
+/* =========================================================
+   PART 9/12 — EARNINGS & INVESTMENT HISTORY
+   ========================================================= */
+
+/* ---------- EARNING TOTAL CARD ---------- */
+
+.earning-total-card {
+    position: relative;
+    padding: 28px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(212, 175, 55, 0.10),
+            rgba(255, 255, 255, 0.015)
+        ),
+        var(--bg-card);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 15px;
+}
+
+.earning-total-card::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    right: -65px;
+    top: -65px;
+    border: 1px solid rgba(212, 175, 55, 0.12);
+    border-radius: 50%;
+}
+
+.earning-total-card .info-label {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 8px;
+}
+
+.earning-total {
+    position: relative;
+    z-index: 1;
+    display: block;
+    color: var(--accent-gold);
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 1.1;
+    font-weight: 850;
+}
+
+/* ---------- EARNINGS LIST ---------- */
+
+.earnings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+/* ---------- EARNING ITEM ---------- */
+
+.earning-item {
+    display: grid;
+    grid-template-columns: minmax(110px, 0.7fr) minmax(0, 2fr) auto;
+    align-items: center;
+    gap: 18px;
+    padding: 17px 19px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.earning-item:hover {
+    border-color: rgba(212, 175, 55, 0.30);
+    background: rgba(212, 175, 55, 0.025);
+}
+
+.earning-item strong {
+    color: var(--accent-gold);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.earning-item span {
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.earning-item small {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ---------- EARNING STATUS ---------- */
+
+.earning-item .status {
+    justify-self: end;
+}
+
+/* ---------- HISTORY LIST ---------- */
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+/* ---------- HISTORY ITEM ---------- */
+
+.history-item {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) minmax(100px, auto) minmax(110px, auto) auto;
+    align-items: center;
+    gap: 18px;
+    padding: 17px 19px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.history-item:hover {
+    border-color: rgba(212, 175, 55, 0.30);
+    background: rgba(212, 175, 55, 0.025);
+}
+
+.history-item strong {
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.history-item span {
+    color: var(--accent-gold);
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.history-item small {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ---------- HISTORY STATUS ---------- */
+
+.history-item .status {
+    justify-self: end;
+}
+
+/* ---------- STATUS BADGES ---------- */
+
+.history-item .status,
+.earning-item .status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-width: 72px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+/* ---------- STATUS VARIANTS ---------- */
+
+.status-pending {
+    color: #ffd98a;
+    background: rgba(255, 193, 7, 0.10);
+    border: 1px solid rgba(255, 193, 7, 0.25);
+}
+
+.status-active,
+.status-confirmed {
+    color: #a8e6b0;
+    background: rgba(76, 175, 80, 0.10);
+    border: 1px solid rgba(76, 175, 80, 0.25);
+}
+
+.status-blocked,
+.status-rejected {
+    color: #ffb0b0;
+    background: rgba(244, 67, 54, 0.10);
+    border: 1px solid rgba(244, 67, 54, 0.25);
+}
+
+.status-completed {
+    color: #a8e6b0;
+    background: rgba(76, 175, 80, 0.10);
+    border: 1px solid rgba(76, 175, 80, 0.25);
+}
+
+/* ---------- HISTORY EMPTY STATE ---------- */
+
+.history-list .empty-state,
+.earnings-list .empty-state {
+    width: 100%;
+}
+
+/* ---------- DASHBOARD TOTALS ---------- */
+
+#totalEarnings,
+#earningTotal {
+    color: var(--accent-gold);
+    font-weight: 850;
+}
+
+/* ---------- MOBILE EARNINGS ---------- */
+
+@media (max-width: 900px) {
+    .history-item {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .history-item .status {
+        justify-self: start;
+    }
+
+    .earning-item {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 15px;
+    }
+
+    .earning-item .status {
+        justify-self: start;
+    }
+}
+
+@media (max-width: 600px) {
+    .earning-total-card {
+        padding: 22px 19px;
+    }
+
+    .earning-total {
+        font-size: 31px;
+    }
+
+    .history-item,
+    .earning-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 7px;
+        padding: 16px;
+    }
+
+    .history-item strong,
+    .history-item span,
+    .earning-item strong,
+    .earning-item span {
+        width: 100%;
+    }
+
+    .history-item .status,
+    .earning-item .status {
+        justify-self: auto;
+        margin-top: 4px;
+    }
+}
