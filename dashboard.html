@@ -1838,3 +1838,736 @@
             );
 
         }
+    async function loadPackages() {
+        try {
+            const { data, error } = await supabaseClient
+                .from("packages")
+                .select("*")
+                .eq("active", true)
+                .order("amount", { ascending: true });
+
+            if (error) throw error;
+
+            packagesData = data || [];
+            renderPackages();
+        } catch (error) {
+            console.error("Error loading packages:", error);
+
+            const container = document.getElementById("packagesGrid");
+
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <h3>Unable to Load Packages</h3>
+                        <p>Please refresh the page and try again.</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+
+    function renderPackages() {
+        const container = document.getElementById("packagesGrid");
+
+        if (!container) return;
+
+        if (!packagesData || packagesData.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📦</div>
+                    <h3>No Packages Available</h3>
+                    <p>There are currently no active investment packages.</p>
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML = packagesData.map(pkg => {
+            const packageName =
+                pkg.name ||
+                pkg.title ||
+                pkg.package_name ||
+                "Investment Package";
+
+            const amount = Number(pkg.amount || 0);
+
+            const duration =
+                pkg.duration ||
+                pkg.duration_days ||
+                pkg.period ||
+                "";
+
+            const profit =
+                pkg.profit ||
+                pkg.profit_percentage ||
+                pkg.return_percentage ||
+                "";
+
+            return `
+                <button
+                    type="button"
+                    class="package-card"
+                    data-package-id="${pkg.id}"
+                    onclick="selectPackage('${pkg.id}')"
+                >
+                    <div class="package-card-content">
+
+                        <h3>${escapeHtml(packageName)}</h3>
+
+                        <div class="package-amount">
+                            $${amount.toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            })}
+                        </div>
+
+                        ${
+                            duration
+                                ? `
+                                    <p class="package-duration">
+                                        ${escapeHtml(String(duration))}
+                                    </p>
+                                `
+                                : ""
+                        }
+
+                        ${
+                            profit !== ""
+                                ? `
+                                    <p class="package-profit">
+                                        ${escapeHtml(String(profit))}${String(profit).includes("%") ? "" : "%"} Profit
+                                    </p>
+                                `
+                                : ""
+                        }
+
+                        <span class="package-select-label">
+                            Select Package
+                        </span>
+
+                    </div>
+                </button>
+            `;
+        }).join("");
+    }
+
+
+    function selectPackage(packageId) {
+        const packageItem = packagesData.find(
+            pkg => String(pkg.id) === String(packageId)
+        );
+
+        if (!packageItem) {
+            showDashboardMessage(
+                "The selected package could not be found.",
+                "error"
+            );
+            return;
+        }
+
+        selectedPackage = packageItem;
+
+        document.querySelectorAll(".package-card").forEach(card => {
+            card.classList.remove("selected");
+
+            if (
+                String(card.dataset.packageId) ===
+                String(packageId)
+            ) {
+                card.classList.add("selected");
+            }
+        });
+
+        const packageName =
+            packageItem.name ||
+            packageItem.title ||
+            packageItem.package_name ||
+            "Investment Package";
+
+        const packageAmount = Number(packageItem.amount || 0);
+
+        const selectedPackageName =
+            document.getElementById("selectedPackageName");
+
+        const investmentAmount =
+            document.getElementById("investmentAmount");
+
+        const investmentAmountDisplay =
+            document.getElementById("investmentAmountDisplay");
+
+        if (selectedPackageName) {
+            selectedPackageName.textContent = packageName;
+        }
+
+        if (investmentAmount) {
+            investmentAmount.value = packageAmount;
+        }
+
+        if (investmentAmountDisplay) {
+            investmentAmountDisplay.textContent =
+                `$${packageAmount.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`;
+        }
+
+        updateInvestmentFormState();
+
+        const investmentSection =
+            document.getElementById("investmentRequest");
+
+        if (investmentSection) {
+            investmentSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }
+
+
+    async function loadPaymentDetails() {
+        try {
+            const { data, error } = await supabaseClient
+                .from("payment_details")
+                .select("*")
+                .eq("active", true)
+                .order("payment_type", {
+                    ascending: true
+                });
+
+            if (error) throw error;
+
+            paymentDetailsData = data || [];
+
+            renderCryptoNetworks();
+
+        } catch (error) {
+            console.error(
+                "Error loading payment details:",
+                error
+            );
+
+            paymentDetailsData = [];
+
+            showDashboardMessage(
+                "Payment details could not be loaded. Please refresh the page.",
+                "error"
+            );
+        }
+    }
+
+
+    function renderCryptoNetworks() {
+        const select =
+            document.getElementById("cryptoNetwork");
+
+        if (!select) return;
+
+        const cryptoRows = paymentDetailsData.filter(
+            item =>
+                item.payment_type === "crypto" &&
+                item.crypto_network
+        );
+
+        const uniqueNetworks = [];
+
+        cryptoRows.forEach(item => {
+            const network = item.crypto_network;
+
+            if (
+                !uniqueNetworks.some(
+                    existing =>
+                        existing.toLowerCase() ===
+                        network.toLowerCase()
+                )
+            ) {
+                uniqueNetworks.push(network);
+            }
+        });
+
+        select.innerHTML = `
+            <option value="">
+                Select Network
+            </option>
+
+            ${uniqueNetworks.map(network => `
+                <option value="${escapeHtml(network)}">
+                    ${escapeHtml(network)}
+                </option>
+            `).join("")}
+        `;
+    }
+
+
+    function selectPaymentMethod(method) {
+        if (
+            method !== "bank" &&
+            method !== "crypto"
+        ) {
+            return;
+        }
+
+        selectedPaymentMethod = method;
+        selectedPaymentDetails = null;
+        selectedCryptoNetwork = null;
+
+        const bankCard =
+            document.getElementById("bankPayment");
+
+        const cryptoCard =
+            document.getElementById("cryptoPayment");
+
+        const paymentPanel =
+            document.getElementById("paymentDetailsPanel");
+
+        const bankDetails =
+            document.getElementById("bankDetails");
+
+        const cryptoDetails =
+            document.getElementById("cryptoDetails");
+
+        if (bankCard) {
+            bankCard.classList.toggle(
+                "selected",
+                method === "bank"
+            );
+        }
+
+        if (cryptoCard) {
+            cryptoCard.classList.toggle(
+                "selected",
+                method === "crypto"
+            );
+        }
+
+        if (paymentPanel) {
+            paymentPanel.style.display = "block";
+        }
+
+        if (method === "bank") {
+
+            if (bankDetails) {
+                bankDetails.style.display = "block";
+            }
+
+            if (cryptoDetails) {
+                cryptoDetails.style.display = "none";
+            }
+
+            const bankRow =
+                paymentDetailsData.find(
+                    item =>
+                        item.payment_type === "bank"
+                );
+
+            if (!bankRow) {
+                showDashboardMessage(
+                    "Bank payment details are currently unavailable.",
+                    "error"
+                );
+
+                updateInvestmentFormState();
+                return;
+            }
+
+            selectedPaymentDetails = bankRow;
+
+            const bankName =
+                document.getElementById("bankName");
+
+            const accountName =
+                document.getElementById("bankAccountName");
+
+            const accountNumber =
+                document.getElementById("bankAccountNumber");
+
+            const minimumAmount =
+                document.getElementById("bankMinimumAmount");
+
+            const feeAmount =
+                document.getElementById("bankFeeAmount");
+
+            const totalAmount =
+                document.getElementById("bankTotalAmount");
+
+            const instructions =
+                document.getElementById("bankInstructions");
+
+            if (bankName) {
+                bankName.textContent =
+                    bankRow.bank_name || "—";
+            }
+
+            if (accountName) {
+                accountName.textContent =
+                    bankRow.account_name || "—";
+            }
+
+            if (accountNumber) {
+                accountNumber.textContent =
+                    bankRow.account_number || "—";
+            }
+
+            if (minimumAmount) {
+                minimumAmount.textContent =
+                    formatPaymentAmount(
+                        bankRow.minimum_amount,
+                        bankRow.currency || "NGN"
+                    );
+            }
+
+            if (feeAmount) {
+                feeAmount.textContent =
+                    formatPaymentAmount(
+                        bankRow.fee_amount,
+                        bankRow.currency || "NGN"
+                    );
+            }
+
+            if (totalAmount) {
+                totalAmount.textContent =
+                    formatPaymentAmount(
+                        bankRow.total_amount,
+                        bankRow.currency || "NGN"
+                    );
+            }
+
+            if (instructions) {
+                instructions.textContent =
+                    bankRow.instructions ||
+                    "Make the transfer using the account details above, then upload your payment receipt.";
+            }
+
+            const selectedMethodDisplay =
+                document.getElementById(
+                    "selectedPaymentMethodDisplay"
+                );
+
+            if (selectedMethodDisplay) {
+                selectedMethodDisplay.textContent =
+                    "Bank Transfer";
+            }
+
+            updateInvestmentFormState();
+
+        } else {
+
+            if (bankDetails) {
+                bankDetails.style.display = "none";
+            }
+
+            if (cryptoDetails) {
+                cryptoDetails.style.display = "block";
+            }
+
+            const networkSelect =
+                document.getElementById("cryptoNetwork");
+
+            if (networkSelect) {
+                networkSelect.value = "";
+            }
+
+            clearCryptoDisplay();
+
+            const selectedMethodDisplay =
+                document.getElementById(
+                    "selectedPaymentMethodDisplay"
+                );
+
+            if (selectedMethodDisplay) {
+                selectedMethodDisplay.textContent =
+                    "Crypto";
+            }
+
+            updateInvestmentFormState();
+        }
+    }
+
+
+    function selectCryptoNetwork(network) {
+        selectedCryptoNetwork = network || null;
+        selectedPaymentDetails = null;
+
+        if (!network) {
+            clearCryptoDisplay();
+            updateInvestmentFormState();
+            return;
+        }
+
+        const cryptoRow =
+            paymentDetailsData.find(
+                item =>
+                    item.payment_type === "crypto" &&
+                    String(item.crypto_network).toLowerCase() ===
+                    String(network).toLowerCase()
+            );
+
+        if (!cryptoRow) {
+            clearCryptoDisplay();
+
+            showDashboardMessage(
+                "The selected crypto network is unavailable.",
+                "error"
+            );
+
+            updateInvestmentFormState();
+            return;
+        }
+
+        selectedPaymentDetails = cryptoRow;
+
+        const networkDisplay =
+            document.getElementById("selectedCryptoNetwork");
+
+        const walletAddress =
+            document.getElementById("cryptoWalletAddress");
+
+        const minimumAmount =
+            document.getElementById("cryptoMinimumAmount");
+
+        const feeAmount =
+            document.getElementById("cryptoFeeAmount");
+
+        const totalAmount =
+            document.getElementById("cryptoTotalAmount");
+
+        const instructions =
+            document.getElementById("cryptoInstructions");
+
+        if (networkDisplay) {
+            networkDisplay.textContent =
+                cryptoRow.crypto_network || network;
+        }
+
+        if (walletAddress) {
+            walletAddress.textContent =
+                cryptoRow.wallet_address || "—";
+        }
+
+        if (minimumAmount) {
+            minimumAmount.textContent =
+                formatPaymentAmount(
+                    cryptoRow.minimum_amount,
+                    cryptoRow.currency || "USD"
+                );
+        }
+
+        if (feeAmount) {
+            feeAmount.textContent =
+                formatPaymentAmount(
+                    cryptoRow.fee_amount,
+                    cryptoRow.currency || "USD"
+                );
+        }
+
+        if (totalAmount) {
+            totalAmount.textContent =
+                formatPaymentAmount(
+                    cryptoRow.total_amount,
+                    cryptoRow.currency || "USD"
+                );
+        }
+
+        if (instructions) {
+            instructions.textContent =
+                cryptoRow.instructions ||
+                "Send the required USDT amount to the wallet address above, then upload your payment receipt.";
+        }
+
+        updateInvestmentFormState();
+    }
+
+
+    function clearCryptoDisplay() {
+        const networkDisplay =
+            document.getElementById("selectedCryptoNetwork");
+
+        const walletAddress =
+            document.getElementById("cryptoWalletAddress");
+
+        const minimumAmount =
+            document.getElementById("cryptoMinimumAmount");
+
+        const feeAmount =
+            document.getElementById("cryptoFeeAmount");
+
+        const totalAmount =
+            document.getElementById("cryptoTotalAmount");
+
+        const instructions =
+            document.getElementById("cryptoInstructions");
+
+        if (networkDisplay) {
+            networkDisplay.textContent = "—";
+        }
+
+        if (walletAddress) {
+            walletAddress.textContent = "—";
+        }
+
+        if (minimumAmount) {
+            minimumAmount.textContent = "$0.00 USDT";
+        }
+
+        if (feeAmount) {
+            feeAmount.textContent = "$0.00 USDT";
+        }
+
+        if (totalAmount) {
+            totalAmount.textContent = "$0.00 USDT";
+        }
+
+        if (instructions) {
+            instructions.textContent =
+                "Select a crypto network to view the payment instructions.";
+        }
+    }
+
+
+    function clearPaymentSelection() {
+        selectedPaymentMethod = null;
+        selectedPaymentDetails = null;
+        selectedCryptoNetwork = null;
+
+        const bankCard =
+            document.getElementById("bankPayment");
+
+        const cryptoCard =
+            document.getElementById("cryptoPayment");
+
+        const paymentPanel =
+            document.getElementById("paymentDetailsPanel");
+
+        const bankDetails =
+            document.getElementById("bankDetails");
+
+        const cryptoDetails =
+            document.getElementById("cryptoDetails");
+
+        if (bankCard) {
+            bankCard.classList.remove("selected");
+        }
+
+        if (cryptoCard) {
+            cryptoCard.classList.remove("selected");
+        }
+
+        if (paymentPanel) {
+            paymentPanel.style.display = "none";
+        }
+
+        if (bankDetails) {
+            bankDetails.style.display = "none";
+        }
+
+        if (cryptoDetails) {
+            cryptoDetails.style.display = "none";
+        }
+
+        const networkSelect =
+            document.getElementById("cryptoNetwork");
+
+        if (networkSelect) {
+            networkSelect.value = "";
+        }
+
+        clearCryptoDisplay();
+
+        const selectedMethodDisplay =
+            document.getElementById(
+                "selectedPaymentMethodDisplay"
+            );
+
+        if (selectedMethodDisplay) {
+            selectedMethodDisplay.textContent = "Not selected";
+        }
+
+        updateInvestmentFormState();
+    }
+
+
+    function copyPaymentValue(elementId, button) {
+        const element =
+            document.getElementById(elementId);
+
+        if (!element) return;
+
+        const value =
+            element.textContent.trim();
+
+        if (
+            !value ||
+            value === "—"
+        ) {
+            return;
+        }
+
+        if (!navigator.clipboard) {
+            showDashboardMessage(
+                "Copy is not supported on this browser.",
+                "error"
+            );
+            return;
+        }
+
+        navigator.clipboard.writeText(value)
+            .then(() => {
+
+                if (!button) return;
+
+                const originalText =
+                    button.dataset.originalText ||
+                    button.textContent;
+
+                button.dataset.originalText =
+                    originalText;
+
+                button.textContent = "✓ Copied";
+
+                setTimeout(() => {
+                    button.textContent =
+                        originalText;
+                }, 1800);
+
+            })
+            .catch(error => {
+                console.error(
+                    "Copy failed:",
+                    error
+                );
+
+                showDashboardMessage(
+                    "Unable to copy this value.",
+                    "error"
+                );
+            });
+    }
+
+
+    function formatPaymentAmount(
+        value,
+        currency = "USD"
+    ) {
+        const amount = Number(value || 0);
+
+        if (currency === "NGN") {
+            return `₦${amount.toLocaleString(
+                "en-NG",
+                {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                }
+            )}`;
+        }
+
+        return `$${amount.toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        )} USDT`;
+    }
