@@ -4390,3 +4390,1007 @@ select {
         padding: 35px 15px;
     }
 }
+/* =========================================================
+   MONARCH CODEX — PART 7/8
+   ADMIN DASHBOARD • ADMIN TABLES • INVESTMENTS • RECEIPTS
+========================================================= */
+
+
+/* =========================================================
+   ADMIN ROOT
+========================================================= */
+
+.admin-page,
+.admin-layout {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at 85% 5%,
+            rgba(212, 175, 55, 0.035),
+            transparent 25%
+        ),
+        #050505;
+}
+
+
+/* =========================================================
+   ADMIN SIDEBAR
+========================================================= */
+
+.admin-sidebar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    z-index: 1000;
+
+    width: 250px;
+
+    padding: 22px 15px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #0b0b0b,
+            #070707
+        );
+
+    border-right:
+        1px solid rgba(212, 175, 55, 0.12);
+
+    overflow-y: auto;
+}
+
+.admin-sidebar-brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-height: 45px;
+
+    margin-bottom: 28px;
+
+    padding: 0 10px;
+
+    color: var(--white);
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.admin-sidebar-brand span {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   ADMIN NAV
+========================================================= */
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.admin-nav a,
+.admin-nav button {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    min-height: 43px;
+
+    padding: 10px 12px;
+
+    color: #8f8f8f;
+
+    background: transparent;
+
+    border: 1px solid transparent;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-align: left;
+
+    transition: var(--transition);
+}
+
+.admin-nav a:hover,
+.admin-nav button:hover {
+    color: var(--white);
+
+    background:
+        rgba(212, 175, 55, 0.06);
+}
+
+.admin-nav a.active,
+.admin-nav button.active {
+    color: var(--gold);
+
+    background:
+        rgba(212, 175, 55, 0.09);
+
+    border-color:
+        rgba(212, 175, 55, 0.12);
+}
+
+
+/* =========================================================
+   ADMIN MAIN
+========================================================= */
+
+.admin-main {
+    min-height: 100vh;
+
+    margin-left: 250px;
+
+    padding: 28px 32px;
+}
+
+
+/* =========================================================
+   ADMIN HEADER
+========================================================= */
+
+.admin-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 25px;
+
+    padding-bottom: 18px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-header h1 {
+    font-size: 24px;
+}
+
+.admin-header p {
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+.admin-header-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+/* =========================================================
+   ADMIN STATS
+========================================================= */
+
+.admin-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+.admin-stat-card {
+    position: relative;
+
+    min-width: 0;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.13);
+
+    border-radius: 15px;
+}
+
+.admin-stat-card .label {
+    margin-bottom: 7px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.admin-stat-card .value {
+    color: var(--white);
+
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.admin-stat-card .value.gold {
+    color: var(--gold);
+}
+
+.admin-stat-card .value.green {
+    color: var(--green);
+}
+
+.admin-stat-card .value.orange {
+    color: var(--orange);
+}
+
+.admin-stat-card .value.red {
+    color: var(--red);
+}
+
+
+/* =========================================================
+   ADMIN PANEL
+========================================================= */
+
+.admin-panel {
+    margin-bottom: 22px;
+
+    padding: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.028),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 16px;
+}
+
+.admin-panel-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.admin-panel-header h2 {
+    color: var(--white);
+
+    font-size: 17px;
+}
+
+.admin-panel-header p {
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   ADMIN FILTERS
+========================================================= */
+
+.admin-filters {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+
+    padding: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.018);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.06);
+
+    border-radius: 12px;
+}
+
+.admin-filters input,
+.admin-filters select {
+    width: auto;
+
+    min-width: 145px;
+
+    min-height: 38px;
+
+    padding: 8px 11px;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   ADMIN TABLE
+========================================================= */
+
+.admin-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.06);
+
+    border-radius: 12px;
+}
+
+.admin-table {
+    width: 100%;
+
+    min-width: 950px;
+
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    padding: 13px 14px;
+
+    color: #707070;
+
+    background: #0b0b0b;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    font-size: 8px;
+    font-weight: 800;
+
+    letter-spacing: 0.6px;
+
+    text-align: left;
+
+    text-transform: uppercase;
+}
+
+.admin-table td {
+    padding: 14px;
+
+    color: #bdbdbd;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.045);
+
+    font-size: 10px;
+
+    vertical-align: middle;
+}
+
+.admin-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+    background:
+        rgba(212, 175, 55, 0.025);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* =========================================================
+   ADMIN USER CELL
+========================================================= */
+
+.admin-user {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 160px;
+}
+
+.admin-user-avatar {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #080808;
+
+    background: var(--gold);
+
+    border-radius: 50%;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.admin-user-info {
+    min-width: 0;
+}
+
+.admin-user-info strong {
+    display: block;
+
+    color: var(--white);
+
+    font-size: 11px;
+}
+
+.admin-user-info span {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #666;
+
+    font-size: 8px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ADMIN UID
+========================================================= */
+
+.admin-uid {
+    color: var(--gold);
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   ADMIN ACTIONS
+========================================================= */
+
+.admin-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    flex-wrap: wrap;
+}
+
+.admin-actions .btn {
+    min-height: 31px;
+
+    padding: 6px 9px;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   ADMIN STATUS SELECT
+========================================================= */
+
+.status-select {
+    min-width: 115px;
+
+    min-height: 34px;
+
+    padding: 7px 28px 7px 9px;
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   CONFIRM / REJECT BUTTONS
+========================================================= */
+
+.btn-confirm {
+    color: #080808;
+
+    background: var(--green);
+
+    border-color: var(--green);
+}
+
+.btn-confirm:hover {
+    filter: brightness(1.08);
+
+    transform: translateY(-1px);
+}
+
+.btn-reject {
+    color: var(--white);
+
+    background:
+        rgba(255, 92, 92, 0.10);
+
+    border-color:
+        rgba(255, 92, 92, 0.25);
+}
+
+.btn-reject:hover {
+    color: var(--white);
+
+    background:
+        rgba(255, 92, 92, 0.18);
+
+    border-color: var(--red);
+}
+
+
+/* =========================================================
+   RECEIPT REVIEW
+========================================================= */
+
+.receipt-review {
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+.receipt-review-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.receipt-review-header h3 {
+    font-size: 15px;
+}
+
+.receipt-review-header p {
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+.receipt-preview {
+    width: 100%;
+
+    min-height: 250px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: #080808;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 12px;
+}
+
+.receipt-preview img {
+    max-width: 100%;
+    max-height: 600px;
+
+    object-fit: contain;
+}
+
+.receipt-preview iframe {
+    width: 100%;
+    min-height: 550px;
+
+    border: 0;
+}
+
+
+/* =========================================================
+   RECEIPT FILE INFO
+========================================================= */
+
+.receipt-file-info {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.receipt-file-info div {
+    padding: 11px;
+
+    background:
+        rgba(255, 255, 255, 0.02);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.05);
+
+    border-radius: 9px;
+}
+
+.receipt-file-info span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #666;
+
+    font-size: 8px;
+
+    text-transform: uppercase;
+}
+
+.receipt-file-info strong {
+    color: #ccc;
+
+    font-size: 10px;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   ADMIN NOTE
+========================================================= */
+
+.admin-note-field {
+    margin-top: 15px;
+}
+
+.admin-note-field textarea {
+    min-height: 90px;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   ADMIN MODAL
+========================================================= */
+
+.admin-modal,
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 2000;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(0, 0, 0, 0.78);
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.admin-modal.active,
+.admin-modal.show,
+.modal.active,
+.modal.show {
+    display: flex;
+}
+
+.modal-content,
+.admin-modal-content {
+    width: min(600px, 100%);
+
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    padding: 25px;
+
+    background: #101010;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.18);
+
+    border-radius: 17px;
+
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.60);
+}
+
+.modal-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.modal-header h2,
+.modal-header h3 {
+    font-size: 17px;
+}
+
+.modal-close {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #888;
+
+    background: transparent;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 8px;
+}
+
+.modal-close:hover {
+    color: var(--white);
+
+    border-color:
+        rgba(212, 175, 55, 0.25);
+}
+
+
+/* =========================================================
+   ADMIN EMPTY STATE
+========================================================= */
+
+.admin-empty {
+    padding: 55px 20px;
+
+    color: #666;
+
+    text-align: center;
+}
+
+.admin-empty h3 {
+    margin-bottom: 5px;
+
+    color: #aaa;
+
+    font-size: 14px;
+}
+
+.admin-empty p {
+    color: #666;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   ADMIN ALERT
+========================================================= */
+
+.admin-alert {
+    margin-bottom: 18px;
+
+    padding: 12px 14px;
+
+    border-radius: 10px;
+
+    font-size: 10px;
+
+    line-height: 1.6;
+}
+
+.admin-alert.success {
+    color: var(--green);
+
+    background:
+        rgba(53, 208, 127, 0.08);
+
+    border:
+        1px solid rgba(53, 208, 127, 0.18);
+}
+
+.admin-alert.error {
+    color: var(--red);
+
+    background:
+        rgba(255, 92, 92, 0.08);
+
+    border:
+        1px solid rgba(255, 92, 92, 0.18);
+}
+
+.admin-alert.warning {
+    color: var(--orange);
+
+    background:
+        rgba(243, 179, 61, 0.08);
+
+    border:
+        1px solid rgba(243, 179, 61, 0.18);
+}
+
+
+/* =========================================================
+   ADMIN RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .admin-stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    .admin-sidebar {
+        transform: translateX(-100%);
+
+        transition:
+            transform 0.25s ease;
+    }
+
+    .admin-sidebar.open,
+    .admin-sidebar.active {
+        transform: translateX(0);
+    }
+
+    .admin-main {
+        margin-left: 0;
+
+        padding: 22px;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .admin-main {
+        padding: 18px 15px;
+    }
+
+    .admin-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .admin-header h1 {
+        font-size: 21px;
+    }
+
+    .admin-stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+    }
+
+    .admin-stat-card {
+        padding: 16px;
+    }
+
+    .admin-stat-card .value {
+        font-size: 20px;
+    }
+
+    .admin-panel {
+        padding: 17px;
+    }
+
+    .admin-panel-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .admin-filters {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .admin-filters input,
+    .admin-filters select {
+        width: 100%;
+
+        min-width: 0;
+    }
+
+    .receipt-file-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 450px) {
+
+    .admin-main {
+        padding: 15px 12px;
+    }
+
+    .admin-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-panel {
+        padding: 14px;
+    }
+
+    .admin-actions {
+        width: 100%;
+    }
+
+    .admin-actions .btn {
+        flex: 1;
+    }
+
+    .modal-content,
+    .admin-modal-content {
+        padding: 19px;
+
+        border-radius: 14px;
+    }
+
+    .receipt-preview {
+        min-height: 200px;
+    }
+}
