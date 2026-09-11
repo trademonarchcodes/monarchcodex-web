@@ -4310,16 +4310,22 @@ window.refreshInvestmentData =
    UPDATE INVESTMENT STATUS
    --------------------------------------------------------- */
 
+/* ---------------------------------------------------------
+   UPDATE INVESTMENT STATUS
+   --------------------------------------------------------- */
+
 async function updateInvestmentStatus(
     investmentId,
     newStatus
 ) {
 
     if (!investmentId) {
+
         showAdminMessage(
             "Invalid investment request.",
             "error"
         );
+
         return false;
     }
 
@@ -4344,23 +4350,35 @@ async function updateInvestmentStatus(
 
     try {
 
+        /* -------------------------------------------------
+           SHOW PROCESSING MESSAGE
+           ------------------------------------------------- */
+
         showAdminMessage(
             newStatus === "confirmed"
                 ? "Confirming investment..."
-                : "Rejecting investment...",
+                : newStatus === "rejected"
+                    ? "Rejecting investment..."
+                    : "Updating investment...",
             "info"
         );
 
 
-        const { data, error } =
-            await supabaseClient
-                .from("investments")
-                .update({
-                    status: newStatus
-                })
-                .eq("id", investmentId)
-                .select()
-                .single();
+        /* -------------------------------------------------
+           UPDATE INVESTMENT
+           ------------------------------------------------- */
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("investments")
+            .update({
+                status: newStatus
+            })
+            .eq("id", investmentId)
+            .select()
+            .single();
 
 
         if (error) {
@@ -4382,11 +4400,11 @@ async function updateInvestmentStatus(
         }
 
 
-        /* ---------------------------------------------
-           UPDATE LOCAL DATA IMMEDIATELY
-           --------------------------------------------- */
+        /* -------------------------------------------------
+           UPDATE LOCAL INVESTMENT DATA IMMEDIATELY
+           ------------------------------------------------- */
 
-        const index =
+        const investmentIndex =
             investmentsData.findIndex(
                 investment =>
                     String(investment.id) ===
@@ -4394,33 +4412,127 @@ async function updateInvestmentStatus(
             );
 
 
-        if (index !== -1) {
+        if (investmentIndex !== -1) {
 
-            investmentsData[index] = {
-                ...investmentsData[index],
+            investmentsData[
+                investmentIndex
+            ] = {
+
+                ...investmentsData[
+                    investmentIndex
+                ],
+
                 ...(data || {}),
-                status: newStatus
+
+                status:
+                    newStatus
             };
         }
 
 
-        /* ---------------------------------------------
-           REFRESH ADMIN DISPLAY
-           --------------------------------------------- */
+        /* -------------------------------------------------
+           AUTOMATICALLY APPROVE PAYMENT RECEIPT
+           WHEN INVESTMENT IS CONFIRMED
+           ------------------------------------------------- */
+
+        let receiptApprovalWarning = false;
+
+
+        if (
+            newStatus === "confirmed"
+        ) {
+
+            const receipt =
+                getReceiptForInvestment(
+                    investmentId
+                );
+
+
+            /*
+             * Only attempt receipt approval
+             * if a receipt actually exists.
+             */
+            if (receipt) {
+
+                const receiptApproved =
+                    await updateReceiptStatus(
+                        investmentId,
+                        "approved",
+                        "Investment confirmed by admin."
+                    );
+
+
+                /*
+                 * If receipt approval failed,
+                 * keep the investment confirmed,
+                 * but warn the administrator.
+                 */
+                if (!receiptApproved) {
+
+                    receiptApprovalWarning =
+                        true;
+                }
+            }
+        }
+
+
+        /* -------------------------------------------------
+           REFRESH INVESTMENT STATISTICS
+           ------------------------------------------------- */
 
         updateInvestmentStatistics();
+
+
+        /* -------------------------------------------------
+           REFRESH INVESTMENT TABLE
+           ------------------------------------------------- */
 
         renderInvestments(
             investmentsData
         );
 
 
-        showAdminMessage(
+        /* -------------------------------------------------
+           FINAL ADMIN MESSAGE
+           ------------------------------------------------- */
+
+        if (
             newStatus === "confirmed"
-                ? "Investment confirmed successfully."
-                : "Investment rejected successfully.",
-            "success"
-        );
+        ) {
+
+            if (
+                receiptApprovalWarning
+            ) {
+
+                showAdminMessage(
+                    "Investment confirmed, but the payment receipt could not be approved automatically. Please review the receipt manually.",
+                    "error"
+                );
+
+            } else {
+
+                showAdminMessage(
+                    "Investment confirmed successfully. Payment receipt approved.",
+                    "success"
+                );
+            }
+
+        } else if (
+            newStatus === "rejected"
+        ) {
+
+            showAdminMessage(
+                "Investment rejected successfully.",
+                "success"
+            );
+
+        } else {
+
+            showAdminMessage(
+                "Investment status updated successfully.",
+                "success"
+            );
+        }
 
 
         return true;
@@ -4433,10 +4545,12 @@ async function updateInvestmentStatus(
             error
         );
 
+
         showAdminMessage(
             "An unexpected error occurred while updating the investment.",
             "error"
         );
+
 
         return false;
     }
