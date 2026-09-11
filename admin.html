@@ -1719,7 +1719,6 @@
            PART 1 ENDS HERE
            ===================================================== */
 
-    </script>
         /* =====================================================
            ADMIN PART 2/12 — SUPABASE + STATE + DOM REFERENCES
            ===================================================== */
@@ -3196,7 +3195,557 @@
 
         window.searchMembers =
             searchMembers;
-    
-</body>
 
-</html>
+    /* =========================================================
+   ADMIN.HTML — PART 4/12
+   PACKAGES, INVESTMENTS & RECEIPTS DATA
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   PACKAGES
+   --------------------------------------------------------- */
+
+async function loadPackages() {
+    try {
+        const { data, error } = await supabaseClient
+            .from("packages")
+            .select("*");
+
+        if (error) {
+            console.error("Package loading error:", error);
+            packagesData = [];
+            return;
+        }
+
+        packagesData = data || [];
+
+        console.log("Packages loaded:", packagesData.length);
+
+    } catch (error) {
+        console.error("Unexpected package loading error:", error);
+        packagesData = [];
+    }
+}
+
+
+function getPackageById(packageId) {
+    if (!packageId) return null;
+
+    return packagesData.find(
+        pkg => String(pkg.id) === String(packageId)
+    ) || null;
+}
+
+
+function getPackageName(packageId) {
+    const pkg = getPackageById(packageId);
+
+    if (!pkg) return "Unknown Package";
+
+    return (
+        pkg.name ||
+        pkg.title ||
+        pkg.package_name ||
+        "Unnamed Package"
+    );
+}
+
+
+function getPackageAmount(packageId) {
+    const pkg = getPackageById(packageId);
+
+    if (!pkg) return null;
+
+    return (
+        pkg.amount ??
+        pkg.price ??
+        pkg.investment_amount ??
+        pkg.package_amount ??
+        null
+    );
+}
+
+
+function getPackageCurrency(packageId) {
+    const pkg = getPackageById(packageId);
+
+    if (!pkg) return "USD";
+
+    return (
+        pkg.currency ||
+        pkg.currency_code ||
+        "USD"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING MEMBER DROPDOWN
+   --------------------------------------------------------- */
+
+function populateEarningMembers() {
+
+    if (!earningMember) return;
+
+    earningMember.innerHTML = `
+        <option value="">Select member</option>
+    `;
+
+    profilesData
+        .filter(profile => {
+            const role = String(profile.role || "member").toLowerCase();
+            return role === "member" || role === "";
+        })
+        .forEach(profile => {
+
+            const option = document.createElement("option");
+
+            option.value = profile.id;
+
+            const name =
+                profile.full_name ||
+                profile.name ||
+                profile.username ||
+                profile.email ||
+                "Unnamed Member";
+
+            const uid =
+                profile.uid ||
+                "No UID";
+
+            option.textContent = `${name} — ${uid}`;
+
+            earningMember.appendChild(option);
+        });
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENTS
+   --------------------------------------------------------- */
+
+async function loadInvestments() {
+
+    try {
+
+        if (investmentsStatus) {
+            investmentsStatus.textContent = "Loading investment requests...";
+        }
+
+        const { data, error } = await supabaseClient
+            .from("investments")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+
+            console.error("Investment loading error:", error);
+
+            investmentsData = [];
+
+            if (investmentsStatus) {
+                investmentsStatus.textContent =
+                    "Unable to load investments.";
+            }
+
+            return;
+        }
+
+        investmentsData = data || [];
+
+        if (investmentsStatus) {
+            investmentsStatus.textContent =
+                `${investmentsData.length} investment request(s) found.`;
+        }
+
+        updateInvestmentStatistics();
+
+        renderInvestments();
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected investment loading error:",
+            error
+        );
+
+        investmentsData = [];
+
+        if (investmentsStatus) {
+            investmentsStatus.textContent =
+                "Unexpected error loading investments.";
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT HELPERS
+   --------------------------------------------------------- */
+
+function getInvestmentById(investmentId) {
+
+    if (!investmentId) return null;
+
+    return investmentsData.find(
+        investment =>
+            String(investment.id) === String(investmentId)
+    ) || null;
+}
+
+
+function getInvestmentMember(investment) {
+
+    if (!investment) return null;
+
+    return getMemberById(
+        investment.user_id ||
+        investment.member_id ||
+        investment.profile_id
+    );
+}
+
+
+function getInvestmentMemberName(investment) {
+
+    const member = getInvestmentMember(investment);
+
+    if (!member) {
+        return "Unknown Member";
+    }
+
+    return (
+        member.full_name ||
+        member.name ||
+        member.username ||
+        member.email ||
+        "Unnamed Member"
+    );
+}
+
+
+function getInvestmentMemberUid(investment) {
+
+    const member = getInvestmentMember(investment);
+
+    if (!member) {
+        return "—";
+    }
+
+    return member.uid || "—";
+}
+
+
+function getInvestmentPackage(investment) {
+
+    if (!investment) return null;
+
+    return getPackageById(
+        investment.package_id
+    );
+}
+
+
+function getInvestmentPackageName(investment) {
+
+    if (!investment) {
+        return "Unknown Package";
+    }
+
+    return getPackageName(
+        investment.package_id
+    );
+}
+
+
+function getInvestmentAmount(investment) {
+
+    if (!investment) return 0;
+
+    return (
+        investment.amount ??
+        investment.investment_amount ??
+        investment.package_amount ??
+        0
+    );
+}
+
+
+function getPaymentMethod(investment) {
+
+    if (!investment) return "—";
+
+    const method =
+        investment.payment_method ||
+        investment.method ||
+        "";
+
+    if (!method) return "—";
+
+    return String(method)
+        .toLowerCase()
+        .trim();
+}
+
+
+function getPaymentNetwork(investment) {
+
+    if (!investment) return "—";
+
+    const network =
+        investment.network ||
+        investment.crypto_network ||
+        investment.payment_network ||
+        investment.selected_network ||
+        investment.chain ||
+        "";
+
+    if (!network) return "—";
+
+    return String(network);
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPTS
+   --------------------------------------------------------- */
+
+async function loadReceipts() {
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("payment_receipts")
+            .select("*")
+            .order("uploaded_at", {
+                ascending: false
+            });
+
+        if (error) {
+
+            console.error(
+                "Receipt loading error:",
+                error
+            );
+
+            receiptsData = [];
+
+            return;
+        }
+
+        receiptsData = data || [];
+
+        console.log(
+            "Payment receipts loaded:",
+            receiptsData.length
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected receipt loading error:",
+            error
+        );
+
+        receiptsData = [];
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT HELPERS
+   --------------------------------------------------------- */
+
+function getReceiptForInvestment(investmentId) {
+
+    if (!investmentId) return null;
+
+    return receiptsData.find(
+        receipt =>
+            String(receipt.investment_id) ===
+            String(investmentId)
+    ) || null;
+}
+
+
+function getReceiptStatus(investmentId) {
+
+    const receipt =
+        getReceiptForInvestment(investmentId);
+
+    if (!receipt) {
+        return "missing";
+    }
+
+    return (
+        receipt.verification_status ||
+        "pending"
+    ).toLowerCase();
+}
+
+
+function getReceiptFileName(investmentId) {
+
+    const receipt =
+        getReceiptForInvestment(investmentId);
+
+    if (!receipt) {
+        return "No receipt";
+    }
+
+    return (
+        receipt.file_name ||
+        "Uploaded receipt"
+    );
+}
+
+
+function getReceiptFilePath(investmentId) {
+
+    const receipt =
+        getReceiptForInvestment(investmentId);
+
+    if (!receipt) {
+        return null;
+    }
+
+    return receipt.file_path || null;
+}
+
+
+function getReceiptPaymentAmount(investmentId) {
+
+    const receipt =
+        getReceiptForInvestment(investmentId);
+
+    if (!receipt) {
+        return null;
+    }
+
+    return receipt.amount ?? null;
+}
+
+
+function getReceiptPaymentMethod(investmentId) {
+
+    const receipt =
+        getReceiptForInvestment(investmentId);
+
+    if (!receipt) {
+        return null;
+    }
+
+    return receipt.payment_method || null;
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT STATUS DISPLAY
+   --------------------------------------------------------- */
+
+function getReceiptStatusLabel(investmentId) {
+
+    const status =
+        getReceiptStatus(investmentId);
+
+    switch (status) {
+
+        case "approved":
+            return "Approved";
+
+        case "rejected":
+            return "Rejected";
+
+        case "pending":
+            return "Pending";
+
+        case "missing":
+            return "No Receipt";
+
+        default:
+            return status
+                ? status.charAt(0).toUpperCase() +
+                  status.slice(1)
+                : "Unknown";
+    }
+}
+
+
+function getReceiptStatusClass(investmentId) {
+
+    const status =
+        getReceiptStatus(investmentId);
+
+    if (status === "approved") {
+        return "status status-approved";
+    }
+
+    if (status === "rejected") {
+        return "status status-rejected";
+    }
+
+    if (status === "pending") {
+        return "status status-pending";
+    }
+
+    return "status";
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT STATISTICS
+   --------------------------------------------------------- */
+
+function updateInvestmentStatistics() {
+
+    const confirmed =
+        investmentsData.filter(
+            investment =>
+                normalizeStatus(investment.status) ===
+                "confirmed"
+        );
+
+    const rejected =
+        investmentsData.filter(
+            investment =>
+                normalizeStatus(investment.status) ===
+                "rejected"
+        );
+
+    const totalInvested =
+        confirmed.reduce(
+            (total, investment) => {
+
+                const amount =
+                    Number(
+                        getInvestmentAmount(investment)
+                    ) || 0;
+
+                return total + amount;
+
+            },
+            0
+        );
+
+    if (confirmedInvestments) {
+        confirmedInvestments.textContent =
+            confirmed.length;
+    }
+
+    if (rejectedInvestments) {
+        rejectedInvestments.textContent =
+            rejected.length;
+    }
+
+    if (totalInvestedAdmin) {
+        totalInvestedAdmin.textContent =
+            formatUsd(totalInvested);
+    }
+}
+
+
+/* =========================================================
+   PART 4 ENDS HERE
+   ========================================================= */
