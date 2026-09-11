@@ -4581,3 +4581,812 @@
 
         return message;
     }
+    function showDashboardMessage(
+        message,
+        type = "info"
+    ) {
+        let container =
+            document.getElementById(
+                "dashboardMessage"
+            );
+
+
+        /*
+         * Create the message container if the
+         * HTML section does not already contain one.
+         */
+
+        if (!container) {
+
+            container =
+                document.createElement("div");
+
+            container.id =
+                "dashboardMessage";
+
+            container.className =
+                "dashboard-message";
+
+
+            document.body.appendChild(
+                container
+            );
+        }
+
+
+        container.textContent =
+            message || "";
+
+
+        container.className =
+            `dashboard-message ${type}`;
+
+
+        container.style.display =
+            "block";
+
+
+        /*
+         * Automatically remove the message
+         * after a few seconds.
+         */
+
+        clearTimeout(
+            window.dashboardMessageTimer
+        );
+
+
+        window.dashboardMessageTimer =
+            setTimeout(() => {
+
+                if (container) {
+                    container.style.display =
+                        "none";
+                }
+
+            }, 5000);
+    }
+
+
+    function hideDashboardMessage() {
+
+        const container =
+            document.getElementById(
+                "dashboardMessage"
+            );
+
+
+        if (!container) return;
+
+
+        clearTimeout(
+            window.dashboardMessageTimer
+        );
+
+
+        container.style.display =
+            "none";
+    }
+
+
+    function showDashboardLoading(
+        message = "Loading your dashboard..."
+    ) {
+
+        let loader =
+            document.getElementById(
+                "dashboardLoading"
+            );
+
+
+        if (!loader) {
+
+            loader =
+                document.createElement("div");
+
+            loader.id =
+                "dashboardLoading";
+
+            loader.className =
+                "dashboard-loading";
+
+
+            loader.innerHTML = `
+                <div class="dashboard-loading-box">
+                    <div class="dashboard-spinner"></div>
+                    <p class="dashboard-loading-text"></p>
+                </div>
+            `;
+
+
+            document.body.appendChild(
+                loader
+            );
+        }
+
+
+        const text =
+            loader.querySelector(
+                ".dashboard-loading-text"
+            );
+
+
+        if (text) {
+            text.textContent =
+                message;
+        }
+
+
+        loader.style.display =
+            "flex";
+    }
+
+
+    function hideDashboardLoading() {
+
+        const loader =
+            document.getElementById(
+                "dashboardLoading"
+            );
+
+
+        if (!loader) return;
+
+
+        loader.style.display =
+            "none";
+    }
+
+
+    function updateWelcomeProfile() {
+
+        if (!profileData) {
+            return;
+        }
+
+
+        const fullName =
+            profileData.full_name ||
+            profileData.name ||
+            "Member";
+
+
+        const uid =
+            profileData.uid ||
+            "MONARCH------";
+
+
+        setText(
+            "welcomeName",
+            fullName
+        );
+
+
+        setText(
+            "welcomeUid",
+            uid
+        );
+
+
+        setText(
+            "profileFullName",
+            fullName
+        );
+
+
+        setText(
+            "profileUid",
+            uid
+        );
+
+
+        setText(
+            "supportUid",
+            uid
+        );
+    }
+
+
+    function updateAccountStatus(
+        status
+    ) {
+
+        const formatted =
+            formatStatus(status);
+
+
+        setText(
+            "accountStatus",
+            formatted
+        );
+
+
+        setText(
+            "profileStatus",
+            formatted
+        );
+
+
+        setText(
+            "overviewStatus",
+            formatted
+        );
+
+
+        const statusElements = [
+            document.getElementById(
+                "accountStatus"
+            ),
+            document.getElementById(
+                "profileStatus"
+            ),
+            document.getElementById(
+                "overviewStatus"
+            )
+        ];
+
+
+        statusElements.forEach(
+            element => {
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.classList.remove(
+                    "status-success",
+                    "status-danger",
+                    "status-pending",
+                    "status-muted"
+                );
+
+
+                element.classList.add(
+                    getStatusClass(status)
+                );
+            }
+        );
+    }
+
+
+    async function copyMonarchUID() {
+
+        const uidElement =
+            document.getElementById(
+                "profileUid"
+            );
+
+
+        const copyButton =
+            document.getElementById(
+                "copyUidBtn"
+            );
+
+
+        if (!uidElement) {
+            return;
+        }
+
+
+        const uid =
+            uidElement.textContent.trim();
+
+
+        if (
+            !uid ||
+            uid === "—" ||
+            uid === "MONARCH------"
+        ) {
+
+            showDashboardMessage(
+                "Your Monarch UID is not available yet.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!navigator.clipboard) {
+
+            showDashboardMessage(
+                "Copy is not supported on this browser.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                uid
+            );
+
+
+            if (copyButton) {
+
+                const originalText =
+                    copyButton.dataset.originalText ||
+                    copyButton.textContent;
+
+
+                copyButton.dataset.originalText =
+                    originalText;
+
+
+                copyButton.textContent =
+                    "✓ Copied";
+
+
+                copyButton.classList.add(
+                    "copied"
+                );
+
+
+                clearTimeout(
+                    window.uidCopyTimer
+                );
+
+
+                window.uidCopyTimer =
+                    setTimeout(() => {
+
+                        copyButton.textContent =
+                            originalText;
+
+                        copyButton.classList.remove(
+                            "copied"
+                        );
+
+                    }, 1800);
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "UID copy error:",
+                error
+            );
+
+
+            showDashboardMessage(
+                "Unable to copy your UID.",
+                "error"
+            );
+        }
+    }
+
+
+    function scrollToSection(
+        sectionId
+    ) {
+
+        const section =
+            document.getElementById(
+                sectionId
+            );
+
+
+        if (!section) {
+            return;
+        }
+
+
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+
+    function toggleMobileMenu() {
+
+        const nav =
+            document.querySelector(
+                ".dashboard-nav"
+            );
+
+
+        if (!nav) {
+            return;
+        }
+
+
+        nav.classList.toggle(
+            "mobile-open"
+        );
+    }
+
+
+    function closeMobileMenu() {
+
+        const nav =
+            document.querySelector(
+                ".dashboard-nav"
+            );
+
+
+        if (!nav) {
+            return;
+        }
+
+
+        nav.classList.remove(
+            "mobile-open"
+        );
+    }
+
+
+    function initializeDashboardInteractions() {
+
+        /*
+         * Close the mobile navigation when
+         * a navigation link is clicked.
+         */
+
+        document
+            .querySelectorAll(
+                ".dashboard-nav a"
+            )
+            .forEach(link => {
+
+                link.addEventListener(
+                    "click",
+                    () => {
+                        closeMobileMenu();
+                    }
+                );
+
+            });
+
+
+        /*
+         * Allow the crypto network select
+         * to control the payment details.
+         */
+
+        const cryptoNetwork =
+            document.getElementById(
+                "cryptoNetwork"
+            );
+
+
+        if (cryptoNetwork) {
+
+            cryptoNetwork.addEventListener(
+                "change",
+                event => {
+
+                    selectCryptoNetwork(
+                        event.target.value
+                    );
+
+                }
+            );
+        }
+
+
+        /*
+         * Receipt file input.
+         */
+
+        const receiptInput =
+            document.getElementById(
+                "receiptFile"
+            );
+
+
+        if (receiptInput) {
+
+            receiptInput.addEventListener(
+                "change",
+                handleReceiptSelected
+            );
+        }
+
+
+        /*
+         * Upload receipt button.
+         */
+
+        const uploadReceiptButton =
+            document.getElementById(
+                "uploadReceiptBtn"
+            );
+
+
+        if (uploadReceiptButton) {
+
+            uploadReceiptButton.addEventListener(
+                "click",
+                async event => {
+
+                    event.preventDefault();
+
+                    await uploadReceipt();
+
+                }
+            );
+        }
+
+
+        /*
+         * Investment submission button.
+         */
+
+        const submitButton =
+            document.getElementById(
+                "submitInvestmentBtn"
+            );
+
+
+        if (submitButton) {
+
+            submitButton.addEventListener(
+                "click",
+                async event => {
+
+                    event.preventDefault();
+
+                    await submitInvestment();
+
+                }
+            );
+        }
+
+
+        /*
+         * Payment method cards.
+         * These are also protected here in case
+         * inline onclick handlers are unavailable.
+         */
+
+        const bankPayment =
+            document.getElementById(
+                "bankPayment"
+            );
+
+
+        if (bankPayment) {
+
+            bankPayment.addEventListener(
+                "click",
+                () => {
+                    selectPaymentMethod(
+                        "bank"
+                    );
+                }
+            );
+        }
+
+
+        const cryptoPayment =
+            document.getElementById(
+                "cryptoPayment"
+            );
+
+
+        if (cryptoPayment) {
+
+            cryptoPayment.addEventListener(
+                "click",
+                () => {
+                    selectPaymentMethod(
+                        "crypto"
+                    );
+                }
+            );
+        }
+    }
+
+
+    function initializeReceiptDragAndDrop() {
+
+        const receiptInput =
+            document.getElementById(
+                "receiptFile"
+            );
+
+
+        if (!receiptInput) {
+            return;
+        }
+
+
+        const uploadArea =
+            receiptInput.closest(
+                ".receipt-upload-area"
+            ) ||
+            receiptInput.parentElement;
+
+
+        if (!uploadArea) {
+            return;
+        }
+
+
+        uploadArea.addEventListener(
+            "dragover",
+            event => {
+
+                event.preventDefault();
+
+                uploadArea.classList.add(
+                    "dragover"
+                );
+            }
+        );
+
+
+        uploadArea.addEventListener(
+            "dragleave",
+            event => {
+
+                event.preventDefault();
+
+                uploadArea.classList.remove(
+                    "dragover"
+                );
+            }
+        );
+
+
+        uploadArea.addEventListener(
+            "drop",
+            event => {
+
+                event.preventDefault();
+
+                uploadArea.classList.remove(
+                    "dragover"
+                );
+
+
+                const files =
+                    event.dataTransfer &&
+                    event.dataTransfer.files;
+
+
+                if (
+                    !files ||
+                    !files.length
+                ) {
+                    return;
+                }
+
+
+                /*
+                 * DataTransfer allows us to assign
+                 * the dropped file to the existing
+                 * file input.
+                 */
+
+                try {
+
+                    const dataTransfer =
+                        new DataTransfer();
+
+
+                    dataTransfer.items.add(
+                        files[0]
+                    );
+
+
+                    receiptInput.files =
+                        dataTransfer.files;
+
+
+                    handleReceiptSelected({
+                        target: receiptInput
+                    });
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Drag/drop receipt error:",
+                        error
+                    );
+
+                    showDashboardMessage(
+                        "Unable to use the dropped file. Please select it normally.",
+                        "error"
+                    );
+                }
+            }
+        );
+    }
+
+
+    function initializePackageSelectionKeyboard() {
+
+        const packageContainer =
+            document.getElementById(
+                "packagesGrid"
+            );
+
+
+        if (!packageContainer) {
+            return;
+        }
+
+
+        packageContainer.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !== "Enter" &&
+                    event.key !== " "
+                ) {
+                    return;
+                }
+
+
+                const card =
+                    event.target.closest(
+                        ".package-card"
+                    );
+
+
+                if (!card) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                const packageId =
+                    card.dataset.packageId;
+
+
+                if (packageId) {
+                    selectPackage(
+                        packageId
+                    );
+                }
+            }
+        );
+    }
+
+
+    function initializeDashboardUI() {
+
+        initializeDashboardInteractions();
+
+        initializeReceiptDragAndDrop();
+
+        initializePackageSelectionKeyboard();
+
+        updateInvestmentFormState();
+
+        updateReceiptPreview();
+
+        hideDashboardLoading();
+    }
+
+
+    /*
+     * Run UI initialization after the dashboard
+     * HTML has been loaded.
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeDashboardUI
+        );
+
+    } else {
+
+        initializeDashboardUI();
+    }
