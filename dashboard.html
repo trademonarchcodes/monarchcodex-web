@@ -2748,3 +2748,384 @@
             }
 
         </script>
+        <script>
+
+            /* =================================================
+               LOAD EARNINGS
+               ================================================= */
+
+            async function loadEarnings(
+                userId
+            ) {
+
+                const earningsContainer =
+                    document.getElementById(
+                        "earningsList"
+                    );
+
+
+                if (!earningsContainer) {
+
+                    return;
+
+                }
+
+
+                earningsContainer.innerHTML = `
+                    <div class="loading-state">
+                        Loading earnings...
+                    </div>
+                `;
+
+
+                try {
+
+                    const {
+                        data,
+                        error
+                    } = await supabaseClient
+                        .from("earnings")
+                        .select("*")
+                        .eq(
+                            "user_id",
+                            userId
+                        )
+                        .order(
+                            "created_at",
+                            {
+                                ascending: false
+                            }
+                        );
+
+
+                    if (error) {
+
+                        console.error(
+                            "Earnings loading error:",
+                            error
+                        );
+
+
+                        earningsContainer.innerHTML = `
+                            <div class="empty-state">
+                                Unable to load earnings.
+                            </div>
+                        `;
+
+
+                        return;
+
+                    }
+
+
+                    const earnings =
+                        data || [];
+
+
+                    /*
+                     * Calculate total earnings
+                     */
+
+                    const totalEarnings =
+                        earnings.reduce(
+                            function (
+                                total,
+                                earning
+                            ) {
+
+                                return (
+                                    total +
+                                    (
+                                        Number(
+                                            earning.amount
+                                        ) || 0
+                                    )
+                                );
+
+                            },
+                            0
+                        );
+
+
+                    /*
+                     * Update total earnings display
+                     */
+
+                    const statEarnings =
+                        document.getElementById(
+                            "statEarnings"
+                        );
+
+
+                    if (statEarnings) {
+
+                        statEarnings.textContent =
+                            formatMoney(
+                                totalEarnings
+                            );
+
+                    }
+
+
+                    /*
+                     * No earnings
+                     */
+
+                    if (
+                        earnings.length === 0
+                    ) {
+
+                        earningsContainer.innerHTML = `
+                            <div class="empty-state">
+                                No earnings have been
+                                recorded yet.
+                            </div>
+                        `;
+
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Render earnings
+                     */
+
+                    earningsContainer.innerHTML =
+                        earnings
+                            .map(
+                                function (
+                                    earning
+                                ) {
+
+                                    const amount =
+                                        Number(
+                                            earning.amount
+                                        ) || 0;
+
+
+                                    const description =
+                                        earning.description ||
+                                        earning.type ||
+                                        "Earning";
+
+
+                                    return `
+
+                                        <div class="earning-item">
+
+                                            <div class="earning-main">
+
+                                                <div class="earning-title">
+                                                    ${escapeHtml(
+                                                        description
+                                                    )}
+                                                </div>
+
+                                                <div class="earning-date">
+                                                    ${formatDate(
+                                                        earning.created_at
+                                                    )}
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="earning-amount">
+
+                                                +${formatMoney(
+                                                    amount
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                    `;
+
+                                }
+                            )
+                            .join("");
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Unexpected earnings error:",
+                        error
+                    );
+
+
+                    earningsContainer.innerHTML = `
+                        <div class="empty-state">
+                            Unable to load earnings.
+                        </div>
+                    `;
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               LOGOUT
+               ================================================= */
+
+            async function logout() {
+
+                try {
+
+                    const {
+                        error
+                    } =
+                        await supabaseClient
+                            .auth
+                            .signOut();
+
+
+                    if (error) {
+
+                        console.error(
+                            "Logout error:",
+                            error
+                        );
+
+
+                        showDashboardMessage(
+                            "Unable to log out. Please try again.",
+                            "error"
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Redirect to login
+                     */
+
+                    window.location.href =
+                        "login.html";
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Unexpected logout error:",
+                        error
+                    );
+
+
+                    window.location.href =
+                        "login.html";
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               AUTH STATE MONITOR
+               ================================================= */
+
+            supabaseClient
+                .auth
+                .onAuthStateChange(
+                    function (
+                        event,
+                        session
+                    ) {
+
+                        console.log(
+                            "Auth state changed:",
+                            event
+                        );
+
+
+                        /*
+                         * If the session disappears,
+                         * send the user back to login.
+                         */
+
+                        if (
+                            (
+                                event ===
+                                "SIGNED_OUT"
+                            ) ||
+                            !session
+                        ) {
+
+                            if (
+                                window.location.pathname
+                                    .toLowerCase()
+                                    .includes(
+                                        "dashboard"
+                                    )
+                            ) {
+
+                                window.location.href =
+                                    "login.html";
+
+                            }
+
+                        }
+
+                    }
+                );
+
+
+
+            /* =================================================
+               PREVENT ENTER KEY FROM ACCIDENTALLY
+               SUBMITTING UNRELATED FORMS
+               ================================================= */
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key !== "Enter"
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const target =
+                        event.target;
+
+
+                    if (
+                        target &&
+                        target.tagName ===
+                        "INPUT"
+                    ) {
+
+                        /*
+                         * Allow normal input behaviour
+                         * except where the input is not
+                         * intended to submit anything.
+                         */
+
+                        if (
+                            target.type !==
+                            "submit"
+                        ) {
+
+                            return;
+
+                        }
+
+                    }
+
+                }
+            );
+
+        </script>
