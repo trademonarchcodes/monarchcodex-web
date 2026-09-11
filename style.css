@@ -2791,3 +2791,234 @@ nav ul a:hover {
         padding: 15px;
     }
 }
+
+/* =========================================================
+   PART 7/12 — INVESTMENT PACKAGES
+   ========================================================= */
+
+/* ---------- PACKAGES GRID ---------- */
+
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+/* ---------- PACKAGE CARD ---------- */
+
+.package-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 25px;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.package-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent-gold),
+        transparent
+    );
+    opacity: 0.65;
+}
+
+.package-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(212, 175, 55, 0.45);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- PACKAGE NAME ---------- */
+
+.package-card h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 800;
+}
+
+/* ---------- PACKAGE DESCRIPTION ---------- */
+
+.package-card p {
+    margin: 0 0 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+/* ---------- PACKAGE AMOUNT ---------- */
+
+.package-card .package-amount,
+.package-card .amount {
+    margin: 4px 0 18px;
+    color: var(--accent-gold);
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 850;
+}
+
+.package-card .package-amount small,
+.package-card .amount small {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ---------- PACKAGE DETAILS ---------- */
+
+.package-card .package-details {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    margin-bottom: 22px;
+}
+
+.package-card .package-detail {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.package-card .package-detail:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.package-card .package-detail span:first-child {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.package-card .package-detail span:last-child {
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ---------- PACKAGE RETURN / PROFIT ---------- */
+
+.package-card .profit,
+.package-card .return-rate {
+    color: var(--accent-gold);
+    font-weight: 800;
+}
+
+/* ---------- PACKAGE BUTTON ---------- */
+
+.package-card .primary-btn,
+.package-card .btn {
+    width: 100%;
+    margin-top: auto;
+}
+
+/* ---------- PACKAGE BADGE ---------- */
+
+.package-card .package-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    color: var(--accent-gold);
+    background: rgba(212, 175, 55, 0.10);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ---------- DYNAMIC PACKAGE CONTENT ---------- */
+
+.packages-grid > div {
+    min-width: 0;
+}
+
+/*
+   The dashboard JavaScript may generate package cards
+   dynamically. These rules keep their content consistent.
+*/
+
+.packages-grid strong {
+    color: var(--text-primary);
+}
+
+.packages-grid span {
+    color: var(--text-muted);
+}
+
+.packages-grid button {
+    cursor: pointer;
+}
+
+/* ---------- SELECTED PACKAGE ---------- */
+
+.package-card.selected {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25);
+}
+
+.package-card.selected::before {
+    opacity: 1;
+}
+
+/* ---------- PACKAGES EMPTY STATE ---------- */
+
+.packages-grid .empty-state {
+    grid-column: 1 / -1;
+}
+
+/* ---------- PACKAGE RESPONSIVE ---------- */
+
+@media (max-width: 1050px) {
+    .packages-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .packages-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .package-card {
+        padding: 21px;
+        border-radius: 14px;
+    }
+
+    .package-card h3 {
+        font-size: 19px;
+    }
+
+    .package-card .package-amount,
+    .package-card .amount {
+        font-size: 25px;
+    }
+}
+
+@media (max-width: 400px) {
+    .package-card {
+        padding: 18px;
+    }
+}
