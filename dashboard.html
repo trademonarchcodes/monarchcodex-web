@@ -2327,29 +2327,7 @@
                 cryptoRow.wallet_address || "—";
         }
 
-        if (minimumAmount) {
-            minimumAmount.textContent =
-                formatPaymentAmount(
-                    cryptoRow.minimum_amount,
-                    cryptoRow.currency || "USD"
-                );
-        }
-
-        if (feeAmount) {
-            feeAmount.textContent =
-                formatPaymentAmount(
-                    cryptoRow.fee_amount,
-                    cryptoRow.currency || "USD"
-                );
-        }
-
-        if (totalAmount) {
-            totalAmount.textContent =
-                formatPaymentAmount(
-                    cryptoRow.total_amount,
-                    cryptoRow.currency || "USD"
-                );
-        }
+        renderCryptoPaymentAmount();
 
         if (instructions) {
             instructions.textContent =
