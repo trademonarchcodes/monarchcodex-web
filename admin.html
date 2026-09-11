@@ -5908,3 +5908,528 @@
         formatNetworkName;
 
 </script>
+/* =========================================================
+   ADMIN INITIALIZATION
+   ========================================================= */
+
+async function initializeAdmin() {
+    try {
+        clearAdminMessage();
+
+        /*
+         * Step 1 — Verify that a logged-in user exists
+         * and that the user has admin privileges.
+         */
+        const authorized = await checkAdminAuthorization();
+
+        if (!authorized) {
+            return;
+        }
+
+        showAdminMessage("Loading admin dashboard...", "info");
+
+        /*
+         * Step 2 — Load all required database data.
+         *
+         * The order is intentional:
+         * profiles → packages → investments → receipts → earnings
+         */
+        await loadProfiles();
+
+        await loadPackages();
+
+        await loadInvestments();
+
+        await loadEarnings();
+
+        /*
+         * Step 3 — Refresh all statistic cards.
+         */
+        refreshStatisticCards();
+
+        /*
+         * Step 4 — Populate the earnings member selector.
+         */
+        populateEarningMembers();
+
+        /*
+         * Step 5 — Render all tables again after everything
+         * has finished loading.
+         */
+        renderMembers();
+
+        renderInvestments();
+
+        renderEarnings();
+
+        clearAdminMessage();
+
+    } catch (error) {
+        console.error("Admin initialization error:", error);
+
+        showAdminMessage(
+            getDatabaseErrorMessage(error),
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   AUTHENTICATION SESSION CHECK
+   ========================================================= */
+
+async function verifyAdminSession() {
+    try {
+        const {
+            data: { session },
+            error
+        } = await supabaseClient.auth.getSession();
+
+        if (error) {
+            console.error("Session error:", error);
+
+            showAdminMessage(
+                "Unable to verify your login session.",
+                "error"
+            );
+
+            return false;
+        }
+
+        if (!session || !session.user) {
+            console.warn("No active admin session.");
+
+            window.location.href = "login.html";
+
+            return false;
+        }
+
+        currentAdmin = session.user;
+
+        return true;
+
+    } catch (error) {
+        console.error("verifyAdminSession error:", error);
+
+        window.location.href = "login.html";
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   AUTH STATE MONITOR
+   ========================================================= */
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+
+    console.log("Admin auth event:", event);
+
+    if (event === "SIGNED_OUT") {
+        currentAdmin = null;
+
+        window.location.href = "login.html";
+
+        return;
+    }
+
+    if (session && session.user) {
+        currentAdmin = session.user;
+    }
+});
+
+
+/* =========================================================
+   ADMIN PAGE REFRESH
+   ========================================================= */
+
+async function reloadAdminDashboard() {
+    const refreshButton = document.getElementById("refreshAdminBtn");
+
+    if (refreshButton) {
+        refreshButton.disabled = true;
+        refreshButton.textContent = "Refreshing...";
+    }
+
+    try {
+        await refreshAdminData();
+
+        renderMembers();
+        renderInvestments();
+        renderEarnings();
+
+        refreshStatisticCards();
+
+        populateEarningMembers();
+
+        showAdminMessage(
+            "Admin dashboard refreshed successfully.",
+            "success"
+        );
+
+        setTimeout(() => {
+            clearAdminMessage();
+        }, 2500);
+
+    } catch (error) {
+        console.error("Dashboard refresh error:", error);
+
+        showAdminMessage(
+            getDatabaseErrorMessage(error),
+            "error"
+        );
+
+    } finally {
+
+        if (refreshButton) {
+            refreshButton.disabled = false;
+            refreshButton.textContent = "Refresh";
+        }
+    }
+}
+
+
+/* =========================================================
+   OPTIONAL REFRESH BUTTON
+   ========================================================= */
+
+function createRefreshButtonHandler() {
+
+    const existingButton =
+        document.getElementById("refreshAdminBtn");
+
+    if (existingButton) {
+        existingButton.addEventListener(
+            "click",
+            reloadAdminDashboard
+        );
+    }
+}
+
+
+/* =========================================================
+   TABLE SEARCH HELPERS
+   ========================================================= */
+
+function setupAdminSearchInputs() {
+
+    const memberSearch =
+        document.getElementById("memberSearch");
+
+    if (memberSearch) {
+
+        memberSearch.addEventListener("input", function () {
+
+            const query = this.value.trim();
+
+            if (!query) {
+                renderMembers();
+                return;
+            }
+
+            searchMembers(query);
+        });
+    }
+
+
+    const investmentSearch =
+        document.getElementById("investmentSearch");
+
+    if (investmentSearch) {
+
+        investmentSearch.addEventListener("input", function () {
+
+            const query =
+                this.value.trim().toLowerCase();
+
+            if (!query) {
+                renderInvestments();
+                return;
+            }
+
+            const originalData = investmentsData;
+
+            const filtered =
+                originalData.filter(investment => {
+
+                    const member =
+                        getMemberById(investment.user_id);
+
+                    const memberName =
+                        member
+                            ? (
+                                member.full_name ||
+                                member.name ||
+                                member.email ||
+                                ""
+                              )
+                            : "";
+
+                    const uid =
+                        member
+                            ? getMemberUid(member)
+                            : "";
+
+                    const packageName =
+                        getPackageName(
+                            investment.package_id
+                        );
+
+                    const paymentMethod =
+                        getPaymentMethod(
+                            investment
+                        );
+
+                    return (
+                        memberName
+                            .toLowerCase()
+                            .includes(query) ||
+
+                        uid
+                            .toLowerCase()
+                            .includes(query) ||
+
+                        packageName
+                            .toLowerCase()
+                            .includes(query) ||
+
+                        paymentMethod
+                            .toLowerCase()
+                            .includes(query)
+                    );
+                });
+
+            investmentsData = filtered;
+
+            renderInvestments();
+
+            investmentsData = originalData;
+        });
+    }
+}
+
+
+/* =========================================================
+   STATUS FILTER SELECTORS
+   ========================================================= */
+
+function setupStatusFilters() {
+
+    const investmentFilter =
+        document.getElementById("investmentStatusFilter");
+
+    if (investmentFilter) {
+
+        investmentFilter.addEventListener(
+            "change",
+            function () {
+
+                const value =
+                    this.value.trim();
+
+                if (!value) {
+                    renderInvestments();
+                    return;
+                }
+
+                filterInvestments(value);
+            }
+        );
+    }
+
+
+    const receiptFilter =
+        document.getElementById("receiptStatusFilter");
+
+    if (receiptFilter) {
+
+        receiptFilter.addEventListener(
+            "change",
+            function () {
+
+                const value =
+                    this.value.trim();
+
+                if (!value) {
+                    renderInvestments();
+                    return;
+                }
+
+                filterReceiptStatus(value);
+            }
+        );
+    }
+}
+
+
+/* =========================================================
+   FORM VALIDATION
+   ========================================================= */
+
+function setupEarningFormValidation() {
+
+    if (!earningForm) {
+        return;
+    }
+
+    earningForm.addEventListener("input", () => {
+
+        if (earningsStatus) {
+            clearEarningsStatus();
+        }
+    });
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+
+document.addEventListener("keydown", function (event) {
+
+    /*
+     * Escape closes the receipt modal.
+     */
+    if (event.key === "Escape") {
+
+        const modal =
+            document.getElementById("receiptModal");
+
+        if (
+            modal &&
+            modal.classList.contains("active")
+        ) {
+            closeReceiptModal();
+        }
+    }
+
+
+    /*
+     * Ctrl + R / Cmd + R is left to the browser.
+     *
+     * Ctrl + Shift + R is also left untouched.
+     *
+     * Ctrl + Shift + A provides a convenient
+     * admin refresh shortcut.
+     */
+    if (
+        event.shiftKey &&
+        event.ctrlKey &&
+        event.key.toLowerCase() === "a"
+    ) {
+
+        event.preventDefault();
+
+        reloadAdminDashboard();
+    }
+});
+
+
+/* =========================================================
+   VISIBILITY REFRESH
+   ========================================================= */
+
+document.addEventListener(
+    "visibilitychange",
+    async function () {
+
+        if (
+            document.visibilityState === "visible" &&
+            currentAdmin
+        ) {
+
+            try {
+
+                await refreshAdminData();
+
+                renderMembers();
+                renderInvestments();
+                renderEarnings();
+
+                refreshStatisticCards();
+
+                populateEarningMembers();
+
+            } catch (error) {
+
+                console.error(
+                    "Visibility refresh error:",
+                    error
+                );
+            }
+        }
+    }
+);
+
+
+/* =========================================================
+   DOM READY
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+        console.log(
+            "MONARCH CODEX ADMIN — Initializing..."
+        );
+
+        /*
+         * Verify the authentication session first.
+         */
+        const sessionValid =
+            await verifyAdminSession();
+
+        if (!sessionValid) {
+            return;
+        }
+
+        /*
+         * Connect optional controls.
+         */
+        createRefreshButtonHandler();
+
+        setupAdminSearchInputs();
+
+        setupStatusFilters();
+
+        setupEarningFormValidation();
+
+        /*
+         * Load the complete admin dashboard.
+         */
+        await initializeAdmin();
+
+        console.log(
+            "MONARCH CODEX ADMIN — Ready."
+        );
+    }
+);
+
+
+/* =========================================================
+   WINDOW EXPORTS
+   ========================================================= */
+
+window.initializeAdmin =
+    initializeAdmin;
+
+window.reloadAdminDashboard =
+    reloadAdminDashboard;
+
+window.refreshAdminDashboard =
+    reloadAdminDashboard;
+
+window.verifyAdminSession =
+    verifyAdminSession;
+
+window.searchMembers =
+    searchMembers;
+
+window.filterInvestments =
+    filterInvestments;
+
+window.filterReceiptStatus =
+    filterReceiptStatus;
