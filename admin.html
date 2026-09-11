@@ -4882,3 +4882,498 @@
         addEarning;
 
 </script>
+<script>
+    /* =========================================================
+       MONARCH CODEX — ADMIN PANEL
+       PART 9/12 — ADMIN DATA REFRESH & DASHBOARD HELPERS
+       ========================================================= */
+
+
+    /* =========================================================
+       REFRESH ALL ADMIN DATA
+       ========================================================= */
+
+    async function refreshAdminData() {
+
+        showAdminMessage(
+            "Refreshing admin data...",
+            "info"
+        );
+
+
+        try {
+
+            await Promise.all([
+                loadProfiles(),
+                loadPackages(),
+                loadEarnings()
+            ]);
+
+
+            /*
+             * Investments are loaded separately because
+             * their rendering depends on receipts.
+             */
+            await loadInvestments();
+
+
+            showAdminMessage(
+                "Admin data refreshed successfully.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Admin refresh error:",
+                error
+            );
+
+
+            showAdminMessage(
+                "Some admin data could not be refreshed.",
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       CALCULATE TOTAL INVESTED
+       ========================================================= */
+
+    function calculateTotalInvested() {
+
+        return investmentsData.reduce(
+            (total, investment) => {
+
+                const status =
+                    normalizeStatus(
+                        investment.status
+                    );
+
+
+                if (
+                    status === "confirmed" ||
+                    status === "approved" ||
+                    status === "active" ||
+                    status === "completed"
+                ) {
+
+                    return total +
+                        Number(
+                            investment.amount || 0
+                        );
+                }
+
+
+                return total;
+
+            },
+            0
+        );
+    }
+
+
+    /* =========================================================
+       GET CONFIRMED INVESTMENTS
+       ========================================================= */
+
+    function getConfirmedInvestments() {
+
+        return investmentsData.filter(
+            investment => {
+
+                const status =
+                    normalizeStatus(
+                        investment.status
+                    );
+
+                return status === "confirmed";
+            }
+        );
+    }
+
+
+    /* =========================================================
+       GET PENDING INVESTMENTS
+       ========================================================= */
+
+    function getPendingInvestments() {
+
+        return investmentsData.filter(
+            investment => {
+
+                return normalizeStatus(
+                    investment.status
+                ) === "pending";
+
+            }
+        );
+    }
+
+
+    /* =========================================================
+       GET REJECTED INVESTMENTS
+       ========================================================= */
+
+    function getRejectedInvestments() {
+
+        return investmentsData.filter(
+            investment => {
+
+                return normalizeStatus(
+                    investment.status
+                ) === "rejected";
+
+            }
+        );
+    }
+
+
+    /* =========================================================
+       GET MEMBER INVESTMENTS
+       ========================================================= */
+
+    function getMemberInvestments(
+        userId
+    ) {
+
+        if (!userId) {
+            return [];
+        }
+
+        return investmentsData.filter(
+            investment =>
+                String(investment.user_id) ===
+                String(userId)
+        );
+    }
+
+
+    /* =========================================================
+       GET MEMBER EARNINGS
+       ========================================================= */
+
+    function getMemberEarnings(
+        userId
+    ) {
+
+        if (!userId) {
+            return [];
+        }
+
+        return earningsData.filter(
+            earning =>
+                String(earning.user_id) ===
+                String(userId)
+        );
+    }
+
+
+    /* =========================================================
+       GET MEMBER TOTAL INVESTMENT
+       ========================================================= */
+
+    function getMemberTotalInvestment(
+        userId
+    ) {
+
+        const memberInvestments =
+            getMemberInvestments(
+                userId
+            );
+
+
+        return memberInvestments.reduce(
+            (total, investment) => {
+
+                const status =
+                    normalizeStatus(
+                        investment.status
+                    );
+
+
+                if (
+                    status === "confirmed" ||
+                    status === "approved" ||
+                    status === "active" ||
+                    status === "completed"
+                ) {
+
+                    return total +
+                        Number(
+                            investment.amount || 0
+                        );
+                }
+
+
+                return total;
+
+            },
+            0
+        );
+    }
+
+
+    /* =========================================================
+       GET MEMBER TOTAL EARNINGS
+       ========================================================= */
+
+    function getMemberTotalEarnings(
+        userId
+    ) {
+
+        const memberEarnings =
+            getMemberEarnings(
+                userId
+            );
+
+
+        return memberEarnings.reduce(
+            (total, earning) => {
+
+                const status =
+                    normalizeStatus(
+                        earning.status ||
+                        "confirmed"
+                    );
+
+
+                if (
+                    status === "confirmed" ||
+                    status === "approved" ||
+                    status === "active" ||
+                    status === "completed"
+                ) {
+
+                    return total +
+                        Number(
+                            earning.amount || 0
+                        );
+                }
+
+
+                return total;
+
+            },
+            0
+        );
+    }
+
+
+    /* =========================================================
+       ADMIN SUMMARY OBJECT
+       ========================================================= */
+
+    function getAdminSummary() {
+
+        return {
+
+            totalMembers:
+                profilesData.length,
+
+            pendingMembers:
+                profilesData.filter(
+                    profile =>
+                        normalizeStatus(
+                            profile.status
+                        ) === "pending"
+                ).length,
+
+            totalInvested:
+                calculateTotalInvested(),
+
+            confirmedInvestments:
+                getConfirmedInvestments()
+                    .length,
+
+            pendingInvestments:
+                getPendingInvestments()
+                    .length,
+
+            rejectedInvestments:
+                getRejectedInvestments()
+                    .length,
+
+            totalEarnings:
+                earningsData.reduce(
+                    (total, earning) =>
+                        total +
+                        Number(
+                            earning.amount || 0
+                        ),
+                    0
+                )
+        };
+    }
+
+
+    /* =========================================================
+       REFRESH STATISTIC CARDS
+       ========================================================= */
+
+    function refreshStatisticCards() {
+
+        const summary =
+            getAdminSummary();
+
+
+        if (totalMembersEl) {
+
+            totalMembersEl.textContent =
+                summary.totalMembers
+                    .toLocaleString("en-US");
+        }
+
+
+        if (pendingMembersEl) {
+
+            pendingMembersEl.textContent =
+                summary.pendingMembers
+                    .toLocaleString("en-US");
+        }
+
+
+        if (totalInvestedAdminEl) {
+
+            totalInvestedAdminEl.textContent =
+                formatUsd(
+                    summary.totalInvested
+                );
+        }
+
+
+        if (confirmedInvestmentsEl) {
+
+            confirmedInvestmentsEl.textContent =
+                summary.confirmedInvestments
+                    .toLocaleString("en-US");
+        }
+
+
+        if (rejectedInvestmentsEl) {
+
+            rejectedInvestmentsEl.textContent =
+                summary.rejectedInvestments
+                    .toLocaleString("en-US");
+        }
+    }
+
+
+    /* =========================================================
+       SEARCH MEMBERS
+       ========================================================= */
+
+    function searchMembers(
+        searchTerm
+    ) {
+
+        const term =
+            String(searchTerm || "")
+                .trim()
+                .toLowerCase();
+
+
+        if (!term) {
+
+            renderMembers();
+
+            return;
+        }
+
+
+        const originalProfiles =
+            profilesData;
+
+
+        const filtered =
+            originalProfiles.filter(
+                profile => {
+
+                    const name =
+                        String(
+                            profile.full_name ||
+                            profile.name ||
+                            ""
+                        ).toLowerCase();
+
+
+                    const email =
+                        String(
+                            profile.email ||
+                            ""
+                        ).toLowerCase();
+
+
+                    const phone =
+                        String(
+                            profile.phone ||
+                            profile.phone_number ||
+                            ""
+                        ).toLowerCase();
+
+
+                    const uid =
+                        String(
+                            profile.uid ||
+                            ""
+                        ).toLowerCase();
+
+
+                    return (
+                        name.includes(term) ||
+                        email.includes(term) ||
+                        phone.includes(term) ||
+                        uid.includes(term)
+                    );
+                }
+            );
+
+
+        const backup =
+            profilesData;
+
+
+        profilesData =
+            filtered;
+
+
+        renderMembers();
+
+
+        profilesData =
+            backup;
+    }
+
+
+    /* =========================================================
+       REFRESH AFTER INVESTMENT ACTION
+       ========================================================= */
+
+    async function refreshAfterInvestmentAction() {
+
+        await loadInvestments();
+
+        refreshStatisticCards();
+    }
+
+
+    /* =========================================================
+       WINDOW EXPORTS
+       ========================================================= */
+
+    window.refreshAdminData =
+        refreshAdminData;
+
+    window.refreshStatisticCards =
+        refreshStatisticCards;
+
+    window.searchMembers =
+        searchMembers;
+
+    window.getAdminSummary =
+        getAdminSummary;
+
+</script>
