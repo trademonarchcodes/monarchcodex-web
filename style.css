@@ -6195,3 +6195,81 @@ textarea:focus-visible {
 /* =========================================================
     END OF CLEAN MONARCH CODEX CSS
  ========================================================= */
+/* =========================================================
+   REFRESH BUTTON — CSS ONLY
+========================================================= */
+
+.refresh-btn,
+button[onclick*="refresh"],
+button[onclick*="Refresh"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 36px;
+    padding: 8px 14px;
+
+    color: #d4af37;
+
+    background: rgba(212, 175, 55, 0.07);
+
+    border: 1px solid rgba(212, 175, 55, 0.22);
+
+    border-radius: 9px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.refresh-btn:hover,
+button[onclick*="refresh"]:hover,
+button[onclick*="Refresh"]:hover {
+    color: #ffffff;
+
+    background: rgba(212, 175, 55, 0.14);
+
+    border-color: rgba(212, 175, 55, 0.40);
+
+    box-shadow:
+        0 5px 18px rgba(212, 175, 55, 0.10);
+
+    transform: translateY(-1px);
+}
+
+.refresh-btn:active,
+button[onclick*="refresh"]:active,
+button[onclick*="Refresh"]:active {
+    transform: translateY(0);
+
+    box-shadow: none;
+}
+
+.refresh-btn:focus-visible,
+button[onclick*="refresh"]:focus-visible,
+button[onclick*="Refresh"]:focus-visible {
+    outline: 2px solid #d4af37;
+    outline-offset: 2px;
+}
+
+
+/* Mobile */
+@media (max-width: 600px) {
+    .refresh-btn,
+    button[onclick*="refresh"],
+    button[onclick*="Refresh"] {
+        min-height: 34px;
+        padding: 7px 11px;
+
+        font-size: 9px;
+    }
+}
