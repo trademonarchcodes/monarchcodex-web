@@ -842,3 +842,712 @@
 
         </section>
 
+        <script>
+
+            /* =================================================
+               DASHBOARD INITIALIZATION
+               ================================================= */
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                async function () {
+
+                    await loadMemberDashboard();
+
+                }
+            );
+
+
+            /* =================================================
+               LOAD MEMBER DASHBOARD
+               ================================================= */
+
+            async function loadMemberDashboard() {
+
+                try {
+
+                    const {
+                        data: {
+                            user
+                        },
+                        error: sessionError
+                    } =
+                        await supabaseClient.auth.getUser();
+
+
+                    if (
+                        sessionError ||
+                        !user
+                    ) {
+
+                        window.location.href =
+                            "login.html";
+
+                        return;
+
+                    }
+
+
+                    currentUser = user;
+
+
+                    /*
+                     * Load all dashboard information
+                     */
+
+                    await loadProfile();
+
+                    await loadPackages();
+
+                    await loadInvestmentHistory(
+                        user.id
+                    );
+
+                    await loadEarnings(
+                        user.id
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Dashboard loading error:",
+                        error
+                    );
+
+
+                    showDashboardMessage(
+                        "Unable to load your dashboard. Please refresh the page.",
+                        "error"
+                    );
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               LOAD PROFILE
+               ================================================= */
+
+            async function loadProfile() {
+
+                if (!currentUser) {
+                    return;
+                }
+
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                    .from("profiles")
+                    .select("*")
+                    .eq(
+                        "id",
+                        currentUser.id
+                    )
+                    .single();
+
+
+                if (error) {
+
+                    console.error(
+                        "Profile loading error:",
+                        error
+                    );
+
+                    return;
+
+                }
+
+
+                profileData = data;
+
+
+                /* =============================================
+                   MONARCH UID
+                   ============================================= */
+
+                const uidElement =
+                    document.getElementById(
+                        "profileUid"
+                    );
+
+
+                if (uidElement) {
+
+                    uidElement.textContent =
+                        data.uid || "—";
+
+                }
+
+
+                /* =============================================
+                   FULL NAME
+                   ============================================= */
+
+                const fullNameElement =
+                    document.getElementById(
+                        "profileFullName"
+                    );
+
+
+                if (fullNameElement) {
+
+                    fullNameElement.textContent =
+                        data.full_name || "—";
+
+                }
+
+
+                /* =============================================
+                   PHONE
+                   ============================================= */
+
+                const phoneElement =
+                    document.getElementById(
+                        "profilePhone"
+                    );
+
+
+                if (phoneElement) {
+
+                    phoneElement.textContent =
+                        data.phone || "—";
+
+                }
+
+
+                /* =============================================
+                   ACCOUNT STATUS
+                   ============================================= */
+
+                const status =
+                    data.status ||
+                    "active";
+
+
+                const statusElement =
+                    document.getElementById(
+                        "profileStatus"
+                    );
+
+
+                if (statusElement) {
+
+                    statusElement.textContent =
+                        formatStatus(status);
+
+                }
+
+
+                /* =============================================
+                   WELCOME NAME
+                   ============================================= */
+
+                const welcomeElement =
+                    document.getElementById(
+                        "welcomeName"
+                    );
+
+
+                if (welcomeElement) {
+
+                    const name =
+                        data.full_name ||
+                        currentUser.user_metadata?.full_name ||
+                        "Monarch";
+
+
+                    welcomeElement.textContent =
+                        name.split(" ")[0];
+
+                }
+
+
+                /* =============================================
+                   STAT STATUS
+                   ============================================= */
+
+                const statStatus =
+                    document.getElementById(
+                        "statStatus"
+                    );
+
+
+                if (statStatus) {
+
+                    statStatus.textContent =
+                        formatStatus(status);
+
+                }
+
+
+                /* =============================================
+                   MEMBER SINCE
+                   ============================================= */
+
+                const memberSince =
+                    document.getElementById(
+                        "memberSince"
+                    );
+
+
+                if (
+                    memberSince &&
+                    data.created_at
+                ) {
+
+                    memberSince.textContent =
+                        formatDate(
+                            data.created_at
+                        );
+
+                }
+
+
+                /* =============================================
+                   ACCOUNT TYPE
+                   ============================================= */
+
+                const accountType =
+                    document.getElementById(
+                        "accountType"
+                    );
+
+
+                if (accountType) {
+
+                    accountType.textContent =
+                        "MEMBER";
+
+                }
+
+
+                /* =============================================
+                   VERIFICATION
+                   ============================================= */
+
+                const verificationStatus =
+                    document.getElementById(
+                        "verificationStatus"
+                    );
+
+
+                if (verificationStatus) {
+
+                    verificationStatus.textContent =
+                        formatStatus(
+                            data.verification_status ||
+                            "pending"
+                        );
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               COPY MONARCH UID
+               ================================================= */
+
+            async function copyMonarchUID() {
+
+                const uid =
+                    profileData &&
+                    profileData.uid
+                        ? profileData.uid
+                        : null;
+
+
+                const button =
+                    document.getElementById(
+                        "copyUidBtn"
+                    );
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                if (!uid) {
+
+                    button.textContent =
+                        "Unavailable";
+
+
+                    setTimeout(
+                        function () {
+
+                            button.textContent =
+                                "📋 Copy";
+
+                        },
+                        1500
+                    );
+
+
+                    return;
+
+                }
+
+
+                try {
+
+                    await navigator
+                        .clipboard
+                        .writeText(uid);
+
+
+                    button.textContent =
+                        "✓ Copied";
+
+
+                    button.classList.add(
+                        "copied"
+                    );
+
+
+                    setTimeout(
+                        function () {
+
+                            button.textContent =
+                                "📋 Copy";
+
+
+                            button.classList.remove(
+                                "copied"
+                            );
+
+                        },
+                        2000
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "UID copy failed:",
+                        error
+                    );
+
+
+                    /*
+                     * Fallback for browsers where
+                     * navigator.clipboard isn't available.
+                     */
+
+                    try {
+
+                        const textArea =
+                            document.createElement(
+                                "textarea"
+                            );
+
+
+                        textArea.value =
+                            uid;
+
+
+                        textArea.style.position =
+                            "fixed";
+
+                        textArea.style.opacity =
+                            "0";
+
+
+                        document.body.appendChild(
+                            textArea
+                        );
+
+
+                        textArea.focus();
+
+                        textArea.select();
+
+
+                        document.execCommand(
+                            "copy"
+                        );
+
+
+                        document.body.removeChild(
+                            textArea
+                        );
+
+
+                        button.textContent =
+                            "✓ Copied";
+
+
+                        button.classList.add(
+                            "copied"
+                        );
+
+
+                        setTimeout(
+                            function () {
+
+                                button.textContent =
+                                    "📋 Copy";
+
+
+                                button.classList.remove(
+                                    "copied"
+                                );
+
+                            },
+                            2000
+                        );
+
+
+                    } catch (fallbackError) {
+
+                        console.error(
+                            "UID copy fallback failed:",
+                            fallbackError
+                        );
+
+
+                        button.textContent =
+                            "Copy failed";
+
+
+                        setTimeout(
+                            function () {
+
+                                button.textContent =
+                                    "📋 Copy";
+
+                            },
+                            2000
+                        );
+
+                    }
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               FORMAT STATUS
+               ================================================= */
+
+            function formatStatus(status) {
+
+                if (!status) {
+                    return "—";
+                }
+
+
+                return String(status)
+                    .replace(
+                        /_/g,
+                        " "
+                    )
+                    .replace(
+                        /\b\w/g,
+                        function (letter) {
+                            return letter.toUpperCase();
+                        }
+                    );
+
+            }
+
+
+
+            /* =================================================
+               FORMAT DATE
+               ================================================= */
+
+            function formatDate(dateValue) {
+
+                if (!dateValue) {
+                    return "—";
+                }
+
+
+                const date =
+                    new Date(dateValue);
+
+
+                if (
+                    Number.isNaN(
+                        date.getTime()
+                    )
+                ) {
+
+                    return "—";
+
+                }
+
+
+                return date.toLocaleDateString(
+                    "en-US",
+                    {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
+                    }
+                );
+
+            }
+
+
+
+            /* =================================================
+               FORMAT MONEY
+               ================================================= */
+
+            function formatMoney(amount) {
+
+                const value =
+                    Number(amount) || 0;
+
+
+                return "$" +
+                    value.toLocaleString(
+                        "en-US",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+
+            }
+
+
+
+            /* =================================================
+               DASHBOARD MESSAGE
+               ================================================= */
+
+            function showDashboardMessage(
+                message,
+                type = "info"
+            ) {
+
+                const element =
+                    document.getElementById(
+                        "dashboardMessage"
+                    );
+
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.textContent =
+                    message;
+
+
+                element.className =
+                    "message-box " +
+                    type;
+
+            }
+
+
+
+            /* =================================================
+               PACKAGE MESSAGE
+               ================================================= */
+
+            function showPackageMessage(
+                message,
+                type = "info"
+            ) {
+
+                const element =
+                    document.getElementById(
+                        "packageMessage"
+                    );
+
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.textContent =
+                    message;
+
+
+                element.className =
+                    "message-box " +
+                    type;
+
+            }
+
+
+
+            /* =================================================
+               PAYMENT MESSAGE
+               ================================================= */
+
+            function showPaymentMessage(
+                message,
+                type = "info"
+            ) {
+
+                const element =
+                    document.getElementById(
+                        "paymentMessage"
+                    );
+
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.textContent =
+                    message;
+
+
+                element.className =
+                    "message-box " +
+                    type;
+
+            }
+
+
+
+            /* =================================================
+               INVESTMENT MESSAGE
+               ================================================= */
+
+            function showInvestmentMessage(
+                message,
+                type = "info"
+            ) {
+
+                const element =
+                    document.getElementById(
+                        "investmentMessage"
+                    );
+
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.textContent =
+                    message;
+
+
+                element.className =
+                    "message-box " +
+                    type;
+
+            }
+
+        </script>
