@@ -4299,3 +4299,554 @@ window.refreshInvestmentData =
 /* =========================================================
    PART 5 ENDS HERE
    ========================================================= */     
+
+  /* =========================================================
+   ADMIN.HTML — PART 6/12
+   CONFIRM / REJECT INVESTMENTS
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   UPDATE INVESTMENT STATUS
+   --------------------------------------------------------- */
+
+async function updateInvestmentStatus(
+    investmentId,
+    newStatus
+) {
+
+    if (!investmentId) {
+        showAdminMessage(
+            "Invalid investment request.",
+            "error"
+        );
+        return false;
+    }
+
+
+    const allowedStatuses = [
+        "pending",
+        "confirmed",
+        "rejected"
+    ];
+
+
+    if (!allowedStatuses.includes(newStatus)) {
+
+        showAdminMessage(
+            "Invalid investment status.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        showAdminMessage(
+            newStatus === "confirmed"
+                ? "Confirming investment..."
+                : "Rejecting investment...",
+            "info"
+        );
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("investments")
+                .update({
+                    status: newStatus
+                })
+                .eq("id", investmentId)
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Investment status update error:",
+                error
+            );
+
+            showAdminMessage(
+                getDatabaseErrorMessage(
+                    error,
+                    "Unable to update investment."
+                ),
+                "error"
+            );
+
+            return false;
+        }
+
+
+        /* ---------------------------------------------
+           UPDATE LOCAL DATA IMMEDIATELY
+           --------------------------------------------- */
+
+        const index =
+            investmentsData.findIndex(
+                investment =>
+                    String(investment.id) ===
+                    String(investmentId)
+            );
+
+
+        if (index !== -1) {
+
+            investmentsData[index] = {
+                ...investmentsData[index],
+                ...(data || {}),
+                status: newStatus
+            };
+        }
+
+
+        /* ---------------------------------------------
+           REFRESH ADMIN DISPLAY
+           --------------------------------------------- */
+
+        updateInvestmentStatistics();
+
+        renderInvestments(
+            investmentsData
+        );
+
+
+        showAdminMessage(
+            newStatus === "confirmed"
+                ? "Investment confirmed successfully."
+                : "Investment rejected successfully.",
+            "success"
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected status update error:",
+            error
+        );
+
+        showAdminMessage(
+            "An unexpected error occurred while updating the investment.",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CONFIRM INVESTMENT
+   --------------------------------------------------------- */
+
+async function confirmInvestment(
+    investmentId
+) {
+
+    const investment =
+        getInvestmentById(
+            investmentId
+        );
+
+
+    if (!investment) {
+
+        showAdminMessage(
+            "Investment request could not be found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const memberName =
+        getInvestmentMemberName(
+            investment
+        );
+
+
+    const packageName =
+        getInvestmentPackageName(
+            investment
+        );
+
+
+    const amount =
+        Number(
+            getInvestmentAmount(
+                investment
+            )
+        ) || 0;
+
+
+    const confirmed =
+        window.confirm(
+            `Confirm this investment?\n\n` +
+            `Member: ${memberName}\n` +
+            `Package: ${packageName}\n` +
+            `Investment: $${amount.toLocaleString()}\n\n` +
+            `This will mark the investment as CONFIRMED.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateInvestmentStatus(
+        investmentId,
+        "confirmed"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   REJECT INVESTMENT
+   --------------------------------------------------------- */
+
+async function rejectInvestment(
+    investmentId
+) {
+
+    const investment =
+        getInvestmentById(
+            investmentId
+        );
+
+
+    if (!investment) {
+
+        showAdminMessage(
+            "Investment request could not be found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const memberName =
+        getInvestmentMemberName(
+            investment
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Reject this investment request?\n\n` +
+            `Member: ${memberName}\n\n` +
+            `The investment will be marked as REJECTED.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateInvestmentStatus(
+        investmentId,
+        "rejected"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   RESET INVESTMENT TO PENDING
+   --------------------------------------------------------- */
+
+async function resetInvestmentToPending(
+    investmentId
+) {
+
+    const investment =
+        getInvestmentById(
+            investmentId
+        );
+
+
+    if (!investment) {
+
+        showAdminMessage(
+            "Investment request could not be found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            "Move this investment back to pending?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateInvestmentStatus(
+        investmentId,
+        "pending"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT STATUS UPDATE
+   --------------------------------------------------------- */
+
+async function updateReceiptStatus(
+    investmentId,
+    verificationStatus,
+    adminNote = null
+) {
+
+    const receipt =
+        getReceiptForInvestment(
+            investmentId
+        );
+
+
+    if (!receipt) {
+
+        showAdminMessage(
+            "No payment receipt was found for this investment.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    const allowedStatuses = [
+        "pending",
+        "approved",
+        "rejected"
+    ];
+
+
+    if (
+        !allowedStatuses.includes(
+            verificationStatus
+        )
+    ) {
+
+        showAdminMessage(
+            "Invalid receipt status.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        const updateData = {
+            verification_status:
+                verificationStatus,
+            reviewed_at:
+                new Date().toISOString()
+        };
+
+
+        if (adminNote !== null) {
+            updateData.admin_note =
+                adminNote;
+        }
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("payment_receipts")
+                .update(updateData)
+                .eq("id", receipt.id)
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Receipt status update error:",
+                error
+            );
+
+            showAdminMessage(
+                getDatabaseErrorMessage(
+                    error,
+                    "Unable to update receipt status."
+                ),
+                "error"
+            );
+
+            return false;
+        }
+
+
+        const index =
+            receiptsData.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(receipt.id)
+            );
+
+
+        if (index !== -1) {
+
+            receiptsData[index] = {
+                ...receiptsData[index],
+                ...(data || {}),
+                verification_status:
+                    verificationStatus
+            };
+        }
+
+
+        renderInvestments(
+            investmentsData
+        );
+
+
+        showAdminMessage(
+            "Payment receipt status updated.",
+            "success"
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected receipt status error:",
+            error
+        );
+
+        showAdminMessage(
+            "An unexpected error occurred while updating the receipt.",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   APPROVE RECEIPT
+   --------------------------------------------------------- */
+
+async function approveReceipt(
+    investmentId
+) {
+
+    const receipt =
+        getReceiptForInvestment(
+            investmentId
+        );
+
+
+    if (!receipt) {
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            "Approve this payment receipt?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateReceiptStatus(
+        investmentId,
+        "approved"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   REJECT RECEIPT
+   --------------------------------------------------------- */
+
+async function rejectReceipt(
+    investmentId
+) {
+
+    const receipt =
+        getReceiptForInvestment(
+            investmentId
+        );
+
+
+    if (!receipt) {
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            "Reject this payment receipt?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateReceiptStatus(
+        investmentId,
+        "rejected"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.updateInvestmentStatus =
+    updateInvestmentStatus;
+
+window.confirmInvestment =
+    confirmInvestment;
+
+window.rejectInvestment =
+    rejectInvestment;
+
+window.resetInvestmentToPending =
+    resetInvestmentToPending;
+
+window.updateReceiptStatus =
+    updateReceiptStatus;
+
+window.approveReceipt =
+    approveReceipt;
+
+window.rejectReceipt =
+    rejectReceipt;
+
+
+/* =========================================================
+   PART 6 ENDS HERE
+   ========================================================= */      
