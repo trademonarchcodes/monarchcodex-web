@@ -1441,3 +1441,828 @@ footer {
         height: 250px;
     }
 }
+/* =========================================================
+   MONARCH CODEX — PART 3/8
+   PACKAGES • PRICING • INVESTMENT CARDS
+========================================================= */
+
+
+/* =========================================================
+   PACKAGES SECTION
+========================================================= */
+
+.packages-section {
+    position: relative;
+
+    padding: 80px 0;
+
+    background: #050505;
+}
+
+.packages-section .section-heading {
+    text-align: center;
+}
+
+.packages-section .section-heading p {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* =========================================================
+   PACKAGES GRID
+========================================================= */
+
+.packages-grid,
+.package-grid,
+.packages-container {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 22px;
+
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   PACKAGE CARD
+========================================================= */
+
+.package-card {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+
+    padding: 28px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.18);
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.30);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.package-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--gold),
+            transparent
+        );
+
+    opacity: 0.55;
+}
+
+.package-card:hover {
+    transform: translateY(-6px);
+
+    border-color:
+        rgba(212, 175, 55, 0.40);
+
+    box-shadow:
+        0 22px 55px rgba(0, 0, 0, 0.45);
+}
+
+
+/* =========================================================
+   PACKAGE HEADER
+========================================================= */
+
+.package-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.package-title {
+    color: var(--white);
+
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.package-subtitle {
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PACKAGE BADGE
+========================================================= */
+
+.package-badge,
+.package-tag,
+.popular-badge {
+    flex-shrink: 0;
+
+    padding: 5px 9px;
+
+    color: #080808;
+
+    background: var(--gold);
+
+    border-radius: 999px;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   PACKAGE PRICE
+========================================================= */
+
+.package-price {
+    margin-bottom: 20px;
+}
+
+.package-price .amount,
+.package-price strong {
+    color: var(--gold);
+
+    font-size: 32px;
+    font-weight: 800;
+
+    line-height: 1.1;
+}
+
+.package-price .currency {
+    margin-right: 3px;
+
+    color: var(--gold);
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.package-price .period {
+    margin-left: 4px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PACKAGE DESCRIPTION
+========================================================= */
+
+.package-description {
+    margin-bottom: 22px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   PACKAGE FEATURES
+========================================================= */
+
+.package-features {
+    display: flex;
+    flex-direction: column;
+
+    gap: 11px;
+
+    margin: 0 0 25px;
+
+    padding: 0;
+
+    list-style: none;
+}
+
+.package-features li {
+    position: relative;
+
+    padding-left: 23px;
+
+    color: #c2c2c2;
+
+    font-size: 12px;
+}
+
+.package-features li::before {
+    content: "✓";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    color: var(--green);
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   PACKAGE BUTTON
+========================================================= */
+
+.package-card .btn,
+.package-action {
+    width: 100%;
+
+    margin-top: auto;
+}
+
+
+/* =========================================================
+   FEATURED PACKAGE
+========================================================= */
+
+.package-card.featured,
+.package-card.popular,
+.package-card.recommended {
+    border-color:
+        rgba(212, 175, 55, 0.42);
+
+    box-shadow:
+        0 20px 60px rgba(212, 175, 55, 0.08);
+}
+
+.package-card.featured::before,
+.package-card.popular::before,
+.package-card.recommended::before {
+    opacity: 1;
+}
+
+
+/* =========================================================
+   PACKAGE VISIBILITY COMPATIBILITY
+   IMPORTANT: KEEP PACKAGE CARDS VISIBLE
+========================================================= */
+
+.package-card,
+.package-card *,
+.packages-grid .package-card,
+.package-grid .package-card,
+.packages-container .package-card {
+    visibility: visible;
+}
+
+.package-card {
+    opacity: 1;
+}
+
+
+/* =========================================================
+   INVESTMENT SECTION
+========================================================= */
+
+.investment-section {
+    padding: 80px 0;
+
+    background: #070707;
+}
+
+.investment-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+}
+
+
+/* =========================================================
+   INVESTMENT CARD
+========================================================= */
+
+.investment-card {
+    position: relative;
+
+    padding: 26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.01)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.15);
+
+    border-radius: 18px;
+
+    transition: var(--transition);
+}
+
+.investment-card:hover {
+    border-color:
+        rgba(212, 175, 55, 0.30);
+
+    transform: translateY(-3px);
+}
+
+
+/* =========================================================
+   INVESTMENT CARD HEADER
+========================================================= */
+
+.investment-card-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.investment-card-header h3 {
+    font-size: 18px;
+}
+
+.investment-card-header p {
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   INVESTMENT AMOUNT
+========================================================= */
+
+.investment-amount {
+    margin-bottom: 20px;
+
+    color: var(--gold);
+
+    font-size: 30px;
+    font-weight: 800;
+}
+
+.investment-amount small {
+    color: var(--muted);
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   INVESTMENT DETAILS
+========================================================= */
+
+.investment-details {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.investment-detail {
+    padding: 13px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.055);
+
+    border-radius: 10px;
+}
+
+.investment-detail span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+}
+
+.investment-detail strong {
+    color: var(--white);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   PAYMENT SUMMARY
+========================================================= */
+
+.payment-summary {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 18px;
+
+    background:
+        rgba(212, 175, 55, 0.035);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.12);
+
+    border-radius: 12px;
+}
+
+.payment-summary-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+.payment-summary-row strong {
+    color: var(--white);
+}
+
+.payment-summary-row.total {
+    margin-top: 5px;
+    padding-top: 12px;
+
+    color: var(--white);
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.07);
+}
+
+.payment-summary-row.total strong {
+    color: var(--gold);
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   PAYMENT METHOD CARDS
+========================================================= */
+
+.payment-methods {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 15px;
+}
+
+.payment-method {
+    position: relative;
+
+    padding: 18px;
+
+    color: var(--text);
+
+    background: #0c0c0c;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.payment-method:hover {
+    border-color:
+        rgba(212, 175, 55, 0.25);
+}
+
+.payment-method.active,
+.payment-method.selected {
+    background:
+        rgba(212, 175, 55, 0.055);
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 0 0 1px rgba(212, 175, 55, 0.10);
+}
+
+.payment-method h4 {
+    margin-bottom: 5px;
+
+    font-size: 14px;
+}
+
+.payment-method p {
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   BANK DETAILS
+========================================================= */
+
+.bank-details,
+.crypto-details,
+.wallet-details {
+    padding: 20px;
+
+    background: #0b0b0b;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.12);
+
+    border-radius: 14px;
+}
+
+.bank-detail-row,
+.wallet-detail-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 11px 0;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bank-detail-row:last-child,
+.wallet-detail-row:last-child {
+    border-bottom: 0;
+}
+
+.bank-detail-row span,
+.wallet-detail-row span {
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+.bank-detail-row strong,
+.wallet-detail-row strong {
+    color: var(--white);
+
+    font-size: 12px;
+
+    text-align: right;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   WALLET ADDRESS
+========================================================= */
+
+.wallet-address {
+    display: block;
+
+    margin-top: 8px;
+    padding: 12px;
+
+    color: var(--gold);
+
+    background:
+        rgba(212, 175, 55, 0.035);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.10);
+
+    border-radius: 8px;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+
+    word-break: break-all;
+}
+
+
+/* =========================================================
+   RECEIPT UPLOAD
+========================================================= */
+
+.receipt-upload {
+    position: relative;
+
+    padding: 25px;
+
+    text-align: center;
+
+    background:
+        rgba(255, 255, 255, 0.015);
+
+    border:
+        1px dashed rgba(212, 175, 55, 0.30);
+
+    border-radius: 14px;
+
+    transition: var(--transition);
+}
+
+.receipt-upload:hover {
+    background:
+        rgba(212, 175, 55, 0.025);
+
+    border-color: var(--gold);
+}
+
+.receipt-upload input[type="file"] {
+    padding: 10px;
+
+    border: 0;
+
+    background: transparent;
+}
+
+
+/* =========================================================
+   RECEIPT STATUS
+========================================================= */
+
+.receipt-status {
+    margin-top: 12px;
+
+    font-size: 11px;
+}
+
+.receipt-status.pending {
+    color: var(--orange);
+}
+
+.receipt-status.approved {
+    color: var(--green);
+}
+
+.receipt-status.rejected {
+    color: var(--red);
+}
+
+
+/* =========================================================
+   PACKAGE / INVESTMENT RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .packages-grid,
+    .package-grid,
+    .packages-container {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .investment-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .packages-section,
+    .investment-section {
+        padding: 60px 0;
+    }
+
+    .packages-grid,
+    .package-grid,
+    .packages-container {
+        grid-template-columns: 1fr;
+
+        gap: 16px;
+    }
+
+    .package-card {
+        padding: 23px;
+    }
+
+    .package-header {
+        gap: 10px;
+    }
+
+    .package-price .amount,
+    .package-price strong {
+        font-size: 28px;
+    }
+
+    .investment-card {
+        padding: 22px;
+    }
+
+    .payment-methods {
+        grid-template-columns: 1fr;
+    }
+
+    .bank-detail-row,
+    .wallet-detail-row {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 4px;
+    }
+
+    .bank-detail-row strong,
+    .wallet-detail-row strong {
+        text-align: left;
+    }
+}
+
+
+@media (max-width: 450px) {
+
+    .package-card {
+        padding: 20px;
+    }
+
+    .package-title {
+        font-size: 18px;
+    }
+
+    .investment-card {
+        padding: 18px;
+    }
+
+    .investment-details {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-summary {
+        padding: 15px;
+    }
+
+    .receipt-upload {
+        padding: 20px 15px;
+    }
+}
