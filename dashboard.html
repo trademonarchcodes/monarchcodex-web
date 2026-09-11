@@ -3927,3 +3927,657 @@
             updateInvestmentFormState();
         }
     }
+    async function refreshInvestmentAfterSubmission(
+        investmentId
+    ) {
+        if (!investmentId) return;
+
+        try {
+            const { data, error } = await supabaseClient
+                .from("investments")
+                .select("*")
+                .eq("id", investmentId)
+                .eq("user_id", currentUser.id)
+                .single();
+
+            if (error) {
+                console.error(
+                    "Unable to refresh submitted investment:",
+                    error
+                );
+                return;
+            }
+
+            if (data) {
+                const status =
+                    data.status || "pending";
+
+                const statusText =
+                    formatStatus(status);
+
+                setText(
+                    "accountStatus",
+                    statusText
+                );
+
+                setText(
+                    "overviewStatus",
+                    statusText
+                );
+            }
+
+        } catch (error) {
+            console.error(
+                "Investment refresh error:",
+                error
+            );
+        }
+    }
+
+
+    function showReceiptConfirmation(
+        packageAmount,
+        paymentAmount,
+        paymentCurrency
+    ) {
+        const confirmation =
+            document.getElementById(
+                "receiptConfirmation"
+            );
+
+        const confirmationText =
+            document.getElementById(
+                "receiptConfirmationText"
+            );
+
+        if (!confirmation) return;
+
+        const packageValue =
+            Number(packageAmount || 0);
+
+        const paymentValue =
+            Number(paymentAmount || 0);
+
+        let paymentDisplay;
+
+        if (
+            String(paymentCurrency).toUpperCase() ===
+            "NGN"
+        ) {
+            paymentDisplay =
+                `₦${paymentValue.toLocaleString(
+                    "en-NG",
+                    {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }
+                )}`;
+        } else {
+            paymentDisplay =
+                `$${paymentValue.toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )} USDT`;
+        }
+
+
+        if (confirmationText) {
+            confirmationText.innerHTML = `
+                Your payment receipt for the
+                <strong>
+                    $${packageValue.toLocaleString(
+                        "en-US",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    )}
+                </strong>
+                investment package has been received.
+                <br><br>
+                Payment recorded:
+                <strong>${escapeHtml(
+                    paymentDisplay
+                )}</strong>
+                <br><br>
+                Your request is now awaiting admin verification.
+            `;
+        }
+
+
+        confirmation.style.display = "block";
+
+        confirmation.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    }
+
+
+    function resetInvestmentForm() {
+
+        selectedPackage = null;
+        selectedPaymentMethod = null;
+        selectedPaymentDetails = null;
+        selectedCryptoNetwork = null;
+
+        selectedReceiptFile = null;
+        uploadedReceiptPath = null;
+        uploadedReceiptId = null;
+        currentInvestmentId = null;
+
+        isReceiptUploaded = false;
+
+
+        document.querySelectorAll(
+            ".package-card"
+        ).forEach(card => {
+            card.classList.remove("selected");
+        });
+
+
+        const receiptInput =
+            document.getElementById(
+                "receiptFile"
+            );
+
+        if (receiptInput) {
+            receiptInput.value = "";
+        }
+
+
+        const packageName =
+            document.getElementById(
+                "selectedPackageName"
+            );
+
+        const investmentAmount =
+            document.getElementById(
+                "investmentAmount"
+            );
+
+        const investmentAmountDisplay =
+            document.getElementById(
+                "investmentAmountDisplay"
+            );
+
+        const paymentMethodDisplay =
+            document.getElementById(
+                "selectedPaymentMethodDisplay"
+            );
+
+
+        if (packageName) {
+            packageName.textContent =
+                "No package selected";
+        }
+
+
+        if (investmentAmount) {
+            investmentAmount.value = "";
+        }
+
+
+        if (investmentAmountDisplay) {
+            investmentAmountDisplay.textContent =
+                "$0.00";
+        }
+
+
+        if (paymentMethodDisplay) {
+            paymentMethodDisplay.textContent =
+                "Not selected";
+        }
+
+
+        clearPaymentSelection();
+
+        updateReceiptPreview();
+
+
+        const validationMessage =
+            document.getElementById(
+                "investmentValidationMessage"
+            );
+
+        if (validationMessage) {
+            validationMessage.textContent = "";
+            validationMessage.className =
+                "investment-validation-message";
+        }
+
+
+        const uploadButton =
+            document.getElementById(
+                "uploadReceiptBtn"
+            );
+
+        if (uploadButton) {
+            uploadButton.disabled = true;
+            uploadButton.textContent =
+                uploadButton.dataset.originalText ||
+                "Upload Receipt";
+        }
+
+
+        updateInvestmentFormState();
+    }
+
+
+    function updateInvestmentFormState() {
+
+        const submitButton =
+            document.getElementById(
+                "submitInvestmentBtn"
+            );
+
+        const uploadButton =
+            document.getElementById(
+                "uploadReceiptBtn"
+            );
+
+        const validationMessage =
+            document.getElementById(
+                "investmentValidationMessage"
+            );
+
+
+        const hasPackage =
+            Boolean(selectedPackage);
+
+
+        const hasPaymentMethod =
+            Boolean(selectedPaymentMethod);
+
+
+        const hasPaymentDetails =
+            Boolean(selectedPaymentDetails);
+
+
+        const hasReceipt =
+            Boolean(selectedReceiptFile);
+
+
+        const receiptUploaded =
+            Boolean(
+                isReceiptUploaded &&
+                uploadedReceiptPath
+            );
+
+
+        let validationText = "";
+
+
+        if (!hasPackage) {
+
+            validationText =
+                "Select an investment package to continue.";
+
+        } else if (!hasPaymentMethod) {
+
+            validationText =
+                "Select a payment method to continue.";
+
+        } else if (
+            selectedPaymentMethod === "crypto" &&
+            !selectedCryptoNetwork
+        ) {
+
+            validationText =
+                "Select a crypto network to continue.";
+
+        } else if (!hasPaymentDetails) {
+
+            validationText =
+                "Payment details are not available yet.";
+
+        } else if (!hasReceipt) {
+
+            validationText =
+                "Upload your payment receipt to continue.";
+
+        } else if (!receiptUploaded) {
+
+            validationText =
+                "Click “Upload Receipt” before submitting.";
+
+        } else {
+
+            validationText =
+                "Everything is ready. Submit your investment request.";
+        }
+
+
+        if (validationMessage) {
+            validationMessage.textContent =
+                validationText;
+
+            validationMessage.classList.toggle(
+                "ready",
+                Boolean(
+                    hasPackage &&
+                    hasPaymentMethod &&
+                    hasPaymentDetails &&
+                    hasReceipt &&
+                    receiptUploaded
+                )
+            );
+        }
+
+
+        if (uploadButton) {
+
+            uploadButton.disabled =
+                !hasPackage ||
+                !hasPaymentMethod ||
+                !hasPaymentDetails ||
+                !hasReceipt ||
+                receiptUploaded ||
+                isSubmittingInvestment;
+        }
+
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                !hasPackage ||
+                !hasPaymentMethod ||
+                !hasPaymentDetails ||
+                !hasReceipt ||
+                !receiptUploaded ||
+                isSubmittingInvestment;
+        }
+
+
+        const selectedMethodDisplay =
+            document.getElementById(
+                "selectedPaymentMethodDisplay"
+            );
+
+
+        if (
+            selectedMethodDisplay &&
+            !selectedPaymentMethod
+        ) {
+            selectedMethodDisplay.textContent =
+                "Not selected";
+        }
+    }
+
+
+    function setText(
+        elementId,
+        value
+    ) {
+        const element =
+            document.getElementById(
+                elementId
+            );
+
+        if (!element) return;
+
+        element.textContent =
+            value ?? "";
+    }
+
+
+    function formatStatus(status) {
+
+        const value =
+            String(status || "pending")
+                .toLowerCase()
+                .trim();
+
+
+        if (value === "pending") {
+            return "Pending";
+        }
+
+
+        if (
+            value === "approved" ||
+            value === "active"
+        ) {
+            return "Active";
+        }
+
+
+        if (value === "completed") {
+            return "Completed";
+        }
+
+
+        if (
+            value === "rejected" ||
+            value === "declined"
+        ) {
+            return "Rejected";
+        }
+
+
+        if (
+            value === "cancelled" ||
+            value === "canceled"
+        ) {
+            return "Cancelled";
+        }
+
+
+        if (value === "failed") {
+            return "Failed";
+        }
+
+
+        return value
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, char =>
+                char.toUpperCase()
+            );
+    }
+
+
+    function getStatusClass(status) {
+
+        const value =
+            String(status || "pending")
+                .toLowerCase()
+                .trim();
+
+
+        if (
+            value === "approved" ||
+            value === "active" ||
+            value === "completed"
+        ) {
+            return "status-success";
+        }
+
+
+        if (
+            value === "rejected" ||
+            value === "declined" ||
+            value === "failed"
+        ) {
+            return "status-danger";
+        }
+
+
+        if (
+            value === "cancelled" ||
+            value === "canceled"
+        ) {
+            return "status-muted";
+        }
+
+
+        return "status-pending";
+    }
+
+
+    function formatDate(dateValue) {
+
+        if (!dateValue) {
+            return "—";
+        }
+
+
+        const date =
+            new Date(dateValue);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "—";
+        }
+
+
+        return date.toLocaleDateString(
+            "en-NG",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+    }
+
+
+    function formatFileSize(bytes) {
+
+        const size =
+            Number(bytes || 0);
+
+
+        if (size <= 0) {
+            return "0 Bytes";
+        }
+
+
+        const units = [
+            "Bytes",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+
+        const index =
+            Math.floor(
+                Math.log(size) /
+                Math.log(1024)
+            );
+
+
+        return `${(
+            size /
+            Math.pow(
+                1024,
+                index
+            )
+        ).toFixed(
+            index === 0 ? 0 : 2
+        )} ${units[index] || "Bytes"}`;
+    }
+
+
+    function escapeHtml(value) {
+
+        return String(
+            value ?? ""
+        )
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function getSupabaseErrorMessage(
+        error,
+        fallback
+    ) {
+
+        if (!error) {
+            return fallback;
+        }
+
+
+        const message =
+            error.message ||
+            error.error_description ||
+            error.details ||
+            "";
+
+
+        if (!message) {
+            return fallback;
+        }
+
+
+        const normalized =
+            String(message).toLowerCase();
+
+
+        if (
+            normalized.includes(
+                "duplicate"
+            ) ||
+            normalized.includes(
+                "unique constraint"
+            )
+        ) {
+            return "This request already exists. Please check your investment history.";
+        }
+
+
+        if (
+            normalized.includes(
+                "row-level security"
+            ) ||
+            normalized.includes(
+                "rls"
+            ) ||
+            normalized.includes(
+                "permission denied"
+            )
+        ) {
+            return "You do not have permission to perform this action. Please contact support.";
+        }
+
+
+        if (
+            normalized.includes(
+                "jwt"
+            ) ||
+            normalized.includes(
+                "not authenticated"
+            ) ||
+            normalized.includes(
+                "auth session"
+            )
+        ) {
+            return "Your session has expired. Please log in again.";
+        }
+
+
+        if (
+            normalized.includes(
+                "network"
+            ) ||
+            normalized.includes(
+                "fetch"
+            )
+        ) {
+            return "A connection error occurred. Please check your internet connection and try again.";
+        }
+
+
+        return message;
+    }
