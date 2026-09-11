@@ -4850,3 +4850,596 @@ window.rejectReceipt =
 /* =========================================================
    PART 6 ENDS HERE
    ========================================================= */      
+
+/* =========================================================
+   ADMIN.HTML — PART 7/12
+   SECURE PAYMENT RECEIPT VIEWER
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   OPEN RECEIPT MODAL
+   --------------------------------------------------------- */
+
+function openReceiptModal() {
+
+    if (!receiptModal) return;
+
+    receiptModal.classList.add("active");
+
+    document.body.style.overflow = "hidden";
+}
+
+
+/* ---------------------------------------------------------
+   CLOSE RECEIPT MODAL
+   --------------------------------------------------------- */
+
+function closeReceiptModal() {
+
+    if (!receiptModal) return;
+
+    receiptModal.classList.remove("active");
+
+    document.body.style.overflow = "";
+
+    if (receiptPreview) {
+
+        receiptPreview.innerHTML = `
+            <div class="receipt-loading">
+                Receipt preview closed.
+            </div>
+        `;
+    }
+
+    if (receiptModalInfo) {
+        receiptModalInfo.innerHTML = "";
+    }
+
+    if (receiptModalTitle) {
+        receiptModalTitle.textContent =
+            "Payment Receipt";
+    }
+}
+
+
+/* ---------------------------------------------------------
+   VIEW PAYMENT RECEIPT
+   --------------------------------------------------------- */
+
+async function viewReceipt(
+    investmentId
+) {
+
+    const receipt =
+        getReceiptForInvestment(
+            investmentId
+        );
+
+
+    if (!receipt) {
+
+        showAdminMessage(
+            "No payment receipt was found for this investment.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    openReceiptModal();
+
+
+    if (receiptModalTitle) {
+
+        receiptModalTitle.textContent =
+            "Payment Receipt";
+    }
+
+
+    if (receiptModalInfo) {
+
+        const investment =
+            getInvestmentById(
+                investmentId
+            );
+
+
+        const memberName =
+            investment
+                ? getInvestmentMemberName(
+                    investment
+                )
+                : "Unknown Member";
+
+
+        const memberUid =
+            investment
+                ? getInvestmentMemberUid(
+                    investment
+                )
+                : "—";
+
+
+        const paymentMethod =
+            receipt.payment_method ||
+            "—";
+
+
+        const paymentAmount =
+            receipt.amount ??
+            null;
+
+
+        const uploadedAt =
+            receipt.uploaded_at
+                ? formatDateTime(
+                    receipt.uploaded_at
+                )
+                : "—";
+
+
+        receiptModalInfo.innerHTML = `
+
+            <div class="receipt-info-grid">
+
+                <div>
+                    <span class="receipt-info-label">
+                        Member
+                    </span>
+
+                    <strong>
+                        ${escapeHtml(
+                            memberName
+                        )}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="receipt-info-label">
+                        Monarch UID
+                    </span>
+
+                    <strong>
+                        ${escapeHtml(
+                            memberUid
+                        )}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="receipt-info-label">
+                        Payment Method
+                    </span>
+
+                    <strong>
+                        ${escapeHtml(
+                            paymentMethod
+                        )}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="receipt-info-label">
+                        Payment Amount
+                    </span>
+
+                    <strong>
+                        ${
+                            paymentAmount !== null
+                                ? escapeHtml(
+                                    formatPaymentAmount(
+                                        paymentAmount,
+                                        paymentMethod
+                                    )
+                                  )
+                                : "—"
+                        }
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="receipt-info-label">
+                        Receipt Status
+                    </span>
+
+                    <span class="${getReceiptStatusClass(
+                        investmentId
+                    )}">
+                        ${escapeHtml(
+                            getReceiptStatusLabel(
+                                investmentId
+                            )
+                        )}
+                    </span>
+                </div>
+
+
+                <div>
+                    <span class="receipt-info-label">
+                        Uploaded
+                    </span>
+
+                    <strong>
+                        ${escapeHtml(
+                            uploadedAt
+                        )}
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="receipt-file-details">
+
+                <span>
+                    File:
+                </span>
+
+                <strong>
+                    ${escapeHtml(
+                        receipt.file_name ||
+                        "Payment receipt"
+                    )}
+                </strong>
+
+            </div>
+        `;
+    }
+
+
+    if (receiptPreview) {
+
+        receiptPreview.innerHTML = `
+            <div class="receipt-loading">
+                Loading secure receipt preview...
+            </div>
+        `;
+    }
+
+
+    const filePath =
+        receipt.file_path;
+
+
+    if (!filePath) {
+
+        if (receiptPreview) {
+
+            receiptPreview.innerHTML = `
+                <div class="receipt-error">
+                    <strong>
+                        Receipt file path is missing.
+                    </strong>
+
+                    <p>
+                        The payment record exists,
+                        but the uploaded file path
+                        could not be found.
+                    </p>
+                </div>
+            `;
+        }
+
+        return;
+    }
+
+
+    try {
+
+        /*
+         * The payment-receipts bucket is PRIVATE.
+         *
+         * Therefore we generate a temporary signed URL
+         * instead of exposing the storage bucket publicly.
+         */
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .storage
+            .from("payment-receipts")
+            .createSignedUrl(
+                filePath,
+                300
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Signed receipt URL error:",
+                error
+            );
+
+
+            if (receiptPreview) {
+
+                receiptPreview.innerHTML = `
+                    <div class="receipt-error">
+
+                        <strong>
+                            Unable to open receipt.
+                        </strong>
+
+                        <p>
+                            ${escapeHtml(
+                                getDatabaseErrorMessage(
+                                    error,
+                                    "The receipt could not be accessed."
+                                )
+                            )}
+                        </p>
+
+                    </div>
+                `;
+            }
+
+            return;
+        }
+
+
+        const signedUrl =
+            data?.signedUrl;
+
+
+        if (!signedUrl) {
+
+            if (receiptPreview) {
+
+                receiptPreview.innerHTML = `
+                    <div class="receipt-error">
+                        Secure receipt URL was not generated.
+                    </div>
+                `;
+            }
+
+            return;
+        }
+
+
+        /*
+         * Determine whether the uploaded file is an image,
+         * PDF, or another unsupported file type.
+         */
+
+        const fileName =
+            String(
+                receipt.file_name || ""
+            ).toLowerCase();
+
+
+        const fileType =
+            String(
+                receipt.file_type || ""
+            ).toLowerCase();
+
+
+        const isImage =
+            fileType.startsWith("image/") ||
+            /\.(jpg|jpeg|png|webp|gif)$/i.test(
+                fileName
+            );
+
+
+        const isPdf =
+            fileType === "application/pdf" ||
+            /\.pdf$/i.test(
+                fileName
+            );
+
+
+        if (isImage) {
+
+            receiptPreview.innerHTML = `
+
+                <div class="receipt-image-container">
+
+                    <img
+                        src="${signedUrl}"
+                        alt="Payment Receipt"
+                        class="receipt-image"
+                        onerror="handleReceiptPreviewError()"
+                    />
+
+                </div>
+
+                <div class="receipt-preview-actions">
+
+                    <a
+                        href="${signedUrl}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="view-btn"
+                    >
+                        Open Full Receipt
+                    </a>
+
+                </div>
+            `;
+
+        } else if (isPdf) {
+
+            receiptPreview.innerHTML = `
+
+                <div class="receipt-pdf-container">
+
+                    <iframe
+                        src="${signedUrl}"
+                        title="Payment Receipt PDF"
+                        class="receipt-pdf"
+                    ></iframe>
+
+                </div>
+
+                <div class="receipt-preview-actions">
+
+                    <a
+                        href="${signedUrl}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="view-btn"
+                    >
+                        Open PDF
+                    </a>
+
+                </div>
+            `;
+
+        } else {
+
+            receiptPreview.innerHTML = `
+
+                <div class="receipt-file-container">
+
+                    <div class="receipt-file-icon">
+                        📄
+                    </div>
+
+                    <h3>
+                        ${escapeHtml(
+                            receipt.file_name ||
+                            "Uploaded File"
+                        )}
+                    </h3>
+
+                    <p>
+                        This file type cannot be
+                        previewed directly.
+                    </p>
+
+                    <a
+                        href="${signedUrl}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="view-btn"
+                    >
+                        Open Receipt
+                    </a>
+
+                </div>
+            `;
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected receipt viewer error:",
+            error
+        );
+
+
+        if (receiptPreview) {
+
+            receiptPreview.innerHTML = `
+                <div class="receipt-error">
+
+                    <strong>
+                        Receipt preview failed.
+                    </strong>
+
+                    <p>
+                        Please try again.
+                    </p>
+
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT PREVIEW ERROR
+   --------------------------------------------------------- */
+
+function handleReceiptPreviewError() {
+
+    if (!receiptPreview) return;
+
+    receiptPreview.innerHTML = `
+
+        <div class="receipt-error">
+
+            <strong>
+                Unable to display receipt image.
+            </strong>
+
+            <p>
+                The file may have been removed,
+                corrupted, or access may have expired.
+            </p>
+
+        </div>
+    `;
+}
+
+
+/* ---------------------------------------------------------
+   CLOSE WHEN CLICKING OUTSIDE MODAL
+   --------------------------------------------------------- */
+
+if (receiptModal) {
+
+    receiptModal.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target ===
+                receiptModal
+            ) {
+
+                closeReceiptModal();
+            }
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   ESC KEY CLOSE
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape" &&
+            receiptModal &&
+            receiptModal.classList.contains("active")
+        ) {
+
+            closeReceiptModal();
+        }
+    }
+);
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.viewReceipt =
+    viewReceipt;
+
+window.openReceiptModal =
+    openReceiptModal;
+
+window.closeReceiptModal =
+    closeReceiptModal;
+
+window.handleReceiptPreviewError =
+    handleReceiptPreviewError;
+
+
+/* =========================================================
+   PART 7 ENDS HERE
+   ========================================================= */
