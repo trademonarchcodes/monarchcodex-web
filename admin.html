@@ -1615,3 +1615,640 @@
     <script
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
+<script>
+    /* =========================================================
+       MONARCH CODEX — ADMIN PANEL
+       PART 3/12 — SUPABASE, STATE, UTILITIES & AUTH
+       ========================================================= */
+
+    const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JIh";
+
+    const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+    /* =========================================================
+       GLOBAL ADMIN STATE
+       ========================================================= */
+
+    let currentAdmin = null;
+
+    let profilesData = [];
+    let packagesData = [];
+    let investmentsData = [];
+    let receiptsData = [];
+    let earningsData = [];
+
+
+    /* =========================================================
+       DOM REFERENCES
+       ========================================================= */
+
+    const adminMessage =
+        document.getElementById("adminMessage");
+
+    const totalMembersEl =
+        document.getElementById("totalMembers");
+
+    const pendingMembersEl =
+        document.getElementById("pendingMembers");
+
+    const totalInvestedAdminEl =
+        document.getElementById("totalInvestedAdmin");
+
+    const confirmedInvestmentsEl =
+        document.getElementById("confirmedInvestments");
+
+    const rejectedInvestmentsEl =
+        document.getElementById("rejectedInvestments");
+
+    const membersTableBody =
+        document.getElementById("membersTableBody");
+
+    const investmentRequestsBody =
+        document.getElementById("investmentRequestsBody");
+
+    const earningMemberEl =
+        document.getElementById("earningMember");
+
+    const earningAmountEl =
+        document.getElementById("earningAmount");
+
+    const earningDescriptionEl =
+        document.getElementById("earningDescription");
+
+    const addEarningBtn =
+        document.getElementById("addEarningBtn");
+
+    const earningsStatusEl =
+        document.getElementById("earningsStatus");
+
+    const earningsTableBody =
+        document.getElementById("earningsTableBody");
+
+    const receiptModal =
+        document.getElementById("receiptModal");
+
+    const receiptModalTitle =
+        document.getElementById("receiptModalTitle");
+
+    const receiptModalInfo =
+        document.getElementById("receiptModalInfo");
+
+    const receiptPreview =
+        document.getElementById("receiptPreview");
+
+
+    /* =========================================================
+       HTML ESCAPING
+       Prevents database content from being interpreted as HTML.
+       ========================================================= */
+
+    function escapeHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    /* =========================================================
+       MESSAGE HELPERS
+       ========================================================= */
+
+    function showAdminMessage(message, type = "info") {
+
+        if (!adminMessage) {
+            return;
+        }
+
+        adminMessage.textContent = message;
+
+        adminMessage.className =
+            "admin-message " + type;
+
+        adminMessage.style.display = "block";
+    }
+
+
+    function clearAdminMessage() {
+
+        if (!adminMessage) {
+            return;
+        }
+
+        adminMessage.textContent = "";
+
+        adminMessage.className =
+            "admin-message";
+
+        adminMessage.style.display = "none";
+    }
+
+
+    function showEarningsStatus(message, type = "info") {
+
+        if (!earningsStatusEl) {
+            return;
+        }
+
+        earningsStatusEl.textContent = message;
+
+        earningsStatusEl.className =
+            "form-status " + type;
+
+        earningsStatusEl.style.display = "block";
+    }
+
+
+    function clearEarningsStatus() {
+
+        if (!earningsStatusEl) {
+            return;
+        }
+
+        earningsStatusEl.textContent = "";
+
+        earningsStatusEl.className =
+            "form-status";
+
+        earningsStatusEl.style.display = "none";
+    }
+
+
+    /* =========================================================
+       DATE FORMATTER
+       ========================================================= */
+
+    function formatDate(dateValue) {
+
+        if (!dateValue) {
+            return "—";
+        }
+
+        const date = new Date(dateValue);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleString("en-NG", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+
+    /* =========================================================
+       NUMBER FORMATTERS
+       ========================================================= */
+
+    function formatNumber(value, decimals = 2) {
+
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) {
+            return "0";
+        }
+
+        return number.toLocaleString("en-US", {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        });
+    }
+
+
+    function formatUsd(value) {
+
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) {
+            return "$0.00";
+        }
+
+        return "$" + number.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+
+    function formatNaira(value) {
+
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) {
+            return "₦0.00";
+        }
+
+        return "₦" + number.toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+
+    /* =========================================================
+       PAYMENT AMOUNT FORMATTER
+       ========================================================= */
+
+    function formatPaymentAmount(receipt) {
+
+        if (!receipt) {
+            return "—";
+        }
+
+        const amount = Number(receipt.amount);
+
+        if (!Number.isFinite(amount)) {
+            return "—";
+        }
+
+        if (
+            String(receipt.payment_method || "")
+                .toLowerCase() === "bank"
+        ) {
+            return formatNaira(amount);
+        }
+
+        return formatUsd(amount);
+    }
+
+
+    /* =========================================================
+       STATUS NORMALIZATION
+       ========================================================= */
+
+    function normalizeStatus(status) {
+
+        if (!status) {
+            return "pending";
+        }
+
+        return String(status)
+            .trim()
+            .toLowerCase();
+    }
+
+
+    function getStatusLabel(status) {
+
+        const normalized =
+            normalizeStatus(status);
+
+        const labels = {
+            pending: "Pending",
+            confirmed: "Confirmed",
+            approved: "Approved",
+            rejected: "Rejected",
+            active: "Active",
+            completed: "Completed"
+        };
+
+        return labels[normalized] ||
+            normalized.charAt(0).toUpperCase() +
+            normalized.slice(1);
+    }
+
+
+    function getStatusClass(status) {
+
+        const normalized =
+            normalizeStatus(status);
+
+        const allowed = [
+            "pending",
+            "confirmed",
+            "approved",
+            "rejected",
+            "active",
+            "completed"
+        ];
+
+        if (allowed.includes(normalized)) {
+            return normalized;
+        }
+
+        return "pending";
+    }
+
+
+    /* =========================================================
+       CLIP LONG TEXT
+       ========================================================= */
+
+    function shortenText(value, maxLength = 32) {
+
+        if (!value) {
+            return "—";
+        }
+
+        const text = String(value);
+
+        if (text.length <= maxLength) {
+            return text;
+        }
+
+        return text.substring(0, maxLength) + "…";
+    }
+
+
+    /* =========================================================
+       COPY TO CLIPBOARD
+       ========================================================= */
+
+    async function copyText(text, button = null) {
+
+        if (!text) {
+            return;
+        }
+
+        try {
+
+            await navigator.clipboard.writeText(
+                String(text)
+            );
+
+            if (button) {
+
+                const original =
+                    button.textContent;
+
+                button.textContent = "Copied!";
+
+                setTimeout(() => {
+                    button.textContent = original;
+                }, 1200);
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Clipboard copy failed:",
+                error
+            );
+
+            try {
+
+                const temporary =
+                    document.createElement("textarea");
+
+                temporary.value = String(text);
+
+                temporary.style.position = "fixed";
+                temporary.style.opacity = "0";
+
+                document.body.appendChild(
+                    temporary
+                );
+
+                temporary.focus();
+                temporary.select();
+
+                document.execCommand("copy");
+
+                temporary.remove();
+
+                if (button) {
+
+                    const original =
+                        button.textContent;
+
+                    button.textContent = "Copied!";
+
+                    setTimeout(() => {
+                        button.textContent = original;
+                    }, 1200);
+                }
+
+            } catch (fallbackError) {
+
+                console.error(
+                    "Fallback copy failed:",
+                    fallbackError
+                );
+
+                showAdminMessage(
+                    "Unable to copy the UID.",
+                    "error"
+                );
+            }
+        }
+    }
+
+
+    /* =========================================================
+       COPY MEMBER UID
+       ========================================================= */
+
+    async function copyMemberUid(uid, button) {
+
+        if (!uid) {
+            showAdminMessage(
+                "This member does not have a UID.",
+                "error"
+            );
+            return;
+        }
+
+        await copyText(uid, button);
+    }
+
+
+    /* =========================================================
+       ADMIN LOGOUT
+       ========================================================= */
+
+    async function adminLogout() {
+
+        try {
+
+            const { error } =
+                await supabaseClient.auth.signOut();
+
+            if (error) {
+                throw error;
+            }
+
+            window.location.href = "login.html";
+
+        } catch (error) {
+
+            console.error(
+                "Admin logout error:",
+                error
+            );
+
+            showAdminMessage(
+                "Unable to log out. Please try again.",
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       ADMIN AUTHORIZATION
+       ========================================================= */
+
+    async function checkAdminAuthorization() {
+
+        clearAdminMessage();
+
+        try {
+
+            const {
+                data: sessionData,
+                error: sessionError
+            } = await supabaseClient.auth.getSession();
+
+            if (sessionError) {
+                throw sessionError;
+            }
+
+            const session =
+                sessionData?.session;
+
+            if (!session || !session.user) {
+
+                window.location.href =
+                    "login.html";
+
+                return false;
+            }
+
+            const user =
+                session.user;
+
+            const {
+                data: profile,
+                error: profileError
+            } = await supabaseClient
+                .from("profiles")
+                .select("*")
+                .eq("id", user.id)
+                .maybeSingle();
+
+            if (profileError) {
+                throw profileError;
+            }
+
+            if (!profile) {
+
+                showAdminMessage(
+                    "Administrator profile not found.",
+                    "error"
+                );
+
+                await supabaseClient.auth.signOut();
+
+                setTimeout(() => {
+                    window.location.href =
+                        "login.html";
+                }, 1200);
+
+                return false;
+            }
+
+            const role =
+                String(profile.role || "")
+                    .trim()
+                    .toLowerCase();
+
+            const status =
+                String(profile.status || "")
+                    .trim()
+                    .toLowerCase();
+
+            if (
+                role !== "admin" ||
+                status !== "active"
+            ) {
+
+                showAdminMessage(
+                    "Access denied. Administrator privileges are required.",
+                    "error"
+                );
+
+                await supabaseClient.auth.signOut();
+
+                setTimeout(() => {
+                    window.location.href =
+                        "login.html";
+                }, 1500);
+
+                return false;
+            }
+
+            currentAdmin = {
+                authUser: user,
+                profile: profile
+            };
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Admin authorization error:",
+                error
+            );
+
+            showAdminMessage(
+                "Unable to verify administrator access.",
+                "error"
+            );
+
+            return false;
+        }
+    }
+
+
+    /* =========================================================
+       SAFE DATABASE ERROR MESSAGE
+       ========================================================= */
+
+    function getDatabaseErrorMessage(error) {
+
+        if (!error) {
+            return "An unknown database error occurred.";
+        }
+
+        if (error.message) {
+            return error.message;
+        }
+
+        if (error.details) {
+            return error.details;
+        }
+
+        return "An unexpected database error occurred.";
+    }
+
+
+    /* =========================================================
+       GLOBAL EXPORTS
+       ========================================================= */
+
+    window.adminLogout = adminLogout;
+    
+    window.copyMemberUid = copyMemberUid;
+
+    window.copyText = copyText;
+
+</script>
