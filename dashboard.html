@@ -3129,3 +3129,506 @@
             );
 
         </script>
+        <script>
+
+            /* =================================================
+               DASHBOARD UI HELPERS
+               ================================================= */
+
+            function setText(
+                elementId,
+                value
+            ) {
+
+                const element =
+                    document.getElementById(
+                        elementId
+                    );
+
+
+                if (!element) {
+                    return;
+                }
+
+
+                element.textContent =
+                    value === null ||
+                    value === undefined ||
+                    value === ""
+                        ? "—"
+                        : value;
+
+            }
+
+
+
+            /* =================================================
+               STATUS CLASS HELPER
+               ================================================= */
+
+            function getStatusClass(
+                status
+            ) {
+
+                const normalized =
+                    String(
+                        status ||
+                        ""
+                    )
+                        .toLowerCase()
+                        .trim();
+
+
+                if (
+                    normalized ===
+                    "approved"
+                ) {
+
+                    return "status-approved";
+
+                }
+
+
+                if (
+                    normalized ===
+                    "active"
+                ) {
+
+                    return "status-active";
+
+                }
+
+
+                if (
+                    normalized ===
+                    "completed"
+                ) {
+
+                    return "status-completed";
+
+                }
+
+
+                if (
+                    normalized ===
+                    "rejected"
+                ) {
+
+                    return "status-rejected";
+
+                }
+
+
+                if (
+                    normalized ===
+                    "cancelled"
+                ) {
+
+                    return "status-cancelled";
+
+                }
+
+
+                if (
+                    normalized ===
+                    "suspended"
+                ) {
+
+                    return "status-suspended";
+
+                }
+
+
+                return "status-pending";
+
+            }
+
+
+
+            /* =================================================
+               SMOOTH SCROLL HELPER
+               ================================================= */
+
+            function scrollToSection(
+                sectionId
+            ) {
+
+                const section =
+                    document.getElementById(
+                        sectionId
+                    );
+
+
+                if (!section) {
+                    return;
+                }
+
+
+                section.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }
+
+
+
+            /* =================================================
+               REFRESH DASHBOARD
+               ================================================= */
+
+            async function refreshDashboard() {
+
+                const refreshButton =
+                    document.getElementById(
+                        "refreshDashboardBtn"
+                    );
+
+
+                if (refreshButton) {
+
+                    refreshButton.disabled =
+                        true;
+
+
+                    refreshButton.classList.add(
+                        "is-loading"
+                    );
+
+                }
+
+
+                try {
+
+                    await loadMemberDashboard();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Dashboard refresh error:",
+                        error
+                    );
+
+
+                    showDashboardMessage(
+                        "Unable to refresh your dashboard.",
+                        "error"
+                    );
+
+
+                } finally {
+
+                    if (refreshButton) {
+
+                        refreshButton.disabled =
+                            false;
+
+
+                        refreshButton.classList.remove(
+                            "is-loading"
+                        );
+
+                    }
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               RETRY PACKAGE LOADING
+               ================================================= */
+
+            function retryPackages() {
+
+                loadPackages();
+
+            }
+
+
+
+            /* =================================================
+               RETRY INVESTMENT HISTORY
+               ================================================= */
+
+            function retryInvestmentHistory() {
+
+                if (!currentUser) {
+                    return;
+                }
+
+
+                loadInvestmentHistory(
+                    currentUser.id
+                );
+
+            }
+
+
+
+            /* =================================================
+               RETRY EARNINGS
+               ================================================= */
+
+            function retryEarnings() {
+
+                if (!currentUser) {
+                    return;
+                }
+
+
+                loadEarnings(
+                    currentUser.id
+                );
+
+            }
+
+
+
+            /* =================================================
+               COPY TEXT FALLBACK
+               ================================================= */
+
+            function fallbackCopyText(
+                text
+            ) {
+
+                const textarea =
+                    document.createElement(
+                        "textarea"
+                    );
+
+
+                textarea.value =
+                    text;
+
+
+                textarea.style.position =
+                    "fixed";
+
+                textarea.style.left =
+                    "-999999px";
+
+                textarea.style.top =
+                    "-999999px";
+
+
+                document.body.appendChild(
+                    textarea
+                );
+
+
+                textarea.focus();
+
+                textarea.select();
+
+
+                let successful =
+                    false;
+
+
+                try {
+
+                    successful =
+                        document.execCommand(
+                            "copy"
+                        );
+
+                } catch (error) {
+
+                    console.error(
+                        "Fallback copy failed:",
+                        error
+                    );
+
+                }
+
+
+                document.body.removeChild(
+                    textarea
+                );
+
+
+                return successful;
+
+            }
+
+
+
+            /* =================================================
+               GENERAL COPY FUNCTION
+               ================================================= */
+
+            async function copyText(
+                text
+            ) {
+
+                if (!text) {
+
+                    return false;
+
+                }
+
+
+                /*
+                 * Modern Clipboard API
+                 */
+
+                if (
+                    navigator.clipboard &&
+                    window.isSecureContext
+                ) {
+
+                    try {
+
+                        await navigator
+                            .clipboard
+                            .writeText(
+                                text
+                            );
+
+
+                        return true;
+
+                    } catch (error) {
+
+                        console.warn(
+                            "Clipboard API failed. Using fallback.",
+                            error
+                        );
+
+                    }
+
+                }
+
+
+                /*
+                 * Older browser fallback
+                 */
+
+                return fallbackCopyText(
+                    text
+                );
+
+            }
+
+
+
+            /* =================================================
+               COPY MONARCH UID
+               ================================================= */
+
+            async function copyMonarchUID() {
+
+                const uidElement =
+                    document.getElementById(
+                        "profileUid"
+                    );
+
+
+                const copyButton =
+                    document.getElementById(
+                        "copyUidBtn"
+                    );
+
+
+                if (
+                    !uidElement
+                ) {
+
+                    return;
+
+                }
+
+
+                const uid =
+                    uidElement.textContent
+                        .trim();
+
+
+                if (
+                    !uid ||
+                    uid === "—"
+                ) {
+
+                    showDashboardMessage(
+                        "Your Monarch UID is not available yet.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                const copied =
+                    await copyText(
+                        uid
+                    );
+
+
+                if (!copied) {
+
+                    showDashboardMessage(
+                        "Unable to copy your UID. Please copy it manually.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                /*
+                 * Change button state
+                 */
+
+                if (copyButton) {
+
+                    copyButton.textContent =
+                        "✓ Copied";
+
+
+                    copyButton.classList.add(
+                        "copied"
+                    );
+
+
+                    copyButton.disabled =
+                        true;
+
+
+                    setTimeout(
+                        function () {
+
+                            copyButton.textContent =
+                                "📋 Copy";
+
+
+                            copyButton.classList.remove(
+                                "copied"
+                            );
+
+
+                            copyButton.disabled =
+                                false;
+
+                        },
+                        1800
+                    );
+
+                }
+
+
+                showDashboardMessage(
+                    "Monarch UID copied successfully.",
+                    "success"
+                );
+
+            }
+
+        </script>
