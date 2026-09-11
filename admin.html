@@ -8155,29 +8155,47 @@ window.initializeAdminUI =
    --------------------------------------------------------- */
 function updateMemberStatisticsFinal() {
     const members = profilesData.filter(profile => {
-        const role = String(profile?.role || "member").toLowerCase();
-        return !["admin", "administrator", "super_admin"].includes(role);
+        const role = String(
+            profile?.role || "member"
+        ).toLowerCase();
+
+        return ![
+            "admin",
+            "administrator",
+            "super_admin"
+        ].includes(role);
     });
 
-    const pendingMembers = members.filter(profile => {
-        const status = String(profile?.status || "active").toLowerCase();
+    const pendingCount = members.filter(profile => {
+        const status = String(
+            profile?.status || "active"
+        ).trim().toLowerCase();
+
         return status === "pending";
-    });
+    }).length;
+
 
     if (totalMembers) {
-        totalMembers.textContent = formatNumber(members.length);
+        totalMembers.textContent =
+            formatNumber(members.length);
     }
 
+
     if (pendingMembers) {
-        pendingMembers.textContent = formatNumber(pendingMembers.length);
+        pendingMembers.textContent =
+            formatNumber(pendingCount);
     }
+
 
     if (membersStatus) {
         membersStatus.textContent =
-            `${members.length} member${members.length === 1 ? "" : "s"} loaded`;
+            `${members.length} member${
+                members.length === 1
+                    ? ""
+                    : "s"
+            } loaded`;
     }
 }
-
 /*
    Replace the earlier statistics function with the final version.
 */
