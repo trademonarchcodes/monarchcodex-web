@@ -2572,57 +2572,191 @@
         )} USDT`;
     }
     async function loadInvestmentHistory(userId) {
-        try {
-            const { data, error } = await supabaseClient
-                .from("investments")
-                .select("*")
-                .eq("user_id", userId)
-                .order("created_at", { ascending: false });
 
-            if (error) throw error;
+    try {
 
-            const investments = data || [];
+        /* -------------------------------------------------
+           LOAD INVESTMENTS
+           ------------------------------------------------- */
 
-            renderInvestmentHistory(investments);
-            updateInvestmentStats(investments);
-
-        } catch (error) {
-            console.error(
-                "Error loading investment history:",
-                error
+        const {
+            data: investmentData,
+            error: investmentError
+        } = await supabaseClient
+            .from("investments")
+            .select("*")
+            .eq("user_id", userId)
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
             );
 
-            const tableBody =
-                document.getElementById(
-                    "investmentHistoryBody"
-                );
 
-            const mobileContainer =
-                document.getElementById(
-                    "investmentHistoryMobile"
-                );
+        if (investmentError) {
+            throw investmentError;
+        }
 
-            if (tableBody) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            Unable to load investment history.
-                        </td>
-                    </tr>
-                `;
-            }
 
-            if (mobileContainer) {
-                mobileContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
-                        <h3>Unable to Load History</h3>
-                        <p>Please refresh the page and try again.</p>
+        const investments =
+            investmentData || [];
+
+
+        /* -------------------------------------------------
+           LOAD PAYMENT RECEIPTS
+           ------------------------------------------------- */
+
+        const {
+            data: receiptData,
+            error: receiptError
+        } = await supabaseClient
+            .from("payment_receipts")
+            .select(
+                "id, investment_id, verification_status, reviewed_at, admin_note"
+            )
+            .eq(
+                "user_id",
+                userId
+            );
+
+
+        if (receiptError) {
+
+            console.error(
+                "Payment receipt loading error:",
+                receiptError
+            );
+
+            /*
+             * Do not prevent the investment history
+             * from loading if receipt data fails.
+             */
+        }
+
+
+        const receipts =
+            receiptData || [];
+
+
+        /* -------------------------------------------------
+           MERGE RECEIPT STATUS INTO INVESTMENTS
+           ------------------------------------------------- */
+
+        const investmentsWithReceipts =
+            investments.map(
+                investment => {
+
+                    const receipt =
+                        receipts.find(
+                            item =>
+                                String(
+                                    item.investment_id
+                                ) ===
+                                String(
+                                    investment.id
+                                )
+                        );
+
+
+                    return {
+                        ...investment,
+
+                        receipt_status:
+                            receipt
+                                ?.verification_status ||
+                            investment.receipt_status ||
+                            "pending",
+
+                        receipt_reviewed_at:
+                            receipt
+                                ?.reviewed_at ||
+                            null,
+
+                        receipt_admin_note:
+                            receipt
+                                ?.admin_note ||
+                            null,
+
+                        receipt_id:
+                            receipt?.id ||
+                            null
+                    };
+                }
+            );
+
+
+        /* -------------------------------------------------
+           RENDER DASHBOARD
+           ------------------------------------------------- */
+
+        renderInvestmentHistory(
+            investmentsWithReceipts
+        );
+
+
+        updateInvestmentStats(
+            investmentsWithReceipts
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Error loading investment history:",
+            error
+        );
+
+
+        const tableBody =
+            document.getElementById(
+                "investmentHistoryBody"
+            );
+
+
+        const mobileContainer =
+            document.getElementById(
+                "investmentHistoryMobile"
+            );
+
+
+        if (tableBody) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="6"
+                        class="empty-state"
+                    >
+                        Unable to load investment history.
+                    </td>
+                </tr>
+            `;
+        }
+
+
+        if (mobileContainer) {
+
+            mobileContainer.innerHTML = `
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        ⚠️
                     </div>
-                `;
-            }
+
+                    <h3>
+                        Unable to Load History
+                    </h3>
+
+                    <p>
+                        Please refresh the page and try again.
+                    </p>
+
+                </div>
+            `;
         }
     }
+}
 
 
     function renderInvestmentHistory(investments) {
