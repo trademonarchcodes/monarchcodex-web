@@ -5443,3 +5443,745 @@ window.handleReceiptPreviewError =
 /* =========================================================
    PART 7 ENDS HERE
    ========================================================= */
+
+    /* =========================================================
+   ADMIN.HTML — PART 8/12
+   MEMBER MANAGEMENT
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   UPDATE MEMBER STATUS
+   --------------------------------------------------------- */
+
+async function updateMemberStatus(
+    userId,
+    newStatus
+) {
+
+    if (!userId) {
+
+        showAdminMessage(
+            "Invalid member.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    const allowedStatuses = [
+        "active",
+        "pending",
+        "blocked"
+    ];
+
+
+    if (
+        !allowedStatuses.includes(
+            newStatus
+        )
+    ) {
+
+        showAdminMessage(
+            "Invalid member status.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        showAdminMessage(
+            `Updating member status to ${newStatus}...`,
+            "info"
+        );
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("profiles")
+                .update({
+                    status: newStatus
+                })
+                .eq("id", userId)
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Member status update error:",
+                error
+            );
+
+            showAdminMessage(
+                getDatabaseErrorMessage(
+                    error,
+                    "Unable to update member status."
+                ),
+                "error"
+            );
+
+            return false;
+        }
+
+
+        /* ---------------------------------------------
+           UPDATE LOCAL PROFILE DATA
+           --------------------------------------------- */
+
+        const index =
+            profilesData.findIndex(
+                profile =>
+                    String(profile.id) ===
+                    String(userId)
+            );
+
+
+        if (index !== -1) {
+
+            profilesData[index] = {
+                ...profilesData[index],
+                ...(data || {}),
+                status: newStatus
+            };
+        }
+
+
+        /* ---------------------------------------------
+           REFRESH MEMBER DISPLAY
+           --------------------------------------------- */
+
+        renderMembers(
+            profilesData
+        );
+
+        updateMemberStatistics();
+
+
+        showAdminMessage(
+            `Member status changed to ${newStatus}.`,
+            "success"
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected member status error:",
+            error
+        );
+
+        showAdminMessage(
+            "An unexpected error occurred while updating the member.",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   ACTIVATE MEMBER
+   --------------------------------------------------------- */
+
+async function activateMember(
+    userId
+) {
+
+    const member =
+        getMemberById(
+            userId
+        );
+
+
+    if (!member) {
+
+        showAdminMessage(
+            "Member could not be found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const name =
+        getMemberName(
+            userId
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Activate ${name}?\n\n` +
+            `The member will be marked as ACTIVE.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateMemberStatus(
+        userId,
+        "active"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   BLOCK MEMBER
+   --------------------------------------------------------- */
+
+async function blockMember(
+    userId
+) {
+
+    const member =
+        getMemberById(
+            userId
+        );
+
+
+    if (!member) {
+
+        showAdminMessage(
+            "Member could not be found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const name =
+        getMemberName(
+            userId
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Block ${name}?\n\n` +
+            `The member will be marked as BLOCKED.`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateMemberStatus(
+        userId,
+        "blocked"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   SET MEMBER TO PENDING
+   --------------------------------------------------------- */
+
+async function setMemberPending(
+    userId
+) {
+
+    const member =
+        getMemberById(
+            userId
+        );
+
+
+    if (!member) {
+
+        showAdminMessage(
+            "Member could not be found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const name =
+        getMemberName(
+            userId
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Move ${name} back to pending?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    await updateMemberStatus(
+        userId,
+        "pending"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   MEMBER ROLE HELPERS
+   --------------------------------------------------------- */
+
+function isAdminProfile(
+    profile
+) {
+
+    if (!profile) {
+        return false;
+    }
+
+
+    const role =
+        String(
+            profile.role || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    return [
+        "admin",
+        "administrator",
+        "super_admin"
+    ].includes(role);
+}
+
+
+/* ---------------------------------------------------------
+   MEMBER ACTIONS
+   --------------------------------------------------------- */
+
+function getMemberActionButtons(
+    profile
+) {
+
+    if (!profile) {
+        return "";
+    }
+
+
+    /*
+     * Never provide normal member-management controls
+     * that could accidentally modify another administrator.
+     */
+
+    if (isAdminProfile(profile)) {
+
+        return `
+            <span class="status status-active">
+                Administrator
+            </span>
+        `;
+    }
+
+
+    const status =
+        normalizeStatus(
+            profile.status || "pending"
+        );
+
+
+    let html = `
+        <div class="action-stack">
+    `;
+
+
+    if (status !== "active") {
+
+        html += `
+            <button
+                type="button"
+                class="activate-btn"
+                onclick="activateMember(
+                    '${escapeHtml(
+                        profile.id
+                    )}'
+                )"
+            >
+                Activate
+            </button>
+        `;
+    }
+
+
+    if (status !== "blocked") {
+
+        html += `
+            <button
+                type="button"
+                class="block-btn"
+                onclick="blockMember(
+                    '${escapeHtml(
+                        profile.id
+                    )}'
+                )"
+            >
+                Block
+            </button>
+        `;
+    }
+
+
+    if (status !== "pending") {
+
+        html += `
+            <button
+                type="button"
+                class="view-btn"
+                onclick="setMemberPending(
+                    '${escapeHtml(
+                        profile.id
+                    )}'
+                )"
+            >
+                Pending
+            </button>
+        `;
+    }
+
+
+    html += `
+        </div>
+    `;
+
+
+    return html;
+}
+
+
+/* ---------------------------------------------------------
+   REBUILD MEMBER TABLE WITH ACTIONS
+   --------------------------------------------------------- */
+
+function renderMembersWithActions(
+    data = profilesData
+) {
+
+    if (!membersContent) {
+        return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+        membersContent.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    👥
+                </div>
+
+                <h3>
+                    No Members Found
+                </h3>
+
+                <p>
+                    There are currently no profiles
+                    available.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    let html = `
+        <div class="table-wrapper">
+
+            <table class="admin-table members-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Member</th>
+                        <th>Monarch UID</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+    `;
+
+
+    data.forEach(profile => {
+
+        const name =
+            getMemberName(
+                profile.id
+            );
+
+
+        const uid =
+            profile.uid || "—";
+
+
+        const phone =
+            getMemberPhone(
+                profile.id
+            );
+
+
+        const role =
+            getMemberRole(
+                profile.id
+            );
+
+
+        const status =
+            normalizeStatus(
+                profile.status ||
+                "pending"
+            );
+
+
+        const joined =
+            formatDate(
+                profile.created_at
+            );
+
+
+        html += `
+            <tr>
+
+                <td>
+                    <div class="member-name-cell">
+                        <strong>
+                            ${escapeHtml(
+                                name
+                            )}
+                        </strong>
+
+                        ${
+                            profile.email
+                                ? `
+                                    <small>
+                                        ${escapeHtml(
+                                            profile.email
+                                        )}
+                                    </small>
+                                  `
+                                : ""
+                        }
+                    </div>
+                </td>
+
+
+                <td>
+
+                    <div class="uid-cell">
+
+                        <span>
+                            ${escapeHtml(
+                                uid
+                            )}
+                        </span>
+
+                        ${
+                            uid !== "—"
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="uid-copy-btn"
+                                        onclick="copyMemberUid(
+                                            '${escapeHtml(
+                                                uid
+                                            )}'
+                                        )"
+                                    >
+                                        Copy
+                                    </button>
+                                  `
+                                : ""
+                        }
+
+                    </div>
+
+                </td>
+
+
+                <td>
+                    ${escapeHtml(
+                        phone
+                    )}
+                </td>
+
+
+                <td>
+                    <span class="role-badge">
+                        ${escapeHtml(
+                            role
+                        )}
+                    </span>
+                </td>
+
+
+                <td>
+                    <span class="${getStatusClass(
+                        status
+                    )}">
+                        ${escapeHtml(
+                            getStatusLabel(
+                                status
+                            )
+                        )}
+                    </span>
+                </td>
+
+
+                <td>
+                    ${escapeHtml(
+                        joined
+                    )}
+                </td>
+
+
+                <td>
+                    ${getMemberActionButtons(
+                        profile
+                    )}
+                </td>
+
+            </tr>
+        `;
+    });
+
+
+    html += `
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+
+
+    membersContent.innerHTML =
+        html;
+}
+
+
+/* ---------------------------------------------------------
+   REPLACE BASIC MEMBER RENDERER
+   --------------------------------------------------------- */
+
+function renderMembersFinal(
+    data = profilesData
+) {
+
+    renderMembersWithActions(
+        data
+    );
+}
+
+
+/* ---------------------------------------------------------
+   MEMBER SEARCH WITH ACTIONS
+   --------------------------------------------------------- */
+
+function searchMembersFinal(
+    query
+) {
+
+    const search =
+        String(query || "")
+            .trim()
+            .toLowerCase();
+
+
+    if (!search) {
+
+        renderMembersWithActions(
+            profilesData
+        );
+
+        return;
+    }
+
+
+    const filtered =
+        profilesData.filter(profile => {
+
+            const values = [
+
+                profile.full_name,
+                profile.name,
+                profile.username,
+                profile.email,
+                profile.phone,
+                profile.uid,
+                profile.role,
+                profile.status
+
+            ];
+
+
+            return values.some(value =>
+                String(value || "")
+                    .toLowerCase()
+                    .includes(search)
+            );
+        });
+
+
+    renderMembersWithActions(
+        filtered
+    );
+}
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.updateMemberStatus =
+    updateMemberStatus;
+
+window.activateMember =
+    activateMember;
+
+window.blockMember =
+    blockMember;
+
+window.setMemberPending =
+    setMemberPending;
+
+window.renderMembersWithActions =
+    renderMembersWithActions;
+
+window.renderMembersFinal =
+    renderMembersFinal;
+
+window.searchMembersFinal =
+    searchMembersFinal;
+
+
+/* =========================================================
+   PART 8 ENDS HERE
+   ========================================================= */    
