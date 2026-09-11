@@ -7988,3 +7988,368 @@ window.initializeAdminUI =
 /* =========================================================
    PART 11 ENDS HERE
    ========================================================= */       
+
+
+/* =========================================================
+   PART 12/12 — FINAL CLEANUP, MEMBER STATS & SAFETY
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   FINAL MEMBER STATISTICS
+   Count actual members only — exclude admin accounts.
+   --------------------------------------------------------- */
+function updateMemberStatisticsFinal() {
+    const members = profilesData.filter(profile => {
+        const role = String(profile?.role || "member").toLowerCase();
+        return !["admin", "administrator", "super_admin"].includes(role);
+    });
+
+    const pendingMembers = members.filter(profile => {
+        const status = String(profile?.status || "active").toLowerCase();
+        return status === "pending";
+    });
+
+    if (totalMembers) {
+        totalMembers.textContent = formatNumber(members.length);
+    }
+
+    if (pendingMembers) {
+        pendingMembers.textContent = formatNumber(pendingMembers.length);
+    }
+
+    if (membersStatus) {
+        membersStatus.textContent =
+            `${members.length} member${members.length === 1 ? "" : "s"} loaded`;
+    }
+}
+
+/*
+   Replace the earlier statistics function with the final version.
+*/
+updateMemberStatistics = updateMemberStatisticsFinal;
+
+
+/* ---------------------------------------------------------
+   FINAL MEMBER RENDER
+   Always prefer the version that contains action buttons.
+   --------------------------------------------------------- */
+function refreshMembersView() {
+    if (typeof renderMembersWithActions === "function") {
+        renderMembersWithActions(profilesData);
+    } else if (typeof renderMembersFinal === "function") {
+        renderMembersFinal(profilesData);
+    } else {
+        renderMembers(profilesData);
+    }
+
+    updateMemberStatisticsFinal();
+}
+
+
+/* ---------------------------------------------------------
+   FINAL INVESTMENT VIEW
+   Make sure receipt information is reflected after refresh.
+   --------------------------------------------------------- */
+function refreshInvestmentsView() {
+    if (typeof renderInvestments === "function") {
+        renderInvestments(investmentsData);
+    }
+
+    if (typeof updateInvestmentStatistics === "function") {
+        updateInvestmentStatistics();
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL COMPLETE REFRESH
+   --------------------------------------------------------- */
+async function refreshEverything() {
+    try {
+        showAdminMessage("Refreshing admin data...", "info");
+
+        await loadPackages();
+        await loadProfiles();
+        await loadInvestments();
+        await loadReceipts();
+
+        refreshMembersView();
+        refreshInvestmentsView();
+
+        if (typeof loadEarnings === "function") {
+            await loadEarnings();
+        }
+
+        populateEarningMembers();
+
+        showAdminMessage(
+            "Admin dashboard refreshed successfully.",
+            "success"
+        );
+
+        setTimeout(() => {
+            clearAdminMessage();
+        }, 3000);
+
+    } catch (error) {
+        console.error("Final admin refresh error:", error);
+
+        showAdminMessage(
+            getDatabaseErrorMessage(error),
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL MEMBER SEARCH
+   --------------------------------------------------------- */
+function finalMemberSearch(query) {
+    const value = String(query || "").trim().toLowerCase();
+
+    if (!value) {
+        refreshMembersView();
+        return;
+    }
+
+    const filtered = profilesData.filter(profile => {
+        const name = getMemberName(profile.id).toLowerCase();
+        const uid = getMemberUid(profile.id).toLowerCase();
+        const phone = getMemberPhone(profile.id).toLowerCase();
+        const email = String(profile.email || "").toLowerCase();
+
+        return (
+            name.includes(value) ||
+            uid.includes(value) ||
+            phone.includes(value) ||
+            email.includes(value)
+        );
+    });
+
+    if (typeof renderMembersWithActions === "function") {
+        renderMembersWithActions(filtered);
+    } else {
+        renderMembers(filtered);
+    }
+
+    if (membersStatus) {
+        membersStatus.textContent =
+            `${filtered.length} matching member${filtered.length === 1 ? "" : "s"}`;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL INVESTMENT SEARCH
+   --------------------------------------------------------- */
+function finalInvestmentSearch(query) {
+    const value = String(query || "").trim().toLowerCase();
+
+    if (!value) {
+        renderInvestments(investmentsData);
+        updateInvestmentStatistics();
+        return;
+    }
+
+    const filtered = investmentsData.filter(investment => {
+        const memberName =
+            getInvestmentMemberName(investment).toLowerCase();
+
+        const uid =
+            getInvestmentMemberUid(investment).toLowerCase();
+
+        const packageName =
+            getInvestmentPackageName(investment).toLowerCase();
+
+        const paymentMethod =
+            getPaymentMethod(investment).toLowerCase();
+
+        const network =
+            getPaymentNetwork(investment).toLowerCase();
+
+        const status =
+            normalizeStatus(investment.status).toLowerCase();
+
+        const amount =
+            String(getInvestmentAmount(investment)).toLowerCase();
+
+        return (
+            memberName.includes(value) ||
+            uid.includes(value) ||
+            packageName.includes(value) ||
+            paymentMethod.includes(value) ||
+            network.includes(value) ||
+            status.includes(value) ||
+            amount.includes(value)
+        );
+    });
+
+    renderInvestments(filtered);
+
+    if (investmentsStatus) {
+        investmentsStatus.textContent =
+            `${filtered.length} matching investment${filtered.length === 1 ? "" : "s"}`;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL STATUS FILTER
+   --------------------------------------------------------- */
+function finalInvestmentStatusFilter(status) {
+    const selected = String(status || "all").toLowerCase();
+
+    if (selected === "all") {
+        renderInvestments(investmentsData);
+        updateInvestmentStatistics();
+        return;
+    }
+
+    const filtered = investmentsData.filter(investment => {
+        return normalizeStatus(investment.status).toLowerCase() === selected;
+    });
+
+    renderInvestments(filtered);
+
+    if (investmentsStatus) {
+        investmentsStatus.textContent =
+            `${filtered.length} ${selected} investment${filtered.length === 1 ? "" : "s"}`;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SAFE RECEIPT MODAL CLEANUP
+   --------------------------------------------------------- */
+function cleanupReceiptModal() {
+    if (!receiptPreview) return;
+
+    receiptPreview.innerHTML = "";
+
+    if (receiptModal) {
+        receiptModal.classList.remove("active");
+    }
+
+    document.body.style.overflow = "";
+}
+
+
+/* ---------------------------------------------------------
+   PREVENT BODY SCROLL WHILE RECEIPT MODAL IS OPEN
+   --------------------------------------------------------- */
+if (receiptModal) {
+    const modalObserver = new MutationObserver(() => {
+        if (receiptModal.classList.contains("active")) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+    });
+
+    modalObserver.observe(receiptModal, {
+        attributes: true,
+        attributeFilter: ["class"]
+    });
+}
+
+
+/* ---------------------------------------------------------
+   ADMIN DATA SAFETY
+   --------------------------------------------------------- */
+function clearAdminLocalState() {
+    profilesData = [];
+    packagesData = [];
+    investmentsData = [];
+    receiptsData = [];
+    earningsData = [];
+}
+
+
+/* ---------------------------------------------------------
+   AUTH STATE SAFETY
+   --------------------------------------------------------- */
+async function verifyCurrentAdmin() {
+    try {
+        const {
+            data: { session },
+            error
+        } = await supabaseClient.auth.getSession();
+
+        if (error || !session) {
+            window.location.href = "login.html";
+            return false;
+        }
+
+        const { data: profile, error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .select("*")
+                .eq("id", session.user.id)
+                .single();
+
+        if (profileError || !profile) {
+            await supabaseClient.auth.signOut();
+            window.location.href = "login.html";
+            return false;
+        }
+
+        const role = String(profile.role || "").toLowerCase();
+
+        if (!["admin", "administrator", "super_admin"].includes(role)) {
+            await supabaseClient.auth.signOut();
+            window.location.href = "login.html";
+            return false;
+        }
+
+        currentAdmin = {
+            ...session.user,
+            profile
+        };
+
+        return true;
+
+    } catch (error) {
+        console.error("Admin verification error:", error);
+        window.location.href = "login.html";
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL EXPORTS
+   --------------------------------------------------------- */
+window.refreshEverything = refreshEverything;
+window.refreshMembersView = refreshMembersView;
+window.refreshInvestmentsView = refreshInvestmentsView;
+window.finalMemberSearch = finalMemberSearch;
+window.finalInvestmentSearch = finalInvestmentSearch;
+window.finalInvestmentStatusFilter = finalInvestmentStatusFilter;
+window.cleanupReceiptModal = cleanupReceiptModal;
+window.clearAdminLocalState = clearAdminLocalState;
+window.verifyCurrentAdmin = verifyCurrentAdmin;
+
+
+/* ---------------------------------------------------------
+   FINAL CONSOLE MESSAGE
+   --------------------------------------------------------- */
+console.log(
+    "%cMONARCH CODEX ADMIN PANEL",
+    "font-size:18px;font-weight:bold;"
+);
+
+console.log(
+    "%cAdmin interface loaded successfully.",
+    "font-size:13px;"
+);
+
+
+/* =========================================================
+   END OF ADMIN JAVASCRIPT
+   ========================================================= */
+
+</script>
+
+</body>
+</html>
