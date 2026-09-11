@@ -6563,3 +6563,829 @@ if (document.readyState === "loading") {
 /* =========================================================
    END OF PART 10/12
    ========================================================= */
+/* =========================================================
+   PART 11/12 — DASHBOARD UTILITIES, UI STATE & FINAL CHECKS
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   SAFE ELEMENT HELPERS
+--------------------------------------------------------- */
+
+function getElement(id) {
+    return document.getElementById(id);
+}
+
+
+function setElementDisabled(id, disabled) {
+    const element = getElement(id);
+
+    if (!element) {
+        return;
+    }
+
+    element.disabled = Boolean(disabled);
+}
+
+
+function setElementVisible(id, visible) {
+    const element = getElement(id);
+
+    if (!element) {
+        return;
+    }
+
+    element.style.display = visible ? "" : "none";
+}
+
+
+/* ---------------------------------------------------------
+   PACKAGE STATE
+--------------------------------------------------------- */
+
+function hasSelectedPackage() {
+    return Boolean(selectedPackage);
+}
+
+
+function hasSelectedPaymentMethod() {
+    return Boolean(selectedPaymentMethod);
+}
+
+
+function hasSelectedPaymentDetails() {
+    return Boolean(selectedPaymentDetails);
+}
+
+
+function hasSelectedReceipt() {
+    return Boolean(selectedReceiptFile);
+}
+
+
+function getPackageDisplayName() {
+    if (!selectedPackage) {
+        return "No package selected";
+    }
+
+    return (
+        selectedPackage.name ||
+        selectedPackage.title ||
+        selectedPackage.package_name ||
+        "Investment Package"
+    );
+}
+
+
+function getPackageDisplayAmount() {
+    if (!selectedPackage) {
+        return 0;
+    }
+
+    return Number(
+        selectedPackage.amount ??
+        selectedPackage.price ??
+        selectedPackage.minimum_amount ??
+        0
+    );
+}
+
+
+/* ---------------------------------------------------------
+   PAYMENT DISPLAY HELPERS
+--------------------------------------------------------- */
+
+function getPaymentMethodLabel(method) {
+    if (method === "bank") {
+        return "Bank Transfer";
+    }
+
+    if (method === "crypto") {
+        return "Crypto / USDT";
+    }
+
+    return "Not selected";
+}
+
+
+function getPaymentNetworkLabel() {
+    if (!selectedPaymentDetails) {
+        return "";
+    }
+
+    return (
+        selectedPaymentDetails.crypto_network ||
+        selectedCryptoNetwork ||
+        ""
+    );
+}
+
+
+function getPaymentWalletAddress() {
+    if (!selectedPaymentDetails) {
+        return "";
+    }
+
+    return selectedPaymentDetails.wallet_address || "";
+}
+
+
+function getPaymentAccountNumber() {
+    if (!selectedPaymentDetails) {
+        return "";
+    }
+
+    return selectedPaymentDetails.account_number || "";
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT SUMMARY
+--------------------------------------------------------- */
+
+function buildInvestmentSummary() {
+    const packageName = getPackageDisplayName();
+
+    const packageAmount = getPackageDisplayAmount();
+
+    const paymentMethod =
+        getPaymentMethodLabel(selectedPaymentMethod);
+
+    let paymentAmount = 0;
+    let currency = "";
+
+    if (selectedPaymentDetails) {
+        paymentAmount = Number(
+            selectedPaymentDetails.total_amount ??
+            selectedPaymentDetails.minimum_amount ??
+            0
+        );
+
+        currency =
+            selectedPaymentDetails.currency ||
+            (selectedPaymentMethod === "bank" ? "NGN" : "USD");
+    }
+
+    return {
+        packageName,
+        packageAmount,
+        paymentMethod,
+        paymentAmount,
+        currency,
+        network: getPaymentNetworkLabel(),
+        walletAddress: getPaymentWalletAddress(),
+        accountNumber: getPaymentAccountNumber()
+    };
+}
+
+
+/* ---------------------------------------------------------
+   UPDATE SUMMARY DISPLAY
+--------------------------------------------------------- */
+
+function renderInvestmentSummary() {
+    const summary = buildInvestmentSummary();
+
+    setText(
+        "selectedPackageName",
+        summary.packageName
+    );
+
+    setText(
+        "investmentAmountDisplay",
+        summary.packageAmount > 0
+            ? formatPaymentAmount(
+                summary.packageAmount,
+                "USD"
+            )
+            : "—"
+    );
+
+    setText(
+        "selectedPaymentMethodDisplay",
+        summary.paymentMethod
+    );
+
+    const paymentSummary =
+        getElement("paymentSummary");
+
+    if (paymentSummary) {
+        if (!selectedPaymentMethod) {
+            paymentSummary.textContent =
+                "Select a payment method.";
+        } else if (!selectedPaymentDetails) {
+            paymentSummary.textContent =
+                "Select the available payment details.";
+        } else {
+            let text =
+                `${summary.paymentMethod}: ` +
+                `${formatPaymentAmount(
+                    summary.paymentAmount,
+                    summary.currency
+                )}`;
+
+            if (summary.network) {
+                text += ` • ${summary.network}`;
+            }
+
+            paymentSummary.textContent = text;
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   PACKAGE CARD STATE
+--------------------------------------------------------- */
+
+function refreshPackageCardState() {
+    const cards = document.querySelectorAll(
+        "#packagesGrid .package-card"
+    );
+
+    cards.forEach(card => {
+        const cardPackageId =
+            card.dataset.packageId ||
+            card.getAttribute("data-package-id");
+
+        const selectedId =
+            selectedPackage?.id != null
+                ? String(selectedPackage.id)
+                : "";
+
+        const isSelected =
+            cardPackageId &&
+            String(cardPackageId) === selectedId;
+
+        card.classList.toggle(
+            "selected",
+            Boolean(isSelected)
+        );
+
+        card.setAttribute(
+            "aria-selected",
+            isSelected ? "true" : "false"
+        );
+    });
+}
+
+
+/* ---------------------------------------------------------
+   PAYMENT CARD STATE
+--------------------------------------------------------- */
+
+function refreshPaymentCardState() {
+    const bankCard =
+        getElement("bankPayment");
+
+    const cryptoCard =
+        getElement("cryptoPayment");
+
+    if (bankCard) {
+        const selected =
+            selectedPaymentMethod === "bank";
+
+        bankCard.classList.toggle(
+            "selected",
+            selected
+        );
+
+        bankCard.setAttribute(
+            "aria-selected",
+            selected ? "true" : "false"
+        );
+    }
+
+    if (cryptoCard) {
+        const selected =
+            selectedPaymentMethod === "crypto";
+
+        cryptoCard.classList.toggle(
+            "selected",
+            selected
+        );
+
+        cryptoCard.setAttribute(
+            "aria-selected",
+            selected ? "true" : "false"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT STATE
+--------------------------------------------------------- */
+
+function refreshReceiptState() {
+    const uploadButton =
+        getElement("uploadReceiptBtn");
+
+    const submitButton =
+        getElement("submitInvestmentBtn");
+
+    const hasFile =
+        Boolean(selectedReceiptFile);
+
+    const uploaded =
+        Boolean(isReceiptUploaded);
+
+    if (uploadButton) {
+        uploadButton.disabled =
+            !hasFile ||
+            uploaded ||
+            isSubmittingInvestment;
+    }
+
+    if (submitButton) {
+        submitButton.disabled =
+            !selectedPackage ||
+            !selectedPaymentMethod ||
+            !selectedPaymentDetails ||
+            !hasFile ||
+            !uploaded ||
+            isSubmittingInvestment;
+    }
+
+    const statusElement =
+        getElement("receiptUploadStatus");
+
+    if (statusElement && uploaded) {
+        statusElement.textContent =
+            "Receipt uploaded successfully.";
+    }
+}
+
+
+/* ---------------------------------------------------------
+   COMPLETE FORM STATE REFRESH
+--------------------------------------------------------- */
+
+function refreshInvestmentUI() {
+    renderInvestmentSummary();
+    refreshPackageCardState();
+    refreshPaymentCardState();
+    refreshReceiptState();
+    updateInvestmentFormState();
+}
+
+
+/* ---------------------------------------------------------
+   PREVENT MULTIPLE SUBMISSIONS
+--------------------------------------------------------- */
+
+function setInvestmentSubmittingState(submitting) {
+    isSubmittingInvestment = Boolean(submitting);
+
+    const submitButton =
+        getElement("submitInvestmentBtn");
+
+    if (submitButton) {
+        submitButton.disabled =
+            isSubmittingInvestment;
+
+        submitButton.textContent =
+            isSubmittingInvestment
+                ? "Submitting..."
+                : "Submit Investment Request";
+    }
+
+    const uploadButton =
+        getElement("uploadReceiptBtn");
+
+    if (uploadButton) {
+        uploadButton.disabled =
+            isSubmittingInvestment ||
+            !selectedReceiptFile ||
+            isReceiptUploaded;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   PAYMENT DETAILS VALIDATION
+--------------------------------------------------------- */
+
+function validatePaymentDetails() {
+    if (!selectedPaymentMethod) {
+        return {
+            valid: false,
+            message: "Please select a payment method."
+        };
+    }
+
+    if (!selectedPaymentDetails) {
+        return {
+            valid: false,
+            message: "Please select the payment details."
+        };
+    }
+
+    if (selectedPaymentMethod === "bank") {
+        if (
+            !selectedPaymentDetails.account_number ||
+            !selectedPaymentDetails.account_name ||
+            !selectedPaymentDetails.bank_name
+        ) {
+            return {
+                valid: false,
+                message:
+                    "Bank payment details are incomplete. Please contact support."
+            };
+        }
+    }
+
+    if (selectedPaymentMethod === "crypto") {
+        if (
+            !selectedPaymentDetails.wallet_address ||
+            !selectedPaymentDetails.crypto_network
+        ) {
+            return {
+                valid: false,
+                message:
+                    "Crypto payment details are incomplete. Please contact support."
+            };
+        }
+    }
+
+    return {
+        valid: true,
+        message: ""
+    };
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT VALIDATION
+--------------------------------------------------------- */
+
+function validateSelectedReceipt() {
+    if (!selectedReceiptFile) {
+        return {
+            valid: false,
+            message: "Please select your payment receipt."
+        };
+    }
+
+    if (
+        !ALLOWED_RECEIPT_TYPES.includes(
+            selectedReceiptFile.type
+        )
+    ) {
+        return {
+            valid: false,
+            message:
+                "Invalid receipt format. Use JPG, PNG, WEBP or PDF."
+        };
+    }
+
+    if (
+        selectedReceiptFile.size >
+        MAX_RECEIPT_SIZE
+    ) {
+        return {
+            valid: false,
+            message:
+                "Receipt file is too large. Maximum size is 10 MB."
+        };
+    }
+
+    return {
+        valid: true,
+        message: ""
+    };
+}
+
+
+/* ---------------------------------------------------------
+   FULL INVESTMENT VALIDATION
+--------------------------------------------------------- */
+
+function validateCompleteInvestment() {
+    const profileValidation =
+        validateProfileForInvestment();
+
+    if (!profileValidation.valid) {
+        return profileValidation;
+    }
+
+    const paymentValidation =
+        validatePaymentDetails();
+
+    if (!paymentValidation.valid) {
+        return paymentValidation;
+    }
+
+    const receiptValidation =
+        validateSelectedReceipt();
+
+    if (!receiptValidation.valid) {
+        return receiptValidation;
+    }
+
+    if (!selectedPackage) {
+        return {
+            valid: false,
+            message: "Please select an investment package."
+        };
+    }
+
+    if (!isReceiptUploaded) {
+        return {
+            valid: false,
+            message:
+                "Please upload your payment receipt before submitting."
+        };
+    }
+
+    return {
+        valid: true,
+        message: ""
+    };
+}
+
+
+/* ---------------------------------------------------------
+   SHOW VALIDATION MESSAGE
+--------------------------------------------------------- */
+
+function showInvestmentMessage(message, type = "error") {
+    const element =
+        getElement("investmentValidationMessage");
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent = message;
+
+    element.className =
+        `investment-validation-message ${type}`;
+
+    element.classList.add("show");
+}
+
+
+/* ---------------------------------------------------------
+   CLEAR VALIDATION MESSAGE
+--------------------------------------------------------- */
+
+function clearInvestmentMessage() {
+    const element =
+        getElement("investmentValidationMessage");
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent = "";
+    element.classList.remove(
+        "show",
+        "error",
+        "success",
+        "warning"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   HANDLE PACKAGE SELECTION
+--------------------------------------------------------- */
+
+function handlePackageSelection(packageId) {
+    const id = Number(packageId);
+
+    if (!Number.isFinite(id)) {
+        return;
+    }
+
+    selectPackage(id);
+
+    refreshInvestmentUI();
+
+    scrollToSection("investmentRequest");
+}
+
+
+/* ---------------------------------------------------------
+   HANDLE PAYMENT SELECTION
+--------------------------------------------------------- */
+
+function handlePaymentSelection(method) {
+    if (!["bank", "crypto"].includes(method)) {
+        return;
+    }
+
+    selectPaymentMethod(method);
+
+    refreshInvestmentUI();
+}
+
+
+/* ---------------------------------------------------------
+   HANDLE CRYPTO NETWORK CHANGE
+--------------------------------------------------------- */
+
+function handleCryptoNetworkChange(network) {
+    if (!network) {
+        return;
+    }
+
+    selectCryptoNetwork(network);
+
+    refreshInvestmentUI();
+}
+
+
+/* ---------------------------------------------------------
+   KEYBOARD ACCESSIBILITY
+--------------------------------------------------------- */
+
+function initializeAccessibility() {
+    const interactiveCards = document.querySelectorAll(
+        ".payment-card, .package-card"
+    );
+
+    interactiveCards.forEach(card => {
+        if (
+            !card.hasAttribute("tabindex")
+        ) {
+            card.setAttribute(
+                "tabindex",
+                "0"
+            );
+        }
+
+        card.addEventListener(
+            "keydown",
+            event => {
+                if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                ) {
+                    event.preventDefault();
+
+                    card.click();
+                }
+            }
+        );
+    });
+}
+
+
+/* ---------------------------------------------------------
+   RESIZE HANDLER
+--------------------------------------------------------- */
+
+function initializeResponsiveRefresh() {
+    let resizeTimer = null;
+
+    window.addEventListener(
+        "resize",
+        () => {
+            clearTimeout(resizeTimer);
+
+            resizeTimer = setTimeout(() => {
+                refreshPackageCardState();
+                refreshPaymentCardState();
+            }, 150);
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   TAB VISIBILITY REFRESH
+--------------------------------------------------------- */
+
+function initializeTabRefresh() {
+    document.addEventListener(
+        "visibilitychange",
+        async () => {
+            if (
+                document.visibilityState !== "visible"
+            ) {
+                return;
+            }
+
+            try {
+                const session =
+                    await getCurrentSession();
+
+                if (!session?.user) {
+                    window.location.href =
+                        "login.html";
+
+                    return;
+                }
+
+                currentUser =
+                    session.user;
+
+            } catch (error) {
+                console.error(
+                    "Visibility session check failed:",
+                    error
+                );
+            }
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   NETWORK RECOVERY
+--------------------------------------------------------- */
+
+function initializeNetworkRecovery() {
+    window.addEventListener(
+        "online",
+        () => {
+            showDashboardMessage(
+                "Internet connection restored.",
+                "success"
+            );
+
+            setTimeout(() => {
+                hideDashboardMessage();
+            }, 2500);
+
+            refreshDashboardData();
+        }
+    );
+
+    window.addEventListener(
+        "offline",
+        () => {
+            showDashboardMessage(
+                "You are offline. Some dashboard features may be unavailable.",
+                "warning"
+            );
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   PAGE EXIT WARNING
+--------------------------------------------------------- */
+
+function hasPendingReceiptUpload() {
+    return Boolean(
+        selectedReceiptFile &&
+        !isReceiptUploaded
+    );
+}
+
+
+function initializeExitProtection() {
+    window.addEventListener(
+        "beforeunload",
+        event => {
+            if (
+                isSubmittingInvestment ||
+                hasPendingReceiptUpload()
+            ) {
+                event.preventDefault();
+                event.returnValue = "";
+            }
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   FINAL DASHBOARD UI INITIALIZATION
+--------------------------------------------------------- */
+
+function initializeFinalDashboardUI() {
+    initializeAccessibility();
+    initializeResponsiveRefresh();
+    initializeTabRefresh();
+    initializeNetworkRecovery();
+    initializeExitProtection();
+
+    refreshInvestmentUI();
+
+    console.log(
+        "Monarch Dashboard UI initialized successfully."
+    );
+}
+
+
+/* ---------------------------------------------------------
+   START FINAL UI SERVICES
+--------------------------------------------------------- */
+
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeFinalDashboardUI
+    );
+} else {
+    initializeFinalDashboardUI();
+}
+
+
+/* =========================================================
+   END OF PART 11/12
+   ========================================================= */
