@@ -1094,3 +1094,798 @@ nav ul a:hover {
         font-size: 9px;
     }
 }
+
+/* =========================================================
+   MONARCH CODEX — MASTER STYLE
+   PART 3/12
+   Homepage • Hero • Sections • Stats • Founder • Packages
+========================================================= */
+
+
+/* =========================================================
+   HERO SECTION
+========================================================= */
+
+.hero {
+    position: relative;
+
+    min-height: 520px;
+
+    display: flex;
+
+    align-items: center;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 20% 30%,
+            rgba(212, 175, 55, 0.09),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 70%,
+            rgba(212, 175, 55, 0.05),
+            transparent 30%
+        ),
+        var(--black-soft);
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.04);
+}
+
+.hero::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(212, 175, 55, 0.025) 50%,
+            transparent 100%
+        );
+}
+
+.hero-content {
+    position: relative;
+
+    z-index: 2;
+
+    width: min(900px, calc(100% - 40px));
+
+    margin: 0 auto;
+
+    padding: 90px 0;
+
+    text-align: center;
+}
+
+.hero h1 {
+    margin-bottom: 20px;
+
+    color: var(--white);
+
+    font-size:
+        clamp(40px, 7vw, 76px);
+
+    font-weight: 800;
+
+    line-height: 1.04;
+
+    letter-spacing: -1px;
+}
+
+.hero h1 span {
+    color: var(--gold);
+}
+
+.hero h2 {
+    margin-bottom: 20px;
+
+    color: var(--gold);
+
+    font-size:
+        clamp(20px, 3vw, 32px);
+}
+
+.hero p {
+    max-width: 700px;
+
+    margin: 0 auto;
+
+    color: var(--muted);
+
+    font-size: 15px;
+}
+
+.hero-btn {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 48px;
+
+    margin-top: 28px;
+
+    padding: 11px 24px;
+
+    color: #080808;
+
+    background: var(--gold);
+
+    border: 1px solid var(--gold);
+
+    border-radius: 10px;
+
+    font-weight: 700;
+
+    transition: var(--transition);
+}
+
+.hero-btn:hover {
+    background: var(--gold-light);
+
+    border-color: var(--gold-light);
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 30px rgba(212, 175, 55, 0.20);
+}
+
+
+/* =========================================================
+   HERO BADGES
+========================================================= */
+
+.hero-badges {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    margin-top: 25px;
+}
+
+.hero-badges span {
+    padding: 6px 12px;
+
+    color: var(--gold);
+
+    background:
+        rgba(212, 175, 55, 0.06);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.16);
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   DASHBOARD HERO COMPATIBILITY
+========================================================= */
+
+.dashboard-hero {
+    min-height: 360px;
+
+    text-align: center;
+}
+
+.dashboard-hero .container {
+    max-width: 850px;
+}
+
+.dashboard-hero h1 {
+    font-size:
+        clamp(34px, 6vw, 58px);
+}
+
+.dashboard-hero h1 span {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   EYEBROW / LABEL
+========================================================= */
+
+.eyebrow,
+.section-label {
+    display: inline-block;
+
+    margin-bottom: 10px;
+
+    color: var(--gold);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 2.5px;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   GENERIC SECTION
+========================================================= */
+
+.section {
+    padding: 80px 0;
+}
+
+.section-dark {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(212, 175, 55, 0.025),
+            transparent
+        ),
+        #080808;
+}
+
+.section-heading {
+    margin-bottom: 38px;
+}
+
+.section-heading h2 {
+    margin-bottom: 10px;
+
+    color: var(--white);
+
+    font-size:
+        clamp(28px, 4vw, 42px);
+
+    line-height: 1.2;
+}
+
+.section-heading h2 span {
+    color: var(--gold);
+}
+
+.section-heading p {
+    max-width: 720px;
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   CENTERED SECTION HEADING
+========================================================= */
+
+.section-heading.text-center {
+    margin-left: auto;
+
+    margin-right: auto;
+
+    text-align: center;
+}
+
+.section-heading.text-center p {
+    margin-left: auto;
+
+    margin-right: auto;
+}
+
+
+/* =========================================================
+   HOMEPAGE STATS
+========================================================= */
+
+.stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+
+    padding: 60px max(20px, 5%);
+
+    background: #080808;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.03);
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.03);
+}
+
+.stat-box {
+    min-width: 0;
+
+    padding: 28px 20px;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            rgba(255, 255, 255, 0)
+        ),
+        var(--panel);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.15);
+
+    border-radius: var(--radius);
+
+    transition: var(--transition);
+}
+
+.stat-box:hover {
+    transform: translateY(-3px);
+
+    border-color:
+        rgba(212, 175, 55, 0.32);
+}
+
+.stat-box h3 {
+    margin-bottom: 5px;
+
+    color: var(--gold);
+
+    font-size: 31px;
+
+    line-height: 1.2;
+}
+
+.stat-box p {
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   FOUNDER SECTION
+========================================================= */
+
+.founder-section {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    align-items: center;
+
+    gap: 55px;
+
+    padding:
+        90px
+        max(20px, 8%);
+
+    background: var(--black);
+}
+
+.founder-image {
+    width: 100%;
+}
+
+.founder-image img {
+    width: min(100%, 500px);
+
+    margin: 0 auto;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.22);
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+}
+
+.founder-content {
+    max-width: 600px;
+}
+
+.founder-content h2 {
+    margin-bottom: 8px;
+
+    color: var(--gold);
+
+    font-size:
+        clamp(30px, 4vw, 45px);
+}
+
+.founder-content h3 {
+    margin-bottom: 20px;
+
+    color: var(--white);
+
+    font-size: 20px;
+}
+
+.founder-content p {
+    margin-bottom: 16px;
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+.founder-badges {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin: 22px 0;
+}
+
+.founder-badges span {
+    padding: 6px 12px;
+
+    color: var(--gold);
+
+    background:
+        rgba(212, 175, 55, 0.06);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.16);
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   FEATURE GRID
+========================================================= */
+
+.features-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+.feature-card {
+    padding: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            rgba(255, 255, 255, 0)
+        ),
+        var(--panel);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.15);
+
+    border-radius: var(--radius);
+
+    transition: var(--transition);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+
+    border-color:
+        rgba(212, 175, 55, 0.35);
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.feature-card h3 {
+    margin-bottom: 10px;
+
+    color: var(--white);
+
+    font-size: 18px;
+}
+
+.feature-card p {
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   PACKAGE GRID — HOMEPAGE
+========================================================= */
+
+.packages-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+
+/* =========================================================
+   PACKAGE CARD
+========================================================= */
+
+.package-card {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(212, 175, 55, 0.045),
+            rgba(255, 255, 255, 0.01)
+        ),
+        var(--panel);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.18);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    transition: var(--transition);
+}
+
+.package-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--gold),
+            transparent
+        );
+}
+
+.package-card:hover {
+    transform: translateY(-4px);
+
+    border-color:
+        rgba(212, 175, 55, 0.38);
+}
+
+.package-card h3 {
+    margin-bottom: 8px;
+
+    color: var(--white);
+
+    font-size: 20px;
+}
+
+.package-card p {
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+.package-price {
+    margin: 20px 0;
+
+    color: var(--gold);
+
+    font-size: 30px;
+
+    font-weight: 800;
+}
+
+.package-price small {
+    color: var(--muted);
+
+    font-size: 11px;
+
+    font-weight: 400;
+}
+
+.package-features {
+    margin: 20px 0;
+
+    list-style: none;
+}
+
+.package-features li {
+    padding: 8px 0;
+
+    color: var(--muted);
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.05);
+
+    font-size: 12px;
+}
+
+.package-features li:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   CALL TO ACTION
+========================================================= */
+
+.cta-section {
+    padding: 85px 20px;
+
+    text-align: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(212, 175, 55, 0.08),
+            transparent 45%
+        ),
+        #080808;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.04);
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.04);
+}
+
+.cta-section h2 {
+    margin-bottom: 12px;
+
+    color: var(--white);
+
+    font-size:
+        clamp(28px, 5vw, 45px);
+}
+
+.cta-section h2 span {
+    color: var(--gold);
+}
+
+.cta-section p {
+    max-width: 650px;
+
+    margin: 0 auto;
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+.cta-buttons {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    margin-top: 28px;
+}
+
+
+/* =========================================================
+   RESPONSIVE HOMEPAGE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .features-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .packages-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .founder-section {
+        grid-template-columns:
+            1fr;
+
+        gap: 40px;
+    }
+
+    .founder-content {
+        max-width: none;
+
+        text-align: center;
+    }
+
+    .founder-badges {
+        justify-content: center;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .hero {
+        min-height: 470px;
+    }
+
+    .hero-content {
+        padding: 70px 0;
+    }
+
+    .hero p {
+        font-size: 13px;
+    }
+
+    .section {
+        padding: 60px 0;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+
+        padding:
+            45px
+            20px;
+    }
+
+    .features-grid,
+    .packages-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .founder-section {
+        padding:
+            65px
+            20px;
+    }
+
+    .cta-section {
+        padding:
+            65px
+            20px;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+    }
+
+    .cta-buttons .btn,
+    .cta-buttons a {
+        width: 100%;
+    }
+}
