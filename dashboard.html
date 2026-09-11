@@ -3808,20 +3808,11 @@
              */
 
             const paymentAmount =
-                Number(
-                    selectedPaymentDetails.total_amount ||
-                    selectedPaymentDetails.minimum_amount ||
-                    packageAmount
-                );
+    getSelectedPaymentAmount();
 
 
-            const paymentCurrency =
-                selectedPaymentDetails.currency ||
-                (
-                    selectedPaymentMethod === "bank"
-                        ? "NGN"
-                        : "USD"
-                );
+const paymentCurrency =
+    getSelectedPaymentCurrency();
 
 
             const {
