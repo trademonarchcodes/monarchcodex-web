@@ -2419,6 +2419,783 @@
 
         window.copyMemberUid =
             copyMemberUid;
+
+                            /* =====================================================
+           ADMIN PART 3/12 — AUTHORIZATION + MEMBERS
+           ===================================================== */
+
+
+        /* =====================================================
+           CHECK ADMIN AUTHORIZATION
+           ===================================================== */
+
+        async function checkAdminAuthorization() {
+
+            try {
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient.auth.getSession();
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                const session =
+                    data?.session;
+
+
+                if (
+                    !session ||
+                    !session.user
+                ) {
+
+                    window.location.href =
+                        "login.html";
+
+                    return false;
+                }
+
+
+                currentAdmin =
+                    session.user;
+
+
+                /*
+                 * Check the logged-in user's profile.
+                 *
+                 * The project has historically used
+                 * both "role" and "status" fields, so
+                 * we deliberately handle both safely.
+                 */
+
+                const {
+                    data: profile,
+                    error: profileError
+                } =
+                    await supabaseClient
+                        .from("profiles")
+                        .select("*")
+                        .eq(
+                            "id",
+                            session.user.id
+                        )
+                        .maybeSingle();
+
+
+                if (profileError) {
+                    throw profileError;
+                }
+
+
+                if (!profile) {
+
+                    showAdminMessage(
+                        "Your profile could not be found.",
+                        "error"
+                    );
+
+                    return false;
+                }
+
+
+                const role =
+                    String(
+                        profile.role || ""
+                    )
+                        .trim()
+                        .toLowerCase();
+
+
+                const isAdmin =
+                    role === "admin" ||
+                    role === "administrator" ||
+                    role === "super_admin";
+
+
+                if (!isAdmin) {
+
+                    showAdminMessage(
+                        "Administrator access is required.",
+                        "error"
+                    );
+
+                    setTimeout(() => {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    }, 1800);
+
+                    return false;
+                }
+
+
+                /*
+                 * Store the complete profile so other
+                 * admin functions can use it.
+                 */
+
+                currentAdmin = {
+                    ...session.user,
+                    profile
+                };
+
+
+                return true;
+
+
+            } catch (error) {
+
+                console.error(
+                    "Admin authorization error:",
+                    error
+                );
+
+
+                showAdminMessage(
+                    getDatabaseErrorMessage(error),
+                    "error"
+                );
+
+
+                return false;
+            }
+        }
+
+
+        /* =====================================================
+           LOAD PROFILES
+           ===================================================== */
+
+        async function loadProfiles() {
+
+            if (membersStatus) {
+                membersStatus.textContent =
+                    "Loading...";
+            }
+
+
+            try {
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient
+                        .from("profiles")
+                        .select("*")
+                        .order(
+                            "created_at",
+                            {
+                                ascending: false
+                            }
+                        );
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                profilesData =
+                    Array.isArray(data)
+                        ? data
+                        : [];
+
+
+                renderMembers();
+
+                updateMemberStatistics();
+
+                populateEarningMembers();
+
+
+                if (membersStatus) {
+
+                    membersStatus.textContent =
+                        `${profilesData.length} member${
+                            profilesData.length === 1
+                                ? ""
+                                : "s"
+                        }`;
+                }
+
+
+                return profilesData;
+
+
+            } catch (error) {
+
+                console.error(
+                    "loadProfiles error:",
+                    error
+                );
+
+
+                profilesData = [];
+
+
+                if (membersContent) {
+
+                    membersContent.innerHTML = `
+                        <p class="error-text">
+                            ${escapeHtml(
+                                getDatabaseErrorMessage(
+                                    error
+                                )
+                            )}
+                        </p>
+                    `;
+                }
+
+
+                if (membersStatus) {
+                    membersStatus.textContent =
+                        "Unable to load";
+                }
+
+
+                throw error;
+            }
+        }
+
+
+        /* =====================================================
+           MEMBER STATISTICS
+           ===================================================== */
+
+        function updateMemberStatistics() {
+
+            const total =
+                profilesData.length;
+
+
+            /*
+             * A pending member is any member whose
+             * status is explicitly pending.
+             *
+             * If the profile has no status, it is not
+             * counted as pending.
+             */
+
+            const pending =
+                profilesData.filter(
+                    profile =>
+                        normalizeStatus(
+                            profile.status
+                        ) === "pending"
+                ).length;
+
+
+            if (totalMembers) {
+
+                totalMembers.textContent =
+                    formatNumber(total);
+            }
+
+
+            if (pendingMembers) {
+
+                pendingMembers.textContent =
+                    formatNumber(pending);
+            }
+        }
+
+
+        /* =====================================================
+           MEMBER LOOKUP
+           ===================================================== */
+
+        function getMemberById(userId) {
+
+            if (!userId) {
+                return null;
+            }
+
+
+            return (
+                profilesData.find(
+                    profile =>
+                        String(profile.id) ===
+                        String(userId)
+                ) || null
+            );
+        }
+
+
+        function getMemberName(profile) {
+
+            if (!profile) {
+                return "Unknown Member";
+            }
+
+
+            return (
+                profile.full_name ||
+                profile.name ||
+                profile.username ||
+                profile.email ||
+                "Unknown Member"
+            );
+        }
+
+
+        function getMemberUid(profile) {
+
+            if (!profile) {
+                return "—";
+            }
+
+
+            return (
+                profile.uid ||
+                profile.monarch_uid ||
+                "—"
+            );
+        }
+
+
+        function getMemberPhone(profile) {
+
+            if (!profile) {
+                return "—";
+            }
+
+
+            return (
+                profile.phone ||
+                profile.phone_number ||
+                profile.mobile ||
+                "—"
+            );
+        }
+
+
+        function getMemberRole(profile) {
+
+            if (!profile) {
+                return "Member";
+            }
+
+
+            return (
+                profile.role ||
+                "Member"
+            );
+        }
+
+
+        function getMemberStatus(profile) {
+
+            if (!profile) {
+                return "pending";
+            }
+
+
+            return (
+                profile.status ||
+                "active"
+            );
+        }
+
+
+        /* =====================================================
+           RENDER MEMBERS
+           ===================================================== */
+
+        function renderMembers(
+            data = profilesData
+        ) {
+
+            if (!membersContent) {
+                return;
+            }
+
+
+            if (
+                !Array.isArray(data) ||
+                data.length === 0
+            ) {
+
+                membersContent.innerHTML = `
+                    <p class="empty-text">
+                        No members found.
+                    </p>
+                `;
+
+                return;
+            }
+
+
+            const rows =
+                data.map(
+                    profile => {
+
+                        const name =
+                            getMemberName(
+                                profile
+                            );
+
+
+                        const uid =
+                            getMemberUid(
+                                profile
+                            );
+
+
+                        const phone =
+                            getMemberPhone(
+                                profile
+                            );
+
+
+                        const role =
+                            getMemberRole(
+                                profile
+                            );
+
+
+                        const status =
+                            getMemberStatus(
+                                profile
+                            );
+
+
+                        const createdAt =
+                            profile.created_at ||
+                            profile.joined_at;
+
+
+                        return `
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        ${escapeHtml(
+                                            name
+                                        )}
+                                    </strong>
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="uid-cell"
+                                    >
+
+                                        ${escapeHtml(
+                                            uid
+                                        )}
+
+                                        ${
+                                            uid !== "—"
+                                                ? `
+                                                    <button
+                                                        type="button"
+                                                        class="uid-copy-btn"
+                                                        onclick="copyMemberUid('${escapeHtml(
+                                                            uid
+                                                        )}')"
+                                                        title="Copy UID"
+                                                    >
+                                                        Copy
+                                                    </button>
+                                                `
+                                                : ""
+                                        }
+
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    ${escapeHtml(
+                                        phone
+                                    )}
+                                </td>
+
+
+                                <td>
+                                    ${escapeHtml(
+                                        role
+                                    )}
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="${getStatusClass(
+                                            status
+                                        )}"
+                                    >
+                                        ${escapeHtml(
+                                            getStatusLabel(
+                                                status
+                                            )
+                                        )}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    ${formatDate(
+                                        createdAt
+                                    )}
+                                </td>
+
+
+                                <td>
+
+                                    <div
+                                        class="action-buttons"
+                                    >
+
+                                        <button
+                                            type="button"
+                                            class="action-btn view-btn"
+                                            onclick="viewMemberDetails('${escapeHtml(
+                                                profile.id
+                                            )}')"
+                                        >
+                                            View
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        `;
+                    }
+                ).join("");
+
+
+            membersContent.innerHTML = `
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Member
+                                </th>
+
+                                <th>
+                                    Monarch UID
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Role
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Joined
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            ${rows}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            `;
+        }
+
+
+        /* =====================================================
+           MEMBER DETAILS
+           ===================================================== */
+
+        function viewMemberDetails(
+            userId
+        ) {
+
+            const member =
+                getMemberById(userId);
+
+
+            if (!member) {
+
+                showAdminMessage(
+                    "Member could not be found.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            const name =
+                getMemberName(member);
+
+
+            const uid =
+                getMemberUid(member);
+
+
+            const phone =
+                getMemberPhone(member);
+
+
+            const role =
+                getMemberRole(member);
+
+
+            const status =
+                getMemberStatus(member);
+
+
+            const joined =
+                formatDateTime(
+                    member.created_at
+                );
+
+
+            /*
+             * Use the existing admin message area
+             * for member information instead of
+             * creating another modal.
+             */
+
+            showAdminMessage(
+                [
+                    `Member: ${name}`,
+                    `UID: ${uid}`,
+                    `Phone: ${phone}`,
+                    `Role: ${role}`,
+                    `Status: ${getStatusLabel(status)}`,
+                    `Joined: ${joined}`
+                ].join(" • "),
+                "info"
+            );
+
+
+            setTimeout(
+                clearAdminMessage,
+                7000
+            );
+        }
+
+
+        /* =====================================================
+           SEARCH MEMBERS
+           ===================================================== */
+
+        function searchMembers(
+            query
+        ) {
+
+            const search =
+                String(query || "")
+                    .trim()
+                    .toLowerCase();
+
+
+            if (!search) {
+
+                renderMembers(
+                    profilesData
+                );
+
+                return;
+            }
+
+
+            const filtered =
+                profilesData.filter(
+                    profile => {
+
+                        const name =
+                            getMemberName(
+                                profile
+                            ).toLowerCase();
+
+
+                        const uid =
+                            getMemberUid(
+                                profile
+                            ).toLowerCase();
+
+
+                        const phone =
+                            getMemberPhone(
+                                profile
+                            ).toLowerCase();
+
+
+                        const email =
+                            String(
+                                profile.email || ""
+                            ).toLowerCase();
+
+
+                        return (
+                            name.includes(search) ||
+                            uid.includes(search) ||
+                            phone.includes(search) ||
+                            email.includes(search)
+                        );
+                    }
+                );
+
+
+            renderMembers(
+                filtered
+            );
+        }
+
+
+        /* =====================================================
+           EXPORT MEMBER FUNCTIONS
+           ===================================================== */
+
+        window.checkAdminAuthorization =
+            checkAdminAuthorization;
+
+        window.loadProfiles =
+            loadProfiles;
+
+        window.renderMembers =
+            renderMembers;
+
+        window.viewMemberDetails =
+            viewMemberDetails;
+
+        window.searchMembers =
+            searchMembers;
     
 </body>
 
