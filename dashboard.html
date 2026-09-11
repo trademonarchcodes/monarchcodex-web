@@ -2211,29 +2211,7 @@
                     bankRow.account_number || "—";
             }
 
-            if (minimumAmount) {
-                minimumAmount.textContent =
-                    formatPaymentAmount(
-                        bankRow.minimum_amount,
-                        bankRow.currency || "NGN"
-                    );
-            }
-
-            if (feeAmount) {
-                feeAmount.textContent =
-                    formatPaymentAmount(
-                        bankRow.fee_amount,
-                        bankRow.currency || "NGN"
-                    );
-            }
-
-            if (totalAmount) {
-                totalAmount.textContent =
-                    formatPaymentAmount(
-                        bankRow.total_amount,
-                        bankRow.currency || "NGN"
-                    );
-            }
+            renderBankPaymentAmount();
 
             if (instructions) {
                 instructions.textContent =
