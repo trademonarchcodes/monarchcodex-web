@@ -1176,3 +1176,665 @@
                     </button>
 
                 </div>
+
+                <!-- =========================================
+                     RECEIPT CONFIRMATION
+                ========================================== -->
+
+                <div
+                    id="receiptConfirmation"
+                    class="receipt-confirmation"
+                    style="display:none;"
+                >
+
+                    <div class="receipt-confirmation-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Receipt uploaded successfully
+                        </strong>
+
+                        <p id="receiptConfirmationText">
+                            Your payment receipt is attached to
+                            this investment request.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     SUBMIT INVESTMENT
+                ========================================== -->
+
+                <div class="investment-submit-area">
+
+                    <div
+                        id="investmentValidationMessage"
+                        class="investment-validation-message"
+                    >
+                        Select a package, payment method and
+                        upload your payment receipt to continue.
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="submit-investment-btn"
+                        id="submitInvestmentBtn"
+                        onclick="submitInvestment()"
+                        disabled
+                    >
+
+                        <span class="submit-btn-text">
+                            Submit Investment Request
+                        </span>
+
+                        <span
+                            class="submit-btn-spinner"
+                            id="submitBtnSpinner"
+                            style="display:none;"
+                        >
+                            ⏳
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             EARNINGS
+        ================================================== -->
+
+        <section
+            class="dashboard-section"
+            id="earnings"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-eyebrow">
+                        PERFORMANCE
+                    </p>
+
+                    <h2>
+                        My Earnings
+                    </h2>
+
+                    <p class="section-description">
+                        Track earnings credited to your account.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="earnings-summary-grid">
+
+                <div class="earnings-card">
+
+                    <span>
+                        Total Earnings
+                    </span>
+
+                    <strong id="earningsTotal">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="earnings-card">
+
+                    <span>
+                        Available Earnings
+                    </span>
+
+                    <strong id="earningsAvailable">
+                        $0.00
+                    </strong>
+
+                </div>
+
+
+                <div class="earnings-card">
+
+                    <span>
+                        Pending Earnings
+                    </span>
+
+                    <strong id="earningsPending">
+                        $0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="earnings-list"
+                id="earningsList"
+            >
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        📈
+                    </div>
+
+                    <h3>
+                        No earnings yet
+                    </h3>
+
+                    <p>
+                        Your earnings will appear here once
+                        they are credited to your account.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INVESTMENT HISTORY
+        ================================================== -->
+
+        <section
+            class="dashboard-section"
+            id="history"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-eyebrow">
+                        HISTORY
+                    </p>
+
+                    <h2>
+                        Investment History
+                    </h2>
+
+                    <p class="section-description">
+                        View your investment requests and their
+                        current verification status.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="investment-history-wrapper">
+
+                <div class="investment-history-table-wrap">
+
+                    <table class="investment-history-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Package
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Payment
+                                </th>
+
+                                <th>
+                                    Receipt
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="investmentHistoryBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="table-loading"
+                                >
+
+                                    <div class="loading-spinner"></div>
+
+                                    Loading investment history...
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- MOBILE HISTORY CARDS -->
+
+                <div
+                    id="investmentHistoryMobile"
+                    class="investment-history-mobile"
+                >
+
+                    <div class="empty-state">
+
+                        <div class="empty-state-icon">
+                            📊
+                        </div>
+
+                        <h3>
+                            Loading history...
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SUPPORT / HELP
+        ================================================== -->
+
+        <section class="dashboard-section dashboard-support-section">
+
+            <div class="support-card">
+
+                <div class="support-icon">
+                    💬
+                </div>
+
+                <div class="support-content">
+
+                    <span class="section-eyebrow">
+                        NEED HELP?
+                    </span>
+
+                    <h2>
+                        Contact Monarch Codex Support
+                    </h2>
+
+                    <p>
+                        When contacting support, provide your
+                        Monarch UID so your account can be located
+                        quickly.
+                    </p>
+
+                    <strong id="supportUid">
+                        MONARCH—
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <div class="dashboard-footer-inner">
+
+            <div class="footer-brand">
+                MONARCH CODEX
+            </div>
+
+            <p>
+                © <span id="currentYear"></span>
+                Monarch Codex. All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         SUPABASE
+    ====================================================== -->
+
+    <script>
+
+        const SUPABASE_URL =
+            "https://avaworleivncevaoqeny.supabase.co";
+
+        const SUPABASE_KEY =
+            "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+        const supabaseClient =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+
+        /* =================================================
+           DASHBOARD STATE
+        ================================================= */
+
+        let currentUser = null;
+
+        let profileData = null;
+
+        let packagesData = [];
+
+        let selectedPackage = null;
+
+        let selectedPaymentMethod = null;
+
+        let paymentDetailsData = [];
+
+        let selectedPaymentDetails = null;
+
+        let selectedCryptoNetwork = null;
+
+        let selectedReceiptFile = null;
+
+        let uploadedReceiptPath = null;
+
+        let uploadedReceiptId = null;
+
+        let currentInvestmentId = null;
+
+        let isReceiptUploaded = false;
+
+        let isSubmittingInvestment = false;
+
+
+        /* =================================================
+           CONSTANTS
+        ================================================= */
+
+        const MAX_RECEIPT_SIZE =
+            10 * 1024 * 1024;
+
+        const ALLOWED_RECEIPT_TYPES = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/jpg",
+            "application/pdf"
+        ];
+
+
+        /* =================================================
+           INITIALIZE DASHBOARD
+        ================================================= */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            async function () {
+
+                const yearElement =
+                    document.getElementById("currentYear");
+
+                if (yearElement) {
+
+                    yearElement.textContent =
+                        new Date().getFullYear();
+
+                }
+
+
+                await loadMemberDashboard();
+
+            }
+        );
+
+
+        /* =================================================
+           LOAD MEMBER DASHBOARD
+        ================================================= */
+
+        async function loadMemberDashboard() {
+
+            try {
+
+                showDashboardLoading(
+                    "Loading your dashboard..."
+                );
+
+
+                const {
+                    data: {
+                        user
+                    },
+                    error
+                } =
+                    await supabaseClient.auth.getUser();
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                if (!user) {
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+
+                }
+
+
+                currentUser = user;
+
+
+                await Promise.all([
+                    loadProfile(user.id),
+                    loadPackages(),
+                    loadPaymentDetails(),
+                    loadInvestmentHistory(user.id),
+                    loadEarnings(user.id)
+                ]);
+
+
+                updateInvestmentFormState();
+
+
+                hideDashboardLoading();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Dashboard loading error:",
+                    error
+                );
+
+
+                showDashboardMessage(
+                    "Unable to load your dashboard. Please refresh the page and try again.",
+                    "error"
+                );
+
+                hideDashboardLoading();
+
+            }
+
+        }
+
+
+        /* =================================================
+           LOAD PROFILE
+        ================================================= */
+
+        async function loadProfile(userId) {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", userId)
+                    .single();
+
+
+            if (error) {
+
+                console.error(
+                    "Profile loading error:",
+                    error
+                );
+
+                throw error;
+
+            }
+
+
+            profileData = data;
+
+
+            const fullName =
+                data.full_name ||
+                data.fullname ||
+                "Member";
+
+
+            setText(
+                "welcomeName",
+                fullName
+            );
+
+
+            setText(
+                "welcomeUid",
+                data.uid || "—"
+            );
+
+
+            setText(
+                "profileUid",
+                data.uid || "—"
+            );
+
+
+            setText(
+                "supportUid",
+                data.uid || "MONARCH—"
+            );
+
+
+            setText(
+                "profileFullName",
+                fullName
+            );
+
+
+            setText(
+                "profilePhone",
+                data.phone || "—"
+            );
+
+
+            const status =
+                data.status ||
+                "active";
+
+
+            setText(
+                "profileStatus",
+                formatStatus(status)
+            );
+
+
+            setText(
+                "accountStatus",
+                formatStatus(status)
+            );
+
+
+            setText(
+                "overviewStatus",
+                formatStatus(status)
+            );
+
+
+            const statusElement =
+                document.getElementById(
+                    "accountStatus"
+                );
+
+
+            if (statusElement) {
+
+                statusElement.className =
+                    "status-badge " +
+                    getStatusClass(status);
+
+            }
+
+
+            setText(
+                "memberSince",
+                formatDate(
+                    data.created_at
+                )
+            );
+
+
+            setText(
+                "accountType",
+                data.role
+                    ? formatStatus(data.role)
+                    : "Member"
+            );
+
+
+            setText(
+                "verificationStatus",
+                data.verified === true
+                    ? "Verified"
+                    : "Pending"
+            );
+
+        }
