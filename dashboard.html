@@ -3179,3 +3179,751 @@
                 char.toUpperCase()
             );
     }
+            function handleReceiptSelected(event) {
+        const input = event.target;
+
+        if (!input || !input.files || !input.files.length) {
+            selectedReceiptFile = null;
+            updateReceiptPreview();
+            updateInvestmentFormState();
+            return;
+        }
+
+        const file = input.files[0];
+
+        if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
+            selectedReceiptFile = null;
+            input.value = "";
+
+            showDashboardMessage(
+                "Invalid receipt format. Please upload a JPG, PNG, WEBP, or PDF file.",
+                "error"
+            );
+
+            updateReceiptPreview();
+            updateInvestmentFormState();
+            return;
+        }
+
+        if (file.size > MAX_RECEIPT_SIZE) {
+            selectedReceiptFile = null;
+            input.value = "";
+
+            showDashboardMessage(
+                "Receipt file is too large. Maximum allowed size is 10MB.",
+                "error"
+            );
+
+            updateReceiptPreview();
+            updateInvestmentFormState();
+            return;
+        }
+
+        selectedReceiptFile = file;
+        isReceiptUploaded = false;
+        uploadedReceiptPath = null;
+        uploadedReceiptId = null;
+
+        updateReceiptPreview();
+        updateInvestmentFormState();
+    }
+
+
+    function updateReceiptPreview() {
+
+        const preview =
+            document.getElementById(
+                "receiptFilePreview"
+            );
+
+        const fileNameElement =
+            document.getElementById(
+                "receiptFileName"
+            );
+
+        const fileSizeElement =
+            document.getElementById(
+                "receiptFileSize"
+            );
+
+        const uploadStatus =
+            document.getElementById(
+                "receiptUploadStatus"
+            );
+
+        const uploadButton =
+            document.getElementById(
+                "uploadReceiptBtn"
+            );
+
+
+        if (!selectedReceiptFile) {
+
+            if (preview) {
+                preview.style.display = "none";
+            }
+
+            if (fileNameElement) {
+                fileNameElement.textContent = "";
+            }
+
+            if (fileSizeElement) {
+                fileSizeElement.textContent = "";
+            }
+
+            if (uploadStatus) {
+                uploadStatus.textContent = "";
+                uploadStatus.className =
+                    "receipt-upload-status";
+            }
+
+            if (uploadButton) {
+                uploadButton.disabled = true;
+            }
+
+            return;
+        }
+
+
+        if (preview) {
+            preview.style.display = "block";
+        }
+
+
+        if (fileNameElement) {
+            fileNameElement.textContent =
+                selectedReceiptFile.name;
+        }
+
+
+        if (fileSizeElement) {
+            fileSizeElement.textContent =
+                formatFileSize(
+                    selectedReceiptFile.size
+                );
+        }
+
+
+        if (uploadStatus) {
+
+            if (isReceiptUploaded) {
+                uploadStatus.textContent =
+                    "✓ Receipt uploaded successfully";
+
+                uploadStatus.className =
+                    "receipt-upload-status success";
+            } else {
+                uploadStatus.textContent =
+                    "Receipt selected — upload required before submission";
+
+                uploadStatus.className =
+                    "receipt-upload-status pending";
+            }
+        }
+
+
+        if (uploadButton) {
+            uploadButton.disabled =
+                !selectedReceiptFile ||
+                isReceiptUploaded ||
+                !selectedPackage ||
+                !selectedPaymentMethod;
+        }
+    }
+
+
+    function removeReceipt() {
+
+        const input =
+            document.getElementById(
+                "receiptFile"
+            );
+
+        if (input) {
+            input.value = "";
+        }
+
+        selectedReceiptFile = null;
+        uploadedReceiptPath = null;
+        uploadedReceiptId = null;
+        isReceiptUploaded = false;
+
+        updateReceiptPreview();
+        updateInvestmentFormState();
+    }
+
+
+    async function uploadReceipt() {
+
+        if (!currentUser) {
+            showDashboardMessage(
+                "Your session has expired. Please log in again.",
+                "error"
+            );
+            return false;
+        }
+
+
+        if (!selectedPackage) {
+            showDashboardMessage(
+                "Please select an investment package first.",
+                "error"
+            );
+            return false;
+        }
+
+
+        if (!selectedPaymentMethod) {
+            showDashboardMessage(
+                "Please select a payment method first.",
+                "error"
+            );
+            return false;
+        }
+
+
+        if (!selectedPaymentDetails) {
+            showDashboardMessage(
+                selectedPaymentMethod === "crypto"
+                    ? "Please select a crypto network first."
+                    : "Payment details are unavailable.",
+                "error"
+            );
+            return false;
+        }
+
+
+        if (!selectedReceiptFile) {
+            showDashboardMessage(
+                "Please select your payment receipt first.",
+                "error"
+            );
+            return false;
+        }
+
+
+        if (selectedReceiptFile.size > MAX_RECEIPT_SIZE) {
+            showDashboardMessage(
+                "Receipt file is too large. Maximum allowed size is 10MB.",
+                "error"
+            );
+            return false;
+        }
+
+
+        const uploadButton =
+            document.getElementById(
+                "uploadReceiptBtn"
+            );
+
+        const uploadStatus =
+            document.getElementById(
+                "receiptUploadStatus"
+            );
+
+
+        if (uploadButton) {
+            uploadButton.disabled = true;
+            uploadButton.dataset.originalText =
+                uploadButton.textContent;
+            uploadButton.textContent =
+                "Uploading...";
+        }
+
+
+        if (uploadStatus) {
+            uploadStatus.textContent =
+                "Uploading receipt securely...";
+
+            uploadStatus.className =
+                "receipt-upload-status uploading";
+        }
+
+
+        try {
+
+            const safeFileName =
+                selectedReceiptFile.name
+                    .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+
+            const uniqueToken =
+                `${Date.now()}_${crypto.randomUUID()}`;
+
+
+            const filePath =
+                `${currentUser.id}/${uniqueToken}_${safeFileName}`;
+
+
+            const {
+                data: uploadData,
+                error: uploadError
+            } = await supabaseClient.storage
+                .from("payment-receipts")
+                .upload(
+                    filePath,
+                    selectedReceiptFile,
+                    {
+                        cacheControl: "3600",
+                        upsert: false,
+                        contentType:
+                            selectedReceiptFile.type
+                    }
+                );
+
+
+            if (uploadError) {
+                throw uploadError;
+            }
+
+
+            uploadedReceiptPath =
+                uploadData.path;
+
+
+            isReceiptUploaded = true;
+
+
+            if (uploadStatus) {
+                uploadStatus.textContent =
+                    "✓ Receipt uploaded successfully";
+
+                uploadStatus.className =
+                    "receipt-upload-status success";
+            }
+
+
+            if (uploadButton) {
+                uploadButton.textContent =
+                    "✓ Receipt Uploaded";
+                uploadButton.disabled = true;
+            }
+
+
+            updateInvestmentFormState();
+
+
+            showDashboardMessage(
+                "Receipt uploaded successfully. You can now submit your investment request.",
+                "success"
+            );
+
+
+            return true;
+
+
+        } catch (error) {
+
+            console.error(
+                "Receipt upload error:",
+                error
+            );
+
+
+            uploadedReceiptPath = null;
+            isReceiptUploaded = false;
+
+
+            if (uploadStatus) {
+                uploadStatus.textContent =
+                    "Upload failed. Please try again.";
+
+                uploadStatus.className =
+                    "receipt-upload-status error";
+            }
+
+
+            if (uploadButton) {
+                uploadButton.disabled = false;
+                uploadButton.textContent =
+                    uploadButton.dataset.originalText ||
+                    "Upload Receipt";
+            }
+
+
+            showDashboardMessage(
+                getSupabaseErrorMessage(
+                    error,
+                    "Unable to upload your receipt. Please try again."
+                ),
+                "error"
+            );
+
+
+            updateInvestmentFormState();
+
+            return false;
+        }
+    }
+
+
+    async function submitInvestment() {
+
+        if (isSubmittingInvestment) {
+            return;
+        }
+
+
+        if (!currentUser) {
+            showDashboardMessage(
+                "Your session has expired. Please log in again.",
+                "error"
+            );
+            return;
+        }
+
+
+        if (!selectedPackage) {
+            showDashboardMessage(
+                "Please select an investment package.",
+                "error"
+            );
+            return;
+        }
+
+
+        if (!selectedPaymentMethod) {
+            showDashboardMessage(
+                "Please select a payment method.",
+                "error"
+            );
+            return;
+        }
+
+
+        if (!selectedPaymentDetails) {
+
+            showDashboardMessage(
+                selectedPaymentMethod === "crypto"
+                    ? "Please select a crypto network."
+                    : "Payment details are unavailable.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!selectedReceiptFile) {
+            showDashboardMessage(
+                "Please select your payment receipt.",
+                "error"
+            );
+            return;
+        }
+
+
+        if (!isReceiptUploaded || !uploadedReceiptPath) {
+
+            const uploaded =
+                await uploadReceipt();
+
+            if (!uploaded) {
+                return;
+            }
+        }
+
+
+        isSubmittingInvestment = true;
+
+
+        const submitButton =
+            document.getElementById(
+                "submitInvestmentBtn"
+            );
+
+
+        const validationMessage =
+            document.getElementById(
+                "investmentValidationMessage"
+            );
+
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.dataset.originalText =
+                submitButton.textContent;
+            submitButton.textContent =
+                "Submitting Request...";
+        }
+
+
+        if (validationMessage) {
+            validationMessage.textContent =
+                "Submitting your investment request securely...";
+            validationMessage.className =
+                "investment-validation-message processing";
+        }
+
+
+        let createdInvestmentId = null;
+
+
+        try {
+
+            const packageAmount =
+                Number(
+                    selectedPackage.amount || 0
+                );
+
+
+            /*
+             * Investment amount remains the package amount.
+             * Bank payment itself is represented by the
+             * selected payment details in NGN.
+             * Crypto payment is represented in USDT.
+             */
+
+            const {
+                data: investment,
+                error: investmentError
+            } = await supabaseClient
+                .from("investments")
+                .insert({
+                    user_id: currentUser.id,
+                    package_id: selectedPackage.id,
+                    amount: packageAmount,
+                    payment_method:
+                        selectedPaymentMethod,
+                    status: "pending"
+                })
+                .select()
+                .single();
+
+
+            if (investmentError) {
+                throw investmentError;
+            }
+
+
+            createdInvestmentId =
+                investment.id;
+
+
+            currentInvestmentId =
+                investment.id;
+
+
+            /*
+             * Store the payment amount actually
+             * associated with the selected payment method.
+             *
+             * Bank:
+             *     total_amount is NGN.
+             *
+             * Crypto:
+             *     total_amount is USDT.
+             */
+
+            const paymentAmount =
+                Number(
+                    selectedPaymentDetails.total_amount ||
+                    selectedPaymentDetails.minimum_amount ||
+                    packageAmount
+                );
+
+
+            const paymentCurrency =
+                selectedPaymentDetails.currency ||
+                (
+                    selectedPaymentMethod === "bank"
+                        ? "NGN"
+                        : "USD"
+                );
+
+
+            const {
+                data: receipt,
+                error: receiptError
+            } = await supabaseClient
+                .from("payment_receipts")
+                .insert({
+                    investment_id:
+                        investment.id,
+
+                    user_id:
+                        currentUser.id,
+
+                    uid:
+                        profileData?.uid || "",
+
+                    amount:
+                        paymentAmount,
+
+                    payment_method:
+                        selectedPaymentMethod,
+
+                    file_name:
+                        selectedReceiptFile.name,
+
+                    file_path:
+                        uploadedReceiptPath,
+
+                    file_type:
+                        selectedReceiptFile.type,
+
+                    file_size:
+                        selectedReceiptFile.size,
+
+                    verification_status:
+                        "pending"
+                })
+                .select()
+                .single();
+
+
+            if (receiptError) {
+                throw receiptError;
+            }
+
+
+            uploadedReceiptId =
+                receipt.id;
+
+
+            await refreshInvestmentAfterSubmission(
+                investment.id
+            );
+
+
+            showReceiptConfirmation(
+                packageAmount,
+                paymentAmount,
+                paymentCurrency
+            );
+
+
+            resetInvestmentForm();
+
+
+            await Promise.all([
+                loadInvestmentHistory(
+                    currentUser.id
+                ),
+                loadEarnings(
+                    currentUser.id
+                )
+            ]);
+
+
+            if (validationMessage) {
+                validationMessage.textContent =
+                    "Investment request submitted successfully.";
+
+                validationMessage.className =
+                    "investment-validation-message success";
+            }
+
+
+            showDashboardMessage(
+                "Your investment request has been submitted successfully.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Investment submission error:",
+                error
+            );
+
+
+            /*
+             * If the investment was created but receipt
+             * metadata failed, remove the investment so
+             * the request does not remain incomplete.
+             */
+
+            if (
+                createdInvestmentId &&
+                !uploadedReceiptId
+            ) {
+                try {
+                    await supabaseClient
+                        .from("investments")
+                        .delete()
+                        .eq(
+                            "id",
+                            createdInvestmentId
+                        )
+                        .eq(
+                            "user_id",
+                            currentUser.id
+                        );
+                } catch (cleanupError) {
+                    console.error(
+                        "Investment cleanup failed:",
+                        cleanupError
+                    );
+                }
+            }
+
+
+            /*
+             * Remove the uploaded storage file when the
+             * investment submission fails.
+             */
+
+            if (
+                uploadedReceiptPath &&
+                !uploadedReceiptId
+            ) {
+                try {
+                    await supabaseClient.storage
+                        .from("payment-receipts")
+                        .remove([
+                            uploadedReceiptPath
+                        ]);
+                } catch (cleanupError) {
+                    console.error(
+                        "Receipt cleanup failed:",
+                        cleanupError
+                    );
+                }
+            }
+
+
+            if (validationMessage) {
+                validationMessage.textContent =
+                    getSupabaseErrorMessage(
+                        error,
+                        "Unable to submit the investment request."
+                    );
+
+                validationMessage.className =
+                    "investment-validation-message error";
+            }
+
+
+            showDashboardMessage(
+                getSupabaseErrorMessage(
+                    error,
+                    "Unable to submit your investment request. Please try again."
+                ),
+                "error"
+            );
+
+
+            isReceiptUploaded = false;
+            uploadedReceiptId = null;
+            currentInvestmentId = null;
+
+
+            updateReceiptPreview();
+            updateInvestmentFormState();
+
+
+        } finally {
+
+            isSubmittingInvestment = false;
+
+            if (submitButton) {
+                submitButton.textContent =
+                    submitButton.dataset.originalText ||
+                    "Submit Investment Request";
+            }
+
+            updateInvestmentFormState();
+        }
+    }
