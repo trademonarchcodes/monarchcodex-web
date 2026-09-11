@@ -503,3 +503,33 @@
             </div>
 
         </section>
+        <!-- SUPABASE -->
+
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+        <script>
+
+            const SUPABASE_URL =
+                "https://avaworleivncevaoqeny.supabase.co";
+
+            const SUPABASE_KEY =
+                "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+            const supabaseClient =
+                window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_KEY
+                );
+
+
+            let currentUser = null;
+
+            let profileData = null;
+
+            let packagesData = [];
+
+            let selectedPackage = null;
+
+            let selectedPaymentMethod = null;
+
+        </script>
