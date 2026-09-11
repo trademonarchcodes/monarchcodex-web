@@ -5975,3 +5975,591 @@
 
             updatePaymentSummary();
         };
+/* =========================================================
+   PART 10/12 — AUTH, LOGOUT, PROFILE & SESSION MANAGEMENT
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   LOGOUT
+--------------------------------------------------------- */
+
+async function logoutUser() {
+    try {
+        showDashboardLoading("Signing you out...");
+
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+            throw error;
+        }
+
+        window.location.href = "login.html";
+
+    } catch (error) {
+        console.error("Logout error:", error);
+
+        hideDashboardLoading();
+
+        showDashboardMessage(
+            getSupabaseErrorMessage(error, "Unable to sign out. Please try again."),
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   ATTACH LOGOUT EVENTS
+--------------------------------------------------------- */
+
+function initializeLogoutButtons() {
+    const logoutButtons = document.querySelectorAll(
+        "#logoutBtn, .logout-btn, [data-action='logout']"
+    );
+
+    logoutButtons.forEach(button => {
+        if (button.dataset.logoutInitialized === "true") {
+            return;
+        }
+
+        button.dataset.logoutInitialized = "true";
+
+        button.addEventListener("click", async function(event) {
+            event.preventDefault();
+
+            const confirmed = window.confirm(
+                "Are you sure you want to sign out?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            await logoutUser();
+        });
+    });
+}
+
+
+/* ---------------------------------------------------------
+   AUTH STATE LISTENER
+--------------------------------------------------------- */
+
+function initializeAuthStateListener() {
+    if (!supabaseClient || !supabaseClient.auth) {
+        return;
+    }
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        console.log("Auth state changed:", event);
+
+        if (event === "SIGNED_OUT") {
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (event === "TOKEN_REFRESHED" && session?.user) {
+            currentUser = session.user;
+        }
+
+        if (event === "SIGNED_IN" && session?.user) {
+            currentUser = session.user;
+        }
+    });
+}
+
+
+/* ---------------------------------------------------------
+   LOAD CURRENT SESSION
+--------------------------------------------------------- */
+
+async function getCurrentSession() {
+    try {
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.getSession();
+
+        if (error) {
+            throw error;
+        }
+
+        return data?.session || null;
+
+    } catch (error) {
+        console.error("Session retrieval error:", error);
+        return null;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   REFRESH SESSION
+--------------------------------------------------------- */
+
+async function refreshAuthSession() {
+    try {
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.refreshSession();
+
+        if (error) {
+            throw error;
+        }
+
+        if (data?.session?.user) {
+            currentUser = data.session.user;
+        }
+
+        return data?.session || null;
+
+    } catch (error) {
+        console.error("Session refresh error:", error);
+        return null;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   PROFILE STATUS HELPERS
+--------------------------------------------------------- */
+
+function normalizeProfileStatus(status) {
+    if (!status) {
+        return "active";
+    }
+
+    return String(status)
+        .trim()
+        .toLowerCase();
+}
+
+
+function isProfileActive(status) {
+    const normalized = normalizeProfileStatus(status);
+
+    return [
+        "active",
+        "approved",
+        "verified",
+        "enabled"
+    ].includes(normalized);
+}
+
+
+function isProfileSuspended(status) {
+    const normalized = normalizeProfileStatus(status);
+
+    return [
+        "suspended",
+        "blocked",
+        "disabled",
+        "banned"
+    ].includes(normalized);
+}
+
+
+function getAccountStatusMessage(status) {
+    const normalized = normalizeProfileStatus(status);
+
+    if (isProfileSuspended(normalized)) {
+        return "Your account is currently restricted. Please contact support.";
+    }
+
+    if (normalized === "pending") {
+        return "Your account is currently pending verification.";
+    }
+
+    if (normalized === "inactive") {
+        return "Your account is currently inactive.";
+    }
+
+    return "Your account is active.";
+}
+
+
+/* ---------------------------------------------------------
+   PROFILE DISPLAY REFRESH
+--------------------------------------------------------- */
+
+function refreshProfileDisplay() {
+    if (!profileData) {
+        return;
+    }
+
+    const fullName =
+        profileData.full_name ||
+        profileData.name ||
+        currentUser?.user_metadata?.full_name ||
+        currentUser?.user_metadata?.name ||
+        "Member";
+
+    const uid =
+        profileData.uid ||
+        "MONARCH------";
+
+    const phone =
+        profileData.phone ||
+        currentUser?.phone ||
+        "Not provided";
+
+    const status =
+        profileData.status ||
+        "active";
+
+    setText("profileFullName", fullName);
+    setText("profileUid", uid);
+    setText("profilePhone", phone);
+    setText("profileStatus", formatStatus(status));
+    setText("accountStatus", formatStatus(status));
+    setText("overviewStatus", formatStatus(status));
+    setText("supportUid", uid);
+    setText("welcomeName", fullName);
+    setText("welcomeUid", uid);
+
+    const memberSinceElement = document.getElementById("memberSince");
+
+    if (memberSinceElement) {
+        const createdAt =
+            profileData.created_at ||
+            currentUser?.created_at;
+
+        memberSinceElement.textContent = createdAt
+            ? formatDate(createdAt)
+            : "—";
+    }
+
+    const accountTypeElement =
+        document.getElementById("accountType");
+
+    if (accountTypeElement) {
+        accountTypeElement.textContent =
+            profileData.role
+                ? formatStatus(profileData.role)
+                : "Member";
+    }
+
+    const verificationElement =
+        document.getElementById("verificationStatus");
+
+    if (verificationElement) {
+        const verification =
+            profileData.verification_status ||
+            profileData.status ||
+            "pending";
+
+        verificationElement.textContent =
+            formatStatus(verification);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   ACCOUNT RESTRICTION CHECK
+--------------------------------------------------------- */
+
+function checkAccountAccess() {
+    if (!profileData) {
+        return true;
+    }
+
+    const status = normalizeProfileStatus(profileData.status);
+
+    if (isProfileSuspended(status)) {
+        disableInvestmentActions(
+            "Your account is restricted. Please contact support."
+        );
+
+        return false;
+    }
+
+    return true;
+}
+
+
+/* ---------------------------------------------------------
+   DISABLE INVESTMENT ACTIONS
+--------------------------------------------------------- */
+
+function disableInvestmentActions(message) {
+    const packageButtons = document.querySelectorAll(
+        "#packagesGrid button, .package-card button"
+    );
+
+    packageButtons.forEach(button => {
+        button.disabled = true;
+    });
+
+    const paymentButtons = document.querySelectorAll(
+        "#bankPayment, #cryptoPayment"
+    );
+
+    paymentButtons.forEach(button => {
+        button.disabled = true;
+    });
+
+    const submitButton =
+        document.getElementById("submitInvestmentBtn");
+
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+
+    const uploadButton =
+        document.getElementById("uploadReceiptBtn");
+
+    if (uploadButton) {
+        uploadButton.disabled = true;
+    }
+
+    const validationMessage =
+        document.getElementById("investmentValidationMessage");
+
+    if (validationMessage) {
+        validationMessage.textContent = message;
+        validationMessage.classList.add("show");
+    }
+}
+
+
+/* ---------------------------------------------------------
+   ENABLE INVESTMENT ACTIONS
+--------------------------------------------------------- */
+
+function enableInvestmentActions() {
+    if (!checkAccountAccess()) {
+        return;
+    }
+
+    const packageButtons = document.querySelectorAll(
+        "#packagesGrid button, .package-card button"
+    );
+
+    packageButtons.forEach(button => {
+        button.disabled = false;
+    });
+
+    updateInvestmentFormState();
+}
+
+
+/* ---------------------------------------------------------
+   PROFILE SAFETY CHECK
+--------------------------------------------------------- */
+
+function validateProfileForInvestment() {
+    if (!currentUser) {
+        return {
+            valid: false,
+            message: "Your session has expired. Please log in again."
+        };
+    }
+
+    if (!profileData) {
+        return {
+            valid: false,
+            message: "Your profile is still loading. Please wait a moment."
+        };
+    }
+
+    if (!profileData.uid) {
+        return {
+            valid: false,
+            message: "Your Monarch UID is not available yet. Please refresh the page."
+        };
+    }
+
+    const status = normalizeProfileStatus(profileData.status);
+
+    if (isProfileSuspended(status)) {
+        return {
+            valid: false,
+            message: "Your account is restricted. Please contact support."
+        };
+    }
+
+    return {
+        valid: true,
+        message: ""
+    };
+}
+
+
+/* ---------------------------------------------------------
+   USER SESSION GUARD
+--------------------------------------------------------- */
+
+async function ensureAuthenticatedUser() {
+    if (currentUser) {
+        return true;
+    }
+
+    const session = await getCurrentSession();
+
+    if (!session?.user) {
+        window.location.href = "login.html";
+        return false;
+    }
+
+    currentUser = session.user;
+
+    return true;
+}
+
+
+/* ---------------------------------------------------------
+   MANUAL SESSION VALIDATION
+--------------------------------------------------------- */
+
+async function validateDashboardSession() {
+    const authenticated = await ensureAuthenticatedUser();
+
+    if (!authenticated) {
+        return false;
+    }
+
+    try {
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.getUser();
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data?.user) {
+            window.location.href = "login.html";
+            return false;
+        }
+
+        currentUser = data.user;
+
+        return true;
+
+    } catch (error) {
+        console.error("Dashboard session validation error:", error);
+
+        window.location.href = "login.html";
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   PROFILE DATA NORMALIZATION
+--------------------------------------------------------- */
+
+function normalizeProfileData(profile) {
+    if (!profile) {
+        return null;
+    }
+
+    return {
+        ...profile,
+
+        full_name:
+            profile.full_name ||
+            profile.name ||
+            "Member",
+
+        phone:
+            profile.phone ||
+            "",
+
+        role:
+            profile.role ||
+            "member",
+
+        status:
+            profile.status ||
+            "active",
+
+        uid:
+            profile.uid ||
+            "",
+
+        created_at:
+            profile.created_at ||
+            null
+    };
+}
+
+
+/* ---------------------------------------------------------
+   PROFILE REFRESH WITH SESSION CHECK
+--------------------------------------------------------- */
+
+async function refreshProfileSafely() {
+    const authenticated = await validateDashboardSession();
+
+    if (!authenticated) {
+        return false;
+    }
+
+    await refreshProfile();
+
+    profileData = normalizeProfileData(profileData);
+
+    refreshProfileDisplay();
+    updateWelcomeProfile();
+    updateAccountStatus();
+    checkAccountAccess();
+
+    return true;
+}
+
+
+/* ---------------------------------------------------------
+   USER-FRIENDLY SESSION ERROR
+--------------------------------------------------------- */
+
+function handleSessionError(error) {
+    console.error("Session error:", error);
+
+    currentUser = null;
+    profileData = null;
+
+    showDashboardMessage(
+        "Your session has expired. Redirecting to login...",
+        "error"
+    );
+
+    setTimeout(() => {
+        window.location.href = "login.html";
+    }, 1200);
+}
+
+
+/* ---------------------------------------------------------
+   INITIALIZE ACCOUNT SERVICES
+--------------------------------------------------------- */
+
+function initializeAccountServices() {
+    initializeLogoutButtons();
+    initializeAuthStateListener();
+
+    refreshProfileDisplay();
+    checkAccountAccess();
+}
+
+
+/* ---------------------------------------------------------
+   FINAL ACCOUNT INITIALIZATION
+--------------------------------------------------------- */
+
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeAccountServices
+    );
+} else {
+    initializeAccountServices();
+}
+
+
+/* =========================================================
+   END OF PART 10/12
+   ========================================================= */
