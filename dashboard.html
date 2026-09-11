@@ -5624,3 +5624,408 @@
             }
 
         </style>
+        <style>
+
+            /* =================================================
+               INVESTMENT HISTORY
+               ================================================= */
+
+            .history-item {
+                display: flex;
+
+                align-items: center;
+
+                justify-content: space-between;
+
+                gap: 16px;
+
+                padding: 15px 0;
+
+                border-bottom:
+                    1px solid
+                    var(
+                        --border-color,
+                        rgba(255,255,255,0.08)
+                    );
+            }
+
+
+            .history-item:last-child {
+                border-bottom: none;
+            }
+
+
+            .history-main {
+                min-width: 0;
+
+                flex: 1;
+            }
+
+
+            .history-title {
+                font-size: 14px;
+
+                font-weight: 700;
+
+                overflow-wrap:
+                    anywhere;
+            }
+
+
+            .history-meta {
+                display: flex;
+
+                align-items: center;
+
+                flex-wrap: wrap;
+
+                gap: 6px 14px;
+
+                margin-top: 6px;
+
+                color:
+                    var(
+                        --text-muted,
+                        #8f8f8f
+                    );
+
+                font-size: 11px;
+            }
+
+
+            .history-meta span {
+                position: relative;
+            }
+
+
+            .history-meta span:not(:last-child)::after {
+                content: "•";
+
+                position: absolute;
+
+                right: -9px;
+
+                opacity: 0.45;
+            }
+
+
+
+            /* =================================================
+               DASHBOARD MESSAGES
+               ================================================= */
+
+            .message-box {
+                width: 100%;
+
+                margin-top: 12px;
+
+                padding: 11px 13px;
+
+                border-radius: 9px;
+
+                font-size: 13px;
+
+                line-height: 1.5;
+
+                display: none;
+            }
+
+
+            .message-box.show {
+                display: block;
+            }
+
+
+            .message-box.success {
+                display: block;
+
+                color: #2eaf64;
+
+                background:
+                    rgba(
+                        46,
+                        175,
+                        100,
+                        0.10
+                    );
+
+                border:
+                    1px solid
+                    rgba(
+                        46,
+                        175,
+                        100,
+                        0.20
+                    );
+            }
+
+
+            .message-box.error {
+                display: block;
+
+                color: #e45d5d;
+
+                background:
+                    rgba(
+                        228,
+                        93,
+                        93,
+                        0.10
+                    );
+
+                border:
+                    1px solid
+                    rgba(
+                        228,
+                        93,
+                        93,
+                        0.20
+                    );
+            }
+
+
+            .message-box.info {
+                display: block;
+
+                color:
+                    var(
+                        --text-muted,
+                        #8f8f8f
+                    );
+
+                background:
+                    rgba(
+                        255,
+                        255,
+                        255,
+                        0.04
+                    );
+
+                border:
+                    1px solid
+                    var(
+                        --border-color,
+                        rgba(255,255,255,0.08)
+                    );
+            }
+
+
+
+            /* =================================================
+               BUTTON LOADING STATE
+               ================================================= */
+
+            button.is-loading {
+                pointer-events: none;
+
+                opacity: 0.65;
+            }
+
+
+            button.is-loading::after {
+                content: "";
+
+                display: inline-block;
+
+                width: 12px;
+
+                height: 12px;
+
+                margin-left: 7px;
+
+                vertical-align: -2px;
+
+                border:
+                    2px solid
+                    currentColor;
+
+                border-right-color:
+                    transparent;
+
+                border-radius: 50%;
+
+                animation:
+                    monarchButtonSpin
+                    0.7s linear infinite;
+            }
+
+
+            @keyframes monarchButtonSpin {
+
+                to {
+                    transform:
+                        rotate(360deg);
+                }
+
+            }
+
+
+
+            /* =================================================
+               FOCUS STATES
+               ================================================= */
+
+            .package-card:focus-visible,
+            .payment-card:focus-visible,
+            .uid-copy-btn:focus-visible,
+            button:focus-visible,
+            a:focus-visible {
+                outline:
+                    2px solid
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    );
+
+                outline-offset: 3px;
+            }
+
+
+
+            /* =================================================
+               MOBILE DASHBOARD
+               ================================================= */
+
+            @media (
+                max-width: 768px
+            ) {
+
+                .uid-copy-row {
+                    align-items:
+                        flex-start;
+                }
+
+
+                .monarch-uid-value {
+                    font-size: 14px;
+                }
+
+
+                .uid-copy-btn {
+                    padding:
+                        7px 10px;
+
+                    font-size: 11px;
+                }
+
+
+                .history-item {
+                    align-items:
+                        flex-start;
+
+                    flex-direction:
+                        column;
+
+                    gap: 10px;
+                }
+
+
+                .history-status {
+                    align-self:
+                        flex-start;
+                }
+
+
+                .earning-item {
+                    align-items:
+                        flex-start;
+                }
+
+
+                .earning-amount {
+                    font-size: 13px;
+                }
+
+
+                .history-meta {
+                    gap: 5px 12px;
+                }
+
+            }
+
+
+
+            /* =================================================
+               SMALL PHONE SCREENS
+               ================================================= */
+
+            @media (
+                max-width: 480px
+            ) {
+
+                .monarch-uid-value {
+                    width: 100%;
+                }
+
+
+                .uid-copy-row {
+                    flex-direction:
+                        column;
+
+                    align-items:
+                        flex-start;
+                }
+
+
+                .uid-copy-btn {
+                    width:
+                        fit-content;
+                }
+
+
+                .package-amount {
+                    font-size: 20px;
+                }
+
+
+                .history-meta {
+                    flex-direction:
+                        column;
+
+                    align-items:
+                        flex-start;
+
+                    gap: 4px;
+                }
+
+
+                .history-meta span::after {
+                    display: none !important;
+                }
+
+
+                .earning-item {
+                    gap: 8px;
+                }
+
+            }
+
+
+
+            /* =================================================
+               REDUCED MOTION
+               ================================================= */
+
+            @media (
+                prefers-reduced-motion: reduce
+            ) {
+
+                *,
+                *::before,
+                *::after {
+                    scroll-behavior:
+                        auto !important;
+
+                    animation-duration:
+                        0.01ms !important;
+
+                    animation-iteration-count:
+                        1 !important;
+
+                    transition-duration:
+                        0.01ms !important;
+                }
+
+            }
+
+        </style>
