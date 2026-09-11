@@ -30,6 +30,7 @@
         rel="stylesheet"
     >
 
+
     <style>
 
         :root {
@@ -40,11 +41,15 @@
             --border: rgba(212, 175, 55, 0.25);
             --text: #f5f5f5;
             --muted: #a0a0a0;
+            --green: #7be6a1;
+            --red: #ff9292;
         }
+
 
         * {
             box-sizing: border-box;
         }
+
 
         body {
             margin: 0;
@@ -53,20 +58,45 @@
             color: var(--text);
         }
 
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
         .admin-page {
             min-height: 100vh;
             background: var(--black);
         }
 
+
+        /* =================================================
+           HEADER
+        ================================================= */
+
         .admin-header {
             padding: 18px 5%;
             border-bottom: 1px solid var(--border);
             background: #080808;
+
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             gap: 15px;
+
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
+
 
         .admin-brand {
             display: flex;
@@ -74,1906 +104,880 @@
             gap: 12px;
         }
 
+
         .admin-brand h1 {
             margin: 0;
             font-size: 1.3rem;
             color: var(--gold);
         }
 
+
         .admin-badge {
             padding: 5px 10px;
+
             border: 1px solid var(--gold);
             color: var(--gold);
+
             border-radius: 20px;
+
             font-size: 0.7rem;
             font-weight: 700;
         }
+
 
         .logout-btn {
             border: 1px solid var(--gold);
             background: transparent;
             color: var(--gold);
+
             padding: 9px 16px;
             border-radius: 7px;
+
             font-family: inherit;
             font-weight: 600;
+
             cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease;
         }
+
+
+        .logout-btn:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
 
         .logout-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
 
+
+        /* =================================================
+           MAIN CONTAINER
+        ================================================= */
+
         .admin-container {
             width: min(1400px, 92%);
             margin: 0 auto;
+
             padding: 35px 0 60px;
         }
+
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
 
         .page-title h2 {
             margin: 0;
             color: var(--gold);
         }
 
+
         .page-title p {
             color: var(--muted);
+            margin-bottom: 0;
         }
+
+
+        /* =================================================
+           MESSAGE
+        ================================================= */
 
         .message-box {
             display: none;
+
             margin: 20px 0;
+
             padding: 14px;
+
             border-radius: 8px;
+
             word-break: break-word;
         }
 
+
         .message-box.error {
             display: block;
+
             background: rgba(201, 75, 75, 0.1);
+
             border: 1px solid rgba(201, 75, 75, 0.6);
+
             color: #ffb0b0;
         }
 
+
         .message-box.success {
             display: block;
+
             background: rgba(76, 175, 114, 0.1);
+
             border: 1px solid rgba(76, 175, 114, 0.6);
+
             color: #a9f0c1;
         }
 
+
+        .message-box.warning {
+            display: block;
+
+            background: rgba(212, 175, 55, 0.1);
+
+            border: 1px solid rgba(212, 175, 55, 0.5);
+
+            color: #f5d979;
+        }
+
+
+        /* =================================================
+           OVERVIEW STATS
+        ================================================= */
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr));
+
             gap: 16px;
+
             margin-bottom: 35px;
         }
 
+
         .stat-card {
             background: var(--dark-card);
+
             border: 1px solid var(--border);
+
             border-radius: 12px;
+
             padding: 20px;
+
+            min-width: 0;
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease;
         }
+
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+
+            border-color:
+                rgba(212, 175, 55, 0.55);
+        }
+
 
         .stat-card span {
             color: var(--muted);
-            font-size: 0.85rem;
+
+            font-size: 0.8rem;
+
+            line-height: 1.4;
         }
+
 
         .stat-card strong {
             display: block;
+
             color: var(--gold);
-            font-size: 2rem;
+
+            font-size: 1.8rem;
+
             margin-top: 10px;
+
+            word-break: break-word;
         }
+
+
+        .stat-card.total-invested strong {
+            font-size: 1.55rem;
+        }
+
+
+        /* =================================================
+           SECTION CARDS
+        ================================================= */
 
         .section-card {
             background: var(--dark);
+
             border: 1px solid var(--border);
+
             border-radius: 12px;
+
             padding: 20px;
+
             margin-bottom: 28px;
+
+            overflow: hidden;
         }
+
 
         .section-heading {
             display: flex;
+
             justify-content: space-between;
             align-items: center;
+
             gap: 12px;
+
             margin-bottom: 18px;
+
+            flex-wrap: wrap;
         }
+
 
         .section-heading h3 {
             margin: 0;
+
             color: var(--gold);
         }
 
+
         .section-status {
             color: var(--muted);
+
             font-size: 0.8rem;
         }
 
+
+        /* =================================================
+           TABLES
+        ================================================= */
+
         .table-wrapper {
+            width: 100%;
+
             overflow-x: auto;
+
+            -webkit-overflow-scrolling: touch;
         }
+
 
         table {
             width: 100%;
-            min-width: 800px;
+
+            min-width: 850px;
+
             border-collapse: collapse;
         }
+
 
         th,
         td {
             padding: 14px 12px;
+
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            font-size: 0.85rem;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.08);
+
+            font-size: 0.82rem;
+
+            vertical-align: middle;
         }
+
 
         th {
             color: var(--gold);
+
+            font-weight: 600;
+
+            white-space: nowrap;
         }
 
-        .status {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.72rem;
+
+        td {
+            color: var(--text);
         }
+
+
+        tbody tr:hover {
+            background:
+                rgba(255,255,255,0.025);
+        }
+
+
+        /* =================================================
+           UID
+        ================================================= */
+
+        .monarch-uid {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            color: var(--gold);
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        .uid-copy-btn {
+            border: 1px solid
+                rgba(212,175,55,0.35);
+
+            background:
+                rgba(212,175,55,0.06);
+
+            color: var(--gold);
+
+            padding: 4px 7px;
+
+            border-radius: 5px;
+
+            font-size: 0.7rem;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+
+        .uid-copy-btn:hover {
+            background:
+                rgba(212,175,55,0.15);
+
+            border-color:
+                rgba(212,175,55,0.65);
+        }
+
+
+        /* =================================================
+           STATUS
+        ================================================= */
+
+        .status {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 0.72rem;
+
+            font-weight: 600;
+
+            text-transform: capitalize;
+
+            white-space: nowrap;
+        }
+
 
         .status-pending {
             color: var(--gold);
+
+            background:
+                rgba(212,175,55,0.08);
         }
 
+
         .status-active,
-        .status-confirmed {
-            color: #7be6a1;
+        .status-confirmed,
+        .status-approved,
+        .status-completed {
+            color: var(--green);
+
+            background:
+                rgba(123,230,161,0.08);
         }
+
 
         .status-blocked,
         .status-rejected {
-            color: #ff9292;
+            color: var(--red);
+
+            background:
+                rgba(255,146,146,0.08);
         }
+
+
+        /* =================================================
+           ACTION BUTTONS
+        ================================================= */
 
         .action-buttons {
             display: flex;
+
             gap: 8px;
+
             flex-wrap: wrap;
         }
 
+
         .action-btn {
             border: none;
+
             border-radius: 6px;
+
             padding: 8px 11px;
+
             font-family: inherit;
+
             cursor: pointer;
+
+            font-size: 0.76rem;
+
+            transition:
+                opacity 0.2s ease,
+                transform 0.2s ease;
         }
+
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
 
         .action-btn:disabled {
             opacity: 0.55;
+
             cursor: not-allowed;
+
+            transform: none;
         }
+
 
         .activate-btn,
         .confirm-btn,
         .add-earning-btn {
             background: var(--gold);
+
             color: #000;
         }
+
 
         .block-btn,
         .reject-btn,
         .delete-earning-btn {
             background: transparent;
+
             color: #ff9696;
+
             border: 1px solid #c94b4b;
         }
+
+
+        .view-receipt-btn {
+            background:
+                rgba(212,175,55,0.12);
+
+            color: var(--gold);
+
+            border:
+                1px solid rgba(212,175,55,0.4);
+        }
+
+
+        /* =================================================
+           LOADING / EMPTY / ERROR
+        ================================================= */
 
         .loading-text,
         .empty-text {
             color: var(--muted);
         }
 
+
         .error-text {
             color: #ff9696;
         }
 
+
+        /* =================================================
+           INVESTMENT / PAYMENT DETAILS
+        ================================================= */
+
+        .investment-details {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 5px;
+        }
+
+
+        .investment-details strong {
+            color: var(--text);
+        }
+
+
+        .investment-details small {
+            color: var(--muted);
+
+            font-size: 0.72rem;
+        }
+
+
+        .payment-details {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
+        }
+
+
+        .payment-details strong {
+            color: var(--text);
+        }
+
+
+        .payment-details small {
+            color: var(--muted);
+
+            font-size: 0.7rem;
+        }
+
+
+        .receipt-status {
+            font-size: 0.72rem;
+
+            color: var(--muted);
+        }
+
+
+        .receipt-status.pending {
+            color: var(--gold);
+        }
+
+
+        .receipt-status.approved {
+            color: var(--green);
+        }
+
+
+        .receipt-status.rejected {
+            color: var(--red);
+        }
+
+
+        /* =================================================
+           EARNINGS FORM
+        ================================================= */
+
         .earning-form {
             display: grid;
-            grid-template-columns: 1.4fr 1fr 1.6fr auto;
+
+            grid-template-columns:
+                1.4fr 1fr 1.6fr auto;
+
             gap: 12px;
+
             align-items: end;
         }
 
+
         .form-group {
             display: flex;
+
             flex-direction: column;
+
             gap: 7px;
         }
 
+
         .form-group label {
             color: var(--muted);
+
             font-size: 0.8rem;
         }
+
 
         .form-group input,
         .form-group select {
             width: 100%;
+
             padding: 12px;
+
             border-radius: 7px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+
+            border:
+                1px solid rgba(212, 175, 55, 0.3);
+
             background: #0b0b0b;
+
             color: var(--text);
+
             font-family: inherit;
+
             outline: none;
         }
+
 
         .form-group input:focus,
         .form-group select:focus {
             border-color: var(--gold);
         }
 
+
         .earning-submit {
             padding: 12px 16px;
+
             border: none;
+
             border-radius: 7px;
+
             background: var(--gold);
+
             color: #000;
+
             font-family: inherit;
+
             font-weight: 700;
+
             cursor: pointer;
         }
 
+
         .earning-submit:disabled {
             opacity: 0.6;
+
             cursor: not-allowed;
         }
+
+
+        /* =================================================
+           RECEIPT MODAL
+        ================================================= */
+
+        .receipt-modal {
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 1000;
+
+            display: none;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                rgba(0,0,0,0.82);
+        }
+
+
+        .receipt-modal.show {
+            display: flex;
+        }
+
+
+        .receipt-modal-content {
+            width: min(900px, 100%);
+
+            max-height: 90vh;
+
+            overflow: auto;
+
+            background: #111;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 14px;
+
+            padding: 20px;
+        }
+
+
+        .receipt-modal-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .receipt-modal-header h3 {
+            margin: 0;
+
+            color: var(--gold);
+        }
+
+
+        .receipt-close {
+            border: 1px solid
+                rgba(255,255,255,0.15);
+
+            background: transparent;
+
+            color: var(--text);
+
+            width: 36px;
+
+            height: 36px;
+
+            border-radius: 50%;
+
+            cursor: pointer;
+
+            font-size: 1rem;
+        }
+
+
+        .receipt-preview {
+            width: 100%;
+
+            min-height: 300px;
+
+            border-radius: 8px;
+
+            background: #080808;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            overflow: hidden;
+        }
+
+
+        .receipt-preview img {
+            max-width: 100%;
+
+            max-height: 70vh;
+
+            object-fit: contain;
+        }
+
+
+        .receipt-preview iframe {
+            width: 100%;
+
+            height: 70vh;
+
+            border: none;
+        }
+
+
+        /* =================================================
+           RESPONSIVE
+        ================================================= */
+
+        @media (max-width: 1200px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+        }
+
 
         @media (max-width: 1000px) {
 
             .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
             }
 
+
             .earning-form {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, 1fr);
             }
+
 
             .earning-submit {
                 width: 100%;
             }
+
         }
+
 
         @media (max-width: 600px) {
 
             .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+
+                gap: 10px;
             }
+
+
+            .stat-card {
+                padding: 15px;
+            }
+
+
+            .stat-card strong {
+                font-size: 1.4rem;
+            }
+
+
+            .stat-card.total-invested strong {
+                font-size: 1.15rem;
+            }
+
 
             .admin-container {
                 width: 94%;
+
+                padding-top: 25px;
             }
+
 
             .earning-form {
                 grid-template-columns: 1fr;
             }
 
+
             .admin-header {
                 padding: 15px 4%;
             }
 
+
             .admin-brand h1 {
                 font-size: 1rem;
             }
+
+
+            .admin-badge {
+                font-size: 0.6rem;
+            }
+
+
+            .section-card {
+                padding: 15px;
+            }
+
+        }
+
+
+        @media (max-width: 400px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
         }
 
     </style>
 
 </head>
-
-<body>
-
-<div class="admin-page">
-
-    <header class="admin-header">
-
-        <div class="admin-brand">
-
-            <h1>MONARCH CODEX</h1>
-
-            <span class="admin-badge">
-                ADMIN
-            </span>
-
-        </div>
-
-        <button
-            id="logoutBtn"
-            class="logout-btn"
-        >
-            Logout
-        </button>
-
-    </header>
-
-
-    <main class="admin-container">
-
-        <div class="page-title">
-
-            <h2>
-                Admin Command Center
-            </h2>
-
-            <p>
-                Manage Monarchs, investments and earnings.
-            </p>
-
-        </div>
-
-
-        <div
-            id="messageBox"
-            class="message-box"
-        ></div>
-
-
-        <section>
-
-            <div class="section-heading">
-
-                <h3>
-                    Overview
-                </h3>
-
-                <span
-                    id="statsStatus"
-                    class="section-status"
-                ></span>
-
-            </div>
-
-
-            <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <span>
-                        Total Members
-                    </span>
-
-                    <strong id="totalMembers">
-                        Loading...
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span>
-                        Pending Members
-                    </span>
-
-                    <strong id="pendingMembers">
-                        Loading...
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span>
-                        Confirmed Investments
-                    </span>
-
-                    <strong id="confirmedInvestments">
-                        Loading...
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span>
-                        Rejected Investments
-                    </span>
-
-                    <strong id="rejectedInvestments">
-                        Loading...
-                    </strong>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <section class="section-card">
-
-            <div class="section-heading">
-
-                <h3>
-                    Member Management
-                </h3>
-
-                <span
-                    id="membersStatus"
-                    class="section-status"
-                ></span>
-
-            </div>
-
-            <div id="membersContent">
-
-                <p class="loading-text">
-                    Loading members...
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <section class="section-card">
-
-            <div class="section-heading">
-
-                <h3>
-                    Investment Requests
-                </h3>
-
-                <span
-                    id="investmentsStatus"
-                    class="section-status"
-                ></span>
-
-            </div>
-
-            <div id="investmentsContent">
-
-                <p class="loading-text">
-                    Loading investment requests...
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <section class="section-card">
-
-            <div class="section-heading">
-
-                <h3>
-                    Earnings Management
-                </h3>
-
-                <span
-                    id="earningsStatus"
-                    class="section-status"
-                ></span>
-
-            </div>
-
-
-            <div class="earning-form">
-
-                <div class="form-group">
-
-                    <label for="earningMember">
-                        Select Monarch
-                    </label>
-
-                    <select id="earningMember">
-
-                        <option value="">
-                            Select a member
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="earningAmount">
-                        Earnings Amount
-                    </label>
-
-                    <input
-                        type="number"
-                        id="earningAmount"
-                        min="0"
-                        step="0.01"
-                        placeholder="0.00"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="earningDescription">
-                        Description
-                    </label>
-
-                    <input
-                        type="text"
-                        id="earningDescription"
-                        maxlength="200"
-                        placeholder="e.g. Confirmed return"
-                    >
-
-                </div>
-
-
-                <button
-                    id="addEarningBtn"
-                    class="earning-submit"
-                >
-                    Add Earning
-                </button>
-
-            </div>
-
-
-            <div
-                id="earningsContent"
-                style="margin-top:25px;"
-            >
-
-                <p class="loading-text">
-                    Loading earnings...
-                </p>
-
-            </div>
-
-        </section>
-
-
-    </main>
-
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-
-const SUPABASE_URL =
-    "https://avaworleivncevaoqeny.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-    );
-
-
-let currentAdmin = null;
-
-let profilesData = [];
-
-let packagesData = [];
-
-let investmentsData = [];
-
-let earningsData = [];
-
-
-const totalMembersElement =
-    document.getElementById("totalMembers");
-
-const pendingMembersElement =
-    document.getElementById("pendingMembers");
-
-const confirmedInvestmentsElement =
-    document.getElementById("confirmedInvestments");
-
-const rejectedInvestmentsElement =
-    document.getElementById("rejectedInvestments");
-
-
-const membersContent =
-    document.getElementById("membersContent");
-
-const investmentsContent =
-    document.getElementById("investmentsContent");
-
-const earningsContent =
-    document.getElementById("earningsContent");
-
-
-const membersStatus =
-    document.getElementById("membersStatus");
-
-const investmentsStatus =
-    document.getElementById("investmentsStatus");
-
-const earningsStatus =
-    document.getElementById("earningsStatus");
-
-const statsStatus =
-    document.getElementById("statsStatus");
-
-
-const messageBox =
-    document.getElementById("messageBox");
-
-const logoutBtn =
-    document.getElementById("logoutBtn");
-
-
-const earningMember =
-    document.getElementById("earningMember");
-
-const earningAmount =
-    document.getElementById("earningAmount");
-
-const earningDescription =
-    document.getElementById("earningDescription");
-
-const addEarningBtn =
-    document.getElementById("addEarningBtn");
-
-
-function escapeHtml(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-function showMessage(
-    message,
-    type = "error"
-) {
-
-    messageBox.textContent =
-        message;
-
-    messageBox.className =
-        "message-box " + type;
-
-    messageBox.style.display =
-        "block";
-}
-
-
-function clearMessage() {
-
-    messageBox.textContent =
-        "";
-
-    messageBox.className =
-        "message-box";
-
-    messageBox.style.display =
-        "none";
-}
-
-
-function formatDate(dateValue) {
-
-    if (!dateValue) {
-        return "N/A";
-    }
-
-    return new Date(dateValue)
-        .toLocaleDateString(
-            undefined,
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric"
-            }
-        );
-}
-
-
-function formatAmount(amount) {
-
-    const number =
-        Number(amount);
-
-    if (Number.isNaN(number)) {
-        return "$0";
-    }
-
-    return "$" +
-        number.toLocaleString(
-            undefined,
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        );
-}
-
-
-function getStatusClass(status) {
-
-    const value =
-        String(status || "")
-            .toLowerCase();
-
-    if (value === "pending") {
-        return "status-pending";
-    }
-
-    if (
-        value === "active" ||
-        value === "confirmed"
-    ) {
-        return "status-active";
-    }
-
-    if (
-        value === "blocked" ||
-        value === "rejected"
-    ) {
-        return "status-blocked";
-    }
-
-    return "";
-}
-
-
-async function checkAdminAuthorization() {
-
-    const {
-        data: authData,
-        error: authError
-    } =
-        await supabaseClient
-            .auth
-            .getUser();
-
-
-    if (
-        authError ||
-        !authData.user
-    ) {
-
-        window.location.href =
-            "login.html";
-
-        return false;
-    }
-
-
-    const {
-        data: profile,
-        error: profileError
-    } =
-        await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq(
-                "id",
-                authData.user.id
-            )
-            .single();
-
-
-    if (profileError) {
-
-        console.error(
-            "Could not verify admin:",
-            profileError
-        );
-
-        showMessage(
-            "Could not verify administrator profile: " +
-            profileError.message
-        );
-
-        return false;
-    }
-
-
-    if (
-        profile.role !== "admin" ||
-        profile.status !== "active"
-    ) {
-
-        await supabaseClient
-            .auth
-            .signOut();
-
-        window.location.href =
-            "login.html";
-
-        return false;
-    }
-
-
-    currentAdmin =
-        profile;
-
-    return true;
-}
-
-async function loadProfiles() {
-
-    membersStatus.textContent =
-        "Loading...";
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("profiles")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error) {
-        throw error;
-    }
-
-
-    profilesData =
-        data || [];
-
-
-    totalMembersElement.textContent =
-        profilesData.filter(
-            profile =>
-                profile.role === "member"
-        ).length;
-
-
-    pendingMembersElement.textContent =
-        profilesData.filter(
-            profile =>
-                profile.role === "member" &&
-                profile.status === "pending"
-        ).length;
-
-
-    membersStatus.textContent =
-        profilesData.length + " profiles";
-
-
-    renderMembers();
-
-    populateEarningMembers();
-}
-
-
-function renderMembers() {
-
-    const members =
-        profilesData.filter(
-            profile =>
-                profile.role === "member"
-        );
-
-
-    if (!members.length) {
-
-        membersContent.innerHTML = `
-            <p class="empty-text">
-                No members found.
-            </p>
-        `;
-
-        return;
-    }
-
-
-    membersContent.innerHTML = `
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Status</th>
-                        <th>Joined</th>
-                        <th>Actions</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    ${members.map(
-                        member => {
-
-                            const status =
-                                String(
-                                    member.status ||
-                                    "pending"
-                                ).toLowerCase();
-
-                            return `
-
-                                <tr>
-
-                                    <td>
-                                        ${escapeHtml(
-                                            member.full_name ||
-                                            "Unnamed Monarch"
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHtml(
-                                            member.phone ||
-                                            "Not provided"
-                                        )}
-                                    </td>
-
-                                    <td>
-
-                                        <span
-                                            class="status ${getStatusClass(status)}"
-                                        >
-                                            ${escapeHtml(
-                                                status
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                status.slice(1)
-                                            )}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-                                        ${formatDate(
-                                            member.created_at
-                                        )}
-                                    </td>
-
-                                    <td>
-
-                                        <div class="action-buttons">
-
-                                            ${
-                                                status !== "active"
-                                                    ? `
-                                                        <button
-                                                            class="action-btn activate-btn"
-                                                            onclick="updateMemberStatus(
-                                                                '${member.id}',
-                                                                'active'
-                                                            )"
-                                                        >
-                                                            Activate
-                                                        </button>
-                                                      `
-                                                    : ""
-                                            }
-
-                                            ${
-                                                status !== "blocked"
-                                                    ? `
-                                                        <button
-                                                            class="action-btn block-btn"
-                                                            onclick="updateMemberStatus(
-                                                                '${member.id}',
-                                                                'blocked'
-                                                            )"
-                                                        >
-                                                            Block
-                                                        </button>
-                                                      `
-                                                    : ""
-                                            }
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            `;
-                        }
-                    ).join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
-    `;
-}
-
-
-async function updateMemberStatus(
-    memberId,
-    newStatus
-) {
-
-    clearMessage();
-
-
-    const member =
-        profilesData.find(
-            profile =>
-                profile.id === memberId
-        );
-
-
-    if (!member) {
-
-        showMessage(
-            "Member profile could not be found."
-        );
-
-        return;
-    }
-
-
-    if (member.role === "admin") {
-
-        showMessage(
-            "Administrator accounts cannot be changed from member controls."
-        );
-
-        return;
-    }
-
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from("profiles")
-                .update({
-                    status: newStatus,
-                    updated_at: new Date().toISOString()
-                })
-                .eq(
-                    "id",
-                    memberId
-                );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        showMessage(
-            "Member status updated successfully.",
-            "success"
-        );
-
-
-        await loadProfiles();
-
-    } catch (error) {
-
-        console.error(
-            "Member status error:",
-            error
-        );
-
-        showMessage(
-            error.message ||
-            "Unable to update member status."
-        );
-    }
-}
-
-
-async function loadPackages() {
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("packages")
-            .select("*");
-
-
-    if (error) {
-        throw error;
-    }
-
-
-    packagesData =
-        data || [];
-}
-
-
-async function loadInvestments() {
-
-    investmentsStatus.textContent =
-        "Loading...";
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("investments")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error) {
-        throw error;
-    }
-
-
-    investmentsData =
-        data || [];
-
-
-    const confirmed =
-        investmentsData.filter(
-            investment =>
-                investment.status === "confirmed"
-        ).length;
-
-
-    const rejected =
-        investmentsData.filter(
-            investment =>
-                investment.status === "rejected"
-        ).length;
-
-
-    confirmedInvestmentsElement.textContent =
-        confirmed;
-
-
-    rejectedInvestmentsElement.textContent =
-        rejected;
-
-
-    investmentsStatus.textContent =
-        investmentsData.length +
-        " requests";
-
-
-    renderInvestments();
-}
-
-
-function getMemberName(userId) {
-
-    const profile =
-        profilesData.find(
-            member =>
-                member.id === userId
-        );
-
-
-    if (!profile) {
-        return "Unknown Monarch";
-    }
-
-
-    return profile.full_name ||
-        "Unnamed Monarch";
-}
-
-
-function getPackageName(packageId) {
-
-    const packageItem =
-        packagesData.find(
-            pkg =>
-                pkg.id === packageId
-        );
-
-
-    if (!packageItem) {
-        return "Investment Package";
-    }
-
-
-    return (
-        packageItem.name ||
-        packageItem.title ||
-        "Investment Package"
-    );
-}
-
-
-function renderInvestments() {
-
-    if (!investmentsData.length) {
-
-        investmentsContent.innerHTML = `
-            <p class="empty-text">
-                No investment requests found.
-            </p>
-        `;
-
-        return;
-    }
-
-
-    investmentsContent.innerHTML = `
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>Monarch</th>
-                        <th>Package</th>
-                        <th>Amount</th>
-                        <th>Payment</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    ${investmentsData.map(
-                        investment => {
-
-                            const status =
-                                String(
-                                    investment.status ||
-                                    "pending"
-                                ).toLowerCase();
-
-                            const amount =
-                                Number(
-                                    investment.amount ||
-                                    0
-                                );
-
-                            return `
-
-                                <tr>
-
-                                    <td>
-                                        ${escapeHtml(
-                                            getMemberName(
-                                                investment.user_id
-                                            )
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHtml(
-                                            getPackageName(
-                                                investment.package_id
-                                            )
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${formatAmount(
-                                            amount
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHtml(
-                                            investment.payment_method === "bank"
-                                                ? "Bank Account"
-                                                : investment.payment_method === "crypto"
-                                                    ? "Crypto Funding"
-                                                    : investment.payment_method || "Not specified"
-                                        )}
-                                    </td>
-
-                                    <td>
-
-                                        <span
-                                            class="status ${getStatusClass(status)}"
-                                        >
-                                            ${escapeHtml(
-                                                status
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                status.slice(1)
-                                            )}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-                                        ${formatDate(
-                                            investment.created_at
-                                        )}
-                                    </td>
-
-                                    <td>
-
-                                        ${
-                                            status === "pending"
-                                                ? `
-                                                    <div class="action-buttons">
-
-                                                        <button
-                                                            class="action-btn confirm-btn"
-                                                            onclick="updateInvestmentStatus(
-                                                                '${investment.id}',
-                                                                'confirmed'
-                                                            )"
-                                                        >
-                                                            Confirm
-                                                        </button>
-
-                                                        <button
-                                                            class="action-btn reject-btn"
-                                                            onclick="updateInvestmentStatus(
-                                                                '${investment.id}',
-                                                                'rejected'
-                                                            )"
-                                                        >
-                                                            Reject
-                                                        </button>
-
-                                                    </div>
-                                                  `
-                                                : `
-                                                    <span class="section-status">
-                                                        No actions
-                                                    </span>
-                                                  `
-                                        }
-
-                                    </td>
-
-                                </tr>
-
-                            `;
-                        }
-                    ).join("")}
-
-                </tbody>
-
-            </table>
-
-        </div>
-    `;
-}
-
-
-async function updateInvestmentStatus(
-    investmentId,
-    newStatus
-) {
-
-    clearMessage();
-
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from("investments")
-                .update({
-                    status: newStatus,
-                    updated_at: new Date().toISOString()
-                })
-                .eq(
-                    "id",
-                    investmentId
-                );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        showMessage(
-            "Investment status updated successfully.",
-            "success"
-        );
-
-
-        await loadInvestments();
-
-    } catch (error) {
-
-        console.error(
-            "Investment status error:",
-            error
-        );
-
-        showMessage(
-            error.message ||
-            "Unable to update investment status."
-        );
-    }
-}
-
-
-function populateEarningMembers() {
-
-    const members =
-        profilesData.filter(
-            profile =>
-                profile.role === "member"
-        );
-
-
-    earningMember.innerHTML = `
-        <option value="">
-            Select a member
-        </option>
-    `;
-
-
-    members.forEach(
-        member => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                member.id;
-
-            option.textContent =
-                member.full_name ||
-                "Unnamed Monarch";
-
-            earningMember.appendChild(
-                option
-            );
-        }
-    );
-}
-
-async function loadEarnings() {
-
-    earningsStatus.textContent =
-        "Loading...";
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("earnings")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
-
-    if (error) {
-        throw error;
-    }
-
-    earningsData =
-        data || [];
-
-    earningsStatus.textContent =
-        earningsData.length +
-        " earnings records";
-
-    renderEarnings();
-}
-
-
-function renderEarnings() {
-
-    if (!earningsData.length) {
-
-        earningsContent.innerHTML = `
-            <p class="empty-text">
-                No earnings records found.
-            </p>
-        `;
-
-        return;
-    }
-
-    earningsContent.innerHTML = `
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Monarch</th>
-                        <th>Amount</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    ${earningsData.map(
-                        earning => {
-
-                            const status =
-                                String(
-                                    earning.status ||
-                                    "confirmed"
-                                ).toLowerCase();
-
-                            const amount =
-                                Number(
-                                    earning.amount ||
-                                    0
-                                );
-
-                            return `
-                                <tr>
-                                    <td>
-                                        ${escapeHtml(
-                                            getMemberName(
-                                                earning.user_id
-                                            )
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${formatAmount(
-                                            amount
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        ${escapeHtml(
-                                            earning.description ||
-                                            "Earning"
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        <span
-                                            class="status ${getStatusClass(status)}"
-                                        >
-                                            ${escapeHtml(
-                                                status
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                status.slice(1)
-                                            )}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        ${formatDate(
-                                            earning.created_at
-                                        )}
-                                    </td>
-
-                                    <td>
-                                        <button
-                                            class="action-btn reject-btn"
-                                            onclick="deleteEarning(
-                                                '${earning.id}'
-                                            )"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            `;
-                        }
-                    ).join("")}
-                </tbody>
-            </table>
-        </div>
-    `;
-}
-
-
-addEarningBtn.addEventListener(
-    "click",
-    async () => {
-
-        clearMessage();
-
-        const memberId =
-            earningMember.value;
-
-        const amount =
-            Number(
-                earningAmount.value
-            );
-
-        const description =
-            earningDescription.value.trim();
-
-        if (!memberId) {
-
-            showMessage(
-                "Please select a member."
-            );
-
-            return;
-        }
-
-        if (!Number.isFinite(amount) ||
-            amount <= 0) {
-
-            showMessage(
-                "Please enter a valid earning amount greater than zero."
-            );
-
-            return;
-        }
-
-        addEarningBtn.disabled =
-            true;
-
-        addEarningBtn.textContent =
-            "Adding...";
-
-        try {
-
-            const {
-                error
-            } =
-                await supabaseClient
-                    .from("earnings")
-                    .insert({
-                        user_id: memberId,
-                        amount: amount,
-                        description:
-                            description ||
-                            null,
-                        status:
-                            "confirmed"
-                    });
-
-            if (error) {
-                throw error;
-            }
-
-            showMessage(
-                "Earning added successfully.",
-                "success"
-            );
-
-            earningMember.value =
-                "";
-
-            earningAmount.value =
-                "";
-
-            earningDescription.value =
-                "";
-
-            await loadEarnings();
-
-        } catch (error) {
-
-            console.error(
-                "Add earning error:",
-                error
-            );
-
-            showMessage(
-                error.message ||
-                "Unable to add earning."
-            );
-
-        } finally {
-
-            addEarningBtn.disabled =
-                false;
-
-            addEarningBtn.textContent =
-                "Add Earning";
-        }
-    }
-);
-
-
-async function deleteEarning(
-    earningId
-) {
-
-    clearMessage();
-
-    const confirmed =
-        window.confirm(
-            "Are you sure you want to delete this earning record?"
-        );
-
-    if (!confirmed) {
-        return;
-    }
-
-    try {
-
-        const {
-            error
-        } =
-            await supabaseClient
-                .from("earnings")
-                .delete()
-                .eq(
-                    "id",
-                    earningId
-                );
-
-        if (error) {
-            throw error;
-        }
-
-        showMessage(
-            "Earning deleted successfully.",
-            "success"
-        );
-
-        await loadEarnings();
-
-    } catch (error) {
-
-        console.error(
-            "Delete earning error:",
-            error
-        );
-
-        showMessage(
-            error.message ||
-            "Unable to delete earning."
-        );
-    }
-}
-
-
-async function refreshAdminData() {
-
-    statsStatus.textContent =
-        "Refreshing...";
-
-    try {
-
-        await loadProfiles();
-
-        await loadPackages();
-
-        await loadInvestments();
-
-        await loadEarnings();
-
-        statsStatus.textContent =
-            "Data updated successfully.";
-
-    } catch (error) {
-
-        console.error(
-            "Admin refresh error:",
-            error
-        );
-
-        statsStatus.textContent =
-            "Update failed.";
-
-        showMessage(
-            error.message ||
-            "Unable to load administrator data."
-        );
-    }
-}
-
-logoutBtn.addEventListener(
-    "click",
-    async () => {
-
-        clearMessage();
-
-        try {
-
-            const {
-                error
-            } =
-                await supabaseClient.auth.signOut();
-
-            if (error) {
-                throw error;
-            }
-
-            window.location.href =
-                "login.html";
-
-        } catch (error) {
-
-            console.error(
-                "Logout error:",
-                error
-            );
-
-            showMessage(
-                error.message ||
-                "Unable to log out."
-            );
-        }
-    }
-);
-
-
-async function initializeAdminPage() {
-
-    try {
-
-        await checkAdminAuthorization();
-
-        await refreshAdminData();
-
-    } catch (error) {
-
-        console.error(
-            "Admin initialization error:",
-            error
-        );
-
-        statsStatus.textContent =
-            "Unable to load.";
-
-        membersStatus.textContent =
-            "Unable to load.";
-
-        investmentsStatus.textContent =
-            "Unable to load.";
-
-        earningsStatus.textContent =
-            "Unable to load.";
-
-        showMessage(
-            error.message ||
-            "Unable to initialize the administrator page."
-        );
-    }
-}
-
-
-initializeAdminPage();
-
-</script>
-
-</body>
-</html>
