@@ -536,3 +536,643 @@
             </div>
 
         </section>
+
+        <!-- =================================================
+             PAYMENT METHODS
+        ================================================== -->
+
+        <section
+            class="dashboard-section"
+            id="payment"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-eyebrow">
+                        PAYMENT
+                    </p>
+
+                    <h2>
+                        Choose Payment Method
+                    </h2>
+
+                    <p class="section-description">
+                        Select how you want to pay for your investment.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="payment-grid">
+
+                <!-- BANK TRANSFER -->
+
+                <button
+                    type="button"
+                    class="payment-card"
+                    id="bankPayment"
+                    onclick="selectPaymentMethod('bank')"
+                >
+
+                    <div class="payment-icon">
+                        🏦
+                    </div>
+
+                    <div class="payment-card-content">
+
+                        <h3>
+                            Bank Transfer
+                        </h3>
+
+                        <p>
+                            Pay directly to our OPAY account
+                            using Nigerian Naira.
+                        </p>
+
+                    </div>
+
+                    <div class="payment-check">
+                        ✓
+                    </div>
+
+                </button>
+
+
+                <!-- CRYPTO -->
+
+                <button
+                    type="button"
+                    class="payment-card"
+                    id="cryptoPayment"
+                    onclick="selectPaymentMethod('crypto')"
+                >
+
+                    <div class="payment-icon">
+                        ₮
+                    </div>
+
+                    <div class="payment-card-content">
+
+                        <h3>
+                            Crypto / USDT
+                        </h3>
+
+                        <p>
+                            Pay using USDT through your
+                            preferred supported network.
+                        </p>
+
+                    </div>
+
+                    <div class="payment-check">
+                        ✓
+                    </div>
+
+                </button>
+
+            </div>
+
+
+            <!-- =============================================
+                 PAYMENT DETAILS
+            ============================================== -->
+
+            <div
+                id="paymentDetailsPanel"
+                class="payment-details-panel"
+                style="display:none;"
+            >
+
+                <div class="payment-details-header">
+
+                    <div>
+
+                        <span class="payment-details-eyebrow">
+                            PAYMENT INFORMATION
+                        </span>
+
+                        <h3 id="paymentDetailsTitle">
+                            Payment Details
+                        </h3>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="payment-close-btn"
+                        onclick="clearPaymentSelection()"
+                        aria-label="Close payment details"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <!-- =========================================
+                     BANK DETAILS
+                ========================================== -->
+
+                <div
+                    id="bankDetails"
+                    class="payment-method-details"
+                    style="display:none;"
+                >
+
+                    <div class="payment-method-badge">
+                        🏦 Bank Transfer
+                    </div>
+
+
+                    <div class="payment-info-grid">
+
+
+                        <div class="payment-info-item">
+
+                            <span>
+                                Bank
+                            </span>
+
+                            <strong id="bankName">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="payment-info-item">
+
+                            <span>
+                                Account Name
+                            </span>
+
+                            <strong id="bankAccountName">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="payment-info-item">
+
+                            <span>
+                                Account Number
+                            </span>
+
+                            <div class="copy-value-row">
+
+                                <strong id="bankAccountNumber">
+                                    —
+                                </strong>
+
+                                <button
+                                    type="button"
+                                    class="small-copy-btn"
+                                    onclick="copyPaymentValue('bankAccountNumber', this)"
+                                >
+                                    📋
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- BANK AMOUNT -->
+
+                    <div class="payment-amount-box">
+
+                        <div class="payment-amount-row">
+
+                            <span>
+                                Minimum Investment
+                            </span>
+
+                            <strong id="bankMinimumAmount">
+                                ₦0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="payment-amount-row">
+
+                            <span>
+                                Payment Fee
+                            </span>
+
+                            <strong id="bankFeeAmount">
+                                ₦0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="payment-amount-divider"></div>
+
+
+                        <div class="payment-amount-row total">
+
+                            <span>
+                                TOTAL TO TRANSFER
+                            </span>
+
+                            <strong id="bankTotalAmount">
+                                ₦0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="payment-instructions">
+
+                        <div class="payment-instructions-title">
+                            Important
+                        </div>
+
+                        <p id="bankInstructions">
+                            —
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     CRYPTO DETAILS
+                ========================================== -->
+
+                <div
+                    id="cryptoDetails"
+                    class="payment-method-details"
+                    style="display:none;"
+                >
+
+                    <div class="payment-method-badge">
+                        ₮ Crypto / USDT
+                    </div>
+
+
+                    <!-- NETWORK SELECTOR -->
+
+                    <div class="crypto-network-selector">
+
+                        <label for="cryptoNetwork">
+                            Select Network
+                        </label>
+
+                        <select
+                            id="cryptoNetwork"
+                            onchange="selectCryptoNetwork(this.value)"
+                        >
+
+                            <option value="">
+                                Select USDT network
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- CRYPTO WALLET -->
+
+                    <div
+                        id="cryptoWalletBox"
+                        class="crypto-wallet-box"
+                        style="display:none;"
+                    >
+
+                        <div class="crypto-network-label">
+
+                            <span>
+                                Network
+                            </span>
+
+                            <strong id="selectedCryptoNetwork">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="wallet-address-label">
+                            USDT Wallet Address
+                        </div>
+
+
+                        <div class="wallet-address-row">
+
+                            <div
+                                id="cryptoWalletAddress"
+                                class="wallet-address"
+                            >
+                                —
+                            </div>
+
+                            <button
+                                type="button"
+                                class="wallet-copy-btn"
+                                onclick="copyPaymentValue('cryptoWalletAddress', this)"
+                            >
+                                📋 Copy
+                            </button>
+
+                        </div>
+
+
+                        <div class="payment-amount-box crypto-amount-box">
+
+                            <div class="payment-amount-row">
+
+                                <span>
+                                    Minimum Investment
+                                </span>
+
+                                <strong id="cryptoMinimumAmount">
+                                    $30 USDT
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-amount-row">
+
+                                <span>
+                                    Payment Fee
+                                </span>
+
+                                <strong id="cryptoFeeAmount">
+                                    $1 USDT
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-amount-divider"></div>
+
+
+                            <div class="payment-amount-row total">
+
+                                <span>
+                                    TOTAL TO SEND
+                                </span>
+
+                                <strong id="cryptoTotalAmount">
+                                    $31 USDT
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="payment-warning">
+
+                            <strong>
+                                ⚠️ Verify the network
+                            </strong>
+
+                            <p>
+                                Only send USDT through the selected
+                                network. Sending through the wrong
+                                network may result in permanent loss
+                                of funds.
+                            </p>
+
+                        </div>
+
+
+                        <div class="payment-instructions">
+
+                            <div class="payment-instructions-title">
+                                Instructions
+                            </div>
+
+                            <p id="cryptoInstructions">
+                                —
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INVESTMENT REQUEST
+        ================================================== -->
+
+        <section
+            class="dashboard-section"
+            id="investment"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="section-eyebrow">
+                        INVEST NOW
+                    </p>
+
+                    <h2>
+                        Submit Investment Request
+                    </h2>
+
+                    <p class="section-description">
+                        Complete your payment first, then upload
+                        your payment receipt to submit your request.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="investment-request-card">
+
+
+                <!-- SELECTED PACKAGE -->
+
+                <div class="request-summary">
+
+                    <div class="request-summary-item">
+
+                        <span>
+                            Selected Package
+                        </span>
+
+                        <strong id="selectedPackageName">
+                            No package selected
+                        </strong>
+
+                    </div>
+
+
+                    <div class="request-summary-item">
+
+                        <span>
+                            Investment Amount
+                        </span>
+
+                        <strong id="investmentAmountDisplay">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="request-summary-item">
+
+                        <span>
+                            Payment Method
+                        </span>
+
+                        <strong id="selectedPaymentMethodDisplay">
+                            Not selected
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HIDDEN PACKAGE VALUE -->
+
+                <input
+                    type="hidden"
+                    id="investmentAmount"
+                    value=""
+                >
+
+
+                <!-- =========================================
+                     RECEIPT UPLOAD
+                ========================================== -->
+
+                <div class="receipt-upload-section">
+
+                    <div class="receipt-heading">
+
+                        <div class="receipt-icon">
+                            🧾
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Payment Receipt
+                            </h3>
+
+                            <p>
+                                Upload proof of your payment before
+                                submitting your investment request.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="receipt-upload-box"
+                        id="receiptUploadBox"
+                    >
+
+                        <input
+                            type="file"
+                            id="receiptFile"
+                            accept="image/jpeg,image/png,image/webp,image/jpg,application/pdf"
+                            hidden
+                            onchange="handleReceiptSelected(event)"
+                        >
+
+
+                        <button
+                            type="button"
+                            class="receipt-select-btn"
+                            onclick="document.getElementById('receiptFile').click()"
+                        >
+                            📎 Choose Receipt
+                        </button>
+
+
+                        <p class="receipt-file-help">
+                            JPG, PNG, WEBP or PDF
+                            <br>
+                            Maximum file size: 10MB
+                        </p>
+
+
+                        <div
+                            id="receiptFilePreview"
+                            class="receipt-file-preview"
+                            style="display:none;"
+                        >
+
+                            <div class="receipt-file-icon">
+                                📄
+                            </div>
+
+                            <div class="receipt-file-info">
+
+                                <strong id="receiptFileName">
+                                    —
+                                </strong>
+
+                                <span id="receiptFileSize">
+                                    —
+                                </span>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="receipt-remove-btn"
+                                onclick="removeReceipt()"
+                            >
+                                Remove
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- RECEIPT UPLOAD STATUS -->
+
+                    <div
+                        id="receiptUploadStatus"
+                        class="receipt-upload-status"
+                        style="display:none;"
+                    ></div>
+
+
+                    <!-- UPLOAD BUTTON -->
+
+                    <button
+                        type="button"
+                        class="receipt-upload-btn"
+                        id="uploadReceiptBtn"
+                        onclick="uploadPaymentReceipt()"
+                        disabled
+                    >
+                        Upload Receipt
+                    </button>
+
+                </div>
