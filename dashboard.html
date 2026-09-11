@@ -7155,18 +7155,26 @@ function buildInvestmentSummary() {
         getPaymentMethodLabel(selectedPaymentMethod);
 
     let paymentAmount = 0;
-    let currency = "";
+let currency = "";
 
-    if (selectedPaymentDetails) {
-        paymentAmount = Number(
-            selectedPaymentDetails.total_amount ??
-            selectedPaymentDetails.minimum_amount ??
-            0
-        );
+if (
+    selectedPaymentMethod === "bank" &&
+    selectedPaymentDetails
+) {
+    paymentAmount =
+        calculateBankPayment().totalNgn;
 
-        currency =
-            selectedPaymentDetails.currency ||
-            (selectedPaymentMethod === "bank" ? "NGN" : "USD");
+    currency = "NGN";
+}
+
+if (
+    selectedPaymentMethod === "crypto" &&
+    selectedPaymentDetails
+) {
+    paymentAmount =
+        calculateCryptoPayment().totalUsd;
+
+    currency = "USD";
     }
 
     return {
