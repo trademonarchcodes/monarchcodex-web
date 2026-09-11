@@ -481,3 +481,235 @@
             let selectedPaymentMethod = null;
 
         </script>
+        <script>
+
+            async function loadDashboard() {
+
+                const {
+                    data: {
+                        session
+                    }
+                } = await supabaseClient
+                    .auth
+                    .getSession();
+
+
+                if (!session) {
+
+                    window.location.href = "login.html";
+
+                    return;
+
+                }
+
+
+                currentUser = session.user;
+
+
+                await loadProfile();
+
+                await loadPackages();
+
+                await loadInvestments();
+
+                await loadEarnings();
+
+            }
+
+
+
+            async function loadProfile() {
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", currentUser.id)
+                    .single();
+
+
+                if (error) {
+
+                    console.error(error);
+
+                    return;
+
+                }
+
+
+                profileData = data;
+
+
+                document.getElementById(
+                    "profileFullName"
+                ).textContent =
+                    data.full_name || "—";
+
+
+                document.getElementById(
+                    "profilePhone"
+                ).textContent =
+                    data.phone || "—";
+
+
+                document.getElementById(
+                    "profileStatus"
+                ).textContent =
+                    data.status || "—";
+
+
+                document.getElementById(
+                    "statStatus"
+                ).textContent =
+                    data.status || "—";
+
+
+                document.getElementById(
+                    "accountType"
+                ).textContent =
+                    data.role === "admin"
+                        ? "ADMIN"
+                        : "MEMBER";
+
+
+                document.getElementById(
+                    "verificationStatus"
+                ).textContent =
+                    data.status || "PENDING";
+
+
+                document.getElementById(
+                    "memberSince"
+                ).textContent =
+                    data.created_at
+                        ? new Date(
+                            data.created_at
+                        ).toLocaleDateString()
+                        : "—";
+
+
+                document.getElementById(
+                    "welcomeName"
+                ).textContent =
+                    data.full_name || "Monarch";
+
+            }
+
+
+
+            async function loadPackages() {
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                    .from("packages")
+                    .select("*")
+                    .eq("active", true)
+                    .order("amount", {
+                        ascending: true
+                    });
+
+
+                if (error) {
+
+                    console.error(error);
+
+                    return;
+
+                }
+
+
+                packagesData = data || [];
+
+                renderPackages();
+
+            }
+
+
+
+            function renderPackages() {
+
+                const container =
+                    document.getElementById(
+                        "packagesGrid"
+                    );
+
+
+                container.innerHTML = "";
+
+
+                packagesData.forEach(
+                    function (pkg) {
+
+                        const card =
+                            document.createElement(
+                                "button"
+                            );
+
+
+                        card.type = "button";
+
+                        card.className =
+                            "package-card";
+
+
+                        card.innerHTML = `
+                            <strong>
+                                ${pkg.name}
+                            </strong>
+
+                            <span>
+                                $${Number(
+                                    pkg.amount
+                                ).toLocaleString()}
+                            </span>
+                        `;
+
+
+                        card.onclick =
+                            function () {
+
+                                selectPackage(pkg);
+
+                            };
+
+
+                        container.appendChild(card);
+
+                    }
+                );
+
+            }
+
+
+
+            function selectPackage(pkg) {
+
+                selectedPackage = pkg;
+
+
+                document.getElementById(
+                    "selectedPackage"
+                ).textContent =
+                    pkg.name;
+
+
+                document.getElementById(
+                    "investmentAmount"
+                ).textContent =
+                    "$" +
+                    Number(
+                        pkg.amount
+                    ).toLocaleString(
+                        undefined,
+                        {
+                            minimumFractionDigits: 2
+                        }
+                    );
+
+            }
+
+        </script>
