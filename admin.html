@@ -3749,3 +3749,553 @@ function updateInvestmentStatistics() {
 /* =========================================================
    PART 4 ENDS HERE
    ========================================================= */
+
+   /* =========================================================
+   ADMIN.HTML — PART 5/12
+   INVESTMENT REQUEST RENDERING
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   RENDER INVESTMENT REQUESTS
+   --------------------------------------------------------- */
+
+function renderInvestments(data = investmentsData) {
+
+    if (!investmentsContent) return;
+
+    if (!data || data.length === 0) {
+
+        investmentsContent.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <h3>No Investment Requests</h3>
+                <p>
+                    There are currently no investment requests
+                    in the system.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    let html = `
+        <div class="table-wrapper">
+            <table class="admin-table investment-table">
+
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>UID</th>
+                        <th>Package</th>
+                        <th>Investment</th>
+                        <th>Payment</th>
+                        <th>Receipt</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+    `;
+
+
+    data.forEach(investment => {
+
+        const memberName =
+            getInvestmentMemberName(investment);
+
+        const memberUid =
+            getInvestmentMemberUid(investment);
+
+        const packageName =
+            getInvestmentPackageName(investment);
+
+        const investmentAmount =
+            Number(
+                getInvestmentAmount(investment)
+            ) || 0;
+
+        const paymentMethod =
+            getPaymentMethod(investment);
+
+        const paymentNetwork =
+            getPaymentNetwork(investment);
+
+        const receipt =
+            getReceiptForInvestment(investment.id);
+
+        const receiptStatus =
+            getReceiptStatus(investment.id);
+
+        const receiptFile =
+            getReceiptFileName(investment.id);
+
+        const status =
+            normalizeStatus(
+                investment.status || "pending"
+            );
+
+        const date =
+            formatDateTime(
+                investment.created_at
+            );
+
+
+        /* ---------------------------------------------
+           PAYMENT DISPLAY
+           --------------------------------------------- */
+
+        let paymentHtml = `
+            <div class="payment-method">
+                ${escapeHtml(
+                    paymentMethod === "bank"
+                        ? "Bank Transfer"
+                        : paymentMethod === "crypto"
+                            ? "Crypto"
+                            : paymentMethod || "—"
+                )}
+            </div>
+        `;
+
+
+        if (
+            paymentMethod === "crypto" &&
+            paymentNetwork &&
+            paymentNetwork !== "—"
+        ) {
+
+            paymentHtml += `
+                <div class="payment-network">
+                    ${escapeHtml(
+                        paymentNetwork
+                    )}
+                </div>
+            `;
+        }
+
+
+        /* ---------------------------------------------
+           RECEIPT DISPLAY
+           --------------------------------------------- */
+
+        let receiptHtml = "";
+
+        if (receipt) {
+
+            receiptHtml = `
+                <div class="receipt-cell">
+
+                    <span
+                        class="${getReceiptStatusClass(
+                            investment.id
+                        )}"
+                    >
+                        ${escapeHtml(
+                            getReceiptStatusLabel(
+                                investment.id
+                            )
+                        )}
+                    </span>
+
+                    <button
+                        type="button"
+                        class="view-btn"
+                        onclick="viewReceipt('${escapeHtml(
+                            investment.id
+                        )}')"
+                    >
+                        View
+                    </button>
+
+                    <div class="receipt-file-name">
+                        ${escapeHtml(
+                            receiptFile
+                        )}
+                    </div>
+
+                </div>
+            `;
+
+        } else {
+
+            receiptHtml = `
+                <div class="receipt-cell">
+
+                    <span class="status">
+                        No Receipt
+                    </span>
+
+                </div>
+            `;
+        }
+
+
+        /* ---------------------------------------------
+           INVESTMENT STATUS
+           --------------------------------------------- */
+
+        const statusClass =
+            getStatusClass(status);
+
+        const statusLabel =
+            getStatusLabel(status);
+
+
+        /* ---------------------------------------------
+           ACTION BUTTONS
+           --------------------------------------------- */
+
+        let actionHtml = "";
+
+
+        if (status === "confirmed") {
+
+            actionHtml = `
+                <div class="action-stack">
+
+                    <span class="status status-confirmed">
+                        Confirmed
+                    </span>
+
+                    <button
+                        type="button"
+                        class="reject-btn"
+                        onclick="rejectInvestment(
+                            '${escapeHtml(
+                                investment.id
+                            )}'
+                        )"
+                    >
+                        Reject
+                    </button>
+
+                </div>
+            `;
+
+        } else if (status === "rejected") {
+
+            actionHtml = `
+                <div class="action-stack">
+
+                    <span class="status status-rejected">
+                        Rejected
+                    </span>
+
+                    <button
+                        type="button"
+                        class="confirm-btn"
+                        onclick="confirmInvestment(
+                            '${escapeHtml(
+                                investment.id
+                            )}'
+                        )"
+                    >
+                        Confirm
+                    </button>
+
+                </div>
+            `;
+
+        } else {
+
+            actionHtml = `
+                <div class="action-stack">
+
+                    <button
+                        type="button"
+                        class="confirm-btn"
+                        onclick="confirmInvestment(
+                            '${escapeHtml(
+                                investment.id
+                            )}'
+                        )"
+                    >
+                        Confirm
+                    </button>
+
+                    <button
+                        type="button"
+                        class="reject-btn"
+                        onclick="rejectInvestment(
+                            '${escapeHtml(
+                                investment.id
+                            )}'
+                        )"
+                    >
+                        Reject
+                    </button>
+
+                </div>
+            `;
+        }
+
+
+        html += `
+            <tr>
+
+                <td>
+                    <div class="member-name-cell">
+                        <strong>
+                            ${escapeHtml(
+                                memberName
+                            )}
+                        </strong>
+                    </div>
+                </td>
+
+
+                <td>
+                    <div class="uid-cell">
+
+                        <span>
+                            ${escapeHtml(
+                                memberUid
+                            )}
+                        </span>
+
+                        ${
+                            memberUid !== "—"
+                                ? `
+                                    <button
+                                        type="button"
+                                        class="uid-copy-btn"
+                                        onclick="copyMemberUid(
+                                            '${escapeHtml(
+                                                memberUid
+                                            )}'
+                                        )"
+                                        title="Copy UID"
+                                    >
+                                        Copy
+                                    </button>
+                                  `
+                                : ""
+                        }
+
+                    </div>
+                </td>
+
+
+                <td>
+                    <strong>
+                        ${escapeHtml(
+                            packageName
+                        )}
+                    </strong>
+                </td>
+
+
+                <td>
+                    <strong class="investment-amount">
+                        ${formatUsd(
+                            investmentAmount
+                        )}
+                    </strong>
+                </td>
+
+
+                <td>
+                    ${paymentHtml}
+                </td>
+
+
+                <td>
+                    ${receiptHtml}
+                </td>
+
+
+                <td>
+                    <span class="${statusClass}">
+                        ${escapeHtml(
+                            statusLabel
+                        )}
+                    </span>
+                </td>
+
+
+                <td>
+                    <span class="date-cell">
+                        ${escapeHtml(
+                            date
+                        )}
+                    </span>
+                </td>
+
+
+                <td>
+                    ${actionHtml}
+                </td>
+
+            </tr>
+        `;
+    });
+
+
+    html += `
+                </tbody>
+
+            </table>
+        </div>
+    `;
+
+
+    investmentsContent.innerHTML = html;
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT SEARCH / FILTER
+   --------------------------------------------------------- */
+
+function searchInvestments(query) {
+
+    const search =
+        String(query || "")
+            .trim()
+            .toLowerCase();
+
+
+    if (!search) {
+
+        renderInvestments(
+            investmentsData
+        );
+
+        return;
+    }
+
+
+    const filtered =
+        investmentsData.filter(investment => {
+
+            const member =
+                getInvestmentMember(
+                    investment
+                );
+
+
+            const values = [
+
+                member?.full_name,
+                member?.name,
+                member?.username,
+                member?.email,
+                member?.uid,
+
+                getInvestmentPackageName(
+                    investment
+                ),
+
+                getPaymentMethod(
+                    investment
+                ),
+
+                getPaymentNetwork(
+                    investment
+                ),
+
+                investment.status
+
+            ];
+
+
+            return values.some(value =>
+                String(value || "")
+                    .toLowerCase()
+                    .includes(search)
+            );
+        });
+
+
+    renderInvestments(filtered);
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT STATUS FILTER
+   --------------------------------------------------------- */
+
+function filterInvestmentsByStatus(status) {
+
+    const selected =
+        String(status || "")
+            .trim()
+            .toLowerCase();
+
+
+    if (!selected || selected === "all") {
+
+        renderInvestments(
+            investmentsData
+        );
+
+        return;
+    }
+
+
+    const filtered =
+        investmentsData.filter(
+            investment =>
+                normalizeStatus(
+                    investment.status
+                ) === selected
+        );
+
+
+    renderInvestments(filtered);
+}
+
+
+/* ---------------------------------------------------------
+   REFRESH INVESTMENT DATA
+   --------------------------------------------------------- */
+
+async function refreshInvestmentData() {
+
+    await loadPackages();
+
+    await loadInvestments();
+
+    await loadReceipts();
+
+    renderInvestments(
+        investmentsData
+    );
+
+    updateInvestmentStatistics();
+}
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.loadPackages =
+    loadPackages;
+
+window.loadInvestments =
+    loadInvestments;
+
+window.loadReceipts =
+    loadReceipts;
+
+window.renderInvestments =
+    renderInvestments;
+
+window.searchInvestments =
+    searchInvestments;
+
+window.filterInvestmentsByStatus =
+    filterInvestmentsByStatus;
+
+window.refreshInvestmentData =
+    refreshInvestmentData;
+
+
+/* =========================================================
+   PART 5 ENDS HERE
+   ========================================================= */     
