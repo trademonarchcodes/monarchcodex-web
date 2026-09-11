@@ -4324,3 +4324,359 @@ tbody tr:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================================
+   PART 12/12 — FINAL RESPONSIVE RULES & OVERRIDES
+   ========================================================= */
+
+/* ---------- GLOBAL RESPONSIVE SAFETY ---------- */
+
+html {
+    overflow-x: hidden;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+img,
+video,
+iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+/* ---------- TABLET ---------- */
+
+@media (max-width: 1000px) {
+
+    .container {
+        width: min(92%, 1180px);
+    }
+
+    .hero-content {
+        max-width: 700px;
+    }
+
+    .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .packages-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .profile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================================
+   MOBILE NAVIGATION
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .nav-container {
+        min-height: 64px;
+    }
+
+    .logo {
+        font-size: 18px;
+    }
+
+    .main-nav,
+    .nav-links {
+        display: none;
+    }
+
+    .nav-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text-primary);
+        cursor: pointer;
+    }
+
+    .nav-menu-btn:hover {
+        color: var(--accent-gold);
+        border-color: var(--accent-gold);
+    }
+
+    /* If a mobile navigation receives the active class */
+    .main-nav.active,
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: absolute;
+        top: 64px;
+        left: 12px;
+        right: 12px;
+        z-index: 200;
+        padding: 18px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+    }
+
+    .main-nav.active a,
+    .nav-links.active a {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 7px;
+    }
+
+    /* ---------- HOMEPAGE ---------- */
+
+    .hero {
+        min-height: auto;
+        padding: 70px 0;
+    }
+
+    .hero h1 {
+        font-size: 38px;
+    }
+
+    .hero p {
+        font-size: 14px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .packages-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* ---------- GENERAL SECTIONS ---------- */
+
+    section {
+        padding: 55px 0;
+    }
+
+    .section-title {
+        font-size: 26px;
+    }
+
+    .section-heading {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* ---------- FOUNDER ---------- */
+
+    .founder-content {
+        grid-template-columns: 1fr;
+    }
+
+    .founder-image {
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+    /* ---------- CTA ---------- */
+
+    .cta-content {
+        padding: 35px 20px;
+    }
+
+    .cta-content .btn {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .container {
+        width: calc(100% - 24px);
+    }
+
+    .hero {
+        padding: 55px 0;
+    }
+
+    .hero h1 {
+        font-size: 31px;
+        line-height: 1.15;
+    }
+
+    .hero p {
+        font-size: 13px;
+    }
+
+    .section-title {
+        font-size: 23px;
+    }
+
+    .section-subtitle {
+        font-size: 13px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    /* ---------- AUTH ---------- */
+
+    .auth-card {
+        padding: 23px 17px;
+    }
+
+    .auth-header h1 {
+        font-size: 25px;
+    }
+
+    /* ---------- DASHBOARD ---------- */
+
+    .dashboard-main {
+        width: calc(100% - 20px);
+    }
+
+    .dashboard-header .container {
+        width: calc(100% - 20px);
+    }
+
+    .welcome-section {
+        padding: 21px 17px;
+    }
+
+    .welcome-section h1 {
+        font-size: 25px;
+    }
+
+    /* ---------- ADMIN ---------- */
+
+    .admin-container {
+        width: calc(100% - 20px);
+    }
+
+    /* ---------- BUTTONS ---------- */
+
+    .btn,
+    .primary-btn {
+        min-height: 46px;
+    }
+}
+
+/* =========================================================
+   EXTRA SMALL DEVICES
+   ========================================================= */
+
+@media (max-width: 350px) {
+
+    .logo {
+        font-size: 16px;
+    }
+
+    .hero h1 {
+        font-size: 27px;
+    }
+
+    .welcome-section h1 {
+        font-size: 23px;
+    }
+
+    .auth-card {
+        padding: 20px 14px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .package-card {
+        padding: 16px;
+    }
+}
+
+/* =========================================================
+   ACCESSIBILITY & INTERACTION
+   ========================================================= */
+
+:focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 3px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 2px;
+}
+
+/* ---------- REDUCED MOTION ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =========================================================
+   FINAL DISPLAY SAFETY
+   ========================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* =========================================================
+   END OF STYLE.CSS
+   ========================================================= */
