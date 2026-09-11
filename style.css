@@ -7763,3 +7763,486 @@ button[onclick*="Refresh"]:focus-visible {
 /* =========================================================
    END DASHBOARD COMPATIBILITY PATCH
 ========================================================= */
+/* =========================================================
+   MONARCH CODEX — DASHBOARD BOTTOM + FOOTER FIX
+   CSS ONLY
+========================================================= */
+
+
+/* =========================================================
+   INVESTMENT HISTORY CONTAINER
+========================================================= */
+
+.investment-history-wrapper {
+    width: 100%;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.025),
+            rgba(255,255,255,0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(255,255,255,0.07);
+
+    border-radius: 15px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   DESKTOP HISTORY
+========================================================= */
+
+.investment-history-table-wrap {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.investment-history-table {
+    width: 100%;
+
+    min-width: 650px;
+
+    border-collapse: collapse;
+}
+
+.investment-history-table th {
+    padding: 13px 14px;
+
+    color: #777 !important;
+
+    background: #0a0a0a;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.07);
+
+    font-size: 8px !important;
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+
+    text-align: left;
+
+    text-transform: uppercase;
+}
+
+.investment-history-table td {
+    padding: 14px;
+
+    color: #c5c5c5 !important;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.045);
+
+    font-size: 9px !important;
+
+    vertical-align: middle;
+}
+
+.investment-history-table tbody tr:hover {
+    background:
+        rgba(212,175,55,0.025);
+}
+
+
+/* =========================================================
+   MOBILE HISTORY
+========================================================= */
+
+/* Desktop: mobile cards hidden */
+.investment-history-mobile {
+    display: none;
+}
+
+
+/* =========================================================
+   MOBILE — HIDE TABLE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .investment-history-table-wrap {
+        display: none !important;
+    }
+
+    .investment-history-mobile {
+        display: flex !important;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding: 12px;
+    }
+
+    .investment-history-wrapper {
+        overflow: visible;
+
+        background: transparent;
+
+        border: 0;
+    }
+}
+
+
+/* =========================================================
+   MOBILE INVESTMENT HISTORY CARD
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .investment-history-mobile .investment-history-card {
+        display: block;
+
+        width: 100%;
+
+        padding: 15px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(255,255,255,0.035),
+                rgba(255,255,255,0.008)
+            ),
+            #101010;
+
+        border:
+            1px solid rgba(255,255,255,0.07);
+
+        border-radius: 12px;
+
+        box-sizing: border-box;
+    }
+
+    .investment-history-mobile .investment-history-card + .investment-history-card {
+        margin-top: 0;
+    }
+
+    .investment-history-mobile .history-card-header {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+
+        padding-bottom: 10px;
+
+        margin-bottom: 10px;
+
+        border-bottom:
+            1px solid rgba(255,255,255,0.06);
+    }
+
+    .investment-history-mobile .history-card-title {
+        color: #ffffff;
+
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .investment-history-mobile .history-card-row {
+        display: flex;
+
+        align-items: flex-start;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding: 5px 0;
+    }
+
+    .investment-history-mobile .history-card-label {
+        color: #666666;
+
+        font-size: 8px;
+
+        text-transform: uppercase;
+    }
+
+    .investment-history-mobile .history-card-value {
+        color: #d0d0d0;
+
+        font-size: 9px;
+
+        text-align: right;
+    }
+
+    .investment-history-mobile .history-card-value.amount {
+        color: #d4af37;
+        font-weight: 800;
+    }
+}
+
+
+/* =========================================================
+   SUPPORT SECTION
+========================================================= */
+
+.dashboard-support-section {
+    margin-top: 15px;
+
+    margin-bottom: 0 !important;
+}
+
+.support-card {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 17px;
+
+    padding: 22px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(212,175,55,0.09),
+            rgba(255,255,255,0.015)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(212,175,55,0.17);
+
+    border-radius: 15px;
+}
+
+.support-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    right: -90px;
+    bottom: -110px;
+
+    background:
+        rgba(212,175,55,0.055);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.support-icon {
+    width: 46px;
+    height: 46px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #d4af37;
+
+    background:
+        rgba(212,175,55,0.08);
+
+    border:
+        1px solid rgba(212,175,55,0.16);
+
+    border-radius: 12px;
+
+    font-size: 20px;
+}
+
+.support-content {
+    position: relative;
+
+    z-index: 1;
+
+    min-width: 0;
+}
+
+.support-content h2 {
+    margin: 4px 0 5px;
+
+    color: #ffffff !important;
+
+    font-size: 16px !important;
+}
+
+.support-content p {
+    max-width: 600px;
+
+    margin: 0 0 8px;
+
+    color: #888888 !important;
+
+    font-size: 9px !important;
+
+    line-height: 1.6;
+}
+
+.support-content strong {
+    display: inline-block;
+
+    color: #d4af37 !important;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size: 9px;
+
+    letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.dashboard-footer {
+    width: 100%;
+
+    margin-top: 0;
+
+    background:
+        #080808;
+
+    border-top:
+        1px solid rgba(212,175,55,0.13);
+}
+
+.dashboard-footer-inner {
+    width: min(1180px, calc(100% - 30px));
+
+    min-height: 85px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.footer-brand {
+    color: #d4af37;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    letter-spacing: 0.7px;
+}
+
+.dashboard-footer p {
+    margin: 0;
+
+    color: #666666;
+
+    font-size: 8px;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   FOOTER YEAR
+========================================================= */
+
+#currentYear {
+    color: #888888;
+}
+
+
+/* =========================================================
+   MOBILE SUPPORT + FOOTER
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .support-card {
+        align-items: flex-start;
+
+        padding: 17px;
+
+        gap: 12px;
+    }
+
+    .support-icon {
+        width: 40px;
+        height: 40px;
+
+        font-size: 17px;
+    }
+
+    .support-content h2 {
+        font-size: 14px !important;
+    }
+
+    .support-content p {
+        font-size: 8px !important;
+    }
+
+    .dashboard-footer-inner {
+        min-height: 78px;
+
+        flex-direction: column;
+
+        justify-content: center;
+
+        gap: 6px;
+
+        text-align: center;
+    }
+
+    .dashboard-footer p {
+        text-align: center;
+
+        font-size: 7px;
+    }
+
+    .footer-brand {
+        font-size: 10px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .support-card {
+        padding: 14px;
+    }
+
+    .support-icon {
+        width: 36px;
+        height: 36px;
+
+        font-size: 15px;
+    }
+
+    .support-content h2 {
+        font-size: 13px !important;
+    }
+
+    .support-content p {
+        font-size: 7px !important;
+    }
+}
+
+
+/* =========================================================
+   END BOTTOM + FOOTER FIX
+========================================================= */
