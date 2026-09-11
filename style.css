@@ -8246,3 +8246,557 @@ button[onclick*="Refresh"]:focus-visible {
 /* =========================================================
    END BOTTOM + FOOTER FIX
 ========================================================= */
+/* =========================================================
+   MONARCH CODEX — FINAL DASHBOARD BOTTOM
+   HISTORY • SUPPORT • FOOTER
+========================================================= */
+
+
+/* =========================================================
+   INVESTMENT HISTORY CONTAINER
+========================================================= */
+
+.investment-history-wrapper {
+    width: 100%;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.025),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 15px;
+}
+
+
+/* =========================================================
+   DESKTOP HISTORY TABLE
+========================================================= */
+
+.investment-history-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.investment-history-table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+}
+
+.investment-history-table th {
+    padding: 13px 14px;
+
+    color: #777 !important;
+    background: #0a0a0a;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    font-size: 8px !important;
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.investment-history-table td {
+    padding: 14px;
+
+    color: #c5c5c5 !important;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.045);
+
+    font-size: 9px !important;
+
+    vertical-align: middle;
+}
+
+.investment-history-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.investment-history-table tbody tr:hover {
+    background:
+        rgba(212, 175, 55, 0.025);
+}
+
+
+/* =========================================================
+   MOBILE HISTORY
+========================================================= */
+
+.investment-history-mobile {
+    display: none;
+}
+
+
+/* =========================================================
+   ACTUAL MOBILE INVESTMENT CARD
+========================================================= */
+
+.investment-mobile-card {
+    width: 100%;
+
+    padding: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.028),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 12px;
+}
+
+.investment-mobile-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 12px;
+    padding-bottom: 11px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.06);
+}
+
+.investment-mobile-header strong {
+    min-width: 0;
+
+    overflow: hidden;
+
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.investment-mobile-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 7px 0;
+}
+
+.investment-mobile-row > span:first-child {
+    color: #777;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.investment-mobile-row > strong,
+.investment-mobile-row > span:last-child {
+    max-width: 65%;
+
+    overflow: hidden;
+
+    color: #c8c8c8;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    text-align: right;
+    text-overflow: ellipsis;
+}
+
+.investment-mobile-row > strong {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   RECEIPT STATUS
+========================================================= */
+
+.receipt-status {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 4px 7px;
+
+    border-radius: 999px;
+
+    font-size: 7px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.receipt-status.pending {
+    color: #f3b33d;
+
+    background:
+        rgba(243, 179, 61, 0.10);
+
+    border:
+        1px solid rgba(243, 179, 61, 0.18);
+}
+
+.receipt-status.approved,
+.receipt-status.uploaded {
+    color: #35d07f;
+
+    background:
+        rgba(53, 208, 127, 0.10);
+
+    border:
+        1px solid rgba(53, 208, 127, 0.18);
+}
+
+.receipt-status.rejected {
+    color: #ff5c5c;
+
+    background:
+        rgba(255, 92, 92, 0.10);
+
+    border:
+        1px solid rgba(255, 92, 92, 0.18);
+}
+
+
+/* =========================================================
+   SUPPORT SECTION
+========================================================= */
+
+.dashboard-support-section {
+    margin-top: 18px !important;
+    margin-bottom: 0 !important;
+}
+
+.support-card {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    width: 100%;
+
+    padding: 22px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(212, 175, 55, 0.075),
+            rgba(255, 255, 255, 0.015)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.18);
+
+    border-radius: 15px;
+}
+
+.support-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 150px;
+    height: 150px;
+
+    right: -70px;
+    bottom: -85px;
+
+    background:
+        rgba(212, 175, 55, 0.07);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+.support-icon {
+    position: relative;
+    z-index: 1;
+
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #050505;
+
+    background: #d4af37;
+
+    border-radius: 12px;
+
+    font-size: 21px;
+
+    box-shadow:
+        0 8px 22px rgba(212, 175, 55, 0.12);
+}
+
+.support-content {
+    position: relative;
+    z-index: 1;
+
+    min-width: 0;
+}
+
+.support-content .section-eyebrow {
+    display: block;
+
+    margin-bottom: 5px;
+}
+
+.support-content h2 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.support-content p {
+    max-width: 650px;
+
+    margin: 6px 0 10px;
+
+    color: #888;
+
+    font-size: 10px;
+
+    line-height: 1.6;
+}
+
+.support-content strong {
+    display: inline-flex;
+
+    align-items: center;
+
+    min-height: 30px;
+
+    padding: 6px 10px;
+
+    color: #d4af37;
+
+    background:
+        rgba(212, 175, 55, 0.07);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.18);
+
+    border-radius: 7px;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size: 10px;
+
+    letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.dashboard-footer {
+    width: 100%;
+
+    margin-top: 0;
+
+    background: #070707;
+
+    border-top:
+        1px solid rgba(212, 175, 55, 0.10);
+}
+
+.dashboard-footer-inner {
+    width: min(1180px, calc(100% - 40px));
+
+    min-height: 82px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.footer-brand {
+    color: #d4af37;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    letter-spacing: 1.2px;
+}
+
+.dashboard-footer p {
+    margin: 0;
+
+    color: #666;
+
+    font-size: 9px;
+
+    text-align: right;
+}
+
+#currentYear {
+    color: #888;
+}
+
+
+/* =========================================================
+   MOBILE FINAL LAYOUT
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .investment-history-table-wrap {
+        display: none !important;
+    }
+
+    .investment-history-mobile {
+        display: flex !important;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding: 12px;
+    }
+
+    .investment-history-wrapper {
+        overflow: visible;
+
+        background: transparent;
+
+        border: 0;
+    }
+
+    .support-card {
+        align-items: flex-start;
+
+        gap: 13px;
+
+        padding: 17px;
+    }
+
+    .support-icon {
+        width: 42px;
+        height: 42px;
+
+        border-radius: 10px;
+
+        font-size: 18px;
+    }
+
+    .support-content h2 {
+        font-size: 14px;
+
+        line-height: 1.3;
+    }
+
+    .support-content p {
+        font-size: 9px;
+    }
+
+    .dashboard-footer-inner {
+        min-height: 75px;
+
+        flex-direction: column;
+
+        justify-content: center;
+
+        gap: 7px;
+
+        padding: 15px 0;
+    }
+
+    .dashboard-footer p {
+        text-align: center;
+
+        font-size: 8px;
+    }
+
+    .footer-brand {
+        font-size: 10px;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONE
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .investment-mobile-card {
+        padding: 12px;
+    }
+
+    .investment-mobile-header strong {
+        font-size: 11px;
+    }
+
+    .investment-mobile-row > span:first-child {
+        font-size: 8px;
+    }
+
+    .investment-mobile-row > strong,
+    .investment-mobile-row > span:last-child {
+        font-size: 9px;
+    }
+
+    .support-card {
+        padding: 14px;
+    }
+
+    .support-content h2 {
+        font-size: 13px;
+    }
+
+    .support-content strong {
+        font-size: 9px;
+    }
+}
