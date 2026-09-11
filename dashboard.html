@@ -5087,3 +5087,540 @@
             }
 
         </style>
+        <style>
+
+            /* =================================================
+               MONARCH UID
+               ================================================= */
+
+            .monarch-uid-card {
+                position: relative;
+                overflow: hidden;
+            }
+
+
+            .monarch-uid-card::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 3px;
+                height: 100%;
+                background: var(--accent-gold, #d4af37);
+            }
+
+
+            .uid-copy-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                margin-top: 6px;
+            }
+
+
+            .monarch-uid-value {
+                font-family:
+                    "Courier New",
+                    monospace;
+
+                font-weight: 700;
+
+                letter-spacing: 1px;
+
+                word-break: break-word;
+            }
+
+
+            .uid-copy-btn {
+                border: 1px solid
+                    var(
+                        --border-color,
+                        rgba(255,255,255,0.12)
+                    );
+
+                background:
+                    var(
+                        --bg-card,
+                        rgba(255,255,255,0.05)
+                    );
+
+                color:
+                    var(
+                        --text-primary,
+                        #ffffff
+                    );
+
+                border-radius: 8px;
+
+                padding: 7px 11px;
+
+                font-size: 12px;
+
+                font-weight: 600;
+
+                cursor: pointer;
+
+                transition:
+                    background 0.2s ease,
+                    border-color 0.2s ease,
+                    transform 0.2s ease;
+            }
+
+
+            .uid-copy-btn:hover {
+                transform: translateY(-1px);
+
+                border-color:
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    );
+            }
+
+
+            .uid-copy-btn:active {
+                transform:
+                    translateY(0);
+            }
+
+
+            .uid-copy-btn:disabled {
+                cursor: default;
+
+                opacity: 0.9;
+            }
+
+
+            .uid-copy-btn.copied {
+                border-color:
+                    #2eaf64;
+
+                color:
+                    #2eaf64;
+            }
+
+
+            .uid-help-text {
+                display: block;
+
+                margin-top: 8px;
+
+                color:
+                    var(
+                        --text-muted,
+                        #8f8f8f
+                    );
+
+                font-size: 11px;
+
+                line-height: 1.5;
+            }
+
+
+
+            /* =================================================
+               LOADING STATES
+               ================================================= */
+
+            .loading-state {
+                width: 100%;
+
+                padding: 30px 20px;
+
+                text-align: center;
+
+                color:
+                    var(
+                        --text-muted,
+                        #8f8f8f
+                    );
+
+                font-size: 14px;
+            }
+
+
+            .loading-state::after {
+                content: "";
+
+                display: block;
+
+                width: 22px;
+
+                height: 22px;
+
+                margin:
+                    12px auto 0;
+
+                border:
+                    2px solid
+                    rgba(255,255,255,0.12);
+
+                border-top-color:
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    );
+
+                border-radius: 50%;
+
+                animation:
+                    monarchSpin
+                    0.8s linear infinite;
+            }
+
+
+            @keyframes monarchSpin {
+
+                from {
+                    transform:
+                        rotate(0deg);
+                }
+
+                to {
+                    transform:
+                        rotate(360deg);
+                }
+
+            }
+
+
+
+            /* =================================================
+               EMPTY STATES
+               ================================================= */
+
+            .empty-state {
+                width: 100%;
+
+                padding: 28px 20px;
+
+                text-align: center;
+
+                border:
+                    1px dashed
+                    var(
+                        --border-color,
+                        rgba(255,255,255,0.12)
+                    );
+
+                border-radius: 12px;
+
+                color:
+                    var(
+                        --text-muted,
+                        #8f8f8f
+                    );
+
+                font-size: 14px;
+
+                line-height: 1.6;
+            }
+
+
+
+            /* =================================================
+               PACKAGE CARD ENHANCEMENTS
+               ================================================= */
+
+            .packages-grid {
+                width: 100%;
+            }
+
+
+            .package-card {
+                position: relative;
+
+                cursor: pointer;
+
+                text-align: left;
+
+                transition:
+                    transform 0.2s ease,
+                    border-color 0.2s ease,
+                    box-shadow 0.2s ease;
+            }
+
+
+            .package-card:hover {
+                transform:
+                    translateY(-3px);
+            }
+
+
+            .package-card.selected {
+                border-color:
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    ) !important;
+
+                box-shadow:
+                    0 0 0 1px
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    ),
+                    0 12px 30px
+                    rgba(0,0,0,0.20);
+            }
+
+
+            .package-card.selected::after {
+                content: "✓";
+
+                position: absolute;
+
+                top: 10px;
+
+                right: 10px;
+
+                width: 24px;
+
+                height: 24px;
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: center;
+
+                border-radius: 50%;
+
+                background:
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    );
+
+                color: #000;
+
+                font-size: 13px;
+
+                font-weight: 800;
+            }
+
+
+            .package-name {
+                font-weight: 700;
+
+                line-height: 1.3;
+            }
+
+
+            .package-description {
+                margin-top: 6px;
+
+                color:
+                    var(
+                        --text-muted,
+                        #8f8f8f
+                    );
+
+                font-size: 12px;
+
+                line-height: 1.5;
+            }
+
+
+            .package-amount {
+                margin-top: 14px;
+
+                font-size: 22px;
+
+                font-weight: 800;
+
+                letter-spacing: 0.2px;
+            }
+
+
+            .package-select-label {
+                margin-top: 10px;
+
+                font-size: 11px;
+
+                font-weight: 600;
+
+                opacity: 0.65;
+
+                text-transform:
+                    uppercase;
+
+                letter-spacing:
+                    0.7px;
+            }
+
+
+
+            /* =================================================
+               PAYMENT CARD ENHANCEMENTS
+               ================================================= */
+
+            .payment-card {
+                cursor: pointer;
+
+                transition:
+                    transform 0.2s ease,
+                    border-color 0.2s ease,
+                    box-shadow 0.2s ease;
+            }
+
+
+            .payment-card:hover {
+                transform:
+                    translateY(-2px);
+            }
+
+
+            .payment-card.selected {
+                border-color:
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    ) !important;
+
+                box-shadow:
+                    0 0 0 1px
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    );
+            }
+
+
+
+            /* =================================================
+               STATUS BADGES
+               ================================================= */
+
+            .history-status {
+                display: inline-flex;
+
+                align-items: center;
+
+                justify-content: center;
+
+                min-width: 78px;
+
+                padding: 5px 9px;
+
+                border-radius: 999px;
+
+                font-size: 10px;
+
+                font-weight: 700;
+
+                text-transform:
+                    uppercase;
+
+                letter-spacing:
+                    0.4px;
+            }
+
+
+            .status-approved,
+            .status-active,
+            .status-completed {
+                color: #2eaf64;
+
+                background:
+                    rgba(
+                        46,
+                        175,
+                        100,
+                        0.10
+                    );
+            }
+
+
+            .status-pending {
+                color:
+                    var(
+                        --accent-gold,
+                        #d4af37
+                    );
+
+                background:
+                    rgba(
+                        212,
+                        175,
+                        55,
+                        0.10
+                    );
+            }
+
+
+            .status-rejected,
+            .status-cancelled,
+            .status-suspended {
+                color: #e45d5d;
+
+                background:
+                    rgba(
+                        228,
+                        93,
+                        93,
+                        0.10
+                    );
+            }
+
+
+
+            /* =================================================
+               EARNINGS
+               ================================================= */
+
+            .earning-item {
+                display: flex;
+
+                align-items: center;
+
+                justify-content: space-between;
+
+                gap: 16px;
+
+                padding: 14px 0;
+
+                border-bottom:
+                    1px solid
+                    var(
+                        --border-color,
+                        rgba(255,255,255,0.08)
+                    );
+            }
+
+
+            .earning-item:last-child {
+                border-bottom: none;
+            }
+
+
+            .earning-title {
+                font-weight: 600;
+
+                font-size: 14px;
+            }
+
+
+            .earning-date {
+                margin-top: 4px;
+
+                color:
+                    var(
+                        --text-muted,
+                        #8f8f8f
+                    );
+
+                font-size: 11px;
+            }
+
+
+            .earning-amount {
+                white-space: nowrap;
+
+                font-weight: 800;
+
+                color: #2eaf64;
+            }
+
+        </style>
