@@ -263,3 +263,60 @@
             </div>
 
         </section>
+        <!-- PAYMENT METHODS -->
+
+        <section class="dashboard-section">
+
+            <div class="section-title">
+
+                <h2>Payment Method</h2>
+
+                <span>SELECT FUNDING METHOD</span>
+
+            </div>
+
+
+            <div class="payment-grid">
+
+                <button
+                    type="button"
+                    class="payment-card"
+                    id="bankPayment"
+                    onclick="selectPaymentMethod('bank')">
+
+                    <span class="payment-icon">🏦</span>
+
+                    <strong>Bank Account</strong>
+
+                    <small>
+                        Fund your investment through bank payment.
+                    </small>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="payment-card"
+                    id="cryptoPayment"
+                    onclick="selectPaymentMethod('crypto')">
+
+                    <span class="payment-icon">₿</span>
+
+                    <strong>Crypto Funding</strong>
+
+                    <small>
+                        Fund your investment using cryptocurrency.
+                    </small>
+
+                </button>
+
+            </div>
+
+
+            <div
+                id="paymentMessage"
+                class="message-box">
+            </div>
+
+        </section>
