@@ -6273,3 +6273,1493 @@ button[onclick*="Refresh"]:focus-visible {
         font-size: 9px;
     }
 }
+/* =========================================================
+   MONARCH CODEX — DASHBOARD VISUAL COMPATIBILITY PATCH
+   CSS ONLY — DO NOT CHANGE HTML OR JAVASCRIPT
+========================================================= */
+
+
+/* =========================================================
+   DASHBOARD HEADER
+========================================================= */
+
+.dashboard-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    width: 100%;
+
+    background:
+        rgba(8, 8, 8, 0.96);
+
+    border-bottom:
+        1px solid rgba(212, 175, 55, 0.16);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.dashboard-header-inner {
+    width: min(1180px, calc(100% - 30px));
+
+    min-height: 68px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.dashboard-brand a {
+    display: inline-flex;
+
+    align-items: center;
+
+    text-decoration: none;
+
+    font-size: 17px;
+    font-weight: 900;
+
+    letter-spacing: 0.4px;
+}
+
+.brand-monarch {
+    color: #ffffff;
+}
+
+.brand-codex {
+    color: #d4af37;
+}
+
+.dashboard-nav {
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+.dashboard-nav-link {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 36px;
+
+    padding: 7px 11px;
+
+    color: #858585 !important;
+
+    background: transparent;
+
+    border: 1px solid transparent;
+
+    border-radius: 8px;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: all 0.2s ease;
+}
+
+.dashboard-nav-link:hover,
+.dashboard-nav-link.active {
+    color: #d4af37 !important;
+
+    background:
+        rgba(212, 175, 55, 0.07);
+
+    border-color:
+        rgba(212, 175, 55, 0.16);
+}
+
+.dashboard-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.dashboard-refresh-btn {
+    width: 36px;
+    height: 36px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    color: #d4af37 !important;
+
+    background:
+        rgba(212, 175, 55, 0.07) !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.22) !important;
+
+    border-radius: 9px;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.dashboard-refresh-btn:hover {
+    color: #ffffff !important;
+
+    background:
+        rgba(212, 175, 55, 0.15) !important;
+
+    border-color:
+        rgba(212, 175, 55, 0.40) !important;
+
+    transform: rotate(25deg);
+}
+
+.dashboard-logout-btn {
+    min-height: 36px;
+
+    padding: 8px 13px;
+
+    color: #cccccc !important;
+
+    background:
+        rgba(255, 255, 255, 0.025) !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.10) !important;
+
+    border-radius: 9px;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.dashboard-logout-btn:hover {
+    color: #ffffff !important;
+
+    border-color:
+        rgba(212, 175, 55, 0.30) !important;
+}
+
+
+/* =========================================================
+   DASHBOARD MAIN
+========================================================= */
+
+.dashboard-main {
+    width: min(1180px, calc(100% - 30px)) !important;
+
+    min-height: auto !important;
+
+    margin: 0 auto !important;
+
+    padding: 42px 0 70px !important;
+}
+
+
+/* =========================================================
+   WELCOME SECTION
+========================================================= */
+
+.dashboard-welcome-section {
+    margin-bottom: 28px;
+}
+
+.dashboard-welcome {
+    display: flex;
+
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(212, 175, 55, 0.07),
+            rgba(255, 255, 255, 0.015)
+        );
+
+    border:
+        1px solid rgba(212, 175, 55, 0.14);
+
+    border-radius: 17px;
+}
+
+.dashboard-eyebrow,
+.section-eyebrow {
+    margin-bottom: 6px;
+
+    color: #d4af37 !important;
+
+    font-size: 8px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 1.2px;
+
+    text-transform: uppercase;
+}
+
+.dashboard-welcome h1 {
+    margin: 0;
+
+    color: #ffffff !important;
+
+    font-size: clamp(24px, 5vw, 34px) !important;
+
+    line-height: 1.15;
+}
+
+.dashboard-welcome h1 span {
+    color: #d4af37 !important;
+}
+
+.dashboard-welcome-text {
+    max-width: 600px;
+
+    margin-top: 8px !important;
+
+    color: #999999 !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.7;
+}
+
+.dashboard-member-badge {
+    flex-shrink: 0;
+
+    min-width: 135px;
+
+    padding: 12px 14px;
+
+    text-align: right;
+
+    background:
+        rgba(212, 175, 55, 0.06);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.15);
+
+    border-radius: 10px;
+}
+
+.member-badge-label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #777777;
+
+    font-size: 7px;
+    font-weight: 800;
+
+    letter-spacing: 0.8px;
+}
+
+.dashboard-member-badge strong {
+    color: #d4af37;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.dashboard-stats-grid {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr)) !important;
+
+    gap: 14px !important;
+
+    margin-bottom: 35px;
+}
+
+.dashboard-stat-card {
+    position: relative;
+
+    min-width: 0;
+
+    padding: 19px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010 !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.14);
+
+    border-radius: 15px;
+
+    transition: all 0.2s ease;
+}
+
+.dashboard-stat-card:hover {
+    border-color:
+        rgba(212, 175, 55, 0.30);
+
+    transform: translateY(-2px);
+}
+
+.dashboard-stat-card .stat-icon {
+    position: static;
+
+    width: 36px;
+    height: 36px;
+
+    margin-bottom: 13px;
+
+    color: #d4af37 !important;
+
+    background:
+        rgba(212, 175, 55, 0.07) !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.13);
+
+    border-radius: 9px;
+}
+
+.dashboard-stat-card .stat-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #777777 !important;
+
+    font-size: 8px !important;
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.dashboard-stat-card .stat-content strong {
+    display: block;
+
+    color: #ffffff !important;
+
+    font-size: 21px;
+
+    font-weight: 800;
+
+    line-height: 1.2;
+}
+
+.dashboard-stat-card .status-badge {
+    display: inline-flex;
+
+    margin-top: 3px;
+
+    color: #35d07f !important;
+
+    font-size: 11px !important;
+}
+
+
+/* =========================================================
+   GENERAL DASHBOARD SECTIONS
+========================================================= */
+
+.dashboard-section {
+    margin-bottom: 42px;
+}
+
+.section-heading {
+    margin-bottom: 17px;
+}
+
+.section-heading h2 {
+    margin: 0;
+
+    color: #ffffff !important;
+
+    font-size: 22px !important;
+}
+
+.section-description {
+    margin-top: 5px !important;
+
+    color: #777777 !important;
+
+    font-size: 9px !important;
+}
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+.profile-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 11px;
+}
+
+.info-card {
+    min-width: 0;
+
+    padding: 16px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.028),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 12px;
+}
+
+.info-label {
+    margin-bottom: 7px;
+
+    color: #666666 !important;
+
+    font-size: 7px !important;
+    font-weight: 800;
+
+    letter-spacing: 0.6px;
+
+    text-transform: uppercase;
+}
+
+.info-value {
+    color: #ffffff !important;
+
+    font-size: 11px !important;
+    font-weight: 700;
+
+    word-break: break-word;
+}
+
+.monarch-uid-value {
+    color: #d4af37 !important;
+
+    font-family:
+        "Courier New",
+        monospace;
+}
+
+.uid-copy-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.uid-copy-btn,
+.small-copy-btn,
+.wallet-copy-btn {
+    flex-shrink: 0;
+
+    color: #d4af37 !important;
+
+    background:
+        rgba(212, 175, 55, 0.07) !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.18) !important;
+
+    border-radius: 7px;
+
+    font-size: 8px;
+
+    cursor: pointer;
+}
+
+.uid-help-text {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #666666 !important;
+
+    font-size: 7px;
+}
+
+
+/* =========================================================
+   ACCOUNT OVERVIEW
+========================================================= */
+
+.overview-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 11px;
+}
+
+.overview-card {
+    padding: 17px;
+
+    background:
+        #101010;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 12px;
+}
+
+.overview-card span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #777777 !important;
+
+    font-size: 8px;
+}
+
+.overview-card strong {
+    color: #ffffff !important;
+
+    font-size: 15px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   PACKAGES
+========================================================= */
+
+#packagesGrid.packages-grid {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr)) !important;
+
+    gap: 15px !important;
+}
+
+#packagesGrid .package-card {
+    min-width: 0;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010 !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.16);
+
+    border-radius: 15px;
+
+    color: #ffffff !important;
+}
+
+#packagesGrid .package-card h3,
+#packagesGrid .package-card .package-title {
+    color: #ffffff !important;
+
+    font-size: 15px !important;
+}
+
+#packagesGrid .package-card p,
+#packagesGrid .package-card .package-subtitle {
+    color: #888888 !important;
+}
+
+#packagesGrid .package-price,
+#packagesGrid .package-price *,
+#packagesGrid .package-price strong,
+#packagesGrid .package-price .amount {
+    color: #d4af37 !important;
+}
+
+#packagesGrid .package-price {
+    margin: 8px 0 15px;
+}
+
+#packagesGrid .package-features li {
+    color: #c0c0c0 !important;
+}
+
+#packagesGrid .package-card button,
+#packagesGrid .package-card .btn,
+#packagesGrid .package-action {
+    width: 100%;
+
+    min-height: 34px;
+
+    margin-top: auto;
+
+    padding: 8px 10px;
+
+    color: #080808 !important;
+
+    background: #d4af37 !important;
+
+    border: 1px solid #d4af37 !important;
+
+    border-radius: 8px;
+
+    font-size: 8px;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+#packagesGrid .package-card button:hover,
+#packagesGrid .package-card .btn:hover {
+    background: #f0d77a !important;
+
+    border-color: #f0d77a !important;
+}
+
+
+/* =========================================================
+   PAYMENT METHODS
+========================================================= */
+
+.payment-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 13px;
+}
+
+.payment-card {
+    position: relative;
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 17px;
+
+    color: #ffffff !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0.008)
+        ) !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.08) !important;
+
+    border-radius: 13px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.payment-card:hover,
+.payment-card.selected {
+    background:
+        rgba(212, 175, 55, 0.07) !important;
+
+    border-color:
+        rgba(212, 175, 55, 0.35) !important;
+}
+
+.payment-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #d4af37 !important;
+
+    background:
+        rgba(212, 175, 55, 0.08);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.13);
+
+    border-radius: 9px;
+}
+
+.payment-card-content {
+    min-width: 0;
+}
+
+.payment-card-content h3 {
+    color: #ffffff !important;
+
+    font-size: 12px !important;
+}
+
+.payment-card-content p {
+    margin-top: 4px;
+
+    color: #888888 !important;
+
+    font-size: 8px !important;
+
+    line-height: 1.5;
+}
+
+.payment-check {
+    margin-left: auto;
+
+    color: #35d07f !important;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   PAYMENT DETAILS
+========================================================= */
+
+.payment-details-panel {
+    margin-top: 15px;
+
+    padding: 18px;
+
+    background:
+        #0d0d0d;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.15);
+
+    border-radius: 14px;
+}
+
+.payment-details-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 17px;
+}
+
+.payment-details-eyebrow {
+    color: #d4af37 !important;
+
+    font-size: 7px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+}
+
+.payment-details-header h3 {
+    margin-top: 4px;
+
+    color: #ffffff !important;
+
+    font-size: 16px;
+}
+
+.payment-close-btn {
+    width: 30px;
+    height: 30px;
+
+    color: #999999 !important;
+
+    background: transparent !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.08) !important;
+
+    border-radius: 7px;
+
+    font-size: 18px;
+
+    cursor: pointer;
+}
+
+.payment-info-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 9px;
+}
+
+.payment-info-item {
+    padding: 12px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.05);
+
+    border-radius: 9px;
+}
+
+.payment-info-item span,
+.payment-amount-row span {
+    color: #777777 !important;
+
+    font-size: 8px;
+}
+
+.payment-info-item strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #ffffff !important;
+
+    font-size: 10px;
+
+    word-break: break-word;
+}
+
+.payment-amount-box {
+    margin-top: 12px;
+
+    padding: 13px;
+
+    background:
+        rgba(212, 175, 55, 0.035);
+
+    border:
+        1px solid rgba(212, 175, 55, 0.12);
+
+    border-radius: 10px;
+}
+
+.payment-amount-row {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 6px 0;
+}
+
+.payment-amount-row strong {
+    color: #ffffff !important;
+
+    font-size: 10px;
+}
+
+.payment-amount-row.total strong {
+    color: #d4af37 !important;
+
+    font-size: 14px;
+}
+
+.payment-amount-divider {
+    height: 1px;
+
+    margin: 5px 0;
+
+    background:
+        rgba(255, 255, 255, 0.07);
+}
+
+.payment-instructions {
+    margin-top: 12px;
+
+    padding: 12px;
+
+    background:
+        rgba(255, 255, 255, 0.02);
+
+    border-radius: 9px;
+}
+
+.payment-instructions-title {
+    margin-bottom: 5px;
+
+    color: #d4af37 !important;
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.payment-instructions p {
+    color: #999999 !important;
+
+    font-size: 9px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   CRYPTO
+========================================================= */
+
+.crypto-network-selector label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #888888 !important;
+
+    font-size: 8px;
+}
+
+.crypto-network-selector select {
+    width: 100%;
+}
+
+.crypto-wallet-box {
+    margin-top: 12px;
+}
+
+.crypto-network-label {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 8px;
+}
+
+.crypto-network-label span {
+    color: #777777 !important;
+
+    font-size: 8px;
+}
+
+.crypto-network-label strong {
+    color: #d4af37 !important;
+
+    font-size: 9px;
+}
+
+.wallet-address-label {
+    margin-bottom: 5px;
+
+    color: #777777 !important;
+
+    font-size: 8px;
+}
+
+.wallet-address-row {
+    display: flex;
+
+    align-items: stretch;
+
+    gap: 7px;
+}
+
+.wallet-address {
+    flex: 1;
+
+    margin-top: 0 !important;
+
+    color: #d4af37 !important;
+
+    background:
+        rgba(212, 175, 55, 0.035) !important;
+
+    border:
+        1px solid rgba(212, 175, 55, 0.12) !important;
+
+    font-size: 9px !important;
+}
+
+.wallet-copy-btn {
+    padding: 8px 10px;
+
+    font-size: 8px;
+}
+
+
+/* =========================================================
+   INVESTMENT REQUEST
+========================================================= */
+
+.investment-request-card {
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.028),
+            rgba(255, 255, 255, 0.008)
+        ),
+        #101010;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 15px;
+}
+
+.request-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.request-summary-item {
+    padding: 12px;
+
+    background:
+        rgba(255, 255, 255, 0.02);
+
+    border:
+        1px solid rgba(255, 255, 255, 0.05);
+
+    border-radius: 9px;
+}
+
+.request-summary-item span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #777777 !important;
+
+    font-size: 8px;
+}
+
+.request-summary-item strong {
+    color: #ffffff !important;
+
+    font-size: 10px;
+}
+
+.receipt-upload-section {
+    margin-top: 5px;
+}
+
+.receipt-heading {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 12px;
+}
+
+.receipt-icon {
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(212, 175, 55, 0.07);
+
+    border-radius: 8px;
+}
+
+.receipt-heading h3 {
+    color: #ffffff !important;
+
+    font-size: 13px;
+}
+
+.receipt-heading p {
+    margin-top: 3px;
+
+    color: #777777 !important;
+
+    font-size: 8px;
+}
+
+.receipt-upload-box {
+    padding: 20px;
+
+    text-align: center;
+
+    background:
+        rgba(255, 255, 255, 0.015);
+
+    border:
+        1px dashed rgba(212, 175, 55, 0.25);
+
+    border-radius: 11px;
+}
+
+.receipt-select-btn {
+    min-height: 35px;
+
+    padding: 8px 13px;
+
+    color: #080808 !important;
+
+    background: #d4af37 !important;
+
+    border: 1px solid #d4af37 !important;
+
+    border-radius: 8px;
+
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.receipt-file-help {
+    margin-top: 8px;
+
+    color: #666666 !important;
+
+    font-size: 8px;
+
+    line-height: 1.6;
+}
+
+.receipt-file-preview {
+    margin-top: 12px;
+
+    padding: 10px;
+
+    background:
+        rgba(255, 255, 255, 0.025);
+
+    border-radius: 8px;
+}
+
+
+/* =========================================================
+   EARNINGS
+========================================================= */
+
+.earnings-card,
+.earnings-grid,
+.performance-card {
+    color: #ffffff;
+}
+
+.earnings-card strong,
+.earnings-grid strong {
+    color: #ffffff !important;
+}
+
+.earnings-value,
+.profit-value {
+    color: #d4af37 !important;
+}
+
+
+/* =========================================================
+   INVESTMENT HISTORY
+========================================================= */
+
+#history {
+    overflow: hidden;
+}
+
+.investment-history-table,
+.history-table {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.investment-history-table table,
+.history-table table {
+    width: 100%;
+
+    min-width: 650px;
+
+    border-collapse: collapse;
+}
+
+.investment-history-table th,
+.history-table th {
+    padding: 11px;
+
+    color: #777777 !important;
+
+    background: #0b0b0b;
+
+    font-size: 7px;
+
+    text-align: left;
+
+    text-transform: uppercase;
+}
+
+.investment-history-table td,
+.history-table td {
+    padding: 11px;
+
+    color: #c0c0c0 !important;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.05);
+
+    font-size: 8px;
+}
+
+.investment-history-table td strong,
+.history-table td strong {
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.status-success {
+    color: #35d07f !important;
+
+    background:
+        rgba(53, 208, 127, 0.09) !important;
+
+    border:
+        1px solid rgba(53, 208, 127, 0.17) !important;
+}
+
+.status-danger {
+    color: #ff5c5c !important;
+
+    background:
+        rgba(255, 92, 92, 0.09) !important;
+
+    border:
+        1px solid rgba(255, 92, 92, 0.17) !important;
+}
+
+.status-pending {
+    color: #f3b33d !important;
+
+    background:
+        rgba(243, 179, 61, 0.09) !important;
+
+    border:
+        1px solid rgba(243, 179, 61, 0.17) !important;
+}
+
+.status-muted {
+    color: #888888 !important;
+
+    background:
+        rgba(255, 255, 255, 0.05) !important;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+
+/* =========================================================
+   MOBILE — DASHBOARD
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .dashboard-header-inner {
+        width: calc(100% - 24px);
+
+        min-height: 62px;
+    }
+
+    .dashboard-nav {
+        display: none;
+    }
+
+    .dashboard-main {
+        width: calc(100% - 24px) !important;
+
+        padding: 25px 0 55px !important;
+    }
+
+    .dashboard-stats-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .profile-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .overview-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    #packagesGrid.packages-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .payment-info-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .dashboard-header-inner {
+        gap: 8px;
+    }
+
+    .dashboard-brand a {
+        font-size: 14px;
+    }
+
+    .dashboard-actions {
+        gap: 5px;
+    }
+
+    .dashboard-refresh-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .dashboard-logout-btn {
+        min-height: 34px;
+
+        padding: 7px 10px;
+    }
+
+    .dashboard-welcome {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        padding: 18px;
+    }
+
+    .dashboard-member-badge {
+        width: 100%;
+
+        text-align: left;
+    }
+
+    .dashboard-stats-grid {
+        gap: 9px !important;
+    }
+
+    .dashboard-stat-card {
+        padding: 14px;
+    }
+
+    .dashboard-stat-card .stat-content strong {
+        font-size: 17px;
+    }
+
+    .profile-grid,
+    .overview-grid,
+    .payment-grid,
+    .request-summary,
+    .payment-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #packagesGrid.packages-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .dashboard-section {
+        margin-bottom: 32px;
+    }
+
+    .section-heading h2 {
+        font-size: 20px !important;
+    }
+
+    .investment-request-card {
+        padding: 15px;
+    }
+
+    .wallet-address-row {
+        flex-direction: column;
+    }
+
+    .wallet-copy-btn {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 400px) {
+
+    .dashboard-main {
+        width: calc(100% - 18px) !important;
+    }
+
+    .dashboard-header-inner {
+        width: calc(100% - 18px);
+    }
+
+    .dashboard-stat-card {
+        padding: 12px;
+    }
+
+    .dashboard-stat-card .stat-content strong {
+        font-size: 15px;
+    }
+
+    .package-card {
+        padding: 17px !important;
+    }
+}
+
+
+/* =========================================================
+   END DASHBOARD COMPATIBILITY PATCH
+========================================================= */
