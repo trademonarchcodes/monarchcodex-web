@@ -5390,3 +5390,588 @@
 
         initializeDashboardUI();
     }
+    async function refreshDashboardData() {
+
+        if (!currentUser) {
+            return;
+        }
+
+        try {
+
+            await Promise.all([
+                loadProfile(currentUser.id),
+                loadPackages(),
+                loadPaymentDetails(),
+                loadInvestmentHistory(
+                    currentUser.id
+                ),
+                loadEarnings(
+                    currentUser.id
+                )
+            ]);
+
+            updateInvestmentFormState();
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard refresh error:",
+                error
+            );
+
+            showDashboardMessage(
+                "Some dashboard information could not be refreshed.",
+                "error"
+            );
+        }
+    }
+
+
+    async function refreshInvestmentHistory() {
+
+        if (!currentUser) {
+            return;
+        }
+
+        await loadInvestmentHistory(
+            currentUser.id
+        );
+    }
+
+
+    async function refreshEarnings() {
+
+        if (!currentUser) {
+            return;
+        }
+
+        await loadEarnings(
+            currentUser.id
+        );
+    }
+
+
+    async function refreshProfile() {
+
+        if (!currentUser) {
+            return;
+        }
+
+        await loadProfile(
+            currentUser.id
+        );
+    }
+
+
+    function getSelectedPackageAmount() {
+
+        if (!selectedPackage) {
+            return 0;
+        }
+
+        return Number(
+            selectedPackage.amount || 0
+        );
+    }
+
+
+    function getSelectedPaymentAmount() {
+
+        if (!selectedPaymentDetails) {
+            return 0;
+        }
+
+        return Number(
+            selectedPaymentDetails.total_amount ||
+            selectedPaymentDetails.minimum_amount ||
+            0
+        );
+    }
+
+
+    function getSelectedPaymentCurrency() {
+
+        if (!selectedPaymentDetails) {
+
+            return selectedPaymentMethod === "bank"
+                ? "NGN"
+                : "USD";
+        }
+
+        return (
+            selectedPaymentDetails.currency ||
+            (
+                selectedPaymentMethod === "bank"
+                    ? "NGN"
+                    : "USD"
+            )
+        );
+    }
+
+
+    function getSelectedPaymentSummary() {
+
+        if (!selectedPaymentDetails) {
+            return null;
+        }
+
+        return {
+            method:
+                selectedPaymentMethod,
+
+            network:
+                selectedCryptoNetwork ||
+                selectedPaymentDetails.crypto_network ||
+                null,
+
+            amount:
+                getSelectedPaymentAmount(),
+
+            currency:
+                getSelectedPaymentCurrency(),
+
+            wallet:
+                selectedPaymentDetails.wallet_address ||
+                null,
+
+            bank:
+                selectedPaymentDetails.bank_name ||
+                null
+        };
+    }
+
+
+    function updatePaymentSummary() {
+
+        const summary =
+            getSelectedPaymentSummary();
+
+
+        const summaryContainer =
+            document.getElementById(
+                "paymentSummary"
+            );
+
+
+        if (!summaryContainer) {
+            return;
+        }
+
+
+        if (!summary) {
+
+            summaryContainer.style.display =
+                "none";
+
+            summaryContainer.innerHTML =
+                "";
+
+            return;
+        }
+
+
+        const formattedAmount =
+            formatPaymentAmount(
+                summary.amount,
+                summary.currency
+            );
+
+
+        const methodLabel =
+            formatPaymentMethod(
+                summary.method
+            );
+
+
+        const networkText =
+            summary.method === "crypto"
+                ? `
+                    <div class="payment-summary-row">
+                        <span>Network</span>
+                        <strong>
+                            ${escapeHtml(
+                                summary.network ||
+                                "—"
+                            )}
+                        </strong>
+                    </div>
+                `
+                : "";
+
+
+        summaryContainer.innerHTML = `
+            <div class="payment-summary-title">
+                Payment Summary
+            </div>
+
+            <div class="payment-summary-row">
+                <span>Method</span>
+                <strong>
+                    ${escapeHtml(
+                        methodLabel
+                    )}
+                </strong>
+            </div>
+
+            ${networkText}
+
+            <div class="payment-summary-row">
+                <span>Payment Amount</span>
+                <strong>
+                    ${escapeHtml(
+                        formattedAmount
+                    )}
+                </strong>
+            </div>
+        `;
+
+
+        summaryContainer.style.display =
+            "block";
+    }
+
+
+    function validateInvestmentBeforeSubmit() {
+
+        const errors = [];
+
+
+        if (!currentUser) {
+            errors.push(
+                "Your session has expired."
+            );
+        }
+
+
+        if (!selectedPackage) {
+            errors.push(
+                "Select an investment package."
+            );
+        }
+
+
+        if (!selectedPaymentMethod) {
+            errors.push(
+                "Select a payment method."
+            );
+        }
+
+
+        if (
+            selectedPaymentMethod ===
+                "crypto" &&
+            !selectedCryptoNetwork
+        ) {
+            errors.push(
+                "Select a crypto network."
+            );
+        }
+
+
+        if (!selectedPaymentDetails) {
+            errors.push(
+                "Payment details are unavailable."
+            );
+        }
+
+
+        if (!selectedReceiptFile) {
+            errors.push(
+                "Upload your payment receipt."
+            );
+        }
+
+
+        if (
+            selectedReceiptFile &&
+            selectedReceiptFile.size >
+                MAX_RECEIPT_SIZE
+        ) {
+            errors.push(
+                "Your receipt is larger than 10MB."
+            );
+        }
+
+
+        if (
+            selectedReceiptFile &&
+            !ALLOWED_RECEIPT_TYPES.includes(
+                selectedReceiptFile.type
+            )
+        ) {
+            errors.push(
+                "Your receipt file format is not supported."
+            );
+        }
+
+
+        if (
+            selectedReceiptFile &&
+            !isReceiptUploaded
+        ) {
+            errors.push(
+                "Upload the selected receipt before submitting."
+            );
+        }
+
+
+        return {
+            valid:
+                errors.length === 0,
+
+            errors
+        };
+    }
+
+
+    function showInvestmentValidationErrors() {
+
+        const validation =
+            validateInvestmentBeforeSubmit();
+
+
+        if (validation.valid) {
+            return true;
+        }
+
+
+        const message =
+            validation.errors.join(" ");
+
+
+        const validationMessage =
+            document.getElementById(
+                "investmentValidationMessage"
+            );
+
+
+        if (validationMessage) {
+
+            validationMessage.textContent =
+                message;
+
+            validationMessage.className =
+                "investment-validation-message error";
+        }
+
+
+        showDashboardMessage(
+            message,
+            "error"
+        );
+
+
+        return false;
+    }
+
+
+    function setupFormValidation() {
+
+        const receiptInput =
+            document.getElementById(
+                "receiptFile"
+            );
+
+
+        if (receiptInput) {
+
+            receiptInput.addEventListener(
+                "change",
+                () => {
+
+                    updateReceiptPreview();
+
+                    updateInvestmentFormState();
+
+                }
+            );
+        }
+
+
+        const investmentAmount =
+            document.getElementById(
+                "investmentAmount"
+            );
+
+
+        if (investmentAmount) {
+
+            investmentAmount.addEventListener(
+                "input",
+                () => {
+
+                    /*
+                     * The package controls the investment
+                     * amount. Keep the field synchronized
+                     * with the selected package.
+                     */
+
+                    if (selectedPackage) {
+
+                        const amount =
+                            Number(
+                                selectedPackage.amount ||
+                                0
+                            );
+
+                        investmentAmount.value =
+                            amount;
+                    }
+
+                }
+            );
+        }
+    }
+
+
+    function setupVisibilityRefresh() {
+
+        let wasHidden =
+            document.hidden;
+
+
+        document.addEventListener(
+            "visibilitychange",
+            async () => {
+
+                if (
+                    !document.hidden &&
+                    wasHidden
+                ) {
+
+                    await refreshDashboardData();
+
+                }
+
+
+                wasHidden =
+                    document.hidden;
+            }
+        );
+    }
+
+
+    function setupOnlineStatus() {
+
+        window.addEventListener(
+            "online",
+            () => {
+
+                showDashboardMessage(
+                    "Internet connection restored.",
+                    "success"
+                );
+
+            }
+        );
+
+
+        window.addEventListener(
+            "offline",
+            () => {
+
+                showDashboardMessage(
+                    "You are currently offline. Some dashboard features may not work.",
+                    "error"
+                );
+
+            }
+        );
+    }
+
+
+    function setupBeforeUnloadProtection() {
+
+        window.addEventListener(
+            "beforeunload",
+            event => {
+
+                if (
+                    isSubmittingInvestment
+                ) {
+
+                    event.preventDefault();
+
+                    event.returnValue =
+                        "";
+
+                    return "";
+                }
+            }
+        );
+    }
+
+
+    function initializeDashboardServices() {
+
+        setupFormValidation();
+
+        setupVisibilityRefresh();
+
+        setupOnlineStatus();
+
+        setupBeforeUnloadProtection();
+
+        updatePaymentSummary();
+    }
+
+
+    /*
+     * Initialize the additional dashboard
+     * services after the main UI has loaded.
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeDashboardServices
+        );
+
+    } else {
+
+        initializeDashboardServices();
+    }
+
+
+    /*
+     * Keep the payment summary synchronized
+     * whenever the payment method changes.
+     */
+
+    const originalSelectPaymentMethod =
+        selectPaymentMethod;
+
+
+    selectPaymentMethod =
+        function(method) {
+
+            originalSelectPaymentMethod(
+                method
+            );
+
+            updatePaymentSummary();
+        };
+
+
+    /*
+     * Keep the payment summary synchronized
+     * whenever the crypto network changes.
+     */
+
+    const originalSelectCryptoNetwork =
+        selectCryptoNetwork;
+
+
+    selectCryptoNetwork =
+        function(network) {
+
+            originalSelectCryptoNetwork(
+                network
+            );
+
+            updatePaymentSummary();
+        };
