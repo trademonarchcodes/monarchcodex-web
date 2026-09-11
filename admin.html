@@ -2252,3 +2252,561 @@
     window.copyText = copyText;
 
 </script>
+<script>
+    /* =========================================================
+       MONARCH CODEX — ADMIN PANEL
+       PART 4/12 — LOAD MEMBERS & PACKAGES
+       ========================================================= */
+
+
+    /* =========================================================
+       LOAD ALL MEMBERS
+       ========================================================= */
+
+    async function loadProfiles() {
+
+        if (!membersTableBody) {
+            return;
+        }
+
+        membersTableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="loading-cell">
+                    Loading members...
+                </td>
+            </tr>
+        `;
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("profiles")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            profilesData = Array.isArray(data)
+                ? data
+                : [];
+
+            updateMemberStatistics();
+
+            renderMembers();
+
+            populateEarningMembers();
+
+        } catch (error) {
+
+            console.error(
+                "Error loading profiles:",
+                error
+            );
+
+            profilesData = [];
+
+            if (membersTableBody) {
+                membersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-cell">
+                            Unable to load members.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            showAdminMessage(
+                "Unable to load member information: " +
+                getDatabaseErrorMessage(error),
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       UPDATE MEMBER STATISTICS
+       ========================================================= */
+
+    function updateMemberStatistics() {
+
+        const totalMembers =
+            profilesData.length;
+
+        const pendingMembers =
+            profilesData.filter(profile => {
+
+                const status =
+                    String(profile.status || "")
+                        .trim()
+                        .toLowerCase();
+
+                return status === "pending";
+
+            }).length;
+
+        if (totalMembersEl) {
+            totalMembersEl.textContent =
+                totalMembers.toLocaleString("en-US");
+        }
+
+        if (pendingMembersEl) {
+            pendingMembersEl.textContent =
+                pendingMembers.toLocaleString("en-US");
+        }
+    }
+
+
+    /* =========================================================
+       GET MEMBER BY USER ID
+       ========================================================= */
+
+    function getMemberById(userId) {
+
+        if (!userId) {
+            return null;
+        }
+
+        return profilesData.find(
+            profile =>
+                String(profile.id) === String(userId)
+        ) || null;
+    }
+
+
+    /* =========================================================
+       GET MEMBER NAME
+       ========================================================= */
+
+    function getMemberName(userId) {
+
+        const member =
+            getMemberById(userId);
+
+        if (!member) {
+            return "Unknown Member";
+        }
+
+        return (
+            member.full_name ||
+            member.name ||
+            member.email ||
+            "Unknown Member"
+        );
+    }
+
+
+    /* =========================================================
+       GET MEMBER UID
+       ========================================================= */
+
+    function getMemberUid(userId) {
+
+        const member =
+            getMemberById(userId);
+
+        if (!member) {
+            return "—";
+        }
+
+        return member.uid || "—";
+    }
+
+
+    /* =========================================================
+       GET MEMBER PHONE
+       ========================================================= */
+
+    function getMemberPhone(userId) {
+
+        const member =
+            getMemberById(userId);
+
+        if (!member) {
+            return "—";
+        }
+
+        return (
+            member.phone ||
+            member.phone_number ||
+            "—"
+        );
+    }
+
+
+    /* =========================================================
+       RENDER MEMBERS TABLE
+       ========================================================= */
+
+    function renderMembers() {
+
+        if (!membersTableBody) {
+            return;
+        }
+
+        if (!profilesData.length) {
+
+            membersTableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-cell">
+                        No members found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        membersTableBody.innerHTML =
+            profilesData.map(profile => {
+
+                const fullName =
+                    profile.full_name ||
+                    profile.name ||
+                    profile.email ||
+                    "Unnamed Member";
+
+                const uid =
+                    profile.uid || "—";
+
+                const phone =
+                    profile.phone ||
+                    profile.phone_number ||
+                    "—";
+
+                const role =
+                    profile.role ||
+                    "member";
+
+                const status =
+                    normalizeStatus(
+                        profile.status || "pending"
+                    );
+
+                const joined =
+                    formatDate(
+                        profile.created_at
+                    );
+
+                const statusClass =
+                    getStatusClass(status);
+
+                const uidButton =
+                    uid !== "—"
+                        ? `
+                            <button
+                                type="button"
+                                class="uid-copy-btn"
+                                onclick="copyMemberUid(
+                                    '${escapeHtml(uid)}',
+                                    this
+                                )"
+                                title="Copy Monarch UID"
+                            >
+                                Copy
+                            </button>
+                          `
+                        : "";
+
+                return `
+                    <tr>
+
+                        <td>
+                            <div class="member-name">
+                                ${escapeHtml(fullName)}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="uid-cell">
+                                <span class="monarch-uid">
+                                    ${escapeHtml(uid)}
+                                </span>
+
+                                ${uidButton}
+                            </div>
+                        </td>
+
+                        <td>
+                            ${escapeHtml(phone)}
+                        </td>
+
+                        <td>
+                            <span class="role-badge">
+                                ${escapeHtml(role)}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                ${escapeHtml(
+                                    getStatusLabel(status)
+                                )}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${escapeHtml(joined)}
+                        </td>
+
+                        <td>
+                            <div class="table-actions">
+
+                                <button
+                                    type="button"
+                                    class="action-btn"
+                                    onclick="viewMemberDetails(
+                                        '${escapeHtml(profile.id)}'
+                                    )"
+                                >
+                                    View
+                                </button>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                `;
+
+            }).join("");
+    }
+
+
+    /* =========================================================
+       MEMBER DETAILS
+       ========================================================= */
+
+    function viewMemberDetails(userId) {
+
+        const member =
+            getMemberById(userId);
+
+        if (!member) {
+
+            showAdminMessage(
+                "Member information could not be found.",
+                "error"
+            );
+
+            return;
+        }
+
+        const name =
+            member.full_name ||
+            member.name ||
+            member.email ||
+            "Unnamed Member";
+
+        const uid =
+            member.uid || "—";
+
+        const phone =
+            member.phone ||
+            member.phone_number ||
+            "—";
+
+        const email =
+            member.email ||
+            "—";
+
+        const role =
+            member.role ||
+            "member";
+
+        const status =
+            member.status ||
+            "pending";
+
+        const created =
+            formatDate(member.created_at);
+
+        showAdminMessage(
+            `${name} | UID: ${uid} | Phone: ${phone} | ` +
+            `Email: ${email} | Role: ${role} | ` +
+            `Status: ${getStatusLabel(status)} | ` +
+            `Joined: ${created}`,
+            "info"
+        );
+    }
+
+
+    /* =========================================================
+       LOAD PACKAGES
+       ========================================================= */
+
+    async function loadPackages() {
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("packages")
+                .select("*")
+                .order("amount", {
+                    ascending: true
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            packagesData = Array.isArray(data)
+                ? data
+                : [];
+
+        } catch (error) {
+
+            console.error(
+                "Error loading packages:",
+                error
+            );
+
+            packagesData = [];
+
+            showAdminMessage(
+                "Unable to load packages: " +
+                getDatabaseErrorMessage(error),
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       GET PACKAGE BY ID
+       ========================================================= */
+
+    function getPackageById(packageId) {
+
+        if (!packageId) {
+            return null;
+        }
+
+        return packagesData.find(
+            pkg =>
+                String(pkg.id) === String(packageId)
+        ) || null;
+    }
+
+
+    /* =========================================================
+       GET PACKAGE NAME
+       ========================================================= */
+
+    function getPackageName(packageId) {
+
+        const pkg =
+            getPackageById(packageId);
+
+        if (!pkg) {
+            return "Unknown Package";
+        }
+
+        return (
+            pkg.name ||
+            pkg.title ||
+            `Package ${pkg.id}`
+        );
+    }
+
+
+    /* =========================================================
+       GET PACKAGE AMOUNT
+       ========================================================= */
+
+    function getPackageAmount(packageId) {
+
+        const pkg =
+            getPackageById(packageId);
+
+        if (!pkg) {
+            return 0;
+        }
+
+        return Number(
+            pkg.amount ||
+            pkg.price ||
+            0
+        );
+    }
+
+
+    /* =========================================================
+       POPULATE EARNING MEMBER SELECT
+       ========================================================= */
+
+    function populateEarningMembers() {
+
+        if (!earningMemberEl) {
+            return;
+        }
+
+        const members =
+            profilesData.filter(profile => {
+
+                const role =
+                    String(profile.role || "")
+                        .trim()
+                        .toLowerCase();
+
+                return role !== "admin";
+
+            });
+
+        if (!members.length) {
+
+            earningMemberEl.innerHTML = `
+                <option value="">
+                    No members available
+                </option>
+            `;
+
+            return;
+        }
+
+        earningMemberEl.innerHTML = `
+            <option value="">
+                Select member
+            </option>
+
+            ${members.map(member => {
+
+                const name =
+                    member.full_name ||
+                    member.name ||
+                    member.email ||
+                    "Unnamed Member";
+
+                const uid =
+                    member.uid ||
+                    "NO UID";
+
+                return `
+                    <option value="${escapeHtml(member.id)}">
+                        ${escapeHtml(name)}
+                        — ${escapeHtml(uid)}
+                    </option>
+                `;
+
+            }).join("")}
+        `;
+    }
+
+
+    /* =========================================================
+       GLOBAL EXPORTS
+       ========================================================= */
+
+    window.viewMemberDetails =
+        viewMemberDetails;
+
+</script>
