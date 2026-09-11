@@ -6433,3 +6433,417 @@ window.filterInvestments =
 
 window.filterReceiptStatus =
     filterReceiptStatus;
+/* =========================================================
+   FINAL ADMIN UTILITIES
+   ========================================================= */
+
+/*
+ * Safely reload the page while preserving the current
+ * authenticated Supabase session.
+ */
+function hardRefreshAdmin() {
+    window.location.reload();
+}
+
+
+/*
+ * Scroll to the top of the admin dashboard.
+ */
+function scrollAdminToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/*
+ * Scroll to the investment requests section.
+ */
+function scrollToInvestments() {
+
+    const section =
+        document.getElementById(
+            "investmentRequestsSection"
+        );
+
+    if (section) {
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        return;
+    }
+
+    const table =
+        document.getElementById(
+            "investmentRequestsBody"
+        );
+
+    if (table) {
+        table.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+}
+
+
+/*
+ * Scroll to the members section.
+ */
+function scrollToMembers() {
+
+    const section =
+        document.getElementById(
+            "membersSection"
+        );
+
+    if (section) {
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        return;
+    }
+
+    const table =
+        document.getElementById(
+            "membersTableBody"
+        );
+
+    if (table) {
+        table.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+}
+
+
+/*
+ * Scroll to earnings.
+ */
+function scrollToEarnings() {
+
+    const section =
+        document.getElementById(
+            "earningsSection"
+        );
+
+    if (section) {
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        return;
+    }
+
+    const table =
+        document.getElementById(
+            "earningsTableBody"
+        );
+
+    if (table) {
+        table.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+}
+
+
+/* =========================================================
+   SAFE NUMBER HELPERS
+   ========================================================= */
+
+function safeNumber(value, fallback = 0) {
+
+    const number =
+        Number(value);
+
+    return Number.isFinite(number)
+        ? number
+        : fallback;
+}
+
+
+function safeInteger(value, fallback = 0) {
+
+    const number =
+        parseInt(value, 10);
+
+    return Number.isFinite(number)
+        ? number
+        : fallback;
+}
+
+
+/* =========================================================
+   SAFE DATE HELPERS
+   ========================================================= */
+
+function isValidDate(value) {
+
+    if (!value) {
+        return false;
+    }
+
+    const date =
+        new Date(value);
+
+    return !Number.isNaN(
+        date.getTime()
+    );
+}
+
+
+function formatDateTime(value) {
+
+    if (!isValidDate(value)) {
+        return "—";
+    }
+
+    return new Intl.DateTimeFormat(
+        "en-NG",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    ).format(new Date(value));
+}
+
+
+/* =========================================================
+   DATABASE ERROR LOGGER
+   ========================================================= */
+
+function logAdminDatabaseError(
+    operation,
+    error
+) {
+
+    console.error(
+        `[MONARCH CODEX ADMIN] ${operation}`,
+        error
+    );
+}
+
+
+/* =========================================================
+   RECEIPT ERROR MESSAGE
+   ========================================================= */
+
+function getReceiptPermissionMessage(error) {
+
+    if (!error) {
+        return "Unable to access payment receipt.";
+    }
+
+    const message =
+        String(
+            error.message ||
+            error.error_description ||
+            error.details ||
+            ""
+        ).toLowerCase();
+
+
+    if (
+        message.includes("permission") ||
+        message.includes("policy") ||
+        message.includes("rls") ||
+        message.includes("row-level")
+    ) {
+
+        return (
+            "Receipt access was blocked by database " +
+            "permissions. Check the admin RLS/storage policies."
+        );
+    }
+
+
+    if (
+        message.includes("bucket") ||
+        message.includes("storage")
+    ) {
+
+        return (
+            "Payment receipt storage could not be accessed. " +
+            "Check the payment-receipts storage bucket and policies."
+        );
+    }
+
+
+    return (
+        error.message ||
+        "Unable to access payment receipt."
+    );
+}
+
+
+/* =========================================================
+   EMPTY STATE HELPERS
+   ========================================================= */
+
+function renderEmptyTableRow(
+    tableBody,
+    columnCount,
+    message
+) {
+
+    if (!tableBody) {
+        return;
+    }
+
+    tableBody.innerHTML = `
+        <tr>
+            <td
+                colspan="${columnCount}"
+                style="
+                    text-align:center;
+                    padding:30px 20px;
+                    color:#999;
+                "
+            >
+                ${escapeHtml(message)}
+            </td>
+        </tr>
+    `;
+}
+
+
+/* =========================================================
+   CONNECTION TEST
+   ========================================================= */
+
+async function testAdminConnection() {
+
+    try {
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("profiles")
+            .select("id")
+            .limit(1);
+
+        if (error) {
+            throw error;
+        }
+
+        console.log(
+            "Monarch Codex database connection: OK"
+        );
+
+        return true;
+
+    } catch (error) {
+
+        logAdminDatabaseError(
+            "Database connection test",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   ADMIN PAGE DEBUG INFORMATION
+   ========================================================= */
+
+function getAdminDebugInfo() {
+
+    return {
+        adminUser:
+            currentAdmin
+                ? currentAdmin.id
+                : null,
+
+        profiles:
+            profilesData.length,
+
+        packages:
+            packagesData.length,
+
+        investments:
+            investmentsData.length,
+
+        receipts:
+            receiptsData.length,
+
+        earnings:
+            earningsData.length,
+
+        confirmedInvestments:
+            getConfirmedInvestments().length,
+
+        pendingInvestments:
+            getPendingInvestments().length,
+
+        rejectedInvestments:
+            getRejectedInvestments().length
+    };
+}
+
+
+/* =========================================================
+   GLOBAL EXPORTS
+   ========================================================= */
+
+window.hardRefreshAdmin =
+    hardRefreshAdmin;
+
+window.scrollAdminToTop =
+    scrollAdminToTop;
+
+window.scrollToInvestments =
+    scrollToInvestments;
+
+window.scrollToMembers =
+    scrollToMembers;
+
+window.scrollToEarnings =
+    scrollToEarnings;
+
+window.testAdminConnection =
+    testAdminConnection;
+
+window.getAdminDebugInfo =
+    getAdminDebugInfo;
+
+window.formatDateTime =
+    formatDateTime;
+
+
+/* =========================================================
+   FINAL PAGE LOAD LOG
+   ========================================================= */
+
+console.log(
+    "%cMONARCH CODEX ADMIN",
+    "font-size:20px;font-weight:bold;"
+);
+
+console.log(
+    "Admin interface script loaded."
+);
+
+console.log(
+    "Receipt system: payment-receipts"
+);
+
+console.log(
+    "Investment confirmation status: confirmed"
+);
+
+</script>
+
+</body>
+</html>
