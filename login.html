@@ -15,356 +15,611 @@
 
 <body>
 
-    <header class="site-header">
-        <div class="container nav-container">
+<header class="site-header">
 
-            <a href="index.html" class="logo">
-                MONARCH <span>CODEX</span>
-            </a>
+    <div class="container nav-container">
 
-            <nav class="main-nav">
-                <a href="index.html">Home</a>
-                <a href="register.html">Register</a>
-            </nav>
+        <a href="index.html" class="logo">
+            MONARCH <span>CODEX</span>
+        </a>
 
-        </div>
-    </header>
+        <nav class="main-nav">
+            <a href="index.html">Home</a>
+            <a href="register.html">Register</a>
+        </nav>
 
+    </div>
 
-    <main class="auth-page">
-
-        <div class="auth-card">
-
-            <div class="auth-header">
-
-                <p class="eyebrow">
-                    MONARCH CODEX
-                </p>
-
-                <h1>
-                    Welcome Back
-                </h1>
-
-                <p>
-                    Login to access your Monarch Codex account.
-                </p>
-
-            </div>
+</header>
 
 
-            <form id="loginForm">
+<main class="auth-page">
 
-                <div class="form-group">
+    <div class="auth-card">
 
-                    <label for="email">
-                        Email Address
-                    </label>
+        <div class="auth-header">
 
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                        required
-                    >
+            <p class="eyebrow">
+                MONARCH CODEX
+            </p>
 
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary auth-submit"
-                    id="loginButton"
-                >
-                    Login
-                </button>
-
-            </form>
-
-
-            <div
-                id="loginMessage"
-                class="form-message"
-                style="margin-top: 15px; text-align: center;"
-            ></div>
-
-
-            <div class="auth-footer">
-
-                <p>
-                    Don't have an account?
-                    <a href="register.html">
-                        Create an account
-                    </a>
-                </p>
-
-                <p>
-                    <a href="index.html">
-                        ← Back to Monarch Codex
-                    </a>
-                </p>
-
-            </div>
-
-        </div>
-
-    </main>
-
-
-    <footer class="site-footer">
-
-        <div class="container">
+            <h1>
+                Welcome Back
+            </h1>
 
             <p>
-                ©
-                <span id="currentYear"></span>
-                Monarch Codex.
-                All rights reserved.
+                Login to access your Monarch Codex account.
             </p>
 
         </div>
 
-    </footer>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
 
 
-    <!-- SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
 
 
-    <!-- LOGIN SYSTEM -->
-    <script>
+            <button
+                type="submit"
+                class="btn btn-primary auth-submit"
+                id="loginButton"
+            >
+                Login
+            </button>
 
-        const SUPABASE_URL =
-            "https://avaworleivncevaoqeny.supabase.co";
-
-        const SUPABASE_KEY =
-            "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+        </form>
 
 
-        const supabaseClient =
+        <div
+            id="loginMessage"
+            class="form-message"
+            style="margin-top: 15px; text-align: center;"
+        ></div>
+
+
+        <div class="auth-footer">
+
+            <p>
+                Don't have an account?
+
+                <a href="register.html">
+                    Create an account
+                </a>
+            </p>
+
+
+            <p>
+
+                <a href="index.html">
+                    ← Back to Monarch Codex
+                </a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div class="container">
+
+        <p>
+
+            ©
+
+            <span id="currentYear"></span>
+
+            Monarch Codex.
+            All rights reserved.
+
+        </p>
+
+    </div>
+
+</footer>
+
+
+<!-- SUPABASE -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+const SUPABASE_URL =
+    "https://avaworleivncevaoqeny.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+
+let supabaseClient = null;
+
+
+const loginForm =
+    document.getElementById("loginForm");
+
+const loginButton =
+    document.getElementById("loginButton");
+
+const loginMessage =
+    document.getElementById("loginMessage");
+
+
+function showMessage(message, type = "error") {
+
+    loginMessage.textContent = message;
+
+    if (type === "success") {
+
+        loginMessage.style.color =
+            "#D4AF37";
+
+    } else if (type === "info") {
+
+        loginMessage.style.color =
+            "#ffffff";
+
+    } else {
+
+        loginMessage.style.color =
+            "#ff6b6b";
+
+    }
+
+}
+
+
+function setLoginLoading(isLoading) {
+
+    loginButton.disabled = isLoading;
+
+    loginButton.textContent =
+        isLoading
+            ? "Logging in..."
+            : "Login";
+
+}
+
+
+function initializeSupabase() {
+
+    try {
+
+        if (
+            !window.supabase ||
+            !window.supabase.createClient
+        ) {
+
+            throw new Error(
+                "Supabase library failed to load."
+            );
+
+        }
+
+
+        supabaseClient =
             window.supabase.createClient(
                 SUPABASE_URL,
                 SUPABASE_KEY
             );
 
 
-        const loginForm =
-            document.getElementById("loginForm");
+        return true;
 
-        const loginButton =
-            document.getElementById("loginButton");
+    } catch (error) {
 
-        const loginMessage =
-            document.getElementById("loginMessage");
+        console.error(
+            "SUPABASE INITIALIZATION ERROR:",
+            error
+        );
+
+        showMessage(
+            "Unable to start the login system. Please refresh the page.",
+            "error"
+        );
+
+        return false;
+
+    }
+
+}
 
 
-        function showMessage(message, success = false) {
+async function checkSupabaseConnection() {
 
-            loginMessage.textContent = message;
+    try {
 
-            if (success) {
-                loginMessage.style.color = "#D4AF37";
-            } else {
-                loginMessage.style.color = "#ff6b6b";
-            }
+        const controller =
+            new AbortController();
+
+
+        const timeout =
+            setTimeout(
+                () => controller.abort(),
+                10000
+            );
+
+
+        const response =
+            await fetch(
+                SUPABASE_URL + "/auth/v1/health",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "apikey": SUPABASE_KEY
+                    },
+
+                    signal:
+                        controller.signal
+                }
+            );
+
+
+        clearTimeout(timeout);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Supabase connection returned status " +
+                response.status
+            );
 
         }
 
 
-        loginForm.addEventListener(
-            "submit",
-            async function(event) {
+        return true;
 
-                event.preventDefault();
+    } catch (error) {
 
-                const email =
-                    document
-                        .getElementById("email")
-                        .value
-                        .trim();
+        console.error(
+            "SUPABASE CONNECTION ERROR:",
+            error
+        );
 
-                const password =
-                    document
-                        .getElementById("password")
-                        .value;
+        return false;
+
+    }
+
+}
 
 
-                if (!email || !password) {
+async function loginUser(
+    email,
+    password
+) {
 
-                    showMessage(
-                        "Please enter your email and password."
-                    );
+    if (!supabaseClient) {
 
-                    return;
-                }
+        const initialized =
+            initializeSupabase();
 
+        if (!initialized) {
 
-                loginButton.disabled = true;
+            return;
 
-                loginButton.textContent =
-                    "Logging in...";
+        }
 
-                showMessage(
-                    "Connecting to Monarch Codex...",
-                    true
-                );
+    }
 
 
-                try {
-
-                    const {
-                        data,
-                        error
-                    } =
-                        await supabaseClient.auth.signInWithPassword({
-                            email: email,
-                            password: password
-                        });
+    showMessage(
+        "Checking connection...",
+        "info"
+    );
 
 
-                    if (error) {
-
-                        console.error(
-                            "LOGIN ERROR:",
-                            error
-                        );
-
-                        showMessage(
-                            error.message
-                        );
-
-                        loginButton.disabled = false;
-
-                        loginButton.textContent =
-                            "Login";
-
-                        return;
-                    }
+    const connected =
+        await checkSupabaseConnection();
 
 
-                    if (!data.user) {
+    if (!connected) {
 
-                        showMessage(
-                            "Login failed. Please try again."
-                        );
+        showMessage(
+            "Could not connect to Supabase. Please check your internet connection and try again.",
+            "error"
+        );
 
-                        loginButton.disabled = false;
+        setLoginLoading(false);
 
-                        loginButton.textContent =
-                            "Login";
+        return;
 
-                        return;
-                    }
-
-
-                    showMessage(
-                        "Login successful. Opening your account...",
-                        true
-                    );
+    }
 
 
-                    /*
-                     * Check the user's profile
-                     * so administrators go to the
-                     * Admin Command Center.
-                     */
-
-                    const {
-                        data: profile,
-                        error: profileError
-                    } =
-                        await supabaseClient
-                            .from("profiles")
-                            .select(
-                                "id, full_name, role, status"
-                            )
-                            .eq(
-                                "id",
-                                data.user.id
-                            )
-                            .single();
+    showMessage(
+        "Logging in...",
+        "info"
+    );
 
 
-                    if (profileError) {
+    try {
 
-                        console.error(
-                            "PROFILE ERROR:",
-                            profileError
-                        );
-
-                        /*
-                         * The Auth login itself succeeded,
-                         * so send the user to dashboard.
-                         */
-
-                        window.location.href =
-                            "dashboard.html";
-
-                        return;
-                    }
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signInWithPassword({
+                    email: email,
+                    password: password
+                });
 
 
-                    if (
-                        profile.role === "admin" &&
-                        profile.status === "active"
-                    ) {
+        if (error) {
 
-                        window.location.href =
-                            "admin.html";
+            console.error(
+                "LOGIN ERROR:",
+                error
+            );
 
-                    } else {
+            showMessage(
+                error.message ||
+                "Login failed. Please try again.",
+                "error"
+            );
 
-                        window.location.href =
-                            "dashboard.html";
+            setLoginLoading(false);
 
-                    }
+            return;
 
-                } catch (error) {
+        }
 
-                    console.error(
-                        "UNEXPECTED LOGIN ERROR:",
-                        error
-                    );
 
-                    showMessage(
-                        "Something went wrong. Please try again."
-                    );
+        if (
+            !data ||
+            !data.user
+        ) {
 
-                    loginButton.disabled = false;
+            showMessage(
+                "Login failed. No user account was returned.",
+                "error"
+            );
 
-                    loginButton.textContent =
-                        "Login";
-                }
+            setLoginLoading(false);
 
-            }
+            return;
+
+        }
+
+
+        showMessage(
+            "Login successful. Loading your account...",
+            "success"
         );
 
 
-        document.getElementById(
-            "currentYear"
-        ).textContent =
-            new Date().getFullYear();
+        const {
+            data: profile,
+            error: profileError
+        } =
+            await supabaseClient
+                .from("profiles")
+                .select("*")
+                .eq(
+                    "id",
+                    data.user.id
+                )
+                .single();
 
-    </script>
+
+        if (profileError) {
+
+            console.error(
+                "PROFILE ERROR:",
+                profileError
+            );
+
+            showMessage(
+                "Login succeeded, but your profile could not be loaded: " +
+                profileError.message,
+                "error"
+            );
+
+            setLoginLoading(false);
+
+            return;
+
+        }
+
+
+        if (!profile) {
+
+            showMessage(
+                "Login succeeded, but no profile was found for this account.",
+                "error"
+            );
+
+            setLoginLoading(false);
+
+            return;
+
+        }
+
+
+        if (
+            profile.status ===
+            "blocked"
+        ) {
+
+            await supabaseClient
+                .auth
+                .signOut();
+
+
+            showMessage(
+                "Your account has been blocked. Please contact support.",
+                "error"
+            );
+
+            setLoginLoading(false);
+
+            return;
+
+        }
+
+
+        if (
+            profile.role ===
+            "admin" &&
+
+            profile.status ===
+            "active"
+        ) {
+
+            window.location.href =
+                "admin.html";
+
+            return;
+
+        }
+
+
+        window.location.href =
+            "dashboard.html";
+
+
+    } catch (error) {
+
+        console.error(
+            "UNEXPECTED LOGIN ERROR:",
+            error
+        );
+
+
+        let errorMessage =
+            "Login failed. Please try again.";
+
+
+        if (
+            error.name ===
+            "AbortError"
+        ) {
+
+            errorMessage =
+                "The connection timed out. Please check your internet connection and try again.";
+
+        } else if (
+            error.message &&
+            error.message
+                .toLowerCase()
+                .includes("failed to fetch")
+        ) {
+
+            errorMessage =
+                "Could not reach Supabase. Please check your internet connection and try again.";
+
+        }
+
+
+        showMessage(
+            errorMessage,
+            "error"
+        );
+
+        setLoginLoading(false);
+
+    }
+
+}
+
+
+loginForm.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const email =
+            document
+                .getElementById("email")
+                .value
+                .trim();
+
+
+        const password =
+            document
+                .getElementById("password")
+                .value;
+
+
+        if (
+            !email ||
+            !password
+        ) {
+
+            showMessage(
+                "Please enter your email and password.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        setLoginLoading(true);
+
+
+        await loginUser(
+            email,
+            password
+        );
+
+    }
+);
+
+
+document.getElementById(
+    "currentYear"
+).textContent =
+    new Date().getFullYear();
+
+
+initializeSupabase();
+
+</script>
 
 </body>
 </html>
