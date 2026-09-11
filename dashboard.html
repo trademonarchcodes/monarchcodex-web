@@ -7389,3 +7389,303 @@ if (document.readyState === "loading") {
 /* =========================================================
    END OF PART 11/12
    ========================================================= */
+/* =========================================================
+   PART 12/12 — FINAL INITIALIZATION & CLEANUP
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   FINAL PACKAGE REFRESH
+--------------------------------------------------------- */
+
+async function refreshPackagesAfterLogin() {
+    try {
+        await loadPackages();
+
+        refreshPackageCardState();
+        updateInvestmentFormState();
+
+    } catch (error) {
+        console.error(
+            "Package refresh error:",
+            error
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL PAYMENT DETAILS REFRESH
+--------------------------------------------------------- */
+
+async function refreshPaymentDetailsAfterLogin() {
+    try {
+        await loadPaymentDetails();
+
+        renderCryptoNetworks();
+        refreshPaymentCardState();
+        updatePaymentSummary();
+
+    } catch (error) {
+        console.error(
+            "Payment details refresh error:",
+            error
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   PERIODIC DASHBOARD REFRESH
+--------------------------------------------------------- */
+
+let dashboardRefreshTimer = null;
+
+function startDashboardRefresh() {
+    stopDashboardRefresh();
+
+    dashboardRefreshTimer = setInterval(
+        async () => {
+            if (
+                document.visibilityState !== "visible" ||
+                !navigator.onLine
+            ) {
+                return;
+            }
+
+            try {
+                const session =
+                    await getCurrentSession();
+
+                if (!session?.user) {
+                    stopDashboardRefresh();
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+                }
+
+                currentUser =
+                    session.user;
+
+                await Promise.all([
+                    refreshProfile(),
+                    refreshInvestmentHistory(),
+                    refreshEarnings()
+                ]);
+
+                profileData =
+                    normalizeProfileData(
+                        profileData
+                    );
+
+                refreshProfileDisplay();
+                updateWelcomeProfile();
+                updateAccountStatus();
+                refreshInvestmentUI();
+
+            } catch (error) {
+                console.error(
+                    "Automatic dashboard refresh failed:",
+                    error
+                );
+            }
+        },
+        60000
+    );
+}
+
+
+function stopDashboardRefresh() {
+    if (dashboardRefreshTimer) {
+        clearInterval(
+            dashboardRefreshTimer
+        );
+
+        dashboardRefreshTimer = null;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   START PERIODIC REFRESH
+--------------------------------------------------------- */
+
+function initializePeriodicRefresh() {
+    startDashboardRefresh();
+
+    window.addEventListener(
+        "pagehide",
+        stopDashboardRefresh
+    );
+}
+
+
+/* ---------------------------------------------------------
+   PROTECT AGAINST DUPLICATE INITIALIZATION
+--------------------------------------------------------- */
+
+let finalDashboardInitialized = false;
+
+async function initializeCompleteDashboard() {
+    if (finalDashboardInitialized) {
+        return;
+    }
+
+    finalDashboardInitialized = true;
+
+    try {
+        const authenticated =
+            await validateDashboardSession();
+
+        if (!authenticated) {
+            return;
+        }
+
+        if (!profileData) {
+            await refreshProfile();
+        }
+
+        profileData =
+            normalizeProfileData(
+                profileData
+            );
+
+        refreshProfileDisplay();
+
+        enableInvestmentActions();
+
+        await Promise.all([
+            refreshPackagesAfterLogin(),
+            refreshPaymentDetailsAfterLogin()
+        ]);
+
+        refreshInvestmentUI();
+
+        initializePeriodicRefresh();
+
+        hideDashboardLoading();
+
+        console.log(
+            "Monarch Codex dashboard ready."
+        );
+
+    } catch (error) {
+        console.error(
+            "Complete dashboard initialization error:",
+            error
+        );
+
+        hideDashboardLoading();
+
+        showDashboardMessage(
+            getSupabaseErrorMessage(
+                error,
+                "Unable to fully load your dashboard. Please refresh the page."
+            ),
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL DOM READY HOOK
+--------------------------------------------------------- */
+
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeCompleteDashboard
+    );
+} else {
+    initializeCompleteDashboard();
+}
+
+
+/* ---------------------------------------------------------
+   CLEANUP ON PAGE EXIT
+--------------------------------------------------------- */
+
+window.addEventListener(
+    "unload",
+    () => {
+        stopDashboardRefresh();
+    }
+);
+
+
+/* ---------------------------------------------------------
+   GLOBAL DASHBOARD FUNCTIONS
+   These remain available to inline HTML onclick handlers.
+--------------------------------------------------------- */
+
+window.selectPackage = selectPackage;
+window.selectPaymentMethod = selectPaymentMethod;
+window.selectCryptoNetwork = selectCryptoNetwork;
+window.copyMonarchUID = copyMonarchUID;
+window.copyPaymentValue = copyPaymentValue;
+window.scrollToSection = scrollToSection;
+window.toggleMobileMenu = toggleMobileMenu;
+window.closeMobileMenu = closeMobileMenu;
+window.handleReceiptSelected = handleReceiptSelected;
+window.removeReceipt = removeReceipt;
+window.uploadReceipt = uploadReceipt;
+window.submitInvestment = submitInvestment;
+window.refreshDashboardData = refreshDashboardData;
+window.logoutUser = logoutUser;
+
+
+/* ---------------------------------------------------------
+   GLOBAL ERROR HANDLER
+--------------------------------------------------------- */
+
+window.addEventListener(
+    "error",
+    event => {
+        console.error(
+            "Dashboard runtime error:",
+            event.error || event.message
+        );
+    }
+);
+
+
+/* ---------------------------------------------------------
+   GLOBAL UNHANDLED PROMISE HANDLER
+--------------------------------------------------------- */
+
+window.addEventListener(
+    "unhandledrejection",
+    event => {
+        console.error(
+            "Unhandled dashboard promise:",
+            event.reason
+        );
+    }
+);
+
+
+/* ---------------------------------------------------------
+   FINAL LOG
+--------------------------------------------------------- */
+
+console.log(
+    "%cMONARCH CODEX",
+    "font-size:20px;font-weight:bold;"
+);
+
+console.log(
+    "Dashboard loaded successfully."
+);
+
+
+/* =========================================================
+   END OF JAVASCRIPT
+   ========================================================= */
+
+</script>
+
+</body>
+</html>
