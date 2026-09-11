@@ -7356,3 +7356,635 @@ window.searchEarnings =
 /* =========================================================
    PART 10 ENDS HERE
    ========================================================= */     
+
+
+ /* =========================================================
+   ADMIN.HTML — PART 11/12
+   SEARCH, FILTERS & FINAL UI CONTROLS
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   CREATE SEARCH / FILTER TOOLBAR
+   --------------------------------------------------------- */
+
+function createAdminToolbars() {
+
+    /*
+     * Members toolbar
+     */
+
+    if (membersSection) {
+
+        const existing =
+            membersSection.querySelector(
+                ".admin-toolbar"
+            );
+
+
+        if (!existing) {
+
+            const toolbar =
+                document.createElement(
+                    "div"
+                );
+
+            toolbar.className =
+                "admin-toolbar";
+
+
+            toolbar.innerHTML = `
+
+                <div class="admin-search">
+
+                    <input
+                        type="search"
+                        id="memberSearchInput"
+                        placeholder="Search members, UID, phone or email..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+                <button
+                    type="button"
+                    class="view-btn"
+                    id="refreshMembersBtn"
+                >
+                    Refresh
+                </button>
+
+            `;
+
+
+            const heading =
+                membersSection.querySelector(
+                    ".section-heading"
+                );
+
+
+            if (heading) {
+
+                heading.after(
+                    toolbar
+                );
+
+            } else {
+
+                membersSection.prepend(
+                    toolbar
+                );
+            }
+        }
+    }
+
+
+    /*
+     * Investment toolbar
+     */
+
+    if (investmentRequestsSection) {
+
+        const existing =
+            investmentRequestsSection.querySelector(
+                ".admin-toolbar"
+            );
+
+
+        if (!existing) {
+
+            const toolbar =
+                document.createElement(
+                    "div"
+                );
+
+            toolbar.className =
+                "admin-toolbar";
+
+
+            toolbar.innerHTML = `
+
+                <div class="admin-search">
+
+                    <input
+                        type="search"
+                        id="investmentSearchInput"
+                        placeholder="Search investments, members, UID or package..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <select
+                    id="investmentStatusFilter"
+                    class="admin-filter"
+                >
+
+                    <option value="all">
+                        All Statuses
+                    </option>
+
+                    <option value="pending">
+                        Pending
+                    </option>
+
+                    <option value="confirmed">
+                        Confirmed
+                    </option>
+
+                    <option value="rejected">
+                        Rejected
+                    </option>
+
+                </select>
+
+
+                <button
+                    type="button"
+                    class="view-btn"
+                    id="refreshInvestmentsBtn"
+                >
+                    Refresh
+                </button>
+
+            `;
+
+
+            const heading =
+                investmentRequestsSection.querySelector(
+                    ".section-heading"
+                );
+
+
+            if (heading) {
+
+                heading.after(
+                    toolbar
+                );
+
+            } else {
+
+                investmentRequestsSection.prepend(
+                    toolbar
+                );
+            }
+        }
+    }
+
+
+    /*
+     * Earnings toolbar
+     */
+
+    if (earningsSection) {
+
+        const existing =
+            earningsSection.querySelector(
+                ".admin-toolbar"
+            );
+
+
+        if (!existing) {
+
+            const toolbar =
+                document.createElement(
+                    "div"
+                );
+
+            toolbar.className =
+                "admin-toolbar";
+
+
+            toolbar.innerHTML = `
+
+                <div class="admin-search">
+
+                    <input
+                        type="search"
+                        id="earningSearchInput"
+                        placeholder="Search earnings or member..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="view-btn"
+                    id="refreshEarningsBtn"
+                >
+                    Refresh
+                </button>
+
+            `;
+
+
+            const heading =
+                earningsSection.querySelector(
+                    ".section-heading"
+                );
+
+
+            if (heading) {
+
+                heading.after(
+                    toolbar
+                );
+
+            } else {
+
+                earningsSection.prepend(
+                    toolbar
+                );
+            }
+        }
+    }
+
+
+    /*
+     * Main dashboard refresh button.
+     */
+
+    if (
+        !document.querySelector(
+            "#refreshAdminBtn"
+        )
+    ) {
+
+        const header =
+            document.querySelector(
+                ".admin-header"
+            );
+
+
+        if (header) {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.type =
+                "button";
+
+            button.id =
+                "refreshAdminBtn";
+
+            button.className =
+                "view-btn";
+
+            button.textContent =
+                "Refresh Dashboard";
+
+
+            header.appendChild(
+                button
+            );
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CONNECT TOOLBAR EVENTS
+   --------------------------------------------------------- */
+
+function connectToolbarEvents() {
+
+    const memberSearch =
+        document.querySelector(
+            "#memberSearchInput"
+        );
+
+
+    if (memberSearch) {
+
+        memberSearch.addEventListener(
+            "input",
+            function() {
+
+                searchMembersFinal(
+                    this.value
+                );
+            }
+        );
+    }
+
+
+    const investmentSearch =
+        document.querySelector(
+            "#investmentSearchInput"
+        );
+
+
+    if (investmentSearch) {
+
+        investmentSearch.addEventListener(
+            "input",
+            function() {
+
+                searchInvestments(
+                    this.value
+                );
+            }
+        );
+    }
+
+
+    const investmentFilter =
+        document.querySelector(
+            "#investmentStatusFilter"
+        );
+
+
+    if (investmentFilter) {
+
+        investmentFilter.addEventListener(
+            "change",
+            function() {
+
+                filterInvestmentsByStatus(
+                    this.value
+                );
+            }
+        );
+    }
+
+
+    const earningSearch =
+        document.querySelector(
+            "#earningSearchInput"
+        );
+
+
+    if (earningSearch) {
+
+        earningSearch.addEventListener(
+            "input",
+            function() {
+
+                searchEarnings(
+                    this.value
+                );
+            }
+        );
+    }
+
+
+    const refreshMembers =
+        document.querySelector(
+            "#refreshMembersBtn"
+        );
+
+
+    if (refreshMembers) {
+
+        refreshMembers.addEventListener(
+            "click",
+            async function() {
+
+                refreshMembers.disabled =
+                    true;
+
+                refreshMembers.textContent =
+                    "Loading...";
+
+
+                await loadProfiles();
+
+
+                renderMembersWithActions(
+                    profilesData
+                );
+
+
+                refreshMembers.disabled =
+                    false;
+
+                refreshMembers.textContent =
+                    "Refresh";
+            }
+        );
+    }
+
+
+    const refreshInvestments =
+        document.querySelector(
+            "#refreshInvestmentsBtn"
+        );
+
+
+    if (refreshInvestments) {
+
+        refreshInvestments.addEventListener(
+            "click",
+            async function() {
+
+                refreshInvestments.disabled =
+                    true;
+
+                refreshInvestments.textContent =
+                    "Loading...";
+
+
+                await loadPackages();
+
+                await loadInvestments();
+
+                await loadReceipts();
+
+
+                renderInvestments(
+                    investmentsData
+                );
+
+
+                refreshInvestments.disabled =
+                    false;
+
+                refreshInvestments.textContent =
+                    "Refresh";
+            }
+        );
+    }
+
+
+    const refreshEarnings =
+        document.querySelector(
+            "#refreshEarningsBtn"
+        );
+
+
+    if (refreshEarnings) {
+
+        refreshEarnings.addEventListener(
+            "click",
+            async function() {
+
+                refreshEarnings.disabled =
+                    true;
+
+                refreshEarnings.textContent =
+                    "Loading...";
+
+
+                await loadEarnings();
+
+
+                refreshEarnings.disabled =
+                    false;
+
+                refreshEarnings.textContent =
+                    "Refresh";
+            }
+        );
+    }
+
+
+    const refreshAdmin =
+        document.querySelector(
+            "#refreshAdminBtn"
+        );
+
+
+    if (refreshAdmin) {
+
+        refreshAdmin.addEventListener(
+            "click",
+            refreshAdminDashboard
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SECTION TOGGLE
+   --------------------------------------------------------- */
+
+function setupSectionToggles() {
+
+    const sections =
+        document.querySelectorAll(
+            ".admin-section"
+        );
+
+
+    sections.forEach(section => {
+
+        const heading =
+            section.querySelector(
+                ".section-heading"
+            );
+
+
+        if (!heading) {
+            return;
+        }
+
+
+        heading.style.cursor =
+            "default";
+    });
+}
+
+
+/* ---------------------------------------------------------
+   UPDATE PAGE TITLE
+   --------------------------------------------------------- */
+
+function updateAdminHeader() {
+
+    const adminName =
+        currentAdmin?.profile
+            ? (
+                currentAdmin.profile.full_name ||
+                currentAdmin.profile.name ||
+                currentAdmin.profile.username ||
+                currentAdmin.user?.email ||
+                "Administrator"
+              )
+            : "Administrator";
+
+
+    const title =
+        document.querySelector(
+            ".admin-header h1"
+        );
+
+
+    if (title) {
+
+        title.textContent =
+            "Monarch Codex Admin";
+    }
+
+
+    const subtitle =
+        document.querySelector(
+            ".admin-header p"
+        );
+
+
+    if (subtitle) {
+
+        subtitle.textContent =
+            `Welcome, ${adminName}`;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL UI SETUP
+   --------------------------------------------------------- */
+
+function initializeAdminUI() {
+
+    createAdminToolbars();
+
+    connectToolbarEvents();
+
+    setupSectionToggles();
+
+    updateAdminHeader();
+}
+
+
+/* ---------------------------------------------------------
+   RE-INITIALIZE UI AFTER DOM IS READY
+   --------------------------------------------------------- */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeAdminUI
+    );
+
+} else {
+
+    initializeAdminUI();
+}
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.createAdminToolbars =
+    createAdminToolbars;
+
+window.connectToolbarEvents =
+    connectToolbarEvents;
+
+window.initializeAdminUI =
+    initializeAdminUI;
+
+
+/* =========================================================
+   PART 11 ENDS HERE
+   ========================================================= */       
