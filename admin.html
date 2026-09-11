@@ -5377,3 +5377,534 @@
         getAdminSummary;
 
 </script>
+<script>
+    /* =========================================================
+       MONARCH CODEX — ADMIN PANEL
+       PART 10/12 — TABLE FILTERS, RECEIPT REVIEW & UI EVENTS
+       ========================================================= */
+
+
+    /* =========================================================
+       INVESTMENT FILTER
+       ========================================================= */
+
+    function filterInvestments(
+        statusFilter = "all"
+    ) {
+
+        const normalizedFilter =
+            String(statusFilter || "all")
+                .trim()
+                .toLowerCase();
+
+
+        if (normalizedFilter === "all") {
+
+            renderInvestments();
+
+            return;
+        }
+
+
+        const originalInvestments =
+            investmentsData;
+
+
+        const filteredInvestments =
+            originalInvestments.filter(
+                investment => {
+
+                    const status =
+                        normalizeStatus(
+                            investment.status
+                        );
+
+                    return status ===
+                        normalizedFilter;
+                }
+            );
+
+
+        investmentsData =
+            filteredInvestments;
+
+
+        renderInvestments();
+
+
+        investmentsData =
+            originalInvestments;
+    }
+
+
+    /* =========================================================
+       RECEIPT FILTER
+       ========================================================= */
+
+    function filterReceiptStatus(
+        statusFilter = "all"
+    ) {
+
+        const normalizedFilter =
+            String(statusFilter || "all")
+                .trim()
+                .toLowerCase();
+
+
+        if (normalizedFilter === "all") {
+
+            renderInvestments();
+
+            return;
+        }
+
+
+        const originalInvestments =
+            investmentsData;
+
+
+        const filteredInvestments =
+            originalInvestments.filter(
+                investment => {
+
+                    const receipt =
+                        getReceiptForInvestment(
+                            investment.id
+                        );
+
+
+                    if (!receipt) {
+                        return false;
+                    }
+
+
+                    const receiptStatus =
+                        normalizeStatus(
+                            receipt.verification_status
+                        );
+
+
+                    return receiptStatus ===
+                        normalizedFilter;
+                }
+            );
+
+
+        investmentsData =
+            filteredInvestments;
+
+
+        renderInvestments();
+
+
+        investmentsData =
+            originalInvestments;
+    }
+
+
+    /* =========================================================
+       REFRESH SINGLE INVESTMENT
+       ========================================================= */
+
+    async function refreshInvestment(
+        investmentId
+    ) {
+
+        if (!investmentId) {
+            return;
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("investments")
+                .select("*")
+                .eq("id", investmentId)
+                .maybeSingle();
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (!data) {
+                return;
+            }
+
+
+            const index =
+                investmentsData.findIndex(
+                    investment =>
+                        String(investment.id) ===
+                        String(investmentId)
+                );
+
+
+            if (index !== -1) {
+
+                investmentsData[index] =
+                    data;
+
+            } else {
+
+                investmentsData.unshift(
+                    data
+                );
+            }
+
+
+            await loadReceipts();
+
+            updateInvestmentStatistics();
+
+            renderInvestments();
+
+
+        } catch (error) {
+
+            console.error(
+                "Single investment refresh error:",
+                error
+            );
+        }
+    }
+
+
+    /* =========================================================
+       REVIEW RECEIPT STATUS DIRECTLY
+       ========================================================= */
+
+    async function updateReceiptStatus(
+        receiptId,
+        newStatus
+    ) {
+
+        const normalizedStatus =
+            normalizeStatus(
+                newStatus
+            );
+
+
+        if (!receiptId) {
+
+            showAdminMessage(
+                "Receipt ID is missing.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            ![
+                "pending",
+                "approved",
+                "rejected"
+            ].includes(
+                normalizedStatus
+            )
+        ) {
+
+            showAdminMessage(
+                "Invalid receipt status.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const receipt =
+            getReceiptById(
+                receiptId
+            );
+
+
+        if (!receipt) {
+
+            showAdminMessage(
+                "Receipt could not be found.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        try {
+
+            const {
+                error
+            } = await supabaseClient
+                .from("payment_receipts")
+                .update({
+                    verification_status:
+                        normalizedStatus,
+
+                    reviewed_at:
+                        normalizedStatus === "pending"
+                            ? null
+                            : new Date().toISOString()
+                })
+                .eq("id", receiptId);
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            receipt.verification_status =
+                normalizedStatus;
+
+
+            receipt.reviewed_at =
+                normalizedStatus === "pending"
+                    ? null
+                    : new Date().toISOString();
+
+
+            renderInvestments();
+
+
+            showAdminMessage(
+                `Receipt marked as ${getStatusLabel(
+                    normalizedStatus
+                )}.`,
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Receipt status update error:",
+                error
+            );
+
+
+            showAdminMessage(
+                "Unable to update receipt status: " +
+                getDatabaseErrorMessage(error),
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       PAYMENT METHOD DISPLAY
+       ========================================================= */
+
+    function getPaymentMethodClass(
+        paymentMethod
+    ) {
+
+        const method =
+            String(
+                paymentMethod || ""
+            )
+                .trim()
+                .toLowerCase();
+
+
+        if (method === "bank") {
+            return "bank";
+        }
+
+
+        if (method === "crypto") {
+            return "crypto";
+        }
+
+
+        return "other";
+    }
+
+
+    /* =========================================================
+       FORMAT NETWORK
+       ========================================================= */
+
+    function formatNetworkName(
+        network
+    ) {
+
+        if (!network) {
+            return "";
+        }
+
+
+        const normalized =
+            String(network)
+                .trim()
+                .toUpperCase();
+
+
+        const networkNames = {
+
+            BEP20:
+                "BEP20",
+
+            ARBITRUM:
+                "Arbitrum",
+
+            TON:
+                "TON",
+
+            TRC20:
+                "TRC20",
+
+            SOLANA:
+                "Solana",
+
+            ERC20:
+                "Ethereum ERC20"
+        };
+
+
+        return (
+            networkNames[normalized] ||
+            network
+        );
+    }
+
+
+    /* =========================================================
+       CLOSE MESSAGE AUTOMATICALLY
+       ========================================================= */
+
+    let adminMessageTimer = null;
+
+
+    function showTemporaryAdminMessage(
+        message,
+        type = "info",
+        duration = 4000
+    ) {
+
+        showAdminMessage(
+            message,
+            type
+        );
+
+
+        if (adminMessageTimer) {
+            clearTimeout(
+                adminMessageTimer
+            );
+        }
+
+
+        adminMessageTimer =
+            setTimeout(() => {
+
+                clearAdminMessage();
+
+            }, duration);
+    }
+
+
+    /* =========================================================
+       PREVENT MODAL BODY SCROLL
+       ========================================================= */
+
+    function updateBodyModalState() {
+
+        if (
+            receiptModal &&
+            receiptModal.classList.contains(
+                "show"
+            )
+        ) {
+
+            document.body.style.overflow =
+                "hidden";
+
+        } else {
+
+            document.body.style.overflow =
+                "";
+        }
+    }
+
+
+    if (receiptModal) {
+
+        const observer =
+            new MutationObserver(
+                updateBodyModalState
+            );
+
+
+        observer.observe(
+            receiptModal,
+            {
+                attributes: true,
+                attributeFilter: [
+                    "class"
+                ]
+            }
+        );
+    }
+
+
+    /* =========================================================
+       HANDLE AUTH STATE CHANGES
+       ========================================================= */
+
+    supabaseClient.auth.onAuthStateChange(
+        (event, session) => {
+
+            console.log(
+                "Admin auth event:",
+                event
+            );
+
+
+            if (
+                event === "SIGNED_OUT" ||
+                !session
+            ) {
+
+                if (
+                    !window.location.pathname
+                        .endsWith(
+                            "login.html"
+                        )
+                ) {
+
+                    window.location.href =
+                        "login.html";
+                }
+            }
+        }
+    );
+
+
+    /* =========================================================
+       GLOBAL EXPORTS
+       ========================================================= */
+
+    window.filterInvestments =
+        filterInvestments;
+
+    window.filterReceiptStatus =
+        filterReceiptStatus;
+
+    window.refreshInvestment =
+        refreshInvestment;
+
+    window.updateReceiptStatus =
+        updateReceiptStatus;
+
+    window.formatNetworkName =
+        formatNetworkName;
+
+</script>
