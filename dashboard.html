@@ -2042,6 +2042,8 @@
 
             paymentDetailsData = data || [];
 
+            await loadUsdNgnRate();
+
             renderCryptoNetworks();
 
         } catch (error) {
