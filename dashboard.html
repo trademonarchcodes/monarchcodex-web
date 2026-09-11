@@ -1551,3 +1551,564 @@
             }
 
         </script>
+        <script>
+
+            /* =================================================
+               LOAD INVESTMENT PACKAGES
+               ================================================= */
+
+            async function loadPackages() {
+
+                const container =
+                    document.getElementById(
+                        "packagesGrid"
+                    );
+
+
+                if (!container) {
+                    return;
+                }
+
+
+                container.innerHTML = `
+                    <div class="loading-state">
+                        Loading packages...
+                    </div>
+                `;
+
+
+                showPackageMessage(
+                    "",
+                    "info"
+                );
+
+
+                try {
+
+                    const {
+                        data,
+                        error
+                    } = await supabaseClient
+                        .from("packages")
+                        .select("*")
+                        .eq(
+                            "active",
+                            true
+                        )
+                        .order(
+                            "amount",
+                            {
+                                ascending: true
+                            }
+                        );
+
+
+                    if (error) {
+
+                        console.error(
+                            "Package loading error:",
+                            error
+                        );
+
+
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                Unable to load packages.
+                                Please refresh the page.
+                            </div>
+                        `;
+
+
+                        showPackageMessage(
+                            "Unable to load investment packages.",
+                            "error"
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    packagesData =
+                        data || [];
+
+
+                    /*
+                     * No active packages
+                     */
+
+                    if (
+                        packagesData.length === 0
+                    ) {
+
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                No investment packages
+                                are currently available.
+                            </div>
+                        `;
+
+
+                        return;
+
+                    }
+
+
+                    renderPackages();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Unexpected package error:",
+                        error
+                    );
+
+
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            Unable to load packages.
+                            Please try again.
+                        </div>
+                    `;
+
+
+                    showPackageMessage(
+                        "Something went wrong while loading packages.",
+                        "error"
+                    );
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               RENDER PACKAGES
+               ================================================= */
+
+            function renderPackages() {
+
+                const container =
+                    document.getElementById(
+                        "packagesGrid"
+                    );
+
+
+                if (!container) {
+                    return;
+                }
+
+
+                container.innerHTML = "";
+
+
+                packagesData.forEach(
+                    function (pkg) {
+
+                        const card =
+                            document.createElement(
+                                "button"
+                            );
+
+
+                        card.type =
+                            "button";
+
+
+                        card.className =
+                            "package-card";
+
+
+                        card.dataset.packageId =
+                            pkg.id;
+
+
+                        /*
+                         * Package name
+                         */
+
+                        const name =
+                            pkg.name ||
+                            "Investment Package";
+
+
+                        /*
+                         * Package amount
+                         */
+
+                        const amount =
+                            Number(
+                                pkg.amount
+                            ) || 0;
+
+
+                        /*
+                         * Optional description
+                         */
+
+                        const description =
+                            pkg.description ||
+                            "Investment package";
+
+
+                        card.innerHTML = `
+
+                            <div class="package-name">
+                                ${escapeHtml(name)}
+                            </div>
+
+                            <div class="package-description">
+                                ${escapeHtml(description)}
+                            </div>
+
+                            <div class="package-amount">
+                                ${formatMoney(amount)}
+                            </div>
+
+                            <div class="package-select-label">
+                                Select Package
+                            </div>
+
+                        `;
+
+
+                        card.addEventListener(
+                            "click",
+                            function () {
+
+                                selectPackage(
+                                    pkg.id
+                                );
+
+                            }
+                        );
+
+
+                        container.appendChild(
+                            card
+                        );
+
+                    }
+                );
+
+            }
+
+
+
+            /* =================================================
+               SELECT PACKAGE
+               ================================================= */
+
+            function selectPackage(
+                packageId
+            ) {
+
+                const pkg =
+                    packagesData.find(
+                        function (item) {
+
+                            return String(
+                                item.id
+                            ) === String(
+                                packageId
+                            );
+
+                        }
+                    );
+
+
+                if (!pkg) {
+
+                    showPackageMessage(
+                        "The selected package could not be found.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                selectedPackage =
+                    pkg;
+
+
+                /*
+                 * Remove previous selection
+                 */
+
+                document
+                    .querySelectorAll(
+                        ".package-card"
+                    )
+                    .forEach(
+                        function (card) {
+
+                            card.classList.remove(
+                                "selected"
+                            );
+
+                        }
+                    );
+
+
+                /*
+                 * Highlight selected package
+                 */
+
+                const selectedCard =
+                    document.querySelector(
+                        `.package-card[data-package-id="${CSS.escape(String(packageId))}"]`
+                    );
+
+
+                if (selectedCard) {
+
+                    selectedCard.classList.add(
+                        "selected"
+                    );
+
+                }
+
+
+                /*
+                 * Update selected package
+                 */
+
+                const selectedPackageElement =
+                    document.getElementById(
+                        "selectedPackage"
+                    );
+
+
+                if (selectedPackageElement) {
+
+                    selectedPackageElement.textContent =
+                        pkg.name ||
+                        "Selected Package";
+
+                }
+
+
+                /*
+                 * Update investment amount
+                 */
+
+                const investmentAmount =
+                    document.getElementById(
+                        "investmentAmount"
+                    );
+
+
+                if (investmentAmount) {
+
+                    investmentAmount.textContent =
+                        formatMoney(
+                            pkg.amount
+                        );
+
+                }
+
+
+                /*
+                 * Clear previous package error
+                 */
+
+                showPackageMessage(
+                    "",
+                    "info"
+                );
+
+
+                /*
+                 * Scroll toward payment section
+                 */
+
+                const paymentSection =
+                    document.getElementById(
+                        "bankPayment"
+                    );
+
+
+                if (paymentSection) {
+
+                    paymentSection
+                        .scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               SELECT PAYMENT METHOD
+               ================================================= */
+
+            function selectPaymentMethod(
+                method
+            ) {
+
+                if (!selectedPackage) {
+
+                    showPaymentMessage(
+                        "Please select an investment package first.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                selectedPaymentMethod =
+                    method;
+
+
+                /*
+                 * Remove previous selection
+                 */
+
+                document
+                    .querySelectorAll(
+                        ".payment-card"
+                    )
+                    .forEach(
+                        function (card) {
+
+                            card.classList.remove(
+                                "selected"
+                            );
+
+                        }
+                    );
+
+
+                /*
+                 * Highlight selected method
+                 */
+
+                if (
+                    method === "bank"
+                ) {
+
+                    const bankCard =
+                        document.getElementById(
+                            "bankPayment"
+                        );
+
+
+                    if (bankCard) {
+
+                        bankCard.classList.add(
+                            "selected"
+                        );
+
+                    }
+
+                }
+
+
+                if (
+                    method === "crypto"
+                ) {
+
+                    const cryptoCard =
+                        document.getElementById(
+                            "cryptoPayment"
+                        );
+
+
+                    if (cryptoCard) {
+
+                        cryptoCard.classList.add(
+                            "selected"
+                        );
+
+                    }
+
+                }
+
+
+                /*
+                 * Display payment method
+                 */
+
+                const paymentMethodElement =
+                    document.getElementById(
+                        "selectedPaymentMethod"
+                    );
+
+
+                if (
+                    paymentMethodElement
+                ) {
+
+                    paymentMethodElement.textContent =
+                        method === "bank"
+                            ? "Bank Account"
+                            : "Crypto Funding";
+
+                }
+
+
+                showPaymentMessage(
+                    "",
+                    "info"
+                );
+
+            }
+
+
+
+            /* =================================================
+               HTML ESCAPE
+               ================================================= */
+
+            function escapeHtml(
+                value
+            ) {
+
+                if (
+                    value === null ||
+                    value === undefined
+                ) {
+
+                    return "";
+
+                }
+
+
+                return String(value)
+                    .replace(
+                        /&/g,
+                        "&amp;"
+                    )
+                    .replace(
+                        /</g,
+                        "&lt;"
+                    )
+                    .replace(
+                        />/g,
+                        "&gt;"
+                    )
+                    .replace(
+                        /"/g,
+                        "&quot;"
+                    )
+                    .replace(
+                        /'/g,
+                        "&#039;"
+                    );
+
+            }
+
+        </script>
