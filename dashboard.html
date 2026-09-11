@@ -2112,3 +2112,639 @@
             }
 
         </script>
+        <script>
+
+            /* =================================================
+               SUBMIT INVESTMENT REQUEST
+               ================================================= */
+
+            async function submitInvestment() {
+
+                /*
+                 * Make sure the user is authenticated
+                 */
+
+                if (!currentUser) {
+
+                    showInvestmentMessage(
+                        "Your session has expired. Please log in again.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                /*
+                 * Package validation
+                 */
+
+                if (!selectedPackage) {
+
+                    showInvestmentMessage(
+                        "Please select an investment package.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                /*
+                 * Payment method validation
+                 */
+
+                if (!selectedPaymentMethod) {
+
+                    showInvestmentMessage(
+                        "Please select a payment method.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                const submitButton =
+                    document.getElementById(
+                        "submitInvestmentBtn"
+                    );
+
+
+                /*
+                 * Prevent duplicate submissions
+                 */
+
+                if (
+                    submitButton &&
+                    submitButton.disabled
+                ) {
+
+                    return;
+
+                }
+
+
+                /*
+                 * Disable button while submitting
+                 */
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        true;
+
+
+                    submitButton.dataset
+                        .originalText =
+                        submitButton.textContent;
+
+
+                    submitButton.textContent =
+                        "Submitting...";
+
+                }
+
+
+                showInvestmentMessage(
+                    "Submitting your investment request...",
+                    "info"
+                );
+
+
+                try {
+
+                    const amount =
+                        Number(
+                            selectedPackage.amount
+                        );
+
+
+                    /*
+                     * Insert investment request
+                     */
+
+                    const {
+                        data,
+                        error
+                    } = await supabaseClient
+                        .from("investments")
+                        .insert([
+                            {
+                                user_id:
+                                    currentUser.id,
+
+                                package_id:
+                                    selectedPackage.id,
+
+                                amount:
+                                    amount,
+
+                                payment_method:
+                                    selectedPaymentMethod,
+
+                                status:
+                                    "pending"
+                            }
+                        ])
+                        .select()
+                        .single();
+
+
+                    if (error) {
+
+                        console.error(
+                            "Investment submission error:",
+                            error
+                        );
+
+
+                        showInvestmentMessage(
+                            error.message ||
+                            "Unable to submit your investment request.",
+                            "error"
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    console.log(
+                        "Investment created:",
+                        data
+                    );
+
+
+                    /*
+                     * Success message
+                     */
+
+                    showInvestmentMessage(
+                        "Investment request submitted successfully. Your request is now pending approval.",
+                        "success"
+                    );
+
+
+                    /*
+                     * Reset selected package
+                     */
+
+                    selectedPackage =
+                        null;
+
+
+                    /*
+                     * Reset payment method
+                     */
+
+                    selectedPaymentMethod =
+                        null;
+
+
+                    /*
+                     * Remove package selections
+                     */
+
+                    document
+                        .querySelectorAll(
+                            ".package-card"
+                        )
+                        .forEach(
+                            function (card) {
+
+                                card.classList.remove(
+                                    "selected"
+                                );
+
+                            }
+                        );
+
+
+                    /*
+                     * Remove payment selections
+                     */
+
+                    document
+                        .querySelectorAll(
+                            ".payment-card"
+                        )
+                        .forEach(
+                            function (card) {
+
+                                card.classList.remove(
+                                    "selected"
+                                );
+
+                            }
+                        );
+
+
+                    /*
+                     * Reset selected package display
+                     */
+
+                    const selectedPackageElement =
+                        document.getElementById(
+                            "selectedPackage"
+                        );
+
+
+                    if (
+                        selectedPackageElement
+                    ) {
+
+                        selectedPackageElement.textContent =
+                            "No package selected";
+
+                    }
+
+
+                    /*
+                     * Reset amount display
+                     */
+
+                    const investmentAmount =
+                        document.getElementById(
+                            "investmentAmount"
+                        );
+
+
+                    if (investmentAmount) {
+
+                        investmentAmount.textContent =
+                            "$0";
+
+                    }
+
+
+                    /*
+                     * Reset payment method display
+                     */
+
+                    const paymentMethodElement =
+                        document.getElementById(
+                            "selectedPaymentMethod"
+                        );
+
+
+                    if (
+                        paymentMethodElement
+                    ) {
+
+                        paymentMethodElement.textContent =
+                            "No payment method selected";
+
+                    }
+
+
+                    /*
+                     * Reload investment history
+                     */
+
+                    await loadInvestmentHistory(
+                        currentUser.id
+                    );
+
+
+                    /*
+                     * Scroll to history
+                     */
+
+                    const historySection =
+                        document.getElementById(
+                            "investmentHistory"
+                        );
+
+
+                    if (historySection) {
+
+                        historySection
+                            .scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Unexpected investment error:",
+                        error
+                    );
+
+
+                    showInvestmentMessage(
+                        "An unexpected error occurred. Please try again.",
+                        "error"
+                    );
+
+
+                } finally {
+
+                    /*
+                     * Restore submit button
+                     */
+
+                    if (submitButton) {
+
+                        submitButton.disabled =
+                            false;
+
+
+                        submitButton.textContent =
+                            submitButton.dataset
+                                .originalText ||
+                            "Submit Investment";
+
+                    }
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               LOAD INVESTMENT HISTORY
+               ================================================= */
+
+            async function loadInvestmentHistory(
+                userId
+            ) {
+
+                const historyContainer =
+                    document.getElementById(
+                        "investmentHistoryList"
+                    );
+
+
+                if (!historyContainer) {
+
+                    return;
+
+                }
+
+
+                historyContainer.innerHTML = `
+                    <div class="loading-state">
+                        Loading investment history...
+                    </div>
+                `;
+
+
+                try {
+
+                    const {
+                        data,
+                        error
+                    } = await supabaseClient
+                        .from("investments")
+                        .select("*")
+                        .eq(
+                            "user_id",
+                            userId
+                        )
+                        .order(
+                            "created_at",
+                            {
+                                ascending: false
+                            }
+                        );
+
+
+                    if (error) {
+
+                        console.error(
+                            "Investment history error:",
+                            error
+                        );
+
+
+                        historyContainer.innerHTML = `
+                            <div class="empty-state">
+                                Unable to load investment history.
+                            </div>
+                        `;
+
+
+                        return;
+
+                    }
+
+
+                    const investments =
+                        data || [];
+
+
+                    /*
+                     * Calculate confirmed investment total
+                     */
+
+                    const confirmedTotal =
+                        investments
+                            .filter(
+                                function (investment) {
+
+                                    return (
+                                        String(
+                                            investment.status ||
+                                            ""
+                                        ).toLowerCase()
+                                        === "approved"
+                                    );
+
+                                }
+                            )
+                            .reduce(
+                                function (
+                                    total,
+                                    investment
+                                ) {
+
+                                    return (
+                                        total +
+                                        (
+                                            Number(
+                                                investment.amount
+                                            ) || 0
+                                        )
+                                    );
+
+                                },
+                                0
+                            );
+
+
+                    /*
+                     * Update investment statistic
+                     */
+
+                    const statInvestment =
+                        document.getElementById(
+                            "statInvestment"
+                        );
+
+
+                    if (statInvestment) {
+
+                        statInvestment.textContent =
+                            formatMoney(
+                                confirmedTotal
+                            );
+
+                    }
+
+
+                    /*
+                     * No history
+                     */
+
+                    if (
+                        investments.length === 0
+                    ) {
+
+                        historyContainer.innerHTML = `
+                            <div class="empty-state">
+                                You have no investment
+                                requests yet.
+                            </div>
+                        `;
+
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Render history
+                     */
+
+                    historyContainer.innerHTML =
+                        investments
+                            .map(
+                                function (
+                                    investment
+                                ) {
+
+                                    const packageInfo =
+                                        packagesData.find(
+                                            function (
+                                                pkg
+                                            ) {
+
+                                                return String(
+                                                    pkg.id
+                                                ) === String(
+                                                    investment.package_id
+                                                );
+
+                                            }
+                                        );
+
+
+                                    const packageName =
+                                        packageInfo
+                                            ? packageInfo.name
+                                            : "Investment Package";
+
+
+                                    const status =
+                                        String(
+                                            investment.status ||
+                                            "pending"
+                                        ).toLowerCase();
+
+
+                                    const statusText =
+                                        formatStatus(
+                                            status
+                                        );
+
+
+                                    return `
+
+                                        <div class="history-item">
+
+                                            <div class="history-main">
+
+                                                <div class="history-title">
+                                                    ${escapeHtml(
+                                                        packageName
+                                                    )}
+                                                </div>
+
+                                                <div class="history-meta">
+
+                                                    <span>
+                                                        ${formatMoney(
+                                                            investment.amount
+                                                        )}
+                                                    </span>
+
+                                                    <span>
+                                                        ${escapeHtml(
+                                                            investment.payment_method ||
+                                                            "—"
+                                                        )}
+                                                    </span>
+
+                                                    <span>
+                                                        ${formatDate(
+                                                            investment.created_at
+                                                        )}
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="history-status status-${escapeHtml(
+                                                status
+                                            )}">
+
+                                                ${escapeHtml(
+                                                    statusText
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                    `;
+
+                                }
+                            )
+                            .join("");
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Unexpected history error:",
+                        error
+                    );
+
+
+                    historyContainer.innerHTML = `
+                        <div class="empty-state">
+                            Unable to load investment history.
+                        </div>
+                    `;
+
+                }
+
+            }
+
+        </script>
