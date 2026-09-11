@@ -3431,3 +3431,371 @@
         updateInvestmentStatus;
 
 </script>
+<script>
+    /* =========================================================
+       MONARCH CODEX — ADMIN PANEL
+       PART 6/12 — INVESTMENT CONFIRM / REJECT LOGIC
+       ========================================================= */
+
+
+    /* =========================================================
+       UPDATE INVESTMENT STATUS
+       ========================================================= */
+
+    async function updateInvestmentStatus(
+        investmentId,
+        newStatus
+    ) {
+
+        const normalizedStatus =
+            normalizeStatus(newStatus);
+
+        if (!investmentId) {
+
+            showAdminMessage(
+                "Investment ID is missing.",
+                "error"
+            );
+
+            return;
+        }
+
+        if (
+            ![
+                "confirmed",
+                "rejected"
+            ].includes(normalizedStatus)
+        ) {
+
+            showAdminMessage(
+                "Invalid investment status.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const investment =
+            investmentsData.find(
+                item =>
+                    String(item.id) ===
+                    String(investmentId)
+            );
+
+
+        if (!investment) {
+
+            showAdminMessage(
+                "Investment request could not be found.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const memberName =
+            getMemberName(
+                investment.user_id
+            );
+
+
+        const actionText =
+            normalizedStatus === "confirmed"
+                ? "confirm this investment"
+                : "reject this investment";
+
+
+        const confirmedByAdmin =
+            window.confirm(
+                `Are you sure you want to ${actionText} for ${memberName}?`
+            );
+
+
+        if (!confirmedByAdmin) {
+            return;
+        }
+
+
+        showAdminMessage(
+            normalizedStatus === "confirmed"
+                ? "Confirming investment..."
+                : "Rejecting investment...",
+            "info"
+        );
+
+
+        try {
+
+            /* =================================================
+               STEP 1 — UPDATE INVESTMENT
+               ================================================= */
+
+            const {
+                error: investmentError
+            } = await supabaseClient
+                .from("investments")
+                .update({
+                    status: normalizedStatus,
+                    updated_at: new Date().toISOString()
+                })
+                .eq("id", investmentId);
+
+
+            if (investmentError) {
+                throw investmentError;
+            }
+
+
+            /* =================================================
+               STEP 2 — UPDATE RECEIPT STATUS
+               ================================================= */
+
+            const receipt =
+                getReceiptForInvestment(
+                    investmentId
+                );
+
+
+            if (receipt) {
+
+                const receiptStatus =
+                    normalizedStatus === "confirmed"
+                        ? "approved"
+                        : "rejected";
+
+
+                const {
+                    error: receiptError
+                } = await supabaseClient
+                    .from("payment_receipts")
+                    .update({
+                        verification_status:
+                            receiptStatus,
+
+                        reviewed_at:
+                            new Date().toISOString()
+                    })
+                    .eq("id", receipt.id);
+
+
+                if (receiptError) {
+
+                    /*
+                     * The investment itself has already
+                     * been updated successfully.
+                     *
+                     * Do not pretend the receipt update
+                     * succeeded if Supabase rejected it.
+                     */
+                    console.error(
+                        "Receipt status update failed:",
+                        receiptError
+                    );
+
+                    showAdminMessage(
+                        `Investment ${
+                            normalizedStatus === "confirmed"
+                                ? "confirmed"
+                                : "rejected"
+                        }, but receipt status could not be updated. ` +
+                        getDatabaseErrorMessage(
+                            receiptError
+                        ),
+                        "warning"
+                    );
+
+                } else {
+
+                    receipt.verification_status =
+                        receiptStatus;
+
+                    receipt.reviewed_at =
+                        new Date().toISOString();
+                }
+            }
+
+
+            /* =================================================
+               STEP 3 — UPDATE LOCAL INVESTMENT DATA
+               ================================================= */
+
+            investment.status =
+                normalizedStatus;
+
+            investment.updated_at =
+                new Date().toISOString();
+
+
+            /* =================================================
+               STEP 4 — REFRESH ADMIN UI
+               ================================================= */
+
+            updateInvestmentStatistics();
+
+            renderInvestments();
+
+
+            /*
+             * Also refresh the receipt list so the UI
+             * always reflects the database.
+             */
+            await loadReceipts();
+
+            updateInvestmentStatistics();
+
+            renderInvestments();
+
+
+            /* =================================================
+               SUCCESS MESSAGE
+               ================================================= */
+
+            showAdminMessage(
+                normalizedStatus === "confirmed"
+                    ? "Investment confirmed successfully."
+                    : "Investment rejected successfully.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Investment status update error:",
+                error
+            );
+
+
+            showAdminMessage(
+                "Unable to update investment status: " +
+                getDatabaseErrorMessage(error),
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       QUICK CONFIRM HELPER
+       ========================================================= */
+
+    async function confirmInvestment(
+        investmentId
+    ) {
+
+        return updateInvestmentStatus(
+            investmentId,
+            "confirmed"
+        );
+    }
+
+
+    /* =========================================================
+       QUICK REJECT HELPER
+       ========================================================= */
+
+    async function rejectInvestment(
+        investmentId
+    ) {
+
+        return updateInvestmentStatus(
+            investmentId,
+            "rejected"
+        );
+    }
+
+
+    /* =========================================================
+       FIND INVESTMENT
+       ========================================================= */
+
+    function getInvestmentById(
+        investmentId
+    ) {
+
+        if (!investmentId) {
+            return null;
+        }
+
+        return investmentsData.find(
+            investment =>
+                String(investment.id) ===
+                String(investmentId)
+        ) || null;
+    }
+
+
+    /* =========================================================
+       GET RECEIPT BY ID
+       ========================================================= */
+
+    function getReceiptById(
+        receiptId
+    ) {
+
+        if (!receiptId) {
+            return null;
+        }
+
+        return receiptsData.find(
+            receipt =>
+                String(receipt.id) ===
+                String(receiptId)
+        ) || null;
+    }
+
+
+    /* =========================================================
+       INVESTMENT SUMMARY
+       ========================================================= */
+
+    function getInvestmentSummary(
+        investmentId
+    ) {
+
+        const investment =
+            getInvestmentById(
+                investmentId
+            );
+
+        if (!investment) {
+            return null;
+        }
+
+        const member =
+            getMemberById(
+                investment.user_id
+            );
+
+        const packageData =
+            getPackageById(
+                investment.package_id
+            );
+
+        const receipt =
+            getReceiptForInvestment(
+                investment.id
+            );
+
+        return {
+            investment,
+            member,
+            packageData,
+            receipt
+        };
+    }
+
+
+    /* =========================================================
+       EXPORT HELPERS
+       ========================================================= */
+
+    window.confirmInvestment =
+        confirmInvestment;
+
+    window.rejectInvestment =
+        rejectInvestment;
+
+</script>
