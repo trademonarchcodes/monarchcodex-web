@@ -2571,3 +2571,611 @@
             }
         )} USDT`;
     }
+    async function loadInvestmentHistory(userId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from("investments")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", { ascending: false });
+
+            if (error) throw error;
+
+            const investments = data || [];
+
+            renderInvestmentHistory(investments);
+            updateInvestmentStats(investments);
+
+        } catch (error) {
+            console.error(
+                "Error loading investment history:",
+                error
+            );
+
+            const tableBody =
+                document.getElementById(
+                    "investmentHistoryBody"
+                );
+
+            const mobileContainer =
+                document.getElementById(
+                    "investmentHistoryMobile"
+                );
+
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Unable to load investment history.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (mobileContainer) {
+                mobileContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Unable to Load History</h3>
+                        <p>Please refresh the page and try again.</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+
+    function renderInvestmentHistory(investments) {
+        const tableBody =
+            document.getElementById(
+                "investmentHistoryBody"
+            );
+
+        const mobileContainer =
+            document.getElementById(
+                "investmentHistoryMobile"
+            );
+
+        if (!investments || investments.length === 0) {
+
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <strong>No Investment Requests Yet</strong>
+                            <p>
+                                Your investment requests will appear here.
+                            </p>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (mobileContainer) {
+                mobileContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <h3>No Investment Requests Yet</h3>
+                        <p>
+                            Your investment requests will appear here.
+                        </p>
+                    </div>
+                `;
+            }
+
+            return;
+        }
+
+
+        if (tableBody) {
+            tableBody.innerHTML = investments.map(
+                investment => {
+
+                    const packageName =
+                        investment.package_name ||
+                        investment.package ||
+                        investment.package_title ||
+                        "Investment Package";
+
+                    const amount =
+                        Number(investment.amount || 0);
+
+                    const paymentMethod =
+                        formatPaymentMethod(
+                            investment.payment_method
+                        );
+
+                    const status =
+                        formatStatus(
+                            investment.status
+                        );
+
+                    const receiptStatus =
+                        investment.receipt_status ||
+                        "pending";
+
+                    const date =
+                        formatDate(
+                            investment.created_at
+                        );
+
+                    return `
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    ${escapeHtml(packageName)}
+                                </strong>
+                            </td>
+
+                            <td>
+                                $${amount.toLocaleString(
+                                    "en-US",
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(paymentMethod)}
+                            </td>
+
+                            <td>
+                                ${renderReceiptStatus(
+                                    receiptStatus
+                                )}
+                            </td>
+
+                            <td>
+                                <span class="status-badge ${getStatusClass(investment.status)}">
+                                    ${escapeHtml(status)}
+                                </span>
+                            </td>
+
+                            <td>
+                                ${escapeHtml(date)}
+                            </td>
+
+                        </tr>
+                    `;
+                }
+            ).join("");
+        }
+
+
+        if (mobileContainer) {
+            mobileContainer.innerHTML = investments.map(
+                investment => {
+
+                    const packageName =
+                        investment.package_name ||
+                        investment.package ||
+                        investment.package_title ||
+                        "Investment Package";
+
+                    const amount =
+                        Number(investment.amount || 0);
+
+                    const paymentMethod =
+                        formatPaymentMethod(
+                            investment.payment_method
+                        );
+
+                    const status =
+                        formatStatus(
+                            investment.status
+                        );
+
+                    const receiptStatus =
+                        investment.receipt_status ||
+                        "pending";
+
+                    const date =
+                        formatDate(
+                            investment.created_at
+                        );
+
+                    return `
+                        <div class="investment-mobile-card">
+
+                            <div class="investment-mobile-header">
+                                <strong>
+                                    ${escapeHtml(packageName)}
+                                </strong>
+
+                                <span class="status-badge ${getStatusClass(investment.status)}">
+                                    ${escapeHtml(status)}
+                                </span>
+                            </div>
+
+                            <div class="investment-mobile-row">
+                                <span>Amount</span>
+                                <strong>
+                                    $${amount.toLocaleString(
+                                        "en-US",
+                                        {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        }
+                                    )}
+                                </strong>
+                            </div>
+
+                            <div class="investment-mobile-row">
+                                <span>Payment</span>
+                                <strong>
+                                    ${escapeHtml(paymentMethod)}
+                                </strong>
+                            </div>
+
+                            <div class="investment-mobile-row">
+                                <span>Receipt</span>
+                                <span>
+                                    ${renderReceiptStatus(
+                                        receiptStatus
+                                    )}
+                                </span>
+                            </div>
+
+                            <div class="investment-mobile-row">
+                                <span>Date</span>
+                                <span>
+                                    ${escapeHtml(date)}
+                                </span>
+                            </div>
+
+                        </div>
+                    `;
+                }
+            ).join("");
+        }
+    }
+
+
+    function updateInvestmentStats(investments) {
+
+        let totalInvested = 0;
+        let activeInvestments = 0;
+        let pendingRequests = 0;
+
+        investments.forEach(investment => {
+
+            const amount =
+                Number(investment.amount || 0);
+
+            const status =
+                String(
+                    investment.status || ""
+                ).toLowerCase();
+
+            if (
+                status === "approved" ||
+                status === "active" ||
+                status === "completed"
+            ) {
+                totalInvested += amount;
+            }
+
+            if (
+                status === "approved" ||
+                status === "active"
+            ) {
+                activeInvestments++;
+            }
+
+            if (
+                status === "pending"
+            ) {
+                pendingRequests++;
+            }
+        });
+
+
+        setText(
+            "totalInvested",
+            `$${totalInvested.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`
+        );
+
+
+        setText(
+            "activeInvestments",
+            String(activeInvestments)
+        );
+
+
+        setText(
+            "overviewInvestment",
+            `$${totalInvested.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`
+        );
+
+
+        setText(
+            "overviewRequests",
+            String(pendingRequests)
+        );
+    }
+
+
+    async function loadEarnings(userId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from("earnings")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", {
+                    ascending: false
+                });
+
+            if (error) throw error;
+
+            const earnings = data || [];
+
+            renderEarnings(earnings);
+
+        } catch (error) {
+            console.error(
+                "Error loading earnings:",
+                error
+            );
+
+            renderEarnings([]);
+        }
+    }
+
+
+    function renderEarnings(earnings) {
+
+        let total = 0;
+        let available = 0;
+        let pending = 0;
+
+        earnings.forEach(earning => {
+
+            const amount =
+                Number(
+                    earning.amount ||
+                    earning.profit ||
+                    earning.value ||
+                    0
+                );
+
+            total += amount;
+
+            const status =
+                String(
+                    earning.status || "available"
+                ).toLowerCase();
+
+            if (
+                status === "pending"
+            ) {
+                pending += amount;
+            } else {
+                available += amount;
+            }
+        });
+
+
+        setText(
+            "earningsTotal",
+            `$${total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`
+        );
+
+
+        setText(
+            "earningsAvailable",
+            `$${available.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`
+        );
+
+
+        setText(
+            "earningsPending",
+            `$${pending.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`
+        );
+
+
+        setText(
+            "totalEarnings",
+            `$${total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`
+        );
+
+
+        setText(
+            "overviewEarnings",
+            `$${total.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`);
+
+
+        const earningsList =
+            document.getElementById(
+                "earningsList"
+            );
+
+
+        if (!earningsList) return;
+
+
+        if (!earnings || earnings.length === 0) {
+
+            earningsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">💰</div>
+                    <h3>No Earnings Yet</h3>
+                    <p>
+                        Your earnings will appear here once they are generated.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        earningsList.innerHTML =
+            earnings.map(earning => {
+
+                const amount =
+                    Number(
+                        earning.amount ||
+                        earning.profit ||
+                        earning.value ||
+                        0
+                    );
+
+                const description =
+                    earning.description ||
+                    earning.title ||
+                    earning.type ||
+                    "Investment Earnings";
+
+                const status =
+                    earning.status ||
+                    "available";
+
+                return `
+                    <div class="earning-item">
+
+                        <div class="earning-item-info">
+                            <strong>
+                                ${escapeHtml(
+                                    String(description)
+                                )}
+                            </strong>
+
+                            <small>
+                                ${escapeHtml(
+                                    formatDate(
+                                        earning.created_at
+                                    )
+                                )}
+                            </small>
+                        </div>
+
+                        <div class="earning-item-value">
+                            +$${amount.toLocaleString(
+                                "en-US",
+                                {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            )}
+
+                            <span class="status-badge ${getStatusClass(status)}">
+                                ${escapeHtml(
+                                    formatStatus(status)
+                                )}
+                            </span>
+                        </div>
+
+                    </div>
+                `;
+            }).join("");
+    }
+
+
+    function renderReceiptStatus(status) {
+
+        const normalized =
+            String(status || "pending")
+                .toLowerCase();
+
+        if (normalized === "approved") {
+            return `
+                <span class="receipt-status approved">
+                    ✓ Approved
+                </span>
+            `;
+        }
+
+        if (normalized === "rejected") {
+            return `
+                <span class="receipt-status rejected">
+                    ✕ Rejected
+                </span>
+            `;
+        }
+
+        if (normalized === "uploaded") {
+            return `
+                <span class="receipt-status uploaded">
+                    ✓ Uploaded
+                </span>
+            `;
+        }
+
+        return `
+            <span class="receipt-status pending">
+                Pending
+            </span>
+        `;
+    }
+
+
+    function formatPaymentMethod(method) {
+
+        const value =
+            String(method || "")
+                .toLowerCase();
+
+        if (value === "bank") {
+            return "Bank Transfer";
+        }
+
+        if (value === "crypto") {
+            return "Crypto";
+        }
+
+        if (!value) {
+            return "—";
+        }
+
+        return value
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, char =>
+                char.toUpperCase()
+            );
+    }
