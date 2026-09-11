@@ -4399,3 +4399,486 @@
         closeReceiptModal;
 
 </script>
+<script>
+    /* =========================================================
+       MONARCH CODEX — ADMIN PANEL
+       PART 8/12 — EARNINGS MANAGEMENT
+       ========================================================= */
+
+
+    /* =========================================================
+       LOAD EARNINGS
+       ========================================================= */
+
+    async function loadEarnings() {
+
+        if (earningsTableBody) {
+
+            earningsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="loading-cell">
+                        Loading earnings...
+                    </td>
+                </tr>
+            `;
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("earnings")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            earningsData =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+
+            renderEarnings();
+
+
+        } catch (error) {
+
+            console.error(
+                "Error loading earnings:",
+                error
+            );
+
+
+            earningsData = [];
+
+
+            if (earningsTableBody) {
+
+                earningsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-cell">
+                            Unable to load earnings.
+                        </td>
+                    </tr>
+                `;
+            }
+
+
+            showAdminMessage(
+                "Unable to load earnings: " +
+                getDatabaseErrorMessage(error),
+                "error"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       GET EARNING MEMBER
+       ========================================================= */
+
+    function getEarningMember(
+        earning
+    ) {
+
+        if (!earning) {
+            return null;
+        }
+
+        return getMemberById(
+            earning.user_id
+        );
+    }
+
+
+    /* =========================================================
+       RENDER EARNINGS
+       ========================================================= */
+
+    function renderEarnings() {
+
+        if (!earningsTableBody) {
+            return;
+        }
+
+
+        if (!earningsData.length) {
+
+            earningsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-cell">
+                        No earnings recorded yet.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        earningsTableBody.innerHTML =
+            earningsData.map(earning => {
+
+                const member =
+                    getEarningMember(
+                        earning
+                    );
+
+
+                const memberName =
+                    member?.full_name ||
+                    member?.name ||
+                    member?.email ||
+                    "Unknown Member";
+
+
+                const memberUid =
+                    member?.uid ||
+                    "—";
+
+
+                const amount =
+                    Number(
+                        earning.amount || 0
+                    );
+
+
+                const description =
+                    earning.description ||
+                    "—";
+
+
+                const status =
+                    normalizeStatus(
+                        earning.status ||
+                        "confirmed"
+                    );
+
+
+                const date =
+                    formatDate(
+                        earning.created_at
+                    );
+
+
+                return `
+                    <tr>
+
+                        <td>
+                            <div class="member-name">
+                                ${escapeHtml(
+                                    memberName
+                                )}
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="monarch-uid">
+                                ${escapeHtml(
+                                    memberUid
+                                )}
+                            </span>
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${formatUsd(amount)}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                description
+                            )}
+                        </td>
+
+                        <td>
+                            <span
+                                class="status-badge ${getStatusClass(
+                                    status
+                                )}"
+                            >
+                                ${escapeHtml(
+                                    getStatusLabel(
+                                        status
+                                    )
+                                )}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${escapeHtml(date)}
+                        </td>
+
+                    </tr>
+                `;
+
+            }).join("");
+    }
+
+
+    /* =========================================================
+       ADD EARNING
+       ========================================================= */
+
+    async function addEarning(
+        event
+    ) {
+
+        if (event) {
+            event.preventDefault();
+        }
+
+
+        clearEarningsStatus();
+
+
+        if (!earningMemberEl) {
+            return;
+        }
+
+
+        const userId =
+            earningMemberEl.value;
+
+
+        const amount =
+            Number(
+                earningAmountEl?.value || 0
+            );
+
+
+        const description =
+            earningDescriptionEl?.value
+                ?.trim() || "";
+
+
+        /* =====================================================
+           VALIDATION
+           ===================================================== */
+
+        if (!userId) {
+
+            showEarningsStatus(
+                "Please select a member.",
+                "error"
+            );
+
+            earningMemberEl.focus();
+
+            return;
+        }
+
+
+        if (
+            !Number.isFinite(amount) ||
+            amount <= 0
+        ) {
+
+            showEarningsStatus(
+                "Please enter a valid earning amount.",
+                "error"
+            );
+
+            earningAmountEl?.focus();
+
+            return;
+        }
+
+
+        if (!description) {
+
+            showEarningsStatus(
+                "Please enter an earning description.",
+                "error"
+            );
+
+            earningDescriptionEl?.focus();
+
+            return;
+        }
+
+
+        const member =
+            getMemberById(userId);
+
+
+        const memberName =
+            member?.full_name ||
+            member?.name ||
+            member?.email ||
+            "this member";
+
+
+        const confirmed =
+            window.confirm(
+                `Add ${formatUsd(amount)} earning to ${memberName}?`
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        /* =====================================================
+           DISABLE BUTTON
+           ===================================================== */
+
+        const originalButtonText =
+            addEarningBtn?.textContent ||
+            "Add Earning";
+
+
+        if (addEarningBtn) {
+
+            addEarningBtn.disabled = true;
+
+            addEarningBtn.textContent =
+                "Adding...";
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+                .from("earnings")
+                .insert({
+                    user_id: userId,
+                    amount: amount,
+                    description: description,
+                    status: "confirmed"
+                })
+                .select()
+                .single();
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (data) {
+
+                earningsData.unshift(
+                    data
+                );
+            }
+
+
+            renderEarnings();
+
+
+            /* =================================================
+               RESET FORM
+               ================================================= */
+
+            if (earningMemberEl) {
+                earningMemberEl.value = "";
+            }
+
+            if (earningAmountEl) {
+                earningAmountEl.value = "";
+            }
+
+            if (earningDescriptionEl) {
+                earningDescriptionEl.value = "";
+            }
+
+
+            showEarningsStatus(
+                "Earning added successfully.",
+                "success"
+            );
+
+
+            showAdminMessage(
+                `Earning of ${formatUsd(amount)} added for ${memberName}.`,
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Add earning error:",
+                error
+            );
+
+
+            showEarningsStatus(
+                "Unable to add earning: " +
+                getDatabaseErrorMessage(error),
+                "error"
+            );
+
+
+        } finally {
+
+            if (addEarningBtn) {
+
+                addEarningBtn.disabled = false;
+
+                addEarningBtn.textContent =
+                    originalButtonText;
+            }
+        }
+    }
+
+
+    /* =========================================================
+       EARNING FORM SUBMISSION
+       ========================================================= */
+
+    const earningForm =
+        document.getElementById(
+            "earningForm"
+        );
+
+
+    if (earningForm) {
+
+        earningForm.addEventListener(
+            "submit",
+            addEarning
+        );
+    }
+
+
+    /* =========================================================
+       FALLBACK BUTTON HANDLER
+       ========================================================= */
+
+    if (
+        addEarningBtn &&
+        !earningForm
+    ) {
+
+        addEarningBtn.addEventListener(
+            "click",
+            addEarning
+        );
+    }
+
+
+    /* =========================================================
+       GLOBAL EXPORT
+       ========================================================= */
+
+    window.addEarning =
+        addEarning;
+
+</script>
