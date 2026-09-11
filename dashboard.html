@@ -420,3 +420,425 @@
 
         </section>
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Monarch Codex | Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css">
+
+</head>
+
+
+<body>
+
+    <!-- =====================================================
+         DASHBOARD HEADER
+         ===================================================== -->
+
+    <header class="dashboard-header">
+
+        <div class="brand">
+
+            <h1>MONARCH CODEX</h1>
+
+            <span>MONARCH DASHBOARD</span>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="logout-btn"
+            onclick="logout()">
+
+            Logout
+
+        </button>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN DASHBOARD
+         ===================================================== -->
+
+    <main class="dashboard-main">
+
+
+        <!-- =================================================
+             WELCOME SECTION
+             ================================================= -->
+
+        <section class="welcome-section">
+
+            <p class="eyebrow">
+                WELCOME, MONARCH
+            </p>
+
+
+            <h2>
+
+                Welcome back,
+
+                <span id="welcomeName">
+                    Monarch
+                </span>
+
+            </h2>
+
+
+            <p>
+                Manage your Monarch Codex account,
+                investments, and earnings from here.
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             DASHBOARD MESSAGE
+             ================================================= -->
+
+        <div
+            id="dashboardMessage"
+            class="message-box">
+        </div>
+
+
+        <!-- =================================================
+             ACCOUNT STATISTICS
+             ================================================= -->
+
+        <section class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <span>
+                    ACCOUNT STATUS
+                </span>
+
+                <strong id="statStatus">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span>
+                    TOTAL INVESTMENT
+                </span>
+
+                <strong id="statInvestment">
+                    $0.00
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span>
+                    TOTAL EARNINGS
+                </span>
+
+                <strong id="statEarnings">
+                    $0.00
+                </strong>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             PROFILE
+             ================================================= -->
+
+        <section class="dashboard-section">
+
+
+            <div class="section-title">
+
+                <h2>
+                    Profile
+                </h2>
+
+                <span>
+                    MONARCH ACCOUNT
+                </span>
+
+            </div>
+
+
+            <div class="profile-grid">
+
+
+                <!-- =========================================
+                     MONARCH UID
+                     ========================================= -->
+
+                <div class="info-card monarch-uid-card">
+
+
+                    <div class="info-label">
+                        YOUR MONARCH UID
+                    </div>
+
+
+                    <div class="uid-copy-row">
+
+
+                        <div
+                            class="info-value monarch-uid-value"
+                            id="profileUid">
+
+                            —
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="uid-copy-btn"
+                            id="copyUidBtn"
+                            onclick="copyMonarchUID()">
+
+                            📋 Copy
+
+                        </button>
+
+
+                    </div>
+
+
+                    <small class="uid-help-text">
+
+                        Use this UID when contacting
+                        Monarch Codex support.
+
+                    </small>
+
+
+                </div>
+
+
+                <!-- =========================================
+                     FULL NAME
+                     ========================================= -->
+
+                <div class="info-card">
+
+
+                    <div class="info-label">
+                        FULL NAME
+                    </div>
+
+
+                    <div
+                        class="info-value"
+                        id="profileFullName">
+
+                        —
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =========================================
+                     PHONE
+                     ========================================= -->
+
+                <div class="info-card">
+
+
+                    <div class="info-label">
+                        PHONE
+                    </div>
+
+
+                    <div
+                        class="info-value"
+                        id="profilePhone">
+
+                        —
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =========================================
+                     ACCOUNT STATUS
+                     ========================================= -->
+
+                <div class="info-card">
+
+
+                    <div class="info-label">
+                        ACCOUNT STATUS
+                    </div>
+
+
+                    <div
+                        class="info-value"
+                        id="profileStatus">
+
+                        —
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             ACCOUNT OVERVIEW
+             ================================================= -->
+
+        <section class="dashboard-section">
+
+
+            <div class="section-title">
+
+                <h2>
+                    Account Overview
+                </h2>
+
+                <span>
+                    MONARCH STATUS
+                </span>
+
+            </div>
+
+
+            <div class="overview-grid">
+
+
+                <div class="info-card">
+
+
+                    <div class="info-label">
+                        ACCOUNT TYPE
+                    </div>
+
+
+                    <div
+                        class="info-value"
+                        id="accountType">
+
+                        MEMBER
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="info-card">
+
+
+                    <div class="info-label">
+                        MEMBER SINCE
+                    </div>
+
+
+                    <div
+                        class="info-value"
+                        id="memberSince">
+
+                        —
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="info-card">
+
+
+                    <div class="info-label">
+                        VERIFICATION
+                    </div>
+
+
+                    <div
+                        class="info-value"
+                        id="verificationStatus">
+
+                        PENDING
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             INVESTMENT PACKAGES
+             ================================================= -->
+
+        <section class="dashboard-section">
+
+
+            <div class="section-title">
+
+                <h2>
+                    Investment Packages
+                </h2>
+
+                <span>
+                    CHOOSE YOUR PACKAGE
+                </span>
+
+            </div>
+
+
+            <div
+                class="packages-grid"
+                id="packagesGrid">
+
+                <!-- Packages will load from Supabase -->
+
+            </div>
+
+
+            <div
+                id="packageMessage"
+                class="message-box">
+
+            </div>
+
+
+        </section>
+
