@@ -5597,30 +5597,382 @@
     }
 
 
-    function getSelectedPackageAmount() {
+    /* =========================================================
+   MONARCH CODEX — PACKAGE PAYMENT CALCULATOR
+   Crypto fee: $1
+   Bank fee: $2 USD equivalent
+   Bank exchange rate: live rate rounded UP to nearest ₦100
+   Fallback rate: ₦1,400 / $1
+========================================================= */
 
-        if (!selectedPackage) {
-            return 0;
-        }
+const CRYPTO_PAYMENT_FEE_USD = 1;
+const BANK_PAYMENT_FEE_USD = 2;
+const FALLBACK_USD_NGN_RATE = 1400;
 
-        return Number(
-            selectedPackage.amount || 0
-        );
+let liveUsdNgnRate = null;
+let roundedUsdNgnRate = FALLBACK_USD_NGN_RATE;
+
+
+/* ---------------------------------------------------------
+   GET SELECTED PACKAGE AMOUNT
+--------------------------------------------------------- */
+
+function getSelectedPackageAmount() {
+    if (!selectedPackage) {
+        return 0;
     }
 
+    return Number(
+        selectedPackage.amount ??
+        selectedPackage.price ??
+        selectedPackage.minimum_amount ??
+        0
+    );
+}
 
-    function getSelectedPaymentAmount() {
 
-        if (!selectedPaymentDetails) {
-            return 0;
+/* ---------------------------------------------------------
+   ROUND USD/NGN RATE UP TO NEAREST ₦100
+--------------------------------------------------------- */
+
+function roundUsdNgnRate(rate) {
+    const numericRate = Number(rate);
+
+    if (
+        !Number.isFinite(numericRate) ||
+        numericRate <= 0
+    ) {
+        return FALLBACK_USD_NGN_RATE;
+    }
+
+    return Math.ceil(numericRate / 100) * 100;
+}
+
+
+/* ---------------------------------------------------------
+   LOAD LIVE USD/NGN RATE
+--------------------------------------------------------- */
+
+async function loadUsdNgnRate() {
+    try {
+        const response = await fetch(
+            "https://open.er-api.com/v6/latest/USD",
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Exchange-rate request failed: ${response.status}`
+            );
         }
 
-        return Number(
-            selectedPaymentDetails.total_amount ||
-            selectedPaymentDetails.minimum_amount ||
-            0
+        const data = await response.json();
+
+        const rate = Number(
+            data?.rates?.NGN
         );
+
+        if (
+            !Number.isFinite(rate) ||
+            rate <= 0
+        ) {
+            throw new Error(
+                "Invalid USD/NGN exchange rate."
+            );
+        }
+
+        liveUsdNgnRate = rate;
+
+        roundedUsdNgnRate =
+            roundUsdNgnRate(rate);
+
+        console.log(
+            "MONARCH CODEX USD/NGN rate:",
+            liveUsdNgnRate,
+            "→ using:",
+            roundedUsdNgnRate
+        );
+
+        /*
+         * Recalculate immediately if the member
+         * has already selected Bank Transfer.
+         */
+        if (
+            selectedPaymentMethod === "bank" &&
+            selectedPaymentDetails
+        ) {
+            renderBankPaymentAmount();
+            updatePaymentSummary();
+            updateInvestmentFormState();
+        }
+
+        return roundedUsdNgnRate;
+
+    } catch (error) {
+
+        console.warn(
+            "Live USD/NGN rate unavailable. Using fallback rate ₦1,400.",
+            error
+        );
+
+        liveUsdNgnRate = null;
+        roundedUsdNgnRate =
+            FALLBACK_USD_NGN_RATE;
+
+        if (
+            selectedPaymentMethod === "bank" &&
+            selectedPaymentDetails
+        ) {
+            renderBankPaymentAmount();
+            updatePaymentSummary();
+            updateInvestmentFormState();
+        }
+
+        return roundedUsdNgnRate;
     }
+}
+
+
+/* ---------------------------------------------------------
+   GET CURRENT USD/NGN RATE
+--------------------------------------------------------- */
+
+function getCurrentUsdNgnRate() {
+    return (
+        Number(roundedUsdNgnRate) ||
+        FALLBACK_USD_NGN_RATE
+    );
+}
+
+
+/* ---------------------------------------------------------
+   CALCULATE BANK PAYMENT
+--------------------------------------------------------- */
+
+function calculateBankPayment() {
+
+    const packageAmount =
+        getSelectedPackageAmount();
+
+    const rate =
+        getCurrentUsdNgnRate();
+
+    const investmentNgn =
+        packageAmount * rate;
+
+    const feeNgn =
+        BANK_PAYMENT_FEE_USD * rate;
+
+    const totalNgn =
+        investmentNgn + feeNgn;
+
+    return {
+        packageUsd: packageAmount,
+        rate: rate,
+        feeUsd: BANK_PAYMENT_FEE_USD,
+        investmentNgn: investmentNgn,
+        feeNgn: feeNgn,
+        totalNgn: totalNgn
+    };
+}
+
+
+/* ---------------------------------------------------------
+   CALCULATE CRYPTO PAYMENT
+--------------------------------------------------------- */
+
+function calculateCryptoPayment() {
+
+    const packageAmount =
+        getSelectedPackageAmount();
+
+    const feeUsd =
+        CRYPTO_PAYMENT_FEE_USD;
+
+    const totalUsd =
+        packageAmount + feeUsd;
+
+    return {
+        packageUsd: packageAmount,
+        feeUsd: feeUsd,
+        totalUsd: totalUsd
+    };
+}
+
+
+/* ---------------------------------------------------------
+   FORMAT NGN AMOUNTS
+--------------------------------------------------------- */
+
+function formatNairaAmount(amount) {
+
+    const numericAmount =
+        Number(amount);
+
+    if (
+        !Number.isFinite(numericAmount)
+    ) {
+        return "₦0";
+    }
+
+    return (
+        "₦" +
+        numericAmount.toLocaleString(
+            "en-NG",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }
+        )
+    );
+}
+
+
+/* ---------------------------------------------------------
+   RENDER BANK PAYMENT AMOUNT
+--------------------------------------------------------- */
+
+function renderBankPaymentAmount() {
+
+    const minimumAmount =
+        document.getElementById(
+            "bankMinimumAmount"
+        );
+
+    const feeAmount =
+        document.getElementById(
+            "bankFeeAmount"
+        );
+
+    const totalAmount =
+        document.getElementById(
+            "bankTotalAmount"
+        );
+
+    const calculation =
+        calculateBankPayment();
+
+    if (minimumAmount) {
+        minimumAmount.textContent =
+            formatNairaAmount(
+                calculation.investmentNgn
+            );
+    }
+
+    if (feeAmount) {
+        feeAmount.textContent =
+            formatNairaAmount(
+                calculation.feeNgn
+            );
+    }
+
+    if (totalAmount) {
+        totalAmount.textContent =
+            formatNairaAmount(
+                calculation.totalNgn
+            );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RENDER CRYPTO PAYMENT AMOUNT
+--------------------------------------------------------- */
+
+function renderCryptoPaymentAmount() {
+
+    const minimumAmount =
+        document.getElementById(
+            "cryptoMinimumAmount"
+        );
+
+    const feeAmount =
+        document.getElementById(
+            "cryptoFeeAmount"
+        );
+
+    const totalAmount =
+        document.getElementById(
+            "cryptoTotalAmount"
+        );
+
+    const calculation =
+        calculateCryptoPayment();
+
+    if (minimumAmount) {
+        minimumAmount.textContent =
+            `$${calculation.packageUsd.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )} USDT`;
+    }
+
+    if (feeAmount) {
+        feeAmount.textContent =
+            `$${calculation.feeUsd.toFixed(2)} USDT`;
+    }
+
+    if (totalAmount) {
+        totalAmount.textContent =
+            `$${calculation.totalUsd.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )} USDT`;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   GET ACTUAL PAYMENT AMOUNT FOR SUBMISSION
+--------------------------------------------------------- */
+
+function getSelectedPaymentAmount() {
+
+    if (!selectedPaymentMethod) {
+        return 0;
+    }
+
+    if (selectedPaymentMethod === "bank") {
+        return calculateBankPayment().totalNgn;
+    }
+
+    if (selectedPaymentMethod === "crypto") {
+        return calculateCryptoPayment().totalUsd;
+    }
+
+    return 0;
+}
+
+
+/* ---------------------------------------------------------
+   GET PAYMENT CURRENCY
+--------------------------------------------------------- */
+
+function getSelectedPaymentCurrency() {
+
+    if (
+        selectedPaymentMethod === "bank"
+    ) {
+        return "NGN";
+    }
+
+    if (
+        selectedPaymentMethod === "crypto"
+    ) {
+        return "USD";
+    }
+
+    return "USD";
+}
 
 
     function getSelectedPaymentCurrency() {
