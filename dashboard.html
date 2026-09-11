@@ -4112,3 +4112,440 @@
             );
 
         </script>
+
+        <script>
+
+            /* =================================================
+               DASHBOARD NAVIGATION
+               ================================================= */
+
+            function setActiveNavigation(
+                sectionId
+            ) {
+
+                document
+                    .querySelectorAll(
+                        "[data-dashboard-section]"
+                    )
+                    .forEach(
+                        function (item) {
+
+                            item.classList.remove(
+                                "active"
+                            );
+
+                        }
+                    );
+
+
+                const activeItem =
+                    document.querySelector(
+                        `[data-dashboard-section="${sectionId}"]`
+                    );
+
+
+                if (activeItem) {
+
+                    activeItem.classList.add(
+                        "active"
+                    );
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               NAVIGATION CLICK HANDLER
+               ================================================= */
+
+            document.addEventListener(
+                "click",
+                function (event) {
+
+                    const link =
+                        event.target.closest(
+                            "[data-dashboard-section]"
+                        );
+
+
+                    if (!link) {
+                        return;
+                    }
+
+
+                    const sectionId =
+                        link.getAttribute(
+                            "data-dashboard-section"
+                        );
+
+
+                    if (!sectionId) {
+                        return;
+                    }
+
+
+                    setActiveNavigation(
+                        sectionId
+                    );
+
+                }
+            );
+
+
+
+            /* =================================================
+               SECTION OBSERVER
+               ================================================= */
+
+            const dashboardSections =
+                document.querySelectorAll(
+                    "main section[id]"
+                );
+
+
+            if (
+                dashboardSections.length
+            ) {
+
+                const sectionObserver =
+                    new IntersectionObserver(
+                        function (
+                            entries
+                        ) {
+
+                            entries.forEach(
+                                function (
+                                    entry
+                                ) {
+
+                                    if (
+                                        !entry.isIntersecting
+                                    ) {
+
+                                        return;
+
+                                    }
+
+
+                                    setActiveNavigation(
+                                        entry.target.id
+                                    );
+
+                                }
+                            );
+
+                        },
+                        {
+                            threshold: 0.2,
+                            rootMargin:
+                                "-80px 0px -45% 0px"
+                        }
+                    );
+
+
+                dashboardSections.forEach(
+                    function (
+                        section
+                    ) {
+
+                        sectionObserver.observe(
+                            section
+                        );
+
+                    }
+                );
+
+            }
+
+
+
+            /* =================================================
+               HANDLE BROWSER BACK/FORWARD SCROLL
+               ================================================= */
+
+            window.addEventListener(
+                "hashchange",
+                function () {
+
+                    const hash =
+                        window.location.hash
+                            .replace(
+                                "#",
+                                ""
+                            );
+
+
+                    if (!hash) {
+                        return;
+                    }
+
+
+                    scrollToSection(
+                        hash
+                    );
+
+                }
+            );
+
+
+
+            /* =================================================
+               HASH NAVIGATION ON PAGE LOAD
+               ================================================= */
+
+            document.addEventListener(
+                "DOMContentLoaded",
+                function () {
+
+                    const hash =
+                        window.location.hash
+                            .replace(
+                                "#",
+                                ""
+                            );
+
+
+                    if (!hash) {
+                        return;
+                    }
+
+
+                    setTimeout(
+                        function () {
+
+                            scrollToSection(
+                                hash
+                            );
+
+                        },
+                        300
+                    );
+
+                }
+            );
+
+
+
+            /* =================================================
+               HANDLE URL HASH FROM DASHBOARD BUTTONS
+               ================================================= */
+
+            function openDashboardSection(
+                sectionId
+            ) {
+
+                if (!sectionId) {
+                    return;
+                }
+
+
+                const section =
+                    document.getElementById(
+                        sectionId
+                    );
+
+
+                if (!section) {
+                    return;
+                }
+
+
+                /*
+                 * Update URL without causing
+                 * an unnecessary page reload.
+                 */
+
+                try {
+
+                    history.replaceState(
+                        null,
+                        "",
+                        "#" +
+                        sectionId
+                    );
+
+                } catch (error) {
+
+                    console.warn(
+                        "Unable to update URL hash:",
+                        error
+                    );
+
+                }
+
+
+                section.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+
+                setActiveNavigation(
+                    sectionId
+                );
+
+            }
+
+
+
+            /* =================================================
+               ESC KEY SUPPORT
+               ================================================= */
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (
+                        event.key !==
+                        "Escape"
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * Remove temporary selected
+                     * package/payment states only.
+                     * Do not submit or modify data.
+                     */
+
+                    document
+                        .querySelectorAll(
+                            ".package-card.selected"
+                        )
+                        .forEach(
+                            function (card) {
+
+                                /*
+                                 * Keep the actual
+                                 * selected package.
+                                 */
+
+                            }
+                        );
+
+                }
+            );
+
+
+
+            /* =================================================
+               WINDOW RESIZE HANDLER
+               ================================================= */
+
+            let resizeTimer =
+                null;
+
+
+            window.addEventListener(
+                "resize",
+                function () {
+
+                    clearTimeout(
+                        resizeTimer
+                    );
+
+
+                    resizeTimer =
+                        setTimeout(
+                            function () {
+
+                                preparePackageCards();
+
+                                preparePaymentCards();
+
+                            },
+                            150
+                        );
+
+                }
+            );
+
+
+
+            /* =================================================
+               INITIAL UI STATE
+               ================================================= */
+
+            function initializeDashboardUI() {
+
+                preparePackageCards();
+
+                preparePaymentCards();
+
+
+                /*
+                 * Ensure the UID copy button starts
+                 * in its normal state.
+                 */
+
+                const copyButton =
+                    document.getElementById(
+                        "copyUidBtn"
+                    );
+
+
+                if (copyButton) {
+
+                    copyButton.textContent =
+                        "📋 Copy";
+
+                    copyButton.classList.remove(
+                        "copied"
+                    );
+
+                    copyButton.disabled =
+                        false;
+
+                }
+
+
+                /*
+                 * Ensure payment cards start
+                 * without an accidental selection.
+                 */
+
+                document
+                    .querySelectorAll(
+                        ".payment-card"
+                    )
+                    .forEach(
+                        function (card) {
+
+                            card.classList.remove(
+                                "selected"
+                            );
+
+                        }
+                    );
+
+            }
+
+
+
+            /* =================================================
+               RUN INITIAL UI SETUP
+               ================================================= */
+
+            if (
+                document.readyState ===
+                "loading"
+            ) {
+
+                document.addEventListener(
+                    "DOMContentLoaded",
+                    initializeDashboardUI
+                );
+
+            } else {
+
+                initializeDashboardUI();
+
+            }
+
+        </script>
