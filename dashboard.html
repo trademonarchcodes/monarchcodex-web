@@ -5803,6 +5803,21 @@ function renderBankPaymentAmount() {
 
     const calculation =
         calculateBankPayment();
+    
+    const instructions =
+    document.getElementById(
+        "bankInstructions"
+    );
+
+if (instructions) {
+
+    const baseInstruction =
+        selectedPaymentDetails?.instructions ||
+        "Make the transfer using the account details above, then upload your payment receipt.";
+
+    instructions.textContent =
+        `${baseInstruction} Exchange rate used: $1 = ${formatNairaAmount(calculation.rate)}. Bank payment fee: ${formatNairaAmount(calculation.feeNgn)}.`;
+}
 
     if (minimumAmount) {
         minimumAmount.textContent =
