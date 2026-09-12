@@ -4369,8 +4369,11 @@ async function updateInvestmentStatus(
         } = await supabaseClient
             .from("investments")
             .update({
-                status: newStatus
-            })
+    status: newStatus,
+    ...(newStatus === "confirmed"
+        ? { confirmed_at: new Date().toISOString() }
+        : {})
+})
             .eq("id", investmentId)
             .select()
             .single();
