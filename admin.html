@@ -2276,9 +2276,690 @@ async function initializeAdmin() {
     const authenticated =
         await verifyAdmin();
 
-    if (!authenticated) {
-        return false;
+<!-- =========================================================
+     MONARCH CODEX ADMIN — PART 2
+     SUPABASE + ADMIN AUTHENTICATION + CORE UTILITIES
+     ========================================================= -->
+
+<script>
+
+/* =========================================================
+   SUPABASE CONFIGURATION
+   ========================================================= */
+
+const SUPABASE_URL =
+    "https://avaworleivncevaoqeny.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+
+/*
+ * Create ONE Supabase client only.
+ *
+ * IMPORTANT:
+ * Do not create another supabaseClient
+ * anywhere else in this admin.html.
+ */
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* =========================================================
+   GLOBAL ADMIN STATE
+   ========================================================= */
+
+let currentAdmin = null;
+
+let currentSession = null;
+
+let profilesData = [];
+
+let packagesData = [];
+
+let investmentsData = [];
+
+let receiptsData = [];
+
+let earningsData = [];
+
+let withdrawalsData = [];
+
+
+/* =========================================================
+   DOM HELPERS
+   ========================================================= */
+
+function getElement(id) {
+
+    return document.getElementById(id);
+
+}
+
+
+function setText(
+    id,
+    value
+) {
+
+    const element =
+        getElement(id);
+
+    if (element) {
+
+        element.textContent =
+            value;
+
     }
+
+}
+
+
+/* =========================================================
+   MESSAGE HELPERS
+   ========================================================= */
+
+function showMessage(
+    message,
+    type = "info"
+) {
+
+    const box =
+        getElement("messageBox");
+
+    if (!box) {
+        return;
+    }
+
+    box.textContent =
+        message;
+
+    box.className =
+        "message-box " + type;
+
+}
+
+
+function clearMessage() {
+
+    const box =
+        getElement("messageBox");
+
+    if (!box) {
+        return;
+    }
+
+    box.textContent = "";
+
+    box.className =
+        "message-box";
+
+}
+
+
+/*
+ * Compatibility aliases.
+ *
+ * Some of the data-loading functions use the older
+ * showAdminMessage / clearAdminMessage names.
+ *
+ * These aliases keep both naming systems working.
+ */
+
+function showAdminMessage(
+    message,
+    type = "info"
+) {
+
+    showMessage(
+        message,
+        type
+    );
+
+}
+
+
+function clearAdminMessage() {
+
+    clearMessage();
+
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   MONEY FORMAT
+   ========================================================= */
+
+function formatMoney(
+    value
+) {
+
+    const amount =
+        Number(value || 0);
+
+    if (!Number.isFinite(amount)) {
+
+        return "$0.00";
+
+    }
+
+    return "$" +
+        amount.toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+}
+
+
+/* =========================================================
+   DATE FORMAT
+   ========================================================= */
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+
+        return "N/A";
+
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "N/A";
+
+    }
+
+    return date.toLocaleString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   AUTHENTICATION
+   ========================================================= */
+
+async function getCurrentSession() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .auth
+            .getSession();
+
+    if (error) {
+
+        console.error(
+            "Session error:",
+            error
+        );
+
+        return null;
+
+    }
+
+    return data?.session || null;
+
+}
+
+
+/* =========================================================
+   VERIFY ADMIN
+   ========================================================= */
+
+async function verifyAdmin() {
+
+    clearMessage();
+
+    try {
+
+        const session =
+            await getCurrentSession();
+
+
+        if (!session) {
+
+            window.location.href =
+                "login.html";
+
+            return false;
+
+        }
+
+
+        currentSession =
+            session;
+
+
+        const {
+            data: profile,
+            error
+        } =
+            await supabaseClient
+                .from("profiles")
+                .select("*")
+                .eq(
+                    "id",
+                    session.user.id
+                )
+                .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Admin profile error:",
+                error
+            );
+
+            showMessage(
+                "Unable to verify your admin account.",
+                "error"
+            );
+
+            return false;
+
+        }
+
+
+        const role =
+            String(
+                profile?.role || ""
+            )
+                .trim()
+                .toLowerCase();
+
+
+        /*
+         * Accept all administrator roles used
+         * by the MONARCH CODEX system.
+         */
+
+        const allowedRoles = [
+            "admin",
+            "administrator",
+            "super_admin"
+        ];
+
+
+        if (
+            !profile ||
+            !allowedRoles.includes(role)
+        ) {
+
+            showMessage(
+                "Access denied. Admin privileges are required.",
+                "error"
+            );
+
+
+            await supabaseClient
+                .auth
+                .signOut();
+
+
+            setTimeout(
+                () => {
+
+                    window.location.href =
+                        "login.html";
+
+                },
+                1200
+            );
+
+
+            return false;
+
+        }
+
+
+        /*
+         * Keep both the authenticated user ID
+         * and the profile available.
+         */
+
+        currentAdmin = {
+
+            id:
+                session.user.id,
+
+            email:
+                session.user.email,
+
+            role:
+                role,
+
+            profile:
+                profile
+
+        };
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin verification error:",
+            error
+        );
+
+        showMessage(
+            "Unable to verify admin access.",
+            "error"
+        );
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+async function adminLogout() {
+
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to logout?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+    } catch (error) {
+
+        console.error(
+            "Logout error:",
+            error
+        );
+
+    } finally {
+
+        window.location.href =
+            "login.html";
+
+    }
+
+}
+
+
+/* =========================================================
+   AUTH STATE MONITOR
+   ========================================================= */
+
+supabaseClient
+    .auth
+    .onAuthStateChange(
+        (
+            event,
+            session
+        ) => {
+
+            if (
+                event ===
+                "SIGNED_OUT"
+            ) {
+
+                currentSession =
+                    null;
+
+                currentAdmin =
+                    null;
+
+                window.location.href =
+                    "login.html";
+
+            }
+
+
+            if (
+                event ===
+                    "TOKEN_REFRESHED" &&
+                session
+            ) {
+
+                currentSession =
+                    session;
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   SAFE ADMIN USER ID
+   ========================================================= */
+
+function getAdminUserId() {
+
+    if (
+        currentAdmin &&
+        currentAdmin.id
+    ) {
+
+        return currentAdmin.id;
+
+    }
+
+
+    if (
+        currentSession &&
+        currentSession.user
+    ) {
+
+        return currentSession.user.id;
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   BUTTON LOADING STATE
+   ========================================================= */
+
+function setButtonLoading(
+    button,
+    loading,
+    loadingText = "Loading..."
+) {
+
+    if (!button) {
+        return;
+    }
+
+
+    if (loading) {
+
+        if (
+            !button.dataset.originalText
+        ) {
+
+            button.dataset.originalText =
+                button.textContent;
+
+        }
+
+
+        button.disabled =
+            true;
+
+
+        button.textContent =
+            loadingText;
+
+
+    } else {
+
+        button.disabled =
+            false;
+
+
+        if (
+            button.dataset.originalText
+        ) {
+
+            button.textContent =
+                button.dataset.originalText;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   SUPABASE ERROR MESSAGE
+   ========================================================= */
+
+function getSupabaseErrorMessage(
+    error,
+    fallback = "Something went wrong."
+) {
+
+    if (!error) {
+
+        return fallback;
+
+    }
+
+
+    if (
+        error.message &&
+        typeof error.message ===
+            "string"
+    ) {
+
+        return error.message;
+
+    }
+
+
+    if (
+        error.details &&
+        typeof error.details ===
+            "string"
+    ) {
+
+        return error.details;
+
+    }
+
+
+    if (
+        error.hint &&
+        typeof error.hint ===
+            "string"
+    ) {
+
+        return error.hint;
+
+    }
+
+
+    return fallback;
+
+}
+
+
+/* =========================================================
+   INITIAL AUTH CHECK
+   ========================================================= */
+
+async function initializeAdmin() {
+
+    const authenticated =
+        await verifyAdmin();
+
+
+    if (!authenticated) {
+
+        return false;
+
+    }
+
 
     return true;
 
@@ -2293,6 +2974,7 @@ async function initializeAdmin() {
 
 <!-- PART 2 ENDS HERE -->
 
+    
     <!-- =========================================================
      MONARCH CODEX ADMIN — PART 3/15
      CORE DATA LOADING
