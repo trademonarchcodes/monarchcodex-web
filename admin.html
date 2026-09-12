@@ -4793,3 +4793,4017 @@ window.viewMember =
 </script>
 
     
+<script>
+
+/* =========================================================
+   MONARCH CODEX — ADMIN.HTML
+   PART 6/12
+   INVESTMENT MANAGEMENT
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   INVESTMENT STATUS DISPLAY
+   --------------------------------------------------------- */
+
+function getInvestmentStatusLabel(
+    investment
+) {
+
+    const status =
+        normalizeInvestmentStatus(
+            investment?.status
+        );
+
+    switch (status) {
+
+        case "confirmed":
+            return "Confirmed";
+
+        case "rejected":
+            return "Rejected";
+
+        case "pending":
+            return "Pending";
+
+        default:
+            return (
+                status.charAt(0).toUpperCase() +
+                status.slice(1)
+            );
+    }
+}
+
+
+function getInvestmentStatusClass(
+    investment
+) {
+
+    const status =
+        normalizeInvestmentStatus(
+            investment?.status
+        );
+
+    switch (status) {
+
+        case "confirmed":
+            return "status-approved";
+
+        case "rejected":
+            return "status-rejected";
+
+        default:
+            return "status-pending";
+    }
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT DATE
+   --------------------------------------------------------- */
+
+function getInvestmentDate(
+    investment
+) {
+
+    if (!investment) {
+        return "—";
+    }
+
+    return formatDate(
+        investment.created_at ||
+        investment.date ||
+        null
+    );
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT CONFIRMATION DATE
+   --------------------------------------------------------- */
+
+function getInvestmentConfirmationDate(
+    investment
+) {
+
+    if (!investment) {
+        return "—";
+    }
+
+    return formatDate(
+        investment.confirmed_at ||
+        investment.approved_at ||
+        null
+    );
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT ACTION BUTTONS
+   --------------------------------------------------------- */
+
+function getInvestmentActionButtons(
+    investment
+) {
+
+    if (!investment) {
+        return "";
+    }
+
+    const status =
+        normalizeInvestmentStatus(
+            investment.status
+        );
+
+    const investmentId =
+        investment.id;
+
+
+    if (status === "pending") {
+
+        return `
+            <div class="action-buttons">
+
+                <button
+                    type="button"
+                    class="action-btn activate-btn"
+                    onclick="confirmInvestment('${investmentId}')"
+                >
+                    Confirm
+                </button>
+
+                <button
+                    type="button"
+                    class="action-btn block-btn"
+                    onclick="rejectInvestment('${investmentId}')"
+                >
+                    Reject
+                </button>
+
+                <button
+                    type="button"
+                    class="action-btn view-btn"
+                    onclick="viewInvestment('${investmentId}')"
+                >
+                    View
+                </button>
+
+            </div>
+        `;
+    }
+
+
+    return `
+        <div class="action-buttons">
+
+            <button
+                type="button"
+                class="action-btn view-btn"
+                onclick="viewInvestment('${investmentId}')"
+            >
+                View
+            </button>
+
+        </div>
+    `;
+}
+
+
+/* ---------------------------------------------------------
+   RENDER INVESTMENTS
+   --------------------------------------------------------- */
+
+function renderInvestments(
+    searchTerm = ""
+) {
+
+    const container =
+        getElement("investmentsContent");
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!investmentsData.length) {
+
+        container.innerHTML = `
+            <div class="empty-text">
+                No investment requests found.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    const query =
+        String(searchTerm || "")
+            .trim()
+            .toLowerCase();
+
+
+    let filtered =
+        investmentsData.filter(
+            investment => {
+
+                if (!query) {
+                    return true;
+                }
+
+
+                const memberName =
+                    getInvestmentMemberName(
+                        investment
+                    )
+                    .toLowerCase();
+
+
+                const memberUid =
+                    getInvestmentMemberUid(
+                        investment
+                    )
+                    .toLowerCase();
+
+
+                const packageName =
+                    getInvestmentPackageName(
+                        investment
+                    )
+                    .toLowerCase();
+
+
+                const status =
+                    normalizeInvestmentStatus(
+                        investment.status
+                    )
+                    .toLowerCase();
+
+
+                const method =
+                    getPaymentMethod(
+                        investment
+                    )
+                    .toLowerCase();
+
+
+                return (
+                    memberName.includes(query) ||
+                    memberUid.includes(query) ||
+                    packageName.includes(query) ||
+                    status.includes(query) ||
+                    method.includes(query)
+                );
+            }
+        );
+
+
+    if (!filtered.length) {
+
+        container.innerHTML = `
+            <div class="empty-text">
+                No matching investment requests found.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    let rows = "";
+
+
+    filtered.forEach(
+        investment => {
+
+            const memberName =
+                escapeHtml(
+                    getInvestmentMemberName(
+                        investment
+                    )
+                );
+
+
+            const uid =
+                escapeHtml(
+                    getInvestmentMemberUid(
+                        investment
+                    )
+                );
+
+
+            const packageName =
+                escapeHtml(
+                    getInvestmentPackageName(
+                        investment
+                    )
+                );
+
+
+            const amount =
+                getInvestmentAmount(
+                    investment
+                );
+
+
+            const statusLabel =
+                getInvestmentStatusLabel(
+                    investment
+                );
+
+
+            const statusClass =
+                getInvestmentStatusClass(
+                    investment
+                );
+
+
+            const receiptStatus =
+                getReceiptStatus(
+                    investment.id
+                );
+
+
+            const receiptLabel =
+                getReceiptStatusLabel(
+                    receiptStatus
+                );
+
+
+            const receiptClass =
+                getReceiptStatusClass(
+                    receiptStatus
+                );
+
+
+            const paymentMethod =
+                escapeHtml(
+                    getPaymentMethod(
+                        investment
+                    )
+                );
+
+
+            const network =
+                escapeHtml(
+                    getPaymentNetwork(
+                        investment
+                    )
+                );
+
+
+            const date =
+                getInvestmentDate(
+                    investment
+                );
+
+
+            rows += `
+                <tr>
+
+                    <td>
+                        <strong>
+                            ${memberName}
+                        </strong>
+
+                        <small class="table-subtext">
+                            ${uid}
+                        </small>
+                    </td>
+
+
+                    <td>
+                        ${packageName}
+                    </td>
+
+
+                    <td>
+                        <strong>
+                            ${formatMoney(amount)}
+                        </strong>
+                    </td>
+
+
+                    <td>
+                        ${paymentMethod}
+                        ${
+                            network !== "—"
+                            ? `
+                                <small class="table-subtext">
+                                    ${network}
+                                </small>
+                            `
+                            : ""
+                        }
+                    </td>
+
+
+                    <td>
+                        <span
+                            class="status ${statusClass}"
+                        >
+                            ${statusLabel}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        <span
+                            class="status ${receiptClass}"
+                        >
+                            ${receiptLabel}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        ${date}
+                    </td>
+
+
+                    <td>
+                        ${getInvestmentActionButtons(
+                            investment
+                        )}
+                    </td>
+
+                </tr>
+            `;
+        }
+    );
+
+
+    container.innerHTML = `
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+
+                        <th>
+                            Member
+                        </th>
+
+                        <th>
+                            Package
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                        <th>
+                            Payment
+                        </th>
+
+                        <th>
+                            Investment
+                        </th>
+
+                        <th>
+                            Receipt
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${rows}
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+/* ---------------------------------------------------------
+   VIEW INVESTMENT
+   --------------------------------------------------------- */
+
+function viewInvestment(
+    investmentId
+) {
+
+    const investment =
+        getInvestmentById(
+            investmentId
+        );
+
+    if (!investment) {
+
+        showMessage(
+            "Investment not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const memberName =
+        getInvestmentMemberName(
+            investment
+        );
+
+
+    const uid =
+        getInvestmentMemberUid(
+            investment
+        );
+
+
+    const packageName =
+        getInvestmentPackageName(
+            investment
+        );
+
+
+    const amount =
+        getInvestmentAmount(
+            investment
+        );
+
+
+    const status =
+        getInvestmentStatusLabel(
+            investment
+        );
+
+
+    const method =
+        getPaymentMethod(
+            investment
+        );
+
+
+    const network =
+        getPaymentNetwork(
+            investment
+        );
+
+
+    const receipt =
+        getReceiptForInvestment(
+            investmentId
+        );
+
+
+    showMessage(
+        `
+        <strong>
+            Investment Details
+        </strong>
+
+        <br><br>
+
+        Member:
+        ${escapeHtml(memberName)}
+
+        <br>
+
+        UID:
+        ${escapeHtml(uid)}
+
+        <br>
+
+        Package:
+        ${escapeHtml(packageName)}
+
+        <br>
+
+        Amount:
+        ${formatMoney(amount)}
+
+        <br>
+
+        Payment:
+        ${escapeHtml(method)}
+
+        <br>
+
+        Network:
+        ${escapeHtml(network)}
+
+        <br>
+
+        Status:
+        ${escapeHtml(status)}
+
+        <br>
+
+        Date:
+        ${escapeHtml(
+            getInvestmentDate(
+                investment
+            )
+        )}
+
+        <br>
+
+        Receipt:
+        ${
+            receipt
+            ? escapeHtml(
+                getReceiptFileName(
+                    investmentId
+                )
+            )
+            : "No receipt"
+        }
+        `,
+        "info"
+    );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* ---------------------------------------------------------
+   UPDATE INVESTMENT STATUS
+   --------------------------------------------------------- */
+
+async function updateInvestmentStatus(
+    investmentId,
+    newStatus,
+    extraFields = {}
+) {
+
+    if (!investmentId) {
+
+        showMessage(
+            "Invalid investment.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        const updateData = {
+            status: newStatus,
+            ...extraFields
+        };
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("investments")
+                .update(updateData)
+                .eq(
+                    "id",
+                    investmentId
+                )
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Investment update error:",
+                error
+            );
+
+            showMessage(
+                getSupabaseErrorMessage(
+                    error,
+                    "Unable to update investment."
+                ),
+                "error"
+            );
+
+            return false;
+        }
+
+
+        const index =
+            investmentsData.findIndex(
+                investment =>
+                    String(
+                        investment.id
+                    ) ===
+                    String(
+                        investmentId
+                    )
+            );
+
+
+        if (index !== -1) {
+
+            investmentsData[index] =
+                data ||
+                {
+                    ...investmentsData[index],
+                    ...updateData
+                };
+        }
+
+
+        renderInvestments();
+        refreshOverviewStatistics();
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected investment update error:",
+            error
+        );
+
+        showMessage(
+            "Unexpected error updating investment.",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CONFIRM INVESTMENT
+   --------------------------------------------------------- */
+
+async function confirmInvestment(
+    investmentId
+) {
+
+    const investment =
+        getInvestmentById(
+            investmentId
+        );
+
+
+    if (!investment) {
+
+        showMessage(
+            "Investment not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const memberName =
+        getInvestmentMemberName(
+            investment
+        );
+
+
+    const amount =
+        getInvestmentAmount(
+            investment
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Confirm ${formatMoney(amount)} investment for ${memberName}?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const button =
+        document.querySelector(
+            `[onclick="confirmInvestment('${investmentId}')"]`
+        );
+
+
+    setButtonLoading(
+        button,
+        true,
+        "Confirming..."
+    );
+
+
+    const success =
+        await updateInvestmentStatus(
+            investmentId,
+            "confirmed",
+            {
+                confirmed_at:
+                    new Date().toISOString()
+            }
+        );
+
+
+    setButtonLoading(
+        button,
+        false
+    );
+
+
+    if (success) {
+
+        showMessage(
+            "Investment confirmed successfully.",
+            "success"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   REJECT INVESTMENT
+   --------------------------------------------------------- */
+
+async function rejectInvestment(
+    investmentId
+) {
+
+    const investment =
+        getInvestmentById(
+            investmentId
+        );
+
+
+    if (!investment) {
+
+        showMessage(
+            "Investment not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const reason =
+        window.prompt(
+            "Enter the reason for rejecting this investment:"
+        );
+
+
+    if (reason === null) {
+        return;
+    }
+
+
+    const trimmedReason =
+        reason.trim();
+
+
+    if (!trimmedReason) {
+
+        showMessage(
+            "A rejection reason is required.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const success =
+        await updateInvestmentStatus(
+            investmentId,
+            "rejected",
+            {
+                rejection_reason:
+                    trimmedReason
+            }
+        );
+
+
+    if (success) {
+
+        showMessage(
+            "Investment rejected.",
+            "success"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT MODAL
+   --------------------------------------------------------- */
+
+async function openReceiptModal(
+    investmentId
+) {
+
+    const investment =
+        getInvestmentById(
+            investmentId
+        );
+
+
+    if (!investment) {
+
+        showMessage(
+            "Investment not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const receipt =
+        getReceiptForInvestment(
+            investmentId
+        );
+
+
+    const modal =
+        getElement("receiptModal");
+
+
+    const title =
+        getElement(
+            "receiptModalTitle"
+        );
+
+
+    const info =
+        getElement(
+            "receiptModalInfo"
+        );
+
+
+    const preview =
+        getElement(
+            "receiptPreview"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    if (title) {
+
+        title.textContent =
+            "Payment Receipt";
+    }
+
+
+    if (info) {
+
+        info.innerHTML = `
+            <strong>
+                ${escapeHtml(
+                    getInvestmentMemberName(
+                        investment
+                    )
+                )}
+            </strong>
+
+            <br>
+
+            UID:
+            ${escapeHtml(
+                getInvestmentMemberUid(
+                    investment
+                )
+            )}
+
+            <br>
+
+            Amount:
+            ${formatMoney(
+                getInvestmentAmount(
+                    investment
+                )
+            )}
+
+            <br>
+
+            Package:
+            ${escapeHtml(
+                getInvestmentPackageName(
+                    investment
+                )
+            )}
+        `;
+    }
+
+
+    if (!receipt) {
+
+        if (preview) {
+
+            preview.innerHTML = `
+                <div class="empty-text">
+                    No payment receipt was uploaded
+                    for this investment.
+                </div>
+            `;
+        }
+
+    } else {
+
+        const filePath =
+            getReceiptFilePath(
+                investmentId
+            );
+
+
+        if (preview) {
+
+            if (filePath) {
+
+                preview.innerHTML = `
+                    <div class="receipt-file-box">
+
+                        <p>
+                            Receipt:
+                            <strong>
+                                ${escapeHtml(
+                                    getReceiptFileName(
+                                        investmentId
+                                    )
+                                )}
+                            </strong>
+                        </p>
+
+                        <button
+                            type="button"
+                            class="action-btn view-btn"
+                            onclick="openReceiptFile('${escapeHtml(filePath)}')"
+                        >
+                            Open Receipt
+                        </button>
+
+                    </div>
+                `;
+
+            } else {
+
+                preview.innerHTML = `
+                    <div class="empty-text">
+                        Receipt record exists,
+                        but no file path is available.
+                    </div>
+                `;
+            }
+        }
+    }
+
+
+    modal.classList.add(
+        "show"
+    );
+
+    modal.style.display =
+        "flex";
+}
+
+
+/* ---------------------------------------------------------
+   CLOSE RECEIPT MODAL
+   --------------------------------------------------------- */
+
+function closeReceiptModal() {
+
+    const modal =
+        getElement("receiptModal");
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.remove(
+        "show"
+    );
+
+    modal.style.display =
+        "none";
+}
+
+
+/* ---------------------------------------------------------
+   OPEN RECEIPT FILE
+   --------------------------------------------------------- */
+
+async function openReceiptFile(
+    filePath
+) {
+
+    if (!filePath) {
+
+        showMessage(
+            "Receipt file is unavailable.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    try {
+
+        /*
+         * The exact storage bucket is resolved
+         * from the receipt path when possible.
+         * If the path is already a public URL,
+         * open it directly.
+         */
+
+        if (
+            filePath.startsWith(
+                "http://"
+            ) ||
+            filePath.startsWith(
+                "https://"
+            )
+        ) {
+
+            window.open(
+                filePath,
+                "_blank",
+                "noopener"
+            );
+
+            return;
+        }
+
+
+        const possibleBuckets = [
+            "payment-receipts",
+            "receipts",
+            "payment_receipts"
+        ];
+
+
+        let opened = false;
+
+
+        for (
+            const bucket
+            of possibleBuckets
+        ) {
+
+            try {
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient
+                        .storage
+                        .from(bucket)
+                        .createSignedUrl(
+                            filePath,
+                            300
+                        );
+
+
+                if (
+                    !error &&
+                    data?.signedUrl
+                ) {
+
+                    window.open(
+                        data.signedUrl,
+                        "_blank",
+                        "noopener"
+                    );
+
+                    opened = true;
+
+                    break;
+                }
+
+            } catch (bucketError) {
+
+                console.warn(
+                    `Unable to open receipt from ${bucket}:`,
+                    bucketError
+                );
+            }
+        }
+
+
+        if (!opened) {
+
+            showMessage(
+                "Unable to open the receipt file.",
+                "error"
+            );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Receipt opening error:",
+            error
+        );
+
+        showMessage(
+            "Unable to open the receipt.",
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT MODAL CLICK OUTSIDE
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const modal =
+            getElement("receiptModal");
+
+        if (!modal) {
+            return;
+        }
+
+
+        if (
+            event.target === modal
+        ) {
+
+            closeReceiptModal();
+        }
+    }
+);
+
+
+/* ---------------------------------------------------------
+   EXPORT INVESTMENT FUNCTIONS
+   --------------------------------------------------------- */
+
+window.renderInvestments =
+    renderInvestments;
+
+window.viewInvestment =
+    viewInvestment;
+
+window.confirmInvestment =
+    confirmInvestment;
+
+window.rejectInvestment =
+    rejectInvestment;
+
+window.openReceiptModal =
+    openReceiptModal;
+
+window.closeReceiptModal =
+    closeReceiptModal;
+
+window.openReceiptFile =
+    openReceiptFile;
+
+
+/* =========================================================
+   PART 6 ENDS HERE
+   ========================================================= */
+
+</script>
+
+    <script>
+
+/* =========================================================
+   MONARCH CODEX — ADMIN.HTML
+   PART 7/12
+   EARNINGS / PROFIT MANAGEMENT
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   LOAD EARNINGS
+   --------------------------------------------------------- */
+
+async function loadEarnings() {
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("earnings")
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Earnings loading error:",
+                error
+            );
+
+            earningsData = [];
+
+            return;
+        }
+
+
+        earningsData =
+            data || [];
+
+
+        console.log(
+            "Earnings loaded:",
+            earningsData.length
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected earnings loading error:",
+            error
+        );
+
+        earningsData = [];
+    }
+}
+
+
+/* ---------------------------------------------------------
+   EARNING MEMBER ID
+   --------------------------------------------------------- */
+
+function getEarningMemberId(
+    earning
+) {
+
+    if (!earning) {
+        return null;
+    }
+
+    return (
+        earning.user_id ||
+        earning.member_id ||
+        earning.profile_id ||
+        null
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING AMOUNT
+   --------------------------------------------------------- */
+
+function getEarningAmount(
+    earning
+) {
+
+    if (!earning) {
+        return 0;
+    }
+
+    return Number(
+        earning.amount ??
+        earning.profit ??
+        earning.earning_amount ??
+        0
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING MEMBER
+   --------------------------------------------------------- */
+
+function getEarningMember(
+    earning
+) {
+
+    return getMemberById(
+        getEarningMemberId(
+            earning
+        )
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING MEMBER NAME
+   --------------------------------------------------------- */
+
+function getEarningMemberName(
+    earning
+) {
+
+    const member =
+        getEarningMember(
+            earning
+        );
+
+
+    if (!member) {
+        return "Unknown Member";
+    }
+
+
+    return (
+        member.full_name ||
+        member.name ||
+        member.username ||
+        member.email ||
+        "Unnamed Member"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING MEMBER UID
+   --------------------------------------------------------- */
+
+function getEarningMemberUid(
+    earning
+) {
+
+    const member =
+        getEarningMember(
+            earning
+        );
+
+
+    if (!member) {
+        return "—";
+    }
+
+
+    return (
+        member.uid ||
+        member.monarch_uid ||
+        "—"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING DESCRIPTION
+   --------------------------------------------------------- */
+
+function getEarningDescription(
+    earning
+) {
+
+    if (!earning) {
+        return "—";
+    }
+
+
+    return (
+        earning.description ||
+        earning.note ||
+        earning.reason ||
+        "Profit"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING DATE
+   --------------------------------------------------------- */
+
+function getEarningDate(
+    earning
+) {
+
+    if (!earning) {
+        return "—";
+    }
+
+
+    return formatDate(
+        earning.created_at ||
+        earning.date ||
+        null
+    );
+}
+
+
+/* ---------------------------------------------------------
+   RENDER EARNINGS
+   --------------------------------------------------------- */
+
+function renderEarnings() {
+
+    const container =
+        getElement("earningsContent");
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!earningsData.length) {
+
+        container.innerHTML = `
+            <div class="empty-text">
+                No earnings have been added yet.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    let rows = "";
+
+
+    earningsData.forEach(
+        earning => {
+
+            const memberName =
+                escapeHtml(
+                    getEarningMemberName(
+                        earning
+                    )
+                );
+
+
+            const uid =
+                escapeHtml(
+                    getEarningMemberUid(
+                        earning
+                    )
+                );
+
+
+            const amount =
+                getEarningAmount(
+                    earning
+                );
+
+
+            const description =
+                escapeHtml(
+                    getEarningDescription(
+                        earning
+                    )
+                );
+
+
+            const date =
+                getEarningDate(
+                    earning
+                );
+
+
+            rows += `
+                <tr>
+
+                    <td>
+                        <strong>
+                            ${memberName}
+                        </strong>
+
+                        <small class="table-subtext">
+                            ${uid}
+                        </small>
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${formatMoney(amount)}
+                        </strong>
+                    </td>
+
+                    <td>
+                        ${description}
+                    </td>
+
+                    <td>
+                        ${date}
+                    </td>
+
+                </tr>
+            `;
+        }
+    );
+
+
+    container.innerHTML = `
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+
+                        <th>
+                            Member
+                        </th>
+
+                        <th>
+                            Profit
+                        </th>
+
+                        <th>
+                            Description
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${rows}
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+}
+
+
+/* ---------------------------------------------------------
+   ADD EARNING
+   --------------------------------------------------------- */
+
+async function addEarning() {
+
+    if (!earningMember) {
+        return;
+    }
+
+
+    const userId =
+        earningMember.value;
+
+
+    const amount =
+        Number(
+            earningAmount?.value || 0
+        );
+
+
+    const description =
+        String(
+            earningDescription?.value || ""
+        )
+        .trim();
+
+
+    if (!userId) {
+
+        showMessage(
+            "Please select a member.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (
+        !Number.isFinite(amount) ||
+        amount <= 0
+    ) {
+
+        showMessage(
+            "Please enter a valid profit amount.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!description) {
+
+        showMessage(
+            "Please enter a description.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            `Add ${formatMoney(amount)} profit to this member?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    setButtonLoading(
+        addEarningBtn,
+        true,
+        "Adding..."
+    );
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("earnings")
+                .insert({
+                    user_id: userId,
+                    amount: amount,
+                    description: description
+                })
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Add earning error:",
+                error
+            );
+
+            showMessage(
+                getSupabaseErrorMessage(
+                    error,
+                    "Unable to add profit."
+                ),
+                "error"
+            );
+
+            return;
+        }
+
+
+        earningsData.unshift(
+            data
+        );
+
+
+        if (earningAmount) {
+            earningAmount.value = "";
+        }
+
+
+        if (earningDescription) {
+            earningDescription.value = "";
+        }
+
+
+        if (earningMember) {
+            earningMember.value = "";
+        }
+
+
+        renderEarnings();
+
+        refreshOverviewStatistics();
+
+
+        showMessage(
+            "Profit added successfully.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected earning error:",
+            error
+        );
+
+        showMessage(
+            "Unexpected error adding profit.",
+            "error"
+        );
+
+    } finally {
+
+        setButtonLoading(
+            addEarningBtn,
+            false
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   DELETE EARNING
+   --------------------------------------------------------- */
+
+async function deleteEarning(
+    earningId
+) {
+
+    if (!earningId) {
+
+        showMessage(
+            "Invalid earning record.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        window.confirm(
+            "Delete this profit record?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("earnings")
+                .delete()
+                .eq(
+                    "id",
+                    earningId
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Delete earning error:",
+                error
+            );
+
+            showMessage(
+                getSupabaseErrorMessage(
+                    error,
+                    "Unable to delete profit."
+                ),
+                "error"
+            );
+
+            return;
+        }
+
+
+        earningsData =
+            earningsData.filter(
+                earning =>
+                    String(
+                        earning.id
+                    ) !==
+                    String(
+                        earningId
+                    )
+            );
+
+
+        renderEarnings();
+
+        refreshOverviewStatistics();
+
+
+        showMessage(
+            "Profit record deleted.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected delete earning error:",
+            error
+        );
+
+        showMessage(
+            "Unexpected error deleting profit.",
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   EARNING BUTTON EVENT
+   --------------------------------------------------------- */
+
+if (addEarningBtn) {
+
+    addEarningBtn.addEventListener(
+        "click",
+        addEarning
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EXPORT EARNING FUNCTIONS
+   --------------------------------------------------------- */
+
+window.loadEarnings =
+    loadEarnings;
+
+window.renderEarnings =
+    renderEarnings;
+
+window.addEarning =
+    addEarning;
+
+window.deleteEarning =
+    deleteEarning;
+
+
+/* =========================================================
+   PART 7 ENDS HERE
+   ========================================================= */
+
+</script>
+
+    <script>
+
+/* =========================================================
+   MONARCH CODEX — ADMIN.HTML
+   PART 8/12
+   WITHDRAWAL MANAGEMENT
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   LOAD WITHDRAWALS
+   --------------------------------------------------------- */
+
+async function loadAdminWithdrawals() {
+
+    const container =
+        getElement(
+            "adminWithdrawalsList"
+        );
+
+
+    if (container) {
+
+        container.innerHTML = `
+            <div class="dashboard-loading">
+                <div class="loading-spinner"></div>
+                <span>
+                    Loading withdrawal requests...
+                </span>
+            </div>
+        `;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("withdrawals")
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Withdrawal loading error:",
+                error
+            );
+
+            withdrawalsData = [];
+
+
+            if (container) {
+
+                container.innerHTML = `
+                    <div class="empty-text">
+                        Unable to load withdrawal requests.
+                    </div>
+                `;
+            }
+
+            showMessage(
+                getSupabaseErrorMessage(
+                    error,
+                    "Unable to load withdrawals."
+                ),
+                "error"
+            );
+
+            return;
+        }
+
+
+        withdrawalsData =
+            data || [];
+
+
+        renderAdminWithdrawals();
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected withdrawal loading error:",
+            error
+        );
+
+        withdrawalsData = [];
+
+
+        if (container) {
+
+            container.innerHTML = `
+                <div class="empty-text">
+                    Unexpected error loading withdrawals.
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL STATUS
+   --------------------------------------------------------- */
+
+function normalizeWithdrawalStatus(
+    status
+) {
+
+    const value =
+        String(
+            status || "pending"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    if (
+        value === "processing"
+    ) {
+        return "approved";
+    }
+
+
+    return value || "pending";
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL MEMBER
+   --------------------------------------------------------- */
+
+function getWithdrawalMember(
+    withdrawal
+) {
+
+    if (!withdrawal) {
+        return null;
+    }
+
+
+    return getMemberById(
+        withdrawal.user_id
+    );
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL MEMBER NAME
+   --------------------------------------------------------- */
+
+function getWithdrawalMemberName(
+    withdrawal
+) {
+
+    const member =
+        getWithdrawalMember(
+            withdrawal
+        );
+
+
+    if (!member) {
+        return "Unknown Member";
+    }
+
+
+    return (
+        member.full_name ||
+        member.name ||
+        member.username ||
+        member.email ||
+        "Unnamed Member"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL MEMBER UID
+   --------------------------------------------------------- */
+
+function getWithdrawalMemberUid(
+    withdrawal
+) {
+
+    const member =
+        getWithdrawalMember(
+            withdrawal
+        );
+
+
+    if (!member) {
+        return "—";
+    }
+
+
+    return (
+        member.uid ||
+        member.monarch_uid ||
+        "—"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL AMOUNT
+   --------------------------------------------------------- */
+
+function getWithdrawalAmount(
+    withdrawal
+) {
+
+    if (!withdrawal) {
+        return 0;
+    }
+
+
+    return Number(
+        withdrawal.amount || 0
+    );
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL TYPE
+   --------------------------------------------------------- */
+
+function getWithdrawalType(
+    withdrawal
+) {
+
+    if (!withdrawal) {
+        return "—";
+    }
+
+
+    const type =
+        String(
+            withdrawal.withdrawal_type ||
+            "profit"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    return (
+        type === "capital"
+        ? "Capital"
+        : "Profit"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL METHOD
+   --------------------------------------------------------- */
+
+function getWithdrawalMethod(
+    withdrawal
+) {
+
+    if (!withdrawal) {
+        return "Bank";
+    }
+
+
+    return (
+        withdrawal.withdrawal_method ||
+        "bank"
+    )
+    .toString()
+    .trim()
+    .toLowerCase();
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL STATUS LABEL
+   --------------------------------------------------------- */
+
+function getWithdrawalStatusLabel(
+    withdrawal
+) {
+
+    const status =
+        normalizeWithdrawalStatus(
+            withdrawal?.status
+        );
+
+
+    switch (status) {
+
+        case "pending":
+            return "Pending";
+
+        case "approved":
+            return "Processing";
+
+        case "paid":
+            return "Paid";
+
+        case "rejected":
+            return "Rejected";
+
+        default:
+            return (
+                status.charAt(0).toUpperCase() +
+                status.slice(1)
+            );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL STATUS CLASS
+   --------------------------------------------------------- */
+
+function getWithdrawalStatusClass(
+    withdrawal
+) {
+
+    const status =
+        normalizeWithdrawalStatus(
+            withdrawal?.status
+        );
+
+
+    switch (status) {
+
+        case "paid":
+            return "status-approved";
+
+        case "rejected":
+            return "status-rejected";
+
+        case "approved":
+            return "status-pending";
+
+        default:
+            return "status-pending";
+    }
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL DATE
+   --------------------------------------------------------- */
+
+function getWithdrawalDate(
+    withdrawal
+) {
+
+    if (!withdrawal) {
+        return "—";
+    }
+
+
+    return formatDate(
+        withdrawal.created_at
+    );
+}
+
+
+/* ---------------------------------------------------------
+   UPDATE WITHDRAWAL
+   --------------------------------------------------------- */
+
+async function updateWithdrawal(
+    withdrawalId,
+    updateData
+) {
+
+    if (!withdrawalId) {
+
+        showMessage(
+            "Invalid withdrawal request.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("withdrawals")
+                .update(
+                    updateData
+                )
+                .eq(
+                    "id",
+                    withdrawalId
+                )
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Withdrawal update error:",
+                error
+            );
+
+            showMessage(
+                getSupabaseErrorMessage(
+                    error,
+                    "Unable to update withdrawal."
+                ),
+                "error"
+            );
+
+            return false;
+        }
+
+
+        const index =
+            withdrawalsData.findIndex(
+                withdrawal =>
+                    String(
+                        withdrawal.id
+                    ) ===
+                    String(
+                        withdrawalId
+                    )
+            );
+
+
+        if (index !== -1) {
+
+            withdrawalsData[index] =
+                data ||
+                {
+                    ...withdrawalsData[index],
+                    ...updateData
+                };
+        }
+
+
+        renderAdminWithdrawals();
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected withdrawal update error:",
+            error
+        );
+
+        showMessage(
+            "Unexpected error updating withdrawal.",
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   APPROVE WITHDRAWAL
+   --------------------------------------------------------- */
+
+async function approveWithdrawal(
+    withdrawalId
+) {
+
+    const withdrawal =
+        withdrawalsData.find(
+            item =>
+                String(item.id) ===
+                String(withdrawalId)
+        );
+
+
+    if (!withdrawal) {
+
+        showMessage(
+            "Withdrawal request not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const amount =
+        getWithdrawalAmount(
+            withdrawal
+        );
+
+
+    const memberName =
+        getWithdrawalMemberName(
+            withdrawal
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Approve ${formatMoney(amount)} withdrawal for ${memberName}?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const success =
+        await updateWithdrawal(
+            withdrawalId,
+            {
+                status: "approved",
+                approved_at:
+                    new Date().toISOString(),
+                processed_by:
+                    currentAdmin?.id || null
+            }
+        );
+
+
+    if (success) {
+
+        showMessage(
+            "Withdrawal approved and moved to Processing.",
+            "success"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   REJECT WITHDRAWAL
+   --------------------------------------------------------- */
+
+async function rejectWithdrawal(
+    withdrawalId
+) {
+
+    const withdrawal =
+        withdrawalsData.find(
+            item =>
+                String(item.id) ===
+                String(withdrawalId)
+        );
+
+
+    if (!withdrawal) {
+
+        showMessage(
+            "Withdrawal request not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const reason =
+        window.prompt(
+            "Enter the reason for rejecting this withdrawal:"
+        );
+
+
+    if (reason === null) {
+        return;
+    }
+
+
+    const trimmedReason =
+        reason.trim();
+
+
+    if (!trimmedReason) {
+
+        showMessage(
+            "A rejection reason is required.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const success =
+        await updateWithdrawal(
+            withdrawalId,
+            {
+                status: "rejected",
+                rejection_reason:
+                    trimmedReason,
+                processed_by:
+                    currentAdmin?.id || null,
+                processed_at:
+                    new Date().toISOString()
+            }
+        );
+
+
+    if (success) {
+
+        showMessage(
+            "Withdrawal rejected.",
+            "success"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   CONFIRM PAYMENT / MARK PAID
+   --------------------------------------------------------- */
+
+async function markWithdrawalPaid(
+    withdrawalId
+) {
+
+    const withdrawal =
+        withdrawalsData.find(
+            item =>
+                String(item.id) ===
+                String(withdrawalId)
+        );
+
+
+    if (!withdrawal) {
+
+        showMessage(
+            "Withdrawal request not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const amount =
+        getWithdrawalAmount(
+            withdrawal
+        );
+
+
+    const confirmed =
+        window.confirm(
+            `Confirm that ${formatMoney(amount)} has been paid to the member?`
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const success =
+        await updateWithdrawal(
+            withdrawalId,
+            {
+                status: "paid",
+                paid_at:
+                    new Date().toISOString(),
+                processed_by:
+                    currentAdmin?.id || null,
+                processed_at:
+                    new Date().toISOString()
+            }
+        );
+
+
+    if (success) {
+
+        showMessage(
+            "Payment confirmed. Withdrawal marked as Paid.",
+            "success"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL DETAILS
+   --------------------------------------------------------- */
+
+function viewWithdrawal(
+    withdrawalId
+) {
+
+    const withdrawal =
+        withdrawalsData.find(
+            item =>
+                String(item.id) ===
+                String(withdrawalId)
+        );
+
+
+    if (!withdrawal) {
+
+        showMessage(
+            "Withdrawal request not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const memberName =
+        getWithdrawalMemberName(
+            withdrawal
+        );
+
+
+    const uid =
+        getWithdrawalMemberUid(
+            withdrawal
+        );
+
+
+    const amount =
+        getWithdrawalAmount(
+            withdrawal
+        );
+
+
+    const type =
+        getWithdrawalType(
+            withdrawal
+        );
+
+
+    const status =
+        getWithdrawalStatusLabel(
+            withdrawal
+        );
+
+
+    const bankName =
+        withdrawal.bank_name ||
+        "—";
+
+
+    const accountName =
+        withdrawal.account_name ||
+        "—";
+
+
+    const accountNumber =
+        withdrawal.account_number ||
+        "—";
+
+
+    const reason =
+        withdrawal.rejection_reason ||
+        "—";
+
+
+    showMessage(
+        `
+        <strong>
+            Withdrawal Details
+        </strong>
+
+        <br><br>
+
+        Member:
+        ${escapeHtml(memberName)}
+
+        <br>
+
+        UID:
+        ${escapeHtml(uid)}
+
+        <br>
+
+        Amount:
+        ${formatMoney(amount)}
+
+        <br>
+
+        Type:
+        ${escapeHtml(type)}
+
+        <br>
+
+        Status:
+        ${escapeHtml(status)}
+
+        <br>
+
+        Bank:
+        ${escapeHtml(bankName)}
+
+        <br>
+
+        Account Name:
+        ${escapeHtml(accountName)}
+
+        <br>
+
+        Account Number:
+        ${escapeHtml(accountNumber)}
+
+        <br>
+
+        Rejection Reason:
+        ${escapeHtml(reason)}
+        `,
+        "info"
+    );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL ACTION BUTTONS
+   --------------------------------------------------------- */
+
+function getWithdrawalActionButtons(
+    withdrawal
+) {
+
+    if (!withdrawal) {
+        return "";
+    }
+
+
+    const status =
+        normalizeWithdrawalStatus(
+            withdrawal.status
+        );
+
+
+    const id =
+        withdrawal.id;
+
+
+    let buttons = [];
+
+
+    if (status === "pending") {
+
+        buttons.push(`
+            <button
+                type="button"
+                class="action-btn activate-btn"
+                onclick="approveWithdrawal('${id}')"
+            >
+                Approve
+            </button>
+        `);
+
+
+        buttons.push(`
+            <button
+                type="button"
+                class="action-btn block-btn"
+                onclick="rejectWithdrawal('${id}')"
+            >
+                Reject
+            </button>
+        `);
+    }
+
+
+    if (status === "approved") {
+
+        buttons.push(`
+            <button
+                type="button"
+                class="action-btn activate-btn"
+                onclick="markWithdrawalPaid('${id}')"
+            >
+                Confirm Payment
+            </button>
+        `);
+    }
+
+
+    buttons.push(`
+        <button
+            type="button"
+            class="action-btn view-btn"
+            onclick="viewWithdrawal('${id}')"
+        >
+            View
+        </button>
+    `);
+
+
+    return `
+        <div class="action-buttons">
+            ${buttons.join("")}
+        </div>
+    `;
+}
+
+
+/* ---------------------------------------------------------
+   RENDER WITHDRAWALS
+   --------------------------------------------------------- */
+
+function renderAdminWithdrawals() {
+
+    const container =
+        getElement(
+            "adminWithdrawalsList"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    if (!withdrawalsData.length) {
+
+        container.innerHTML = `
+            <div class="empty-text">
+                No withdrawal requests found.
+            </div>
+        `;
+
+        updateWithdrawalStatistics();
+
+        return;
+    }
+
+
+    let rows = "";
+
+
+    withdrawalsData.forEach(
+        withdrawal => {
+
+            const memberName =
+                escapeHtml(
+                    getWithdrawalMemberName(
+                        withdrawal
+                    )
+                );
+
+
+            const uid =
+                escapeHtml(
+                    getWithdrawalMemberUid(
+                        withdrawal
+                    )
+                );
+
+
+            const amount =
+                getWithdrawalAmount(
+                    withdrawal
+                );
+
+
+            const type =
+                escapeHtml(
+                    getWithdrawalType(
+                        withdrawal
+                    )
+                );
+
+
+            const statusLabel =
+                getWithdrawalStatusLabel(
+                    withdrawal
+                );
+
+
+            const statusClass =
+                getWithdrawalStatusClass(
+                    withdrawal
+                );
+
+
+            const method =
+                escapeHtml(
+                    getWithdrawalMethod(
+                        withdrawal
+                    )
+                );
+
+
+            const date =
+                getWithdrawalDate(
+                    withdrawal
+                );
+
+
+            rows += `
+                <tr>
+
+                    <td>
+                        <strong>
+                            ${memberName}
+                        </strong>
+
+                        <small class="table-subtext">
+                            ${uid}
+                        </small>
+                    </td>
+
+
+                    <td>
+                        <strong>
+                            ${formatMoney(amount)}
+                        </strong>
+                    </td>
+
+
+                    <td>
+                        ${type}
+                    </td>
+
+
+                    <td>
+                        ${method}
+                    </td>
+
+
+                    <td>
+                        <span
+                            class="status ${statusClass}"
+                        >
+                            ${statusLabel}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        ${date}
+                    </td>
+
+
+                    <td>
+                        ${getWithdrawalActionButtons(
+                            withdrawal
+                        )}
+                    </td>
+
+                </tr>
+            `;
+        }
+    );
+
+
+    container.innerHTML = `
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+
+                        <th>
+                            Member
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                        <th>
+                            Type
+                        </th>
+
+                        <th>
+                            Method
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${rows}
+                </tbody>
+
+            </table>
+
+        </div>
+    `;
+
+
+    updateWithdrawalStatistics();
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL STATISTICS
+   --------------------------------------------------------- */
+
+function updateWithdrawalStatistics() {
+
+    const pending =
+        withdrawalsData.filter(
+            withdrawal =>
+                normalizeWithdrawalStatus(
+                    withdrawal.status
+                ) === "pending"
+        ).length;
+
+
+    const processing =
+        withdrawalsData.filter(
+            withdrawal =>
+                normalizeWithdrawalStatus(
+                    withdrawal.status
+                ) === "approved"
+        ).length;
+
+
+    const paid =
+        withdrawalsData.filter(
+            withdrawal =>
+                normalizeWithdrawalStatus(
+                    withdrawal.status
+                ) === "paid"
+        ).length;
+
+
+    const rejected =
+        withdrawalsData.filter(
+            withdrawal =>
+                normalizeWithdrawalStatus(
+                    withdrawal.status
+                ) === "rejected"
+        ).length;
+
+
+    setText(
+        "adminPendingWithdrawals",
+        pending
+    );
+
+
+    setText(
+        "adminProcessingWithdrawals",
+        processing
+    );
+
+
+    setText(
+        "adminPaidWithdrawals",
+        paid
+    );
+
+
+    setText(
+        "adminRejectedWithdrawals",
+        rejected
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EXPORT WITHDRAWAL FUNCTIONS
+   --------------------------------------------------------- */
+
+window.loadAdminWithdrawals =
+    loadAdminWithdrawals;
+
+window.renderAdminWithdrawals =
+    renderAdminWithdrawals;
+
+window.approveWithdrawal =
+    approveWithdrawal;
+
+window.rejectWithdrawal =
+    rejectWithdrawal;
+
+window.markWithdrawalPaid =
+    markWithdrawalPaid;
+
+window.viewWithdrawal =
+    viewWithdrawal;
+
+window.updateWithdrawalStatistics =
+    updateWithdrawalStatistics;
+
+
+/* =========================================================
+   PART 8 ENDS HERE
+   ========================================================= */
+
+</script>
+
+    <script>
+/* =========================================================
+   MONARCH CODEX — ADMIN
+   PART 9 — SEARCH, FILTERS, RECEIPTS & REFRESH
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   SEARCH HELPERS
+   --------------------------------------------------------- */
+
+function normalizeSearchValue(value) {
+    return String(value ?? "")
+        .trim()
+        .toLowerCase();
+}
+
+
+/* ---------------------------------------------------------
+   MEMBER SEARCH
+   --------------------------------------------------------- */
+
+function searchMembers(searchTerm = "") {
+    const term = normalizeSearchValue(searchTerm);
+
+    if (!term) {
+        renderMembers(profilesData);
+        return;
+    }
+
+    const filtered = profilesData.filter(profile => {
+        const name = normalizeSearchValue(
+            profile.full_name ||
+            profile.name ||
+            profile.username ||
+            ""
+        );
+
+        const uid = normalizeSearchValue(
+            profile.uid || ""
+        );
+
+        const email = normalizeSearchValue(
+            profile.email || ""
+        );
+
+        const phone = normalizeSearchValue(
+            profile.phone ||
+            profile.phone_number ||
+            profile.mobile ||
+            ""
+        );
+
+        return (
+            name.includes(term) ||
+            uid.includes(term) ||
+            email.includes(term) ||
+            phone.includes(term)
+        );
+    });
+
+    renderMembers(filtered);
+}
+
+
+function renderFilteredMembers() {
+    const input =
+        getElement("memberSearch") ||
+        getElement("membersSearch") ||
+        getElement("searchMembers");
+
+    searchMembers(input ? input.value : "");
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT FILTER
+   --------------------------------------------------------- */
+
+function filterInvestments(searchTerm = "") {
+    const term = normalizeSearchValue(searchTerm);
+
+    if (!term) {
+        renderInvestments("");
+        return;
+    }
+
+    renderInvestments(term);
+}
+
+
+function renderFilteredInvestments() {
+    const input =
+        getElement("investmentSearch") ||
+        getElement("investmentsSearch") ||
+        getElement("searchInvestments");
+
+    filterInvestments(input ? input.value : "");
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL FILTER
+   --------------------------------------------------------- */
+
+function filterWithdrawals(searchTerm = "") {
+    const term = normalizeSearchValue(searchTerm);
+
+    if (!term) {
+        renderAdminWithdrawals();
+        return;
+    }
+
+    const filtered = withdrawalsData.filter(withdrawal => {
+        const member = getWithdrawalMember(withdrawal);
+
+        const name = normalizeSearchValue(
+            member?.full_name ||
+            member?.name ||
+            member?.username ||
+            ""
+        );
+
+        const uid = normalizeSearchValue(
+            member?.uid || ""
+        );
+
+        const type = normalizeSearchValue(
+            getWithdrawalType(withdrawal)
+        );
+
+        const method = normalizeSearchValue(
+            getWithdrawalMethod(withdrawal)
+        );
+
+        const status = normalizeSearchValue(
+            withdrawal.status
+        );
+
+        const amount = normalizeSearchValue(
+            withdrawal.amount
+        );
+
+        return (
+            name.includes(term) ||
+            uid.includes(term) ||
+            type.includes(term) ||
+            method.includes(term) ||
+            status.includes(term) ||
+            amount.includes(term)
+        );
+    });
+
+    renderAdminWithdrawals(filtered);
+}
+
+
+function renderFilteredWithdrawals() {
+    const input =
+        getElement("withdrawalSearch") ||
+        getElement("withdrawalsSearch") ||
+        getElement("searchWithdrawals");
+
+    filterWithdrawals(input ? input.value : "");
+}
+
+
+/* ---------------------------------------------------------
+   REFRESH ALL ADMIN DATA
+   --------------------------------------------------------- */
+
+async function refreshAdminData() {
+    const refreshButton =
+        getElement("refreshAdminBtn") ||
+        getElement("refreshAdminDataBtn") ||
+        getElement("refreshBtn");
+
+    setButtonLoading(
+        refreshButton,
+        true,
+        "Refreshing..."
+    );
+
+    clearMessage();
+
+    try {
+        await loadAllCoreData();
+        await loadAdminWithdrawals();
+
+        refreshOverviewStatistics();
+        renderMembers(profilesData);
+        renderInvestments("");
+        renderAdminWithdrawals();
+        renderEarnings();
+        populateEarningMembers();
+
+        showMessage(
+            "Admin data refreshed successfully.",
+            "success"
+        );
+    } catch (error) {
+        console.error(
+            "Admin refresh error:",
+            error
+        );
+
+        showMessage(
+            getSupabaseErrorMessage(error),
+            "error"
+        );
+    } finally {
+        setButtonLoading(
+            refreshButton,
+            false
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT STATUS MANAGEMENT
+   --------------------------------------------------------- */
+
+async function updateReceiptStatus(
+    receiptId,
+    verificationStatus,
+    adminNote = ""
+) {
+    if (!receiptId) {
+        showMessage(
+            "Receipt ID is missing.",
+            "error"
+        );
+        return false;
+    }
+
+    try {
+        const updateData = {
+            verification_status: verificationStatus
+        };
+
+        if (verificationStatus === "approved") {
+            updateData.reviewed_at =
+                new Date().toISOString();
+
+            updateData.admin_note =
+                adminNote || "Payment receipt approved.";
+        }
+
+        if (verificationStatus === "rejected") {
+            updateData.reviewed_at =
+                new Date().toISOString();
+
+            updateData.admin_note =
+                adminNote || "Payment receipt rejected.";
+        }
+
+        const {
+            error
+        } = await supabaseClient
+            .from("payment_receipts")
+            .update(updateData)
+            .eq("id", receiptId);
+
+        if (error) {
+            throw error;
+        }
+
+        await loadReceipts();
+
+        renderInvestments("");
+
+        return true;
+
+    } catch (error) {
+        console.error(
+            "Receipt status update error:",
+            error
+        );
+
+        showMessage(
+            getSupabaseErrorMessage(error),
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+async function approveReceipt(receiptId) {
+    const confirmed = window.confirm(
+        "Approve this payment receipt?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    const success =
+        await updateReceiptStatus(
+            receiptId,
+            "approved",
+            "Payment receipt approved by admin."
+        );
+
+    if (success) {
+        showMessage(
+            "Payment receipt approved.",
+            "success"
+        );
+    }
+}
+
+
+async function rejectReceipt(receiptId) {
+    const reason = window.prompt(
+        "Enter the reason for rejecting this payment receipt:"
+    );
+
+    if (reason === null) {
+        return;
+    }
+
+    const trimmedReason =
+        reason.trim();
+
+    if (!trimmedReason) {
+        showMessage(
+            "A rejection reason is required.",
+            "error"
+        );
+        return;
+    }
+
+    const success =
+        await updateReceiptStatus(
+            receiptId,
+            "rejected",
+            trimmedReason
+        );
+
+    if (success) {
+        showMessage(
+            "Payment receipt rejected.",
+            "success"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   ESC KEY — CLOSE MODALS
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+        if (event.key !== "Escape") {
+            return;
+        }
+
+        const receiptModal =
+            getElement("receiptModal");
+
+        if (
+            receiptModal &&
+            !receiptModal.classList.contains("hidden")
+        ) {
+            closeReceiptModal();
+        }
+    }
+);
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.searchMembers =
+    searchMembers;
+
+window.renderFilteredMembers =
+    renderFilteredMembers;
+
+window.filterInvestments =
+    filterInvestments;
+
+window.renderFilteredInvestments =
+    renderFilteredInvestments;
+
+window.filterWithdrawals =
+    filterWithdrawals;
+
+window.renderFilteredWithdrawals =
+    renderFilteredWithdrawals;
+
+window.refreshAdminData =
+    refreshAdminData;
+
+window.updateReceiptStatus =
+    updateReceiptStatus;
+
+window.approveReceipt =
+    approveReceipt;
+
+window.rejectReceipt =
+    rejectReceipt;
+
+
+/* =========================================================
+   PART 9 ENDS HERE
+   ========================================================= */
+</script>
+
+    <script>
+/* =========================================================
+   MONARCH CODEX — ADMIN
+   PART 10 — ADMIN ACCESS, INITIALIZATION & EVENT WIRING
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   ADMIN ROLE CHECK
+   --------------------------------------------------------- */
+
+async function ensureAdminAccess() {
+    try {
+        const {
+            data: {
+                session
+            },
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        if (!session || !session.user) {
+            window.location.href = "index.html";
+            return false;
+        }
+
+        currentSession = session;
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
+
+        if (profileError) {
+            throw profileError;
+        }
+
+        const role = String(
+            profile?.role || ""
+        ).trim().toLowerCase();
+
+        const allowedRoles = [
+            "admin",
+            "administrator",
+            "super_admin"
+        ];
+
+        if (!allowedRoles.includes(role)) {
+            showMessage(
+                "Access denied. Administrator privileges are required.",
+                "error"
+            );
+
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 1500);
+
+            return false;
+        }
+
+        currentAdmin = profile;
+
+        return true;
+
+    } catch (error) {
+        console.error(
+            "Admin authorization error:",
+            error
+        );
+
+        showMessage(
+            getSupabaseErrorMessage(error),
+            "error"
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   INITIAL DATA LOAD
+   --------------------------------------------------------- */
+
+async function startAdminApplication() {
+    clearMessage();
+
+    try {
+        const authorized =
+            await ensureAdminAccess();
+
+        if (!authorized) {
+            return;
+        }
+
+        showMessage(
+            "Loading admin command center...",
+            "info"
+        );
+
+        await loadAllCoreData();
+
+        await loadAdminWithdrawals();
+
+        refreshOverviewStatistics();
+
+        renderMembers(profilesData);
+
+        renderInvestments("");
+
+        renderAdminWithdrawals();
+
+        renderEarnings();
+
+        populateEarningMembers();
+
+        clearMessage();
+
+        const status =
+            getElement("adminLoadStatus") ||
+            getElement("adminStatus");
+
+        if (status) {
+            status.textContent =
+                "Admin data loaded";
+        }
+
+    } catch (error) {
+        console.error(
+            "Admin initialization error:",
+            error
+        );
+
+        showMessage(
+            getSupabaseErrorMessage(error),
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   LOGOUT BUTTON
+   --------------------------------------------------------- */
+
+function wireLogoutButton() {
+    const logoutButton =
+        getElement("logoutBtn") ||
+        getElement("adminLogoutBtn") ||
+        document.querySelector(".logout-btn");
+
+    if (!logoutButton) {
+        return;
+    }
+
+    logoutButton.addEventListener(
+        "click",
+        async function() {
+            const confirmed =
+                window.confirm(
+                    "Are you sure you want to log out?"
+                );
+
+            if (!confirmed) {
+                return;
+            }
+
+            await adminLogout();
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   REFRESH BUTTON
+   --------------------------------------------------------- */
+
+function wireRefreshButton() {
+    const refreshButton =
+        getElement("refreshAdminBtn") ||
+        getElement("refreshAdminDataBtn") ||
+        getElement("refreshBtn");
+
+    if (!refreshButton) {
+        return;
+    }
+
+    refreshButton.addEventListener(
+        "click",
+        refreshAdminData
+    );
+}
+
+
+/* ---------------------------------------------------------
+   MEMBER SEARCH INPUT
+   --------------------------------------------------------- */
+
+function wireMemberSearch() {
+    const input =
+        getElement("memberSearch") ||
+        getElement("membersSearch") ||
+        getElement("searchMembers");
+
+    if (!input) {
+        return;
+    }
+
+    input.addEventListener(
+        "input",
+        function() {
+            searchMembers(input.value);
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   INVESTMENT SEARCH INPUT
+   --------------------------------------------------------- */
+
+function wireInvestmentSearch() {
+    const input =
+        getElement("investmentSearch") ||
+        getElement("investmentsSearch") ||
+        getElement("searchInvestments");
+
+    if (!input) {
+        return;
+    }
+
+    input.addEventListener(
+        "input",
+        function() {
+            filterInvestments(input.value);
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   WITHDRAWAL SEARCH INPUT
+   --------------------------------------------------------- */
+
+function wireWithdrawalSearch() {
+    const input =
+        getElement("withdrawalSearch") ||
+        getElement("withdrawalsSearch") ||
+        getElement("searchWithdrawals");
+
+    if (!input) {
+        return;
+    }
+
+    input.addEventListener(
+        "input",
+        function() {
+            filterWithdrawals(input.value);
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   EARNING FORM
+   --------------------------------------------------------- */
+
+function wireEarningForm() {
+    const button =
+        getElement("addEarningBtn");
+
+    if (!button) {
+        return;
+    }
+
+    /*
+       Part 7 already handles this button.
+       This function exists only as a safe initialization
+       point and prevents duplicate listeners.
+    */
+
+    if (button.dataset.earningWired === "true") {
+        return;
+    }
+
+    button.dataset.earningWired = "true";
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT MODAL CLOSE BUTTON
+   --------------------------------------------------------- */
+
+function wireReceiptModal() {
+    const closeButton =
+        getElement("receiptModalClose") ||
+        getElement("closeReceiptModal") ||
+        document.querySelector(
+            ".receipt-close-btn"
+        );
+
+    if (closeButton) {
+        closeButton.addEventListener(
+            "click",
+            closeReceiptModal
+        );
+    }
+
+    const modal =
+        getElement("receiptModal");
+
+    if (modal) {
+        modal.addEventListener(
+            "click",
+            function(event) {
+                if (event.target === modal) {
+                    closeReceiptModal();
+                }
+            }
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SUPABASE AUTH STATE
+   --------------------------------------------------------- */
+
+function wireAuthStateListener() {
+    if (
+        !supabaseClient ||
+        !supabaseClient.auth
+    ) {
+        return;
+    }
+
+    supabaseClient.auth.onAuthStateChange(
+        function(event, session) {
+            if (event === "SIGNED_OUT") {
+                window.location.href =
+                    "index.html";
+            }
+
+            if (
+                event === "TOKEN_REFRESHED" &&
+                session
+            ) {
+                currentSession = session;
+            }
+        }
+    );
+}
+
+
+/* ---------------------------------------------------------
+   ALL EVENT WIRING
+   --------------------------------------------------------- */
+
+function wireAdminEvents() {
+    wireLogoutButton();
+
+    wireRefreshButton();
+
+    wireMemberSearch();
+
+    wireInvestmentSearch();
+
+    wireWithdrawalSearch();
+
+    wireEarningForm();
+
+    wireReceiptModal();
+
+    wireAuthStateListener();
+}
+
+
+/* ---------------------------------------------------------
+   PAGE START
+   --------------------------------------------------------- */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async function() {
+        wireAdminEvents();
+
+        await startAdminApplication();
+    }
+);
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.ensureAdminAccess =
+    ensureAdminAccess;
+
+window.startAdminApplication =
+    startAdminApplication;
+
+window.wireAdminEvents =
+    wireAdminEvents;
+
+
+/* =========================================================
+   PART 10 ENDS HERE
+   ========================================================= */
+</script>
