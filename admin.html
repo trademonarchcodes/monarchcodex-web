@@ -8807,3 +8807,503 @@ window.wireAdminEvents =
    PART 10 ENDS HERE
    ========================================================= */
 </script>
+
+    <script>
+/* =========================================================
+   MONARCH CODEX — ADMIN
+   PART 11 — FINAL SAFETY, RECEIPT SYNC & ADMIN ACTIONS
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   RECEIPT SYNC AFTER INVESTMENT CONFIRMATION
+   --------------------------------------------------------- */
+
+async function syncReceiptAfterInvestmentConfirmation(
+    investmentId
+) {
+    if (!investmentId) {
+        return false;
+    }
+
+    try {
+        const {
+            data: receipt,
+            error: receiptError
+        } = await supabaseClient
+            .from("payment_receipts")
+            .select("*")
+            .eq("investment_id", investmentId)
+            .maybeSingle();
+
+        if (receiptError) {
+            console.warn(
+                "Receipt lookup warning:",
+                receiptError
+            );
+            return false;
+        }
+
+        if (!receipt) {
+            return true;
+        }
+
+        const {
+            error: updateError
+        } = await supabaseClient
+            .from("payment_receipts")
+            .update({
+                verification_status: "approved",
+                reviewed_at:
+                    new Date().toISOString(),
+                admin_note:
+                    "Payment receipt automatically approved after investment confirmation."
+            })
+            .eq("id", receipt.id);
+
+        if (updateError) {
+            console.warn(
+                "Receipt synchronization warning:",
+                updateError
+            );
+            return false;
+        }
+
+        await loadReceipts();
+
+        return true;
+
+    } catch (error) {
+        console.warn(
+            "Receipt synchronization error:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SAFE INVESTMENT CONFIRMATION
+   --------------------------------------------------------- */
+
+async function confirmInvestmentWithReceipt(
+    investmentId
+) {
+    if (!investmentId) {
+        showMessage(
+            "Investment ID is missing.",
+            "error"
+        );
+        return;
+    }
+
+    const confirmed =
+        window.confirm(
+            "Confirm this investment and approve its payment receipt?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("investments")
+            .update({
+                status: "confirmed",
+                confirmed_at:
+                    new Date().toISOString()
+            })
+            .eq("id", investmentId)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        await syncReceiptAfterInvestmentConfirmation(
+            investmentId
+        );
+
+        await loadInvestments();
+
+        await loadReceipts();
+
+        refreshOverviewStatistics();
+
+        renderInvestments("");
+
+        showMessage(
+            "Investment confirmed successfully.",
+            "success"
+        );
+
+        return data;
+
+    } catch (error) {
+        console.error(
+            "Investment confirmation error:",
+            error
+        );
+
+        showMessage(
+            getSupabaseErrorMessage(error),
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SAFE INVESTMENT REJECTION
+   --------------------------------------------------------- */
+
+async function rejectInvestmentWithReason(
+    investmentId
+) {
+    if (!investmentId) {
+        showMessage(
+            "Investment ID is missing.",
+            "error"
+        );
+        return;
+    }
+
+    const reason =
+        window.prompt(
+            "Enter the reason for rejecting this investment:"
+        );
+
+    if (reason === null) {
+        return;
+    }
+
+    const trimmedReason =
+        reason.trim();
+
+    if (!trimmedReason) {
+        showMessage(
+            "A rejection reason is required.",
+            "error"
+        );
+        return;
+    }
+
+    try {
+        const {
+            error
+        } = await supabaseClient
+            .from("investments")
+            .update({
+                status: "rejected",
+                rejection_reason:
+                    trimmedReason
+            })
+            .eq("id", investmentId);
+
+        if (error) {
+            throw error;
+        }
+
+        await loadInvestments();
+
+        refreshOverviewStatistics();
+
+        renderInvestments("");
+
+        showMessage(
+            "Investment rejected successfully.",
+            "success"
+        );
+
+    } catch (error) {
+        console.error(
+            "Investment rejection error:",
+            error
+        );
+
+        showMessage(
+            getSupabaseErrorMessage(error),
+            "error"
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SAFE WITHDRAWAL APPROVAL
+   --------------------------------------------------------- */
+
+async function approveWithdrawalSafely(
+    withdrawalId
+) {
+    if (!withdrawalId) {
+        showMessage(
+            "Withdrawal ID is missing.",
+            "error"
+        );
+        return;
+    }
+
+    const confirmed =
+        window.confirm(
+            "Approve this withdrawal request?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    await approveWithdrawal(
+        withdrawalId
+    );
+
+    await loadAdminWithdrawals();
+
+    updateWithdrawalStatistics();
+
+    renderAdminWithdrawals();
+}
+
+
+/* ---------------------------------------------------------
+   SAFE WITHDRAWAL REJECTION
+   --------------------------------------------------------- */
+
+async function rejectWithdrawalSafely(
+    withdrawalId
+) {
+    if (!withdrawalId) {
+        showMessage(
+            "Withdrawal ID is missing.",
+            "error"
+        );
+        return;
+    }
+
+    const reason =
+        window.prompt(
+            "Enter the reason for rejecting this withdrawal:"
+        );
+
+    if (reason === null) {
+        return;
+    }
+
+    const trimmedReason =
+        reason.trim();
+
+    if (!trimmedReason) {
+        showMessage(
+            "A rejection reason is required.",
+            "error"
+        );
+        return;
+    }
+
+    await rejectWithdrawal(
+        withdrawalId,
+        trimmedReason
+    );
+
+    await loadAdminWithdrawals();
+
+    updateWithdrawalStatistics();
+
+    renderAdminWithdrawals();
+}
+
+
+/* ---------------------------------------------------------
+   SAFE PAYMENT CONFIRMATION
+   --------------------------------------------------------- */
+
+async function markWithdrawalPaidSafely(
+    withdrawalId
+) {
+    if (!withdrawalId) {
+        showMessage(
+            "Withdrawal ID is missing.",
+            "error"
+        );
+        return;
+    }
+
+    const confirmed =
+        window.confirm(
+            "Confirm that this withdrawal has been paid to the member?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    await markWithdrawalPaid(
+        withdrawalId
+    );
+
+    await loadAdminWithdrawals();
+
+    updateWithdrawalStatistics();
+
+    renderAdminWithdrawals();
+}
+
+
+/* ---------------------------------------------------------
+   ADMIN MESSAGE HELPER
+   --------------------------------------------------------- */
+
+function showAdminSuccess(message) {
+    showMessage(
+        message,
+        "success"
+    );
+}
+
+
+function showAdminError(message) {
+    showMessage(
+        message,
+        "error"
+    );
+}
+
+
+/* ---------------------------------------------------------
+   FINAL DATA REFRESH HELPER
+   --------------------------------------------------------- */
+
+async function reloadAdminEverything() {
+    try {
+        await loadAllCoreData();
+
+        await loadAdminWithdrawals();
+
+        refreshOverviewStatistics();
+
+        renderMembers(profilesData);
+
+        renderInvestments("");
+
+        renderAdminWithdrawals();
+
+        renderEarnings();
+
+        populateEarningMembers();
+
+        return true;
+
+    } catch (error) {
+        console.error(
+            "Full admin reload error:",
+            error
+        );
+
+        showAdminError(
+            getSupabaseErrorMessage(error)
+        );
+
+        return false;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   PROTECT AGAINST UNEXPECTED SCRIPT ERRORS
+   --------------------------------------------------------- */
+
+window.addEventListener(
+    "error",
+    function(event) {
+        console.error(
+            "MONARCH CODEX Admin error:",
+            event.error || event.message
+        );
+    }
+);
+
+
+window.addEventListener(
+    "unhandledrejection",
+    function(event) {
+        console.error(
+            "MONARCH CODEX Admin promise error:",
+            event.reason
+        );
+    }
+);
+
+
+/* ---------------------------------------------------------
+   GLOBAL EXPORTS
+   --------------------------------------------------------- */
+
+window.syncReceiptAfterInvestmentConfirmation =
+    syncReceiptAfterInvestmentConfirmation;
+
+window.confirmInvestmentWithReceipt =
+    confirmInvestmentWithReceipt;
+
+window.rejectInvestmentWithReason =
+    rejectInvestmentWithReason;
+
+window.approveWithdrawalSafely =
+    approveWithdrawalSafely;
+
+window.rejectWithdrawalSafely =
+    rejectWithdrawalSafely;
+
+window.markWithdrawalPaidSafely =
+    markWithdrawalPaidSafely;
+
+window.showAdminSuccess =
+    showAdminSuccess;
+
+window.showAdminError =
+    showAdminError;
+
+window.reloadAdminEverything =
+    reloadAdminEverything;
+
+
+/* =========================================================
+   PART 11 ENDS HERE
+   ========================================================= */
+</script>
+
+    /* =========================================================
+   MONARCH CODEX — ADMIN
+   PART 12 — FINAL DOCUMENT CLOSE
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   FINAL GLOBAL INITIALIZATION FLAG
+   --------------------------------------------------------- */
+
+window.MONARCH_CODEX_ADMIN_READY = true;
+
+
+/* ---------------------------------------------------------
+   FINAL CONSOLE STATUS
+   --------------------------------------------------------- */
+
+console.log(
+    "MONARCH CODEX Admin Panel initialized."
+);
+
+
+/* =========================================================
+   END OF ADMIN JAVASCRIPT
+   ========================================================= */
+</script>
+
+</body>
+</html>
