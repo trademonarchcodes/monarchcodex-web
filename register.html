@@ -9,157 +9,470 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="style.css">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-    <script src="script.js" defer></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        defer
+    ></script>
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <div class="nav-container">
+<header class="navbar">
+    <div class="nav-container">
 
-            <a href="index.html" class="logo">
-                MONARCH<span>CODEX</span>
-            </a>
+        <a href="index.html" class="logo">
+            MONARCH<span>CODEX</span>
+        </a>
 
-            <nav class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="login.html">Login</a>
-            </nav>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="login.html">Login</a>
+        </nav>
 
-        </div>
-    </header>
-
-
-    <!-- REGISTRATION -->
-    <main>
-
-        <section class="auth-section">
-
-            <div class="auth-container">
-
-                <div class="auth-header">
-                    <p class="section-label">BECOME A MONARCH</p>
-
-                    <h1>Create Your <span>Account</span></h1>
-
-                    <p>
-                        Join Monarch Codex and create your personal member account.
-                    </p>
-                </div>
+    </div>
+</header>
 
 
-                <div class="auth-card">
+<main>
 
-                    <form id="registerForm">
-                        <div class="form-group">
-                            <label for="fullname">Full Name</label>
+    <section class="auth-section">
 
-                            <input
-                                type="text"
-                                id="fullName"
-                                name="fullname"
-                                placeholder="Enter your full name"
-                                required
-                            >
-                        </div>
+        <div class="auth-container">
 
+            <div class="auth-header">
 
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
+                <p class="section-label">
+                    BECOME A MONARCH
+                </p>
 
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="Enter your email"
-                                required
-                            >
-                        </div>
+                <h1>
+                    Create Your <span>Account</span>
+                </h1>
+
+                <p>
+                    Join Monarch Codex and create your personal member account.
+                </p>
+
+            </div>
 
 
-                        <div class="form-group">
-                            <label for="phone">Phone Number</label>
+            <div class="auth-card">
 
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                placeholder="Enter your phone number"
-                                required
-                            >
-                        </div>
+                <form id="registerForm">
 
+                    <div class="form-group">
 
-                        <div class="form-group">
-                            <label for="password">Password</label>
+                        <label for="fullName">
+                            Full Name
+                        </label>
 
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Create a password"
-                                minlength="6"
-                                required
-                            >
-                        </div>
-
-
-                        <button type="submit" class="btn btn-primary">
-                            Create Account
-                        </button>
-
-                        <p id="registrationMessage" class="form-message"></p>
-                    </form>
-
-
-                    <div class="auth-footer">
-
-                        <p>
-                            Already have an account?
-                            <a href="login.html">Login here</a>
-                        </p>
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
 
                     </div>
 
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="Enter your phone number"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Create a password"
+                            minlength="6"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        id="registerButton"
+                    >
+                        Create Account
+                    </button>
+
+
+                    <p
+                        id="registrationMessage"
+                        class="form-message"
+                        style="display:none;"
+                    ></p>
+
+                </form>
+
+
+                <div class="auth-footer">
+
+                    <p>
+                        Already have an account?
+                        <a href="login.html">
+                            Login here
+                        </a>
+                    </p>
+
                 </div>
 
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- FOOTER -->
-    <footer class="footer">
-
-        <div class="footer-container">
-
-            <div>
-                <div class="logo">
-                    MONARCH<span>CODEX</span>
-                </div>
-
-                <p>
-                    Learn. Build. Trade. Create.
-                </p>
-            </div>
-
-            <div class="footer-bottom">
-                <p>
-                    © 2026 Monarch Codex. All rights reserved.
-                </p>
             </div>
 
         </div>
 
-    </footer>
+    </section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div>
+
+            <div class="logo">
+                MONARCH<span>CODEX</span>
+            </div>
+
+            <p>
+                Learn. Build. Trade. Create.
+            </p>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <p>
+                © 2026 Monarch Codex. All rights reserved.
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script>
+const SUPABASE_URL =
+    "https://avaworleivncevaoqeny.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+
+let supabaseClient = null;
+
+
+const form =
+    document.getElementById("registerForm");
+
+const button =
+    document.getElementById("registerButton");
+
+const message =
+    document.getElementById("registrationMessage");
+
+
+function showRegistrationMessage(
+    text,
+    type = "info"
+) {
+
+    message.textContent = text;
+
+    message.style.display = "block";
+
+    if (type === "success") {
+
+        message.style.color = "#D4AF37";
+
+    } else if (type === "error") {
+
+        message.style.color = "#ff6b6b";
+
+    } else {
+
+        message.style.color = "#ffffff";
+
+    }
+
+}
+
+
+function setLoading(loading) {
+
+    button.disabled = loading;
+
+    button.textContent =
+        loading
+            ? "Creating Account..."
+            : "Create Account";
+
+}
+
+
+async function registerUser(event) {
+
+    event.preventDefault();
+
+
+    const fullName =
+        document
+            .getElementById("fullName")
+            .value
+            .trim();
+
+
+    const email =
+        document
+            .getElementById("email")
+            .value
+            .trim();
+
+
+    const phone =
+        document
+            .getElementById("phone")
+            .value
+            .trim();
+
+
+    const password =
+        document
+            .getElementById("password")
+            .value;
+
+
+    if (
+        !fullName ||
+        !email ||
+        !phone ||
+        !password
+    ) {
+
+        showRegistrationMessage(
+            "Please complete all required fields.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (password.length < 6) {
+
+        showRegistrationMessage(
+            "Password must be at least 6 characters.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    setLoading(true);
+
+
+    showRegistrationMessage(
+        "Creating your account...",
+        "info"
+    );
+
+
+    try {
+
+        if (
+            !window.supabase ||
+            !window.supabase.createClient
+        ) {
+
+            throw new Error(
+                "Supabase library failed to load. Please refresh the page."
+            );
+
+        }
+
+
+        if (!supabaseClient) {
+
+            supabaseClient =
+                window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_KEY
+                );
+
+        }
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth.signUp({
+
+                email: email,
+
+                password: password,
+
+                options: {
+
+                    data: {
+
+                        full_name: fullName,
+
+                        phone: phone
+
+                    }
+
+                }
+
+            });
+
+
+        if (error) {
+
+            console.error(
+                "REGISTRATION ERROR:",
+                error
+            );
+
+            showRegistrationMessage(
+                error.message ||
+                "Unable to create your account.",
+                "error"
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+
+        if (!data || !data.user) {
+
+            showRegistrationMessage(
+                "Account creation failed. Please try again.",
+                "error"
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+
+        console.log(
+            "AUTH ACCOUNT CREATED:",
+            data.user.id
+        );
+
+
+        showRegistrationMessage(
+            "Account created successfully. Your account is now pending approval.",
+            "success"
+        );
+
+
+        button.textContent =
+            "Account Created";
+
+
+        setTimeout(
+            () => {
+
+                window.location.href =
+                    "login.html";
+
+            },
+            2500
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "UNEXPECTED REGISTRATION ERROR:",
+            error
+        );
+
+
+        showRegistrationMessage(
+            error.message ||
+            "Something went wrong. Please try again.",
+            "error"
+        );
+
+
+        setLoading(false);
+
+    }
+
+}
+
+
+form.addEventListener(
+    "submit",
+    registerUser
+);
+
+</script>
 
 </body>
 </html>
