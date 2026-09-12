@@ -1728,28 +1728,6 @@ const supabaseClient =
         SUPABASE_KEY
     );
 
-/*
- * IMPORTANT:
- *
- * Replace the two values above with the SAME Supabase
- * project URL and anon key already used by your working
- * dashboard.
- *
- * Do NOT use the service-role key here.
- */
-
-
-const {
-    createClient
-} = window.supabase;
-
-
-const supabaseClient =
-    createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
 
 /* =========================================================
    GLOBAL ADMIN STATE
