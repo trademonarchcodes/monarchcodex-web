@@ -9740,68 +9740,356 @@ async function submitWithdrawalRequest() {
                 withdrawal_method:
                     "bank",
 
-                bank_name:
-                    bank,
+async function submitWithdrawalRequest() {
 
-                account_name:
-                    accountName,
+    const message =
+        document.getElementById("withdrawalMessage");
 
-                account_number:
-                    accountNumber,
+    const button =
+        document.querySelector(
+            ".withdrawal-submit-btn"
+        );
 
-                status:
-                    "pending"
+    const showMessage = (
+        text,
+        type = "error"
+    ) => {
 
-            });
+        if (message) {
+
+            message.textContent =
+                text;
+
+            message.className =
+                `dashboard-message ${type}`;
+
+            message.style.display =
+                "block";
+
+        } else {
+
+            alert(text);
+
+        }
+    };
 
 
-        if (error) {
-            throw error;
+    try {
+
+        /*
+         * STEP 1 — confirm the click reached JavaScript
+         */
+        showMessage(
+            "Processing withdrawal request...",
+            "info"
+        );
+
+
+        /*
+         * STEP 2 — check Supabase client
+         */
+        if (
+            typeof supabaseClient ===
+            "undefined"
+        ) {
+
+            throw new Error(
+                "Supabase client is not available."
+            );
+
         }
 
 
+        /*
+         * STEP 3 — check logged-in user
+         */
+        if (!currentUser) {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.getUser();
+
+            if (error) {
+                throw error;
+            }
+
+            if (!data?.user) {
+
+                throw new Error(
+                    "No logged-in user was found. Please log in again."
+                );
+
+            }
+
+            currentUser =
+                data.user;
+        }
+
+
+        /*
+         * STEP 4 — read form
+         */
+        const amountInput =
+            document.getElementById(
+                "withdrawalAmount"
+            );
+
+        const typeInput =
+            document.getElementById(
+                "withdrawalType"
+            );
+
+        const bankInput =
+            document.getElementById(
+                "withdrawalBankName"
+            );
+
+        const accountNameInput =
+            document.getElementById(
+                "withdrawalAccountName"
+            );
+
+        const accountNumberInput =
+            document.getElementById(
+                "withdrawalAccountNumber"
+            );
+
+
+        if (
+            !amountInput ||
+            !typeInput ||
+            !bankInput ||
+            !accountNameInput ||
+            !accountNumberInput
+        ) {
+
+            throw new Error(
+                "One or more withdrawal form fields could not be found."
+            );
+
+        }
+
+
+        const amount =
+            Number(
+                amountInput.value
+            );
+
+        const withdrawalType =
+            typeInput.value;
+
+        const bankName =
+            bankInput.value.trim();
+
+        const accountName =
+            accountNameInput.value.trim();
+
+        const accountNumber =
+            accountNumberInput.value.trim();
+
+
+        /*
+         * STEP 5 — validation
+         */
+        if (
+            !Number.isFinite(amount) ||
+            amount < 10
+        ) {
+
+            throw new Error(
+                "Minimum withdrawal amount is $10.00."
+            );
+
+        }
+
+
+        if (
+            withdrawalType !== "profit" &&
+            withdrawalType !== "capital"
+        ) {
+
+            throw new Error(
+                "Please select Profit or Capital."
+            );
+
+        }
+
+
+        if (!bankName) {
+
+            throw new Error(
+                "Please enter your bank name."
+            );
+
+        }
+
+
+        if (!accountName) {
+
+            throw new Error(
+                "Please enter the account name."
+            );
+
+        }
+
+
+        if (!accountNumber) {
+
+            throw new Error(
+                "Please enter the account number."
+            );
+
+        }
+
+
+        /*
+         * STEP 6 — check withdrawal balance
+         */
+        const balances =
+            window.monarchWithdrawalBalances ||
+            {
+                profit: 0,
+                capital: 0
+            };
+
+
+        const available =
+            Number(
+                balances[withdrawalType] || 0
+            );
+
+
+        if (amount > available) {
+
+            throw new Error(
+                `Insufficient available ${withdrawalType}. Available balance: $${available.toFixed(2)}.`
+            );
+
+        }
+
+
+        /*
+         * STEP 7 — lock button
+         */
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                "Submitting...";
+
+        }
+
+
+        showMessage(
+            "Submitting withdrawal request...",
+            "info"
+        );
+
+
+        /*
+         * STEP 8 — insert into Supabase
+         */
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("withdrawals")
+                .insert({
+
+                    user_id:
+                        currentUser.id,
+
+                    amount:
+                        amount,
+
+                    withdrawal_type:
+                        withdrawalType,
+
+                    withdrawal_method:
+                        "bank",
+
+                    bank_name:
+                        bankName,
+
+                    account_name:
+                        accountName,
+
+                    account_number:
+                        accountNumber,
+
+                    status:
+                        "pending"
+
+                });
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        /*
+         * STEP 9 — success
+         */
         showMessage(
             "Withdrawal request submitted successfully. Your request is now pending admin review.",
             "success"
         );
 
 
-        document.getElementById(
-            "withdrawalAmount"
-        ).value = "";
+        /*
+         * STEP 10 — clear form
+         */
+        amountInput.value =
+            "";
 
-        document.getElementById(
-            "withdrawalType"
-        ).value = "";
+        typeInput.value =
+            "";
 
-        document.getElementById(
-            "withdrawalBankName"
-        ).value = "";
+        bankInput.value =
+            "";
 
-        document.getElementById(
-            "withdrawalAccountName"
-        ).value = "";
+        accountNameInput.value =
+            "";
 
-        document.getElementById(
-            "withdrawalAccountNumber"
-        ).value = "";
+        accountNumberInput.value =
+            "";
 
 
-        await loadWithdrawalData(
-            currentUser.id
-        );
+        /*
+         * STEP 11 — refresh withdrawal data
+         */
+        if (
+            typeof loadWithdrawalData ===
+            "function"
+        ) {
+
+            await loadWithdrawalData(
+                currentUser.id
+            );
+
+        }
 
 
     } catch (error) {
 
         console.error(
-            "Withdrawal submission error:",
+            "MONARCH CODEX withdrawal error:",
             error
         );
 
+
         showMessage(
-            error?.message ||
-            "Unable to submit withdrawal request.",
+            `Withdrawal error: ${
+                error?.message ||
+                String(error)
+            }`,
             "error"
         );
 
@@ -9810,7 +10098,9 @@ async function submitWithdrawalRequest() {
 
         if (button) {
 
-            button.disabled = false;
+            button.disabled =
+                false;
+
             button.textContent =
                 "Request Withdrawal";
 
@@ -9819,10 +10109,6 @@ async function submitWithdrawalRequest() {
     }
 
 }
-
-console.log(
-    "MONARCH CODEX: submitWithdrawalRequest loaded"
-);
 window.submitWithdrawalRequest =
     submitWithdrawalRequest;
 
