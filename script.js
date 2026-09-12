@@ -1254,7 +1254,7 @@ document.addEventListener(
 
         if (
             document.getElementById(
-                "registerForm"
+                "registrationForm"
             ) ||
             page.includes("register.html")
         ) {
