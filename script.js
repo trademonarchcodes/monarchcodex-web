@@ -91,15 +91,6 @@ async function logout() {
 // REGISTRATION
 // =====================================================
 
-async function registerUser() {
-
-    const fullName =
-        document.getElementById(
-    "fullname"
-)?.value.trim();
-
-    const email =
-        document.getElementById("email")?.value.trim();
 
 async function registerUser() {
     try {
@@ -149,10 +140,14 @@ async function registerUser() {
             });
 
         if (error) {
-            console.error("Registration error:", error);
+            console.error(
+                "Registration error:",
+                error
+            );
 
             showMessage(
-                error.message || "Unable to create account.",
+                error.message ||
+                "Unable to create account.",
                 "error"
             );
 
@@ -164,6 +159,7 @@ async function registerUser() {
                 "Account creation did not complete. Please try again.",
                 "error"
             );
+
             return;
         }
 
