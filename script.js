@@ -95,7 +95,9 @@ async function logout() {
 async function registerUser() {
 
     const fullName =
-        document.getElementById("fullName")?.value.trim();
+        document.getElementById(
+    "fullname"
+)?.value.trim();
 
     const email =
         document.getElementById("email")?.value.trim();
