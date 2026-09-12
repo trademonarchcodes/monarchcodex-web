@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -11,7 +12,9 @@
     <title>Login | Monarch Codex</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
+
 
 <body>
 
@@ -24,8 +27,15 @@
         </a>
 
         <nav class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="register.html">Register</a>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="register.html">
+                Register
+            </a>
+
         </nav>
 
     </div>
@@ -106,7 +116,7 @@
         <div
             id="loginMessage"
             class="form-message"
-            style="margin-top: 15px; text-align: center;"
+            style="margin-top:15px;text-align:center;"
         ></div>
 
 
@@ -118,6 +128,7 @@
                 <a href="register.html">
                     Create an account
                 </a>
+
             </p>
 
 
@@ -141,22 +152,16 @@
     <div class="container">
 
         <p>
-
             ©
-
             <span id="currentYear"></span>
-
             Monarch Codex.
             All rights reserved.
-
         </p>
 
     </div>
 
 </footer>
 
-
-<!-- SUPABASE -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -170,7 +175,11 @@ const SUPABASE_KEY =
     "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
 
-let supabaseClient = null;
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
 
 const loginForm =
@@ -183,9 +192,18 @@ const loginMessage =
     document.getElementById("loginMessage");
 
 
-function showMessage(message, type = "error") {
+function showMessage(
+    text,
+    type = "error"
+) {
 
-    loginMessage.textContent = message;
+    loginMessage.textContent =
+        text;
+
+
+    loginMessage.style.display =
+        "block";
+
 
     if (type === "success") {
 
@@ -207,163 +225,51 @@ function showMessage(message, type = "error") {
 }
 
 
-function setLoginLoading(isLoading) {
+function setLoading(
+    loading
+) {
 
-    loginButton.disabled = isLoading;
+    loginButton.disabled =
+        loading;
 
     loginButton.textContent =
-        isLoading
+        loading
             ? "Logging in..."
             : "Login";
 
 }
 
 
-function initializeSupabase() {
+async function loginUser(event) {
 
-    try {
-
-        if (
-            !window.supabase ||
-            !window.supabase.createClient
-        ) {
-
-            throw new Error(
-                "Supabase library failed to load."
-            );
-
-        }
+    event.preventDefault();
 
 
-        supabaseClient =
-            window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_KEY
-            );
+    const email =
+        document
+            .getElementById("email")
+            .value
+            .trim();
 
 
-        return true;
+    const password =
+        document
+            .getElementById("password")
+            .value;
 
-    } catch (error) {
 
-        console.error(
-            "SUPABASE INITIALIZATION ERROR:",
-            error
-        );
+    if (!email || !password) {
 
         showMessage(
-            "Unable to start the login system. Please refresh the page.",
+            "Please enter your email and password.",
             "error"
         );
-
-        return false;
-
-    }
-
-}
-
-
-async function checkSupabaseConnection() {
-
-    try {
-
-        const controller =
-            new AbortController();
-
-
-        const timeout =
-            setTimeout(
-                () => controller.abort(),
-                10000
-            );
-
-
-        const response =
-            await fetch(
-                SUPABASE_URL + "/auth/v1/health",
-                {
-                    method: "GET",
-
-                    headers: {
-                        "apikey": SUPABASE_KEY
-                    },
-
-                    signal:
-                        controller.signal
-                }
-            );
-
-
-        clearTimeout(timeout);
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Supabase connection returned status " +
-                response.status
-            );
-
-        }
-
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "SUPABASE CONNECTION ERROR:",
-            error
-        );
-
-        return false;
-
-    }
-
-}
-
-
-async function loginUser(
-    email,
-    password
-) {
-
-    if (!supabaseClient) {
-
-        const initialized =
-            initializeSupabase();
-
-        if (!initialized) {
-
-            return;
-
-        }
-
-    }
-
-
-    showMessage(
-        "Checking connection...",
-        "info"
-    );
-
-
-    const connected =
-        await checkSupabaseConnection();
-
-
-    if (!connected) {
-
-        showMessage(
-            "Could not connect to Supabase. Please check your internet connection and try again.",
-            "error"
-        );
-
-        setLoginLoading(false);
 
         return;
-
     }
+
+
+    setLoading(true);
 
 
     showMessage(
@@ -378,11 +284,13 @@ async function loginUser(
             data,
             error
         } =
-            await supabaseClient
-                .auth
+            await supabaseClient.auth
                 .signInWithPassword({
+
                     email: email,
+
                     password: password
+
                 });
 
 
@@ -395,38 +303,27 @@ async function loginUser(
 
             showMessage(
                 error.message ||
-                "Login failed. Please try again.",
+                "Login failed.",
                 "error"
             );
 
-            setLoginLoading(false);
+            setLoading(false);
 
             return;
-
         }
 
 
-        if (
-            !data ||
-            !data.user
-        ) {
+        if (!data || !data.user) {
 
             showMessage(
                 "Login failed. No user account was returned.",
                 "error"
             );
 
-            setLoginLoading(false);
+            setLoading(false);
 
             return;
-
         }
-
-
-        showMessage(
-            "Login successful. Loading your account...",
-            "success"
-        );
 
 
         const {
@@ -435,7 +332,9 @@ async function loginUser(
         } =
             await supabaseClient
                 .from("profiles")
-                .select("*")
+                .select(
+                    "id, full_name, role, status, uid"
+                )
                 .eq(
                     "id",
                     data.user.id
@@ -450,30 +349,34 @@ async function loginUser(
                 profileError
             );
 
+
+            await supabaseClient.auth.signOut();
+
+
             showMessage(
-                "Login succeeded, but your profile could not be loaded: " +
-                profileError.message,
+                "Your account was found, but your member profile could not be loaded. Please contact support.",
                 "error"
             );
 
-            setLoginLoading(false);
+            setLoading(false);
 
             return;
-
         }
 
 
         if (!profile) {
 
+            await supabaseClient.auth.signOut();
+
+
             showMessage(
-                "Login succeeded, but no profile was found for this account.",
+                "No member profile was found for this account.",
                 "error"
             );
 
-            setLoginLoading(false);
+            setLoading(false);
 
             return;
-
         }
 
 
@@ -482,9 +385,7 @@ async function loginUser(
             "blocked"
         ) {
 
-            await supabaseClient
-                .auth
-                .signOut();
+            await supabaseClient.auth.signOut();
 
 
             showMessage(
@@ -492,31 +393,90 @@ async function loginUser(
                 "error"
             );
 
-            setLoginLoading(false);
+            setLoading(false);
 
             return;
-
         }
 
 
         if (
-            profile.role ===
-            "admin" &&
-
-            profile.status ===
-            "active"
+            profile.role === "admin" &&
+            profile.status === "active"
         ) {
 
-            window.location.href =
-                "admin.html";
+            showMessage(
+                "Admin login successful. Loading dashboard...",
+                "success"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    window.location.href =
+                        "admin.html";
+
+                },
+                500
+            );
 
             return;
-
         }
 
 
-        window.location.href =
-            "dashboard.html";
+        if (
+            profile.status ===
+            "pending"
+        ) {
+
+            await supabaseClient.auth.signOut();
+
+
+            showMessage(
+                "Your account is pending approval. Please wait for an administrator to activate your account.",
+                "error"
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+
+        if (
+            profile.status !==
+            "active"
+        ) {
+
+            await supabaseClient.auth.signOut();
+
+
+            showMessage(
+                "Your account is not currently active. Please contact support.",
+                "error"
+            );
+
+            setLoading(false);
+
+            return;
+        }
+
+
+        showMessage(
+            "Login successful. Loading your dashboard...",
+            "success"
+        );
+
+
+        setTimeout(
+            () => {
+
+                window.location.href =
+                    "dashboard.html";
+
+            },
+            500
+        );
 
 
     } catch (error) {
@@ -527,37 +487,14 @@ async function loginUser(
         );
 
 
-        let errorMessage =
-            "Login failed. Please try again.";
-
-
-        if (
-            error.name ===
-            "AbortError"
-        ) {
-
-            errorMessage =
-                "The connection timed out. Please check your internet connection and try again.";
-
-        } else if (
-            error.message &&
-            error.message
-                .toLowerCase()
-                .includes("failed to fetch")
-        ) {
-
-            errorMessage =
-                "Could not reach Supabase. Please check your internet connection and try again.";
-
-        }
-
-
         showMessage(
-            errorMessage,
+            error.message ||
+            "Unable to login. Please try again.",
             "error"
         );
 
-        setLoginLoading(false);
+
+        setLoading(false);
 
     }
 
@@ -566,48 +503,7 @@ async function loginUser(
 
 loginForm.addEventListener(
     "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        const email =
-            document
-                .getElementById("email")
-                .value
-                .trim();
-
-
-        const password =
-            document
-                .getElementById("password")
-                .value;
-
-
-        if (
-            !email ||
-            !password
-        ) {
-
-            showMessage(
-                "Please enter your email and password.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        setLoginLoading(true);
-
-
-        await loginUser(
-            email,
-            password
-        );
-
-    }
+    loginUser
 );
 
 
@@ -616,10 +512,8 @@ document.getElementById(
 ).textContent =
     new Date().getFullYear();
 
-
-initializeSupabase();
-
 </script>
+
 
 </body>
 </html>
