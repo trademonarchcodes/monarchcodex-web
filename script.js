@@ -1261,9 +1261,8 @@ document.addEventListener(
 
             const form =
                 document.getElementById(
-                    "registerForm"
-                );
-
+    "registrationForm"
+);
 
             if (form) {
 
