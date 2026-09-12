@@ -3545,6 +3545,142 @@ async function loadWithdrawalData(userId) {
 
 }
 
+  /* =========================================================
+   WITHDRAWAL HISTORY
+========================================================= */
+
+function renderWithdrawalHistory(withdrawals) {
+
+    const container =
+        document.getElementById("withdrawalHistory");
+
+    if (!container) {
+        return;
+    }
+
+    if (!withdrawals || withdrawals.length === 0) {
+
+        container.innerHTML = `
+            <div class="dashboard-empty">
+                <div class="dashboard-empty-icon">
+                    💸
+                </div>
+
+                <h3>
+                    No Withdrawal Requests
+                </h3>
+
+                <p>
+                    Your withdrawal requests will appear here
+                    once you submit one.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = withdrawals.map(withdrawal => {
+
+        const status =
+            String(
+                withdrawal.status || "pending"
+            ).toLowerCase();
+
+        let statusLabel = "Pending";
+
+        if (status === "approved") {
+            statusLabel = "Processing";
+        }
+
+        if (status === "paid") {
+            statusLabel = "Paid";
+        }
+
+        if (status === "rejected") {
+            statusLabel = "Rejected";
+        }
+
+        const amount =
+            Number(withdrawal.amount) || 0;
+
+        const type =
+            withdrawal.withdrawal_type === "capital"
+                ? "Capital"
+                : "Profit";
+
+        const rejectionReason =
+            withdrawal.rejection_reason
+                ? `
+                    <div class="withdrawal-reason">
+                        <strong>
+                            Rejection Reason
+                        </strong>
+
+                        <p>
+                            ${escapeWithdrawalText(
+                                withdrawal.rejection_reason
+                            )}
+                        </p>
+                    </div>
+                `
+                : "";
+
+        return `
+            <div class="withdrawal-history-item">
+
+                <div class="withdrawal-history-main">
+
+                    <div class="withdrawal-history-amount">
+                        ${formatMoney(amount)}
+                    </div>
+
+                    <div class="withdrawal-history-type">
+                        ${type} Withdrawal
+                    </div>
+
+                </div>
+
+
+                <div class="withdrawal-history-meta">
+
+                    <span
+                        class="withdrawal-status withdrawal-status-${status}"
+                    >
+                        ${statusLabel}
+                    </span>
+
+                    <small>
+                        ${formatDate(
+                            withdrawal.created_at
+                        )}
+                    </small>
+
+                </div>
+
+
+                ${rejectionReason}
+
+            </div>
+        `;
+
+    }).join("");
+}
+
+
+/* =========================================================
+   ESCAPE WITHDRAWAL TEXT
+========================================================= */
+
+function escapeWithdrawalText(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}      
     function renderEarnings(earnings) {
 
         let total = 0;
