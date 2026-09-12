@@ -9141,3 +9141,318 @@ button[onclick*="Refresh"]:focus-visible {
         font-size: 10px;
     }
 }
+/* =========================================================
+   MONARCH CODEX — HOMEPAGE MOBILE / CTA / FOOTER FIX
+   FINAL SAFE ISOLATED PATCH
+   Paste this entire block at the VERY BOTTOM of style.css
+========================================================= */
+
+
+/* =========================
+   HOMEPAGE CTA
+========================= */
+
+.cta-section {
+    width: 100%;
+    padding: 0 20px 60px;
+    box-sizing: border-box;
+}
+
+.cta-section > .container {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.cta-content {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 70px 30px;
+
+    text-align: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(212, 175, 55, 0.10),
+            rgba(212, 175, 55, 0.025)
+        );
+
+    border: 1px solid rgba(212, 175, 55, 0.18);
+    border-radius: 24px;
+}
+
+.cta-content h2 {
+    margin: 0 0 12px;
+    color: var(--white);
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.2;
+}
+
+.cta-content h2 span {
+    color: var(--gold);
+}
+
+.cta-content > p:not(.section-label) {
+    max-width: 650px;
+    margin: 0 auto 25px;
+    color: var(--muted);
+}
+
+
+/* =========================
+   CTA BUTTONS
+========================= */
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+}
+
+.hero-buttons .btn {
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   HOMEPAGE FOOTER
+========================= */
+
+.footer {
+    width: 100%;
+    margin-top: 0;
+    padding: 60px 0 25px;
+    box-sizing: border-box;
+
+    background: #070707;
+
+    border-top: 1px solid rgba(212, 175, 55, 0.10);
+}
+
+.footer-container {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 40px;
+
+    padding-bottom: 40px;
+
+    box-sizing: border-box;
+}
+
+.footer-brand {
+    min-width: 0;
+}
+
+.footer-brand p {
+    max-width: 330px;
+    margin-top: 12px;
+
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    flex-wrap: wrap;
+
+    gap: 12px 24px;
+
+    min-width: 0;
+}
+
+.footer-links a {
+    color: #888;
+    font-size: 12px;
+
+    white-space: nowrap;
+
+    text-decoration: none;
+
+    transition: var(--transition);
+}
+
+.footer-links a:hover {
+    color: var(--gold);
+}
+
+
+/* =========================
+   FOOTER BOTTOM
+========================= */
+
+.footer-bottom {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+
+    padding-top: 20px;
+
+    color: #666;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+    text-align: center;
+
+    font-size: 11px;
+
+    box-sizing: border-box;
+}
+
+.footer-bottom p {
+    margin: 0;
+}
+
+
+/* =========================
+   TABLET / MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .cta-section {
+        padding: 0 15px 50px;
+    }
+
+    .cta-section > .container {
+        width: 100%;
+    }
+
+    .cta-content {
+        padding: 50px 20px;
+        border-radius: 20px;
+    }
+
+    .footer-container {
+        width: calc(100% - 30px);
+
+        flex-direction: column;
+
+        align-items: center;
+
+        text-align: center;
+
+        gap: 25px;
+    }
+
+    .footer-brand {
+        width: 100%;
+    }
+
+    .footer-brand p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .footer-links {
+        width: 100%;
+
+        justify-content: center;
+
+        gap: 12px 20px;
+    }
+
+    .footer-bottom {
+        width: calc(100% - 30px);
+    }
+
+    .hero-buttons {
+        width: 100%;
+    }
+}
+
+
+/* =========================
+   SMALL PHONES
+========================= */
+
+@media (max-width: 450px) {
+
+    .cta-section {
+        padding: 0 12px 40px;
+    }
+
+    .cta-section > .container {
+        width: 100%;
+    }
+
+    .cta-content {
+        padding: 42px 16px;
+        border-radius: 18px;
+    }
+
+    .cta-content h2 {
+        font-size: 28px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        max-width: 320px;
+        box-sizing: border-box;
+    }
+
+    .footer {
+        padding-top: 45px;
+    }
+
+    .footer-container {
+        width: calc(100% - 24px);
+        padding-bottom: 25px;
+    }
+
+    .footer-links {
+        gap: 10px 16px;
+    }
+
+    .footer-links a {
+        font-size: 11px;
+    }
+
+    .footer-bottom {
+        width: calc(100% - 24px);
+        font-size: 10px;
+    }
+}
+
+
+/* =========================
+   VERY NARROW PHONES
+========================= */
+
+@media (max-width: 360px) {
+
+    .cta-section {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .cta-content {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .hero-buttons .btn {
+        max-width: 100%;
+    }
+
+    .footer-container,
+    .footer-bottom {
+        width: calc(100% - 20px);
+    }
+}
