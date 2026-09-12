@@ -3259,7 +3259,291 @@ WITHDRAWAL
             renderEarnings([]);
         }
     }
+/* =========================================================
+   MONARCH CODEX — WITHDRAWAL DATA
+========================================================= */
 
+async function loadWithdrawalData(userId) {
+
+    try {
+
+        /* LOAD CONFIRMED INVESTMENTS */
+
+        const { data: investments, error: investmentError } =
+            await supabaseClient
+                .from("investments")
+                .select(
+                    "id, amount, status, confirmed_at, created_at"
+                )
+                .eq("user_id", userId)
+                .eq("status", "confirmed");
+
+
+        if (investmentError) {
+            throw investmentError;
+        }
+
+
+        /* LOAD EARNINGS */
+
+        const { data: earnings, error: earningsError } =
+            await supabaseClient
+                .from("earnings")
+                .select("*")
+                .eq("user_id", userId);
+
+
+        if (earningsError) {
+            throw earningsError;
+        }
+
+
+        /* LOAD WITHDRAWAL HISTORY */
+
+        const { data: withdrawals, error: withdrawalError } =
+            await supabaseClient
+                .from("withdrawals")
+                .select("*")
+                .eq("user_id", userId)
+                .order("created_at", {
+                    ascending: false
+                });
+
+
+        if (withdrawalError) {
+            throw withdrawalError;
+        }
+
+
+        /* -----------------------------------------
+           CALCULATE ALREADY REQUESTED AMOUNTS
+        ----------------------------------------- */
+
+        let withdrawnProfit = 0;
+        let withdrawnCapital = 0;
+
+
+        (withdrawals || []).forEach(withdrawal => {
+
+            if (
+                withdrawal.status !== "rejected" &&
+                withdrawal.withdrawal_type === "profit"
+            ) {
+
+                withdrawnProfit +=
+                    Number(withdrawal.amount) || 0;
+
+            }
+
+
+            if (
+                withdrawal.status !== "rejected" &&
+                withdrawal.withdrawal_type === "capital"
+            ) {
+
+                withdrawnCapital +=
+                    Number(withdrawal.amount) || 0;
+
+            }
+
+        });
+
+
+        /* -----------------------------------------
+           CALCULATE AVAILABLE PROFIT
+        ----------------------------------------- */
+
+        let totalProfit = 0;
+
+
+        (earnings || []).forEach(earning => {
+
+            const status =
+                String(
+                    earning.status || ""
+                ).toLowerCase();
+
+
+            if (status !== "pending") {
+
+                const amount =
+                    Number(
+                        earning.amount ??
+                        earning.profit ??
+                        earning.value ??
+                        0
+                    ) || 0;
+
+
+                totalProfit += amount;
+
+            }
+
+        });
+
+
+        const withdrawableProfit =
+            Math.max(
+                0,
+                totalProfit - withdrawnProfit
+            );
+
+
+        /* -----------------------------------------
+           CALCULATE CAPITAL
+        ----------------------------------------- */
+
+        let withdrawableCapital = 0;
+        let lockedCapital = 0;
+
+        const now = new Date();
+
+
+        (investments || []).forEach(investment => {
+
+            const amount =
+                Number(investment.amount) || 0;
+
+
+            if (amount <= 0) return;
+
+
+            const approvalDate =
+                investment.confirmed_at
+                    ? new Date(
+                        investment.confirmed_at
+                    )
+                    : null;
+
+
+            if (!approvalDate) {
+
+                lockedCapital += amount;
+
+                return;
+
+            }
+
+
+            const unlockDate =
+                new Date(approvalDate);
+
+
+            unlockDate.setMonth(
+                unlockDate.getMonth() + 3
+            );
+
+
+            if (now >= unlockDate) {
+
+                withdrawableCapital += amount;
+
+            } else {
+
+                lockedCapital += amount;
+
+            }
+
+        });
+
+
+        withdrawableCapital =
+            Math.max(
+                0,
+                withdrawableCapital -
+                withdrawnCapital
+            );
+
+
+        /* -----------------------------------------
+           UPDATE BALANCE CARDS
+        ----------------------------------------- */
+
+        const profitElement =
+            document.getElementById(
+                "withdrawableProfit"
+            );
+
+
+        const capitalElement =
+            document.getElementById(
+                "withdrawableCapital"
+            );
+
+
+        const lockedElement =
+            document.getElementById(
+                "lockedCapital"
+            );
+
+
+        if (profitElement) {
+
+            profitElement.textContent =
+                formatMoney(
+                    withdrawableProfit
+                );
+
+        }
+
+
+        if (capitalElement) {
+
+            capitalElement.textContent =
+                formatMoney(
+                    withdrawableCapital
+                );
+
+        }
+
+
+        if (lockedElement) {
+
+            lockedElement.textContent =
+                formatMoney(
+                    lockedCapital
+                );
+
+        }
+
+
+        /* -----------------------------------------
+           STORE BALANCES
+        ----------------------------------------- */
+
+        window.monarchWithdrawalBalances = {
+
+            profit:
+                withdrawableProfit,
+
+            capital:
+                withdrawableCapital
+
+        };
+
+
+        /* -----------------------------------------
+           RENDER HISTORY
+        ----------------------------------------- */
+
+        renderWithdrawalHistory(
+            withdrawals || []
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Error loading withdrawals:",
+            error
+        );
+
+
+        renderWithdrawalHistory([]);
+
+    }
+
+}
 
     function renderEarnings(earnings) {
 
