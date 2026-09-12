@@ -101,80 +101,99 @@ async function registerUser() {
     const email =
         document.getElementById("email")?.value.trim();
 
-    const phone =
-        document.getElementById("phone")?.value.trim();
+async function registerUser() {
+    try {
+        const fullName =
+            document.getElementById("fullName")?.value.trim();
 
-    const password =
-        document.getElementById("password")?.value;
+        const email =
+            document.getElementById("email")?.value.trim();
 
+        const phone =
+            document.getElementById("phone")?.value.trim();
 
-    if (!fullName || !email || !password) {
+        const password =
+            document.getElementById("password")?.value;
+
+        if (!fullName || !email || !phone || !password) {
+            showMessage(
+                "Please fill in all required fields.",
+                "error"
+            );
+            return;
+        }
+
+        if (password.length < 6) {
+            showMessage(
+                "Password must be at least 6 characters.",
+                "error"
+            );
+            return;
+        }
 
         showMessage(
-            "Please fill in all required fields.",
-            "error"
+            "Creating your account...",
+            "info"
         );
 
-        return;
-    }
-
-
-    if (password.length < 6) {
-
-        showMessage(
-            "Password must be at least 6 characters.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    const { data, error } =
-        await supabase.auth.signUp({
-
-            email,
-            password,
-
-            options: {
-                data: {
-                    full_name: fullName,
-                    phone: phone
+        const { data, error } =
+            await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        phone: phone
+                    }
                 }
-            }
+            });
 
-        });
+        if (error) {
+            console.error("Registration error:", error);
 
+            showMessage(
+                error.message || "Unable to create account.",
+                "error"
+            );
 
-    if (error) {
+            return;
+        }
 
-        console.error(error);
+        if (!data?.user) {
+            showMessage(
+                "Account creation did not complete. Please try again.",
+                "error"
+            );
+            return;
+        }
 
-        showMessage(
-            error.message,
-            "error"
+        console.log(
+            "Account created successfully:",
+            data.user.id
         );
-
-        return;
-    }
-
-
-    if (data.user) {
 
         showMessage(
             "Account created successfully. Please check your email if confirmation is required.",
             "success"
         );
 
-
         setTimeout(() => {
-
             window.location.href = "login.html";
+        }, 2500);
 
-        }, 2000);
+    } catch (error) {
+        console.error(
+            "Unexpected registration error:",
+            error
+        );
+
+        showMessage(
+            error?.message ||
+            "Something went wrong while creating your account.",
+            "error"
+        );
     }
 }
-
 
 // =====================================================
 // LOGIN
