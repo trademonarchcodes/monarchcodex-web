@@ -489,6 +489,236 @@
 
         </section>
 
+        <!-- =================================================
+WITHDRAWAL
+================================================== -->
+<section
+    class="dashboard-section"
+    id="withdrawal"
+>
+
+    <div class="section-heading">
+        <div>
+            <p class="section-eyebrow">
+                WITHDRAWALS
+            </p>
+
+            <h2>
+                Withdraw Funds
+            </h2>
+
+            <p class="section-description">
+                Request a withdrawal from your available profit or eligible
+                investment capital.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- WITHDRAWAL BALANCES -->
+    <div class="overview-grid withdrawal-balance-grid">
+
+        <div class="overview-card">
+            <span>
+                Available Profit
+            </span>
+
+            <strong id="withdrawableProfit">
+                $0.00
+            </strong>
+        </div>
+
+
+        <div class="overview-card">
+            <span>
+                Withdrawable Capital
+            </span>
+
+            <strong id="withdrawableCapital">
+                $0.00
+            </strong>
+        </div>
+
+
+        <div class="overview-card">
+            <span>
+                Locked Capital
+            </span>
+
+            <strong id="lockedCapital">
+                $0.00
+            </strong>
+        </div>
+
+
+        <div class="overview-card">
+            <span>
+                Minimum Withdrawal
+            </span>
+
+            <strong>
+                $10.00
+            </strong>
+        </div>
+
+    </div>
+
+
+    <!-- WITHDRAWAL FORM -->
+    <div class="info-card withdrawal-form-card">
+
+        <div class="info-label">
+            REQUEST WITHDRAWAL
+        </div>
+
+        <div class="withdrawal-form-grid">
+
+            <div class="form-group">
+                <label for="withdrawalAmount">
+                    Amount (USD)
+                </label>
+
+                <input
+                    type="number"
+                    id="withdrawalAmount"
+                    min="10"
+                    step="0.01"
+                    placeholder="Enter amount"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="withdrawalType">
+                    Withdrawal Type
+                </label>
+
+                <select id="withdrawalType">
+                    <option value="">
+                        Select withdrawal type
+                    </option>
+
+                    <option value="profit">
+                        Profit
+                    </option>
+
+                    <option value="capital">
+                        Capital
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+
+        <!-- BANK DETAILS -->
+        <div class="withdrawal-bank-details">
+
+            <div class="form-group">
+                <label for="withdrawalBankName">
+                    Bank Name
+                </label>
+
+                <input
+                    type="text"
+                    id="withdrawalBankName"
+                    placeholder="Enter bank name"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="withdrawalAccountName">
+                    Account Name
+                </label>
+
+                <input
+                    type="text"
+                    id="withdrawalAccountName"
+                    placeholder="Enter account name"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label for="withdrawalAccountNumber">
+                    Account Number
+                </label>
+
+                <input
+                    type="text"
+                    id="withdrawalAccountNumber"
+                    inputmode="numeric"
+                    placeholder="Enter account number"
+                >
+            </div>
+
+        </div>
+
+
+        <div
+            id="withdrawalMessage"
+            class="dashboard-message"
+            role="alert"
+            aria-live="polite"
+            style="display:none;"
+        ></div>
+
+
+        <button
+            type="button"
+            class="btn btn-primary withdrawal-submit-btn"
+            onclick="submitWithdrawalRequest()"
+        >
+            Request Withdrawal
+        </button>
+
+
+        <p class="section-description withdrawal-note">
+            Minimum withdrawal is $10. Profit may be withdrawn monthly.
+            Investment capital becomes eligible for withdrawal after the
+            applicable 3-month lock period.
+        </p>
+
+    </div>
+
+
+    <!-- WITHDRAWAL HISTORY -->
+    <div class="dashboard-section withdrawal-history-section">
+
+        <div class="section-heading">
+            <div>
+                <p class="section-eyebrow">
+                    HISTORY
+                </p>
+
+                <h2>
+                    Withdrawal History
+                </h2>
+
+                <p class="section-description">
+                    Track your withdrawal requests and their current status.
+                </p>
+            </div>
+        </div>
+
+
+        <div
+            id="withdrawalHistory"
+            class="withdrawal-history"
+        >
+            <div class="dashboard-loading">
+                <div class="loading-spinner"></div>
+
+                <span>
+                    Loading withdrawal history...
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+</section>
 
         <!-- =================================================
              PACKAGES
