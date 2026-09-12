@@ -13,8 +13,7 @@ console.log("MONARCH CODEX SCRIPT LOADED");
 // =====================================================
 
 function showMessage(message, type = "info") {
-    const box = document.getElementById("message");
-
+    const box = document.getElementById("registrationMessage");
     if (!box) {
         alert(message);
         return;
