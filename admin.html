@@ -8644,6 +8644,737 @@ console.log(
 
 window.uploadPaymentReceipt = uploadReceipt;
 window.refreshDashboard = refreshDashboardData;
+
+/* =========================================================
+   MONARCH CODEX — ADMIN WITHDRAWAL MANAGEMENT
+   ========================================================= */
+
+async function loadAdminWithdrawals() {
+
+    const container =
+        document.getElementById("adminWithdrawalsList");
+
+    if (!container) return;
+
+    try {
+
+        const { data: withdrawals, error } =
+            await supabase
+                .from("withdrawals")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
+
+        if (error) {
+            console.error(
+                "Admin withdrawal error:",
+                error
+            );
+
+            container.innerHTML = `
+                <div class="dashboard-empty">
+                    <p>
+                        Unable to load withdrawal requests.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+        updateAdminWithdrawalStats(
+            withdrawals || []
+        );
+
+        await renderAdminWithdrawals(
+            withdrawals || []
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Admin withdrawal system error:",
+            error
+        );
+
+    }
+}
+
+
+/* =========================================================
+   WITHDRAWAL STATISTICS
+   ========================================================= */
+
+function updateAdminWithdrawalStats(withdrawals) {
+
+    let pending = 0;
+    let processing = 0;
+    let paid = 0;
+    let rejected = 0;
+
+    withdrawals.forEach(withdrawal => {
+
+        const status =
+            String(
+                withdrawal.status || ""
+            ).toLowerCase();
+
+        if (status === "pending") {
+            pending++;
+        }
+
+        if (status === "approved") {
+            processing++;
+        }
+
+        if (status === "paid") {
+            paid++;
+        }
+
+        if (status === "rejected") {
+            rejected++;
+        }
+
+    });
+
+    const pendingElement =
+        document.getElementById(
+            "adminPendingWithdrawals"
+        );
+
+    const processingElement =
+        document.getElementById(
+            "adminProcessingWithdrawals"
+        );
+
+    const paidElement =
+        document.getElementById(
+            "adminPaidWithdrawals"
+        );
+
+    const rejectedElement =
+        document.getElementById(
+            "adminRejectedWithdrawals"
+        );
+
+    if (pendingElement) {
+        pendingElement.textContent = pending;
+    }
+
+    if (processingElement) {
+        processingElement.textContent = processing;
+    }
+
+    if (paidElement) {
+        paidElement.textContent = paid;
+    }
+
+    if (rejectedElement) {
+        rejectedElement.textContent = rejected;
+    }
+}
+
+
+/* =========================================================
+   RENDER WITHDRAWALS
+   ========================================================= */
+
+async function renderAdminWithdrawals(withdrawals) {
+
+    const container =
+        document.getElementById(
+            "adminWithdrawalsList"
+        );
+
+    if (!container) return;
+
+    if (!withdrawals.length) {
+
+        container.innerHTML = `
+            <div class="dashboard-empty">
+
+                <p>
+                    No withdrawal requests yet.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    /* LOAD MEMBER PROFILES */
+
+    const userIds =
+        withdrawals
+            .map(
+                withdrawal =>
+                    withdrawal.user_id
+            )
+            .filter(Boolean);
+
+
+    let profiles = [];
+
+    if (userIds.length) {
+
+        const { data, error } =
+            await supabase
+                .from("profiles")
+                .select("*")
+                .in("id", userIds);
+
+        if (!error) {
+            profiles = data || [];
+        }
+
+    }
+
+
+    container.innerHTML =
+        withdrawals.map(withdrawal => {
+
+            const profile =
+                profiles.find(
+                    item =>
+                        item.id === withdrawal.user_id
+                );
+
+
+            const memberName =
+                profile?.full_name ||
+                profile?.name ||
+                profile?.username ||
+                "Member";
+
+
+            const uid =
+                profile?.uid ||
+                profile?.user_id ||
+                "—";
+
+
+            const status =
+                String(
+                    withdrawal.status || "pending"
+                ).toLowerCase();
+
+
+            let statusLabel =
+                "Pending";
+
+            if (status === "approved") {
+                statusLabel = "Processing";
+            }
+
+            if (status === "paid") {
+                statusLabel = "Paid";
+            }
+
+            if (status === "rejected") {
+                statusLabel = "Rejected";
+            }
+
+
+            let actionHtml = "";
+
+
+            /* PENDING */
+
+            if (status === "pending") {
+
+                actionHtml = `
+
+                    <div class="admin-withdrawal-actions">
+
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="approveWithdrawal('${withdrawal.id}')"
+                        >
+                            Approve
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            onclick="rejectWithdrawal('${withdrawal.id}')"
+                        >
+                            Reject
+                        </button>
+
+                    </div>
+
+                `;
+            }
+
+
+            /* PROCESSING */
+
+            if (status === "approved") {
+
+                actionHtml = `
+
+                    <div class="admin-withdrawal-actions">
+
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="confirmWithdrawalPayment('${withdrawal.id}')"
+                        >
+                            Confirm Payment
+                        </button>
+
+                    </div>
+
+                `;
+            }
+
+
+            /* PAID */
+
+            if (status === "paid") {
+
+                actionHtml = `
+
+                    <div class="admin-withdrawal-complete">
+
+                        Payment completed
+
+                    </div>
+
+                `;
+            }
+
+
+            /* REJECTED */
+
+            if (status === "rejected") {
+
+                actionHtml = `
+
+                    <div class="admin-withdrawal-rejected">
+
+                        Rejected
+
+                    </div>
+
+                `;
+            }
+
+
+            const rejectionReason =
+                withdrawal.rejection_reason
+                    ? `
+                        <div class="admin-withdrawal-reason">
+
+                            <strong>
+                                Rejection Reason:
+                            </strong>
+
+                            <span>
+                                ${escapeAdminWithdrawalHtml(
+                                    withdrawal.rejection_reason
+                                )}
+                            </span>
+
+                        </div>
+                    `
+                    : "";
+
+
+            return `
+
+                <div
+                    class="admin-withdrawal-card"
+                    data-withdrawal-id="${withdrawal.id}"
+                >
+
+                    <div class="admin-withdrawal-header">
+
+                        <div>
+
+                            <strong>
+                                ${escapeAdminWithdrawalHtml(
+                                    memberName
+                                )}
+                            </strong>
+
+                            <span>
+                                UID:
+                                ${escapeAdminWithdrawalHtml(
+                                    uid
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <span
+                            class="withdrawal-status withdrawal-status-${status}"
+                        >
+                            ${statusLabel}
+                        </span>
+
+                    </div>
+
+
+                    <div class="admin-withdrawal-details">
+
+                        <div>
+                            <span>
+                                Amount
+                            </span>
+
+                            <strong>
+                                ${formatMoney(
+                                    Number(
+                                        withdrawal.amount
+                                    ) || 0
+                                )}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Type
+                            </span>
+
+                            <strong>
+                                ${
+                                    withdrawal.withdrawal_type ===
+                                    "capital"
+                                        ? "Capital"
+                                        : "Profit"
+                                }
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Bank
+                            </span>
+
+                            <strong>
+                                ${escapeAdminWithdrawalHtml(
+                                    withdrawal.bank_name ||
+                                    "—"
+                                )}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Account Name
+                            </span>
+
+                            <strong>
+                                ${escapeAdminWithdrawalHtml(
+                                    withdrawal.account_name ||
+                                    "—"
+                                )}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Account Number
+                            </span>
+
+                            <strong>
+                                ${escapeAdminWithdrawalHtml(
+                                    withdrawal.account_number ||
+                                    "—"
+                                )}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                Requested
+                            </span>
+
+                            <strong>
+                                ${formatDate(
+                                    withdrawal.created_at
+                                )}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    ${rejectionReason}
+
+
+                    <div class="admin-withdrawal-footer">
+
+                        ${actionHtml}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   ESCAPE TEXT
+   ========================================================= */
+
+function escapeAdminWithdrawalHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   APPROVE WITHDRAWAL
+   ========================================================= */
+
+async function approveWithdrawal(withdrawalId) {
+
+    const confirmed =
+        confirm(
+            "Approve this withdrawal for payment processing?"
+        );
+
+    if (!confirmed) return;
+
+
+    const user =
+        await getCurrentUser();
+
+    if (!user) {
+
+        alert(
+            "Your session has expired. Please log in again."
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabase
+            .from("withdrawals")
+            .update({
+
+                status:
+                    "approved",
+
+                approved_at:
+                    new Date().toISOString(),
+
+                processed_by:
+                    user.id
+
+            })
+            .eq("id", withdrawalId);
+
+
+    if (error) {
+
+        console.error(
+            "Approve withdrawal error:",
+            error
+        );
+
+        alert(
+            "Unable to approve this withdrawal."
+        );
+
+        return;
+    }
+
+
+    await loadAdminWithdrawals();
+}
+
+
+/* =========================================================
+   REJECT WITHDRAWAL
+   ========================================================= */
+
+async function rejectWithdrawal(withdrawalId) {
+
+    const reason =
+        prompt(
+            "Enter the reason for rejecting this withdrawal:"
+        );
+
+
+    if (reason === null) {
+        return;
+    }
+
+
+    const cleanReason =
+        reason.trim();
+
+
+    if (!cleanReason) {
+
+        alert(
+            "A rejection reason is required."
+        );
+
+        return;
+    }
+
+
+    const user =
+        await getCurrentUser();
+
+    if (!user) {
+
+        alert(
+            "Your session has expired. Please log in again."
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabase
+            .from("withdrawals")
+            .update({
+
+                status:
+                    "rejected",
+
+                rejection_reason:
+                    cleanReason,
+
+                processed_by:
+                    user.id,
+
+                processed_at:
+                    new Date().toISOString()
+
+            })
+            .eq("id", withdrawalId);
+
+
+    if (error) {
+
+        console.error(
+            "Reject withdrawal error:",
+            error
+        );
+
+        alert(
+            "Unable to reject this withdrawal."
+        );
+
+        return;
+    }
+
+
+    await loadAdminWithdrawals();
+}
+
+
+/* =========================================================
+   CONFIRM PAYMENT
+   ========================================================= */
+
+async function confirmWithdrawalPayment(
+    withdrawalId
+) {
+
+    const confirmed =
+        confirm(
+            "Have you manually completed this payment? Click OK only after the member has been paid."
+        );
+
+    if (!confirmed) return;
+
+
+    const user =
+        await getCurrentUser();
+
+    if (!user) {
+
+        alert(
+            "Your session has expired. Please log in again."
+        );
+
+        return;
+    }
+
+
+    const { error } =
+        await supabase
+            .from("withdrawals")
+            .update({
+
+                status:
+                    "paid",
+
+                paid_at:
+                    new Date().toISOString(),
+
+                processed_by:
+                    user.id,
+
+                processed_at:
+                    new Date().toISOString()
+
+            })
+            .eq(
+                "id",
+                withdrawalId
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Confirm payment error:",
+            error
+        );
+
+        alert(
+            "Unable to confirm this payment."
+        );
+
+        return;
+    }
+
+
+    await loadAdminWithdrawals();
+}
+
+
+/* =========================================================
+   LOAD ADMIN WITHDRAWALS
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        await loadAdminWithdrawals();
+
+    }
+);
         
 </script>
 
