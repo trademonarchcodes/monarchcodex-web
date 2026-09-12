@@ -9456,3 +9456,130 @@ button[onclick*="Refresh"]:focus-visible {
         width: calc(100% - 20px);
     }
 }
+
+/* =========================================================
+   MONARCH CODEX — LEGAL / RISK DISCLAIMER
+========================================================= */
+
+.footer-legal {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 20px 0 25px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.legal-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legal-item summary {
+    padding: 14px 0;
+
+    color: #888;
+    font-size: 12px;
+    font-weight: 500;
+
+    cursor: pointer;
+    list-style: none;
+
+    transition: color 0.25s ease;
+}
+
+.legal-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.legal-item summary::after {
+    content: "+";
+    float: right;
+
+    color: var(--gold);
+    font-size: 16px;
+}
+
+.legal-item[open] summary::after {
+    content: "−";
+}
+
+.legal-item summary:hover {
+    color: var(--gold);
+}
+
+.legal-content {
+    max-width: 900px;
+    padding: 0 0 15px;
+
+    color: #777;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.legal-content p {
+    margin: 0 0 10px;
+}
+
+.legal-content p:last-child {
+    margin-bottom: 0;
+}
+
+.legal-notice {
+    margin-top: 20px;
+    padding: 14px 18px;
+
+    border: 1px solid rgba(212, 175, 55, 0.12);
+    border-radius: 10px;
+
+    background: rgba(212, 175, 55, 0.035);
+
+    color: #777;
+    font-size: 11px;
+    line-height: 1.6;
+
+    text-align: center;
+}
+
+.legal-notice strong {
+    color: #999;
+}
+
+
+/* =========================
+   LEGAL MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .footer-legal {
+        width: calc(100% - 30px);
+    }
+
+    .legal-content {
+        font-size: 11px;
+    }
+
+    .legal-notice {
+        padding: 13px 14px;
+    }
+}
+
+
+@media (max-width: 450px) {
+
+    .footer-legal {
+        width: calc(100% - 24px);
+        padding-top: 15px;
+    }
+
+    .legal-item summary {
+        font-size: 11px;
+    }
+
+    .legal-content {
+        font-size: 10px;
+    }
+
+    .legal-notice {
+        font-size: 10px;
+    }
+}
