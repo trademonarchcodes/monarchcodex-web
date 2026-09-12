@@ -1898,12 +1898,13 @@ WITHDRAWAL
 
 
                 await Promise.all([
-                    loadProfile(user.id),
-                    loadPackages(),
-                    loadPaymentDetails(),
-                    loadInvestmentHistory(user.id),
-                    loadEarnings(user.id)
-                ]);
+    loadProfile(user.id),
+    loadPackages(),
+    loadPaymentDetails(),
+    loadInvestmentHistory(user.id),
+    loadEarnings(user.id),
+    loadWithdrawalData(user.id)
+]);
 
 
                 updateInvestmentFormState();
