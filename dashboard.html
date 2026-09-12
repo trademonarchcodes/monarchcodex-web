@@ -9597,6 +9597,234 @@ window.refreshInvestmentStatsNow =
    END MONARCH CODEX DASHBOARD FIX PATCH
    ========================================================= */
 
+/* =========================================================
+   MONARCH CODEX — WITHDRAWAL SUBMISSION
+========================================================= */
+
+async function submitWithdrawalRequest() {
+
+    const message =
+        document.getElementById("withdrawalMessage");
+
+    const button =
+        document.querySelector(".withdrawal-submit-btn");
+
+    const amount =
+        Number(
+            document.getElementById("withdrawalAmount")?.value
+        );
+
+    const type =
+        document.getElementById("withdrawalType")?.value;
+
+    const bank =
+        document.getElementById("withdrawalBankName")?.value.trim();
+
+    const accountName =
+        document.getElementById("withdrawalAccountName")?.value.trim();
+
+    const accountNumber =
+        document.getElementById("withdrawalAccountNumber")?.value.trim();
+
+
+    const showMessage = (text, kind = "error") => {
+
+        if (!message) {
+            alert(text);
+            return;
+        }
+
+        message.textContent = text;
+        message.className =
+            `dashboard-message ${kind}`;
+        message.style.display = "block";
+    };
+
+
+    if (!currentUser) {
+
+        showMessage(
+            "Your session is not ready. Please refresh the dashboard and try again.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!Number.isFinite(amount) || amount < 10) {
+
+        showMessage(
+            "Minimum withdrawal is $10.00.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (
+        type !== "profit" &&
+        type !== "capital"
+    ) {
+
+        showMessage(
+            "Please select Profit or Capital.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!bank || !accountName || !accountNumber) {
+
+        showMessage(
+            "Please complete all bank details.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const balances =
+        window.monarchWithdrawalBalances || {
+            profit: 0,
+            capital: 0
+        };
+
+
+    const available =
+        Number(
+            balances[type] || 0
+        );
+
+
+    if (amount > available) {
+
+        showMessage(
+            `Insufficient available ${type}. Available: ${formatMoney(available)}.`,
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (button) {
+
+        button.disabled = true;
+        button.textContent = "Submitting...";
+
+    }
+
+
+    try {
+
+        const {
+            error
+        } = await supabaseClient
+            .from("withdrawals")
+            .insert({
+
+                user_id:
+                    currentUser.id,
+
+                amount:
+                    amount,
+
+                withdrawal_type:
+                    type,
+
+                withdrawal_method:
+                    "bank",
+
+                bank_name:
+                    bank,
+
+                account_name:
+                    accountName,
+
+                account_number:
+                    accountNumber,
+
+                status:
+                    "pending"
+
+            });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        showMessage(
+            "Withdrawal request submitted successfully. Your request is now pending admin review.",
+            "success"
+        );
+
+
+        document.getElementById(
+            "withdrawalAmount"
+        ).value = "";
+
+        document.getElementById(
+            "withdrawalType"
+        ).value = "";
+
+        document.getElementById(
+            "withdrawalBankName"
+        ).value = "";
+
+        document.getElementById(
+            "withdrawalAccountName"
+        ).value = "";
+
+        document.getElementById(
+            "withdrawalAccountNumber"
+        ).value = "";
+
+
+        await loadWithdrawalData(
+            currentUser.id
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Withdrawal submission error:",
+            error
+        );
+
+        showMessage(
+            error?.message ||
+            "Unable to submit withdrawal request.",
+            "error"
+        );
+
+
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+            button.textContent =
+                "Request Withdrawal";
+
+        }
+
+    }
+
+}
+
+
+window.submitWithdrawalRequest =
+    submitWithdrawalRequest;
+
+
 </script>
 
 </body>
