@@ -8800,3 +8800,24 @@ button[onclick*="Refresh"]:focus-visible {
         font-size: 9px;
     }
 }
+<div class="footer-contact">
+    <a
+        href="https://t.me/Trade_Monarch"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        Telegram
+    </a>
+
+    <a
+        href="https://api.whatsapp.com/send?phone=9135424851&text=Hello%20Trade%20Monarch%2C%20I%20need%20help"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        WhatsApp
+    </a>
+
+    <a href="mailto:trademonarchofficial@gmail.com">
+        Email
+    </a>
+</div>
