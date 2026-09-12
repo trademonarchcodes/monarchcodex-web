@@ -1388,3 +1388,675 @@ window.loadMembers =
 
 window.loadInvestmentRequests =
     loadInvestmentRequests;
+/* =========================================================
+   MONARCH CODEX — WITHDRAWAL SYSTEM
+   ========================================================= */
+
+async function loadWithdrawalData() {
+    try {
+        const user = await getCurrentUser();
+
+        if (!user) return;
+
+        /* -----------------------------------------
+           LOAD CONFIRMED INVESTMENTS
+        ----------------------------------------- */
+
+        const { data: investments, error: investmentError } =
+            await supabase
+                .from("investments")
+                .select("id, amount, status, confirmed_at, created_at")
+                .eq("user_id", user.id)
+                .eq("status", "confirmed");
+
+        if (investmentError) {
+            console.error(
+                "Withdrawal investment error:",
+                investmentError
+            );
+            return;
+        }
+
+
+        /* -----------------------------------------
+           LOAD EARNINGS
+        ----------------------------------------- */
+
+        const { data: earnings, error: earningsError } =
+            await supabase
+                .from("earnings")
+                .select("*")
+                .eq("user_id", user.id);
+
+        if (earningsError) {
+            console.error(
+                "Withdrawal earnings error:",
+                earningsError
+            );
+            return;
+        }
+
+
+        /* -----------------------------------------
+           LOAD PREVIOUS WITHDRAWALS
+        ----------------------------------------- */
+
+        const { data: withdrawals, error: withdrawalError } =
+            await supabase
+                .from("withdrawals")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", {
+                    ascending: false
+                });
+
+        if (withdrawalError) {
+            console.error(
+                "Withdrawal history error:",
+                withdrawalError
+            );
+            return;
+        }
+
+
+        /* -----------------------------------------
+           CALCULATE WITHDRAWALS ALREADY TAKEN
+        ----------------------------------------- */
+
+        let withdrawnProfit = 0;
+        let withdrawnCapital = 0;
+
+        (withdrawals || []).forEach(withdrawal => {
+
+            if (
+                withdrawal.status !== "rejected" &&
+                withdrawal.withdrawal_type === "profit"
+            ) {
+                withdrawnProfit +=
+                    Number(withdrawal.amount) || 0;
+            }
+
+            if (
+                withdrawal.status !== "rejected" &&
+                withdrawal.withdrawal_type === "capital"
+            ) {
+                withdrawnCapital +=
+                    Number(withdrawal.amount) || 0;
+            }
+
+        });
+
+
+        /* -----------------------------------------
+           CALCULATE AVAILABLE PROFIT
+        ----------------------------------------- */
+
+        let totalProfit = 0;
+
+        (earnings || []).forEach(earning => {
+
+            const status = String(
+                earning.status || ""
+            ).toLowerCase();
+
+            if (status !== "pending") {
+
+                const amount =
+                    Number(
+                        earning.amount ??
+                        earning.profit ??
+                        earning.value ??
+                        0
+                    ) || 0;
+
+                totalProfit += amount;
+            }
+
+        });
+
+
+        let withdrawableProfit =
+            Math.max(
+                0,
+                totalProfit - withdrawnProfit
+            );
+
+
+        /* -----------------------------------------
+           CALCULATE CAPITAL
+        ----------------------------------------- */
+
+        let totalWithdrawableCapital = 0;
+        let totalLockedCapital = 0;
+
+        const now = new Date();
+
+        (investments || []).forEach(investment => {
+
+            const amount =
+                Number(investment.amount) || 0;
+
+            if (amount <= 0) return;
+
+
+            /*
+             * Capital lock starts from the actual
+             * investment approval time.
+             */
+
+            const approvalDate =
+                investment.confirmed_at
+                    ? new Date(investment.confirmed_at)
+                    : null;
+
+
+            if (!approvalDate) {
+
+                totalLockedCapital += amount;
+
+                return;
+            }
+
+
+            const unlockDate =
+                new Date(approvalDate);
+
+            unlockDate.setMonth(
+                unlockDate.getMonth() + 3
+            );
+
+
+            if (now >= unlockDate) {
+
+                totalWithdrawableCapital += amount;
+
+            } else {
+
+                totalLockedCapital += amount;
+
+            }
+
+        });
+
+
+        totalWithdrawableCapital =
+            Math.max(
+                0,
+                totalWithdrawableCapital -
+                withdrawnCapital
+            );
+
+
+        /* -----------------------------------------
+           UPDATE DASHBOARD BALANCES
+        ----------------------------------------- */
+
+        const profitElement =
+            document.getElementById(
+                "withdrawableProfit"
+            );
+
+        if (profitElement) {
+            profitElement.textContent =
+                formatMoney(withdrawableProfit);
+        }
+
+
+        const capitalElement =
+            document.getElementById(
+                "withdrawableCapital"
+            );
+
+        if (capitalElement) {
+            capitalElement.textContent =
+                formatMoney(
+                    totalWithdrawableCapital
+                );
+        }
+
+
+        const lockedElement =
+            document.getElementById(
+                "lockedCapital"
+            );
+
+        if (lockedElement) {
+            lockedElement.textContent =
+                formatMoney(totalLockedCapital);
+        }
+
+
+        /* -----------------------------------------
+           SAVE VALUES FOR SUBMISSION VALIDATION
+        ----------------------------------------- */
+
+        window.monarchWithdrawalBalances = {
+            profit: withdrawableProfit,
+            capital: totalWithdrawableCapital
+        };
+
+
+        /* -----------------------------------------
+           RENDER HISTORY
+        ----------------------------------------- */
+
+        renderWithdrawalHistory(
+            withdrawals || []
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Withdrawal system error:",
+            error
+        );
+
+    }
+}
+
+
+/* =========================================================
+   WITHDRAWAL HISTORY
+   ========================================================= */
+
+function renderWithdrawalHistory(withdrawals) {
+
+    const container =
+        document.getElementById(
+            "withdrawalHistory"
+        );
+
+    if (!container) return;
+
+
+    if (!withdrawals.length) {
+
+        container.innerHTML = `
+            <div class="dashboard-empty">
+                <p>No withdrawal requests yet.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        withdrawals.map(withdrawal => {
+
+            const status =
+                String(
+                    withdrawal.status || "pending"
+                ).toLowerCase();
+
+
+            let statusLabel =
+                "Pending";
+
+            if (status === "approved") {
+                statusLabel = "Processing";
+            }
+
+            if (status === "paid") {
+                statusLabel = "Paid";
+            }
+
+            if (status === "rejected") {
+                statusLabel = "Rejected";
+            }
+
+
+            const rejection =
+                withdrawal.rejection_reason
+                    ? `
+                        <div class="withdrawal-reason">
+                            <strong>
+                                Rejection Reason:
+                            </strong>
+                            <span>
+                                ${escapeWithdrawalHtml(
+                                    withdrawal.rejection_reason
+                                )}
+                            </span>
+                        </div>
+                    `
+                    : "";
+
+
+            return `
+                <div class="withdrawal-history-item">
+
+                    <div>
+                        <strong>
+                            ${formatMoney(
+                                Number(withdrawal.amount) || 0
+                            )}
+                        </strong>
+
+                        <span>
+                            ${
+                                withdrawal.withdrawal_type === "capital"
+                                    ? "Capital"
+                                    : "Profit"
+                            }
+                        </span>
+                    </div>
+
+
+                    <div>
+                        <span class="withdrawal-status withdrawal-status-${status}">
+                            ${statusLabel}
+                        </span>
+
+                        <small>
+                            ${formatDate(
+                                withdrawal.created_at
+                            )}
+                        </small>
+                    </div>
+
+                    ${rejection}
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+
+/* =========================================================
+   ESCAPE WITHDRAWAL TEXT
+   ========================================================= */
+
+function escapeWithdrawalHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   SUBMIT WITHDRAWAL REQUEST
+   ========================================================= */
+
+async function submitWithdrawalRequest() {
+
+    const message =
+        document.getElementById(
+            "withdrawalMessage"
+        );
+
+
+    const showWithdrawalMessage =
+        (text, type = "error") => {
+
+            if (!message) return;
+
+            message.style.display = "block";
+
+            message.textContent = text;
+
+            message.className =
+                `dashboard-message ${type}`;
+        };
+
+
+    if (message) {
+        message.style.display = "none";
+    }
+
+
+    const user =
+        await getCurrentUser();
+
+
+    if (!user) {
+
+        showWithdrawalMessage(
+            "Your session has expired. Please log in again."
+        );
+
+        return;
+    }
+
+
+    const amountInput =
+        document.getElementById(
+            "withdrawalAmount"
+        );
+
+    const typeInput =
+        document.getElementById(
+            "withdrawalType"
+        );
+
+    const bankInput =
+        document.getElementById(
+            "withdrawalBankName"
+        );
+
+    const accountNameInput =
+        document.getElementById(
+            "withdrawalAccountName"
+        );
+
+    const accountNumberInput =
+        document.getElementById(
+            "withdrawalAccountNumber"
+        );
+
+
+    const amount =
+        Number(amountInput?.value);
+
+
+    const withdrawalType =
+        typeInput?.value;
+
+
+    const bankName =
+        bankInput?.value.trim();
+
+
+    const accountName =
+        accountNameInput?.value.trim();
+
+
+    const accountNumber =
+        accountNumberInput?.value.trim();
+
+
+    /* -----------------------------------------
+       BASIC VALIDATION
+    ----------------------------------------- */
+
+    if (!Number.isFinite(amount)) {
+
+        showWithdrawalMessage(
+            "Please enter a valid withdrawal amount."
+        );
+
+        return;
+    }
+
+
+    if (amount < 10) {
+
+        showWithdrawalMessage(
+            "The minimum withdrawal amount is $10."
+        );
+
+        return;
+    }
+
+
+    if (!withdrawalType) {
+
+        showWithdrawalMessage(
+            "Please select Profit or Capital."
+        );
+
+        return;
+    }
+
+
+    if (!bankName) {
+
+        showWithdrawalMessage(
+            "Please enter your bank name."
+        );
+
+        return;
+    }
+
+
+    if (!accountName) {
+
+        showWithdrawalMessage(
+            "Please enter the account name."
+        );
+
+        return;
+    }
+
+
+    if (!accountNumber) {
+
+        showWithdrawalMessage(
+            "Please enter your account number."
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------
+       REFRESH BALANCES BEFORE SUBMISSION
+    ----------------------------------------- */
+
+    await loadWithdrawalData();
+
+
+    const balances =
+        window.monarchWithdrawalBalances || {
+            profit: 0,
+            capital: 0
+        };
+
+
+    const available =
+        withdrawalType === "profit"
+            ? balances.profit
+            : balances.capital;
+
+
+    if (amount > available) {
+
+        showWithdrawalMessage(
+            `You cannot withdraw more than your available ${
+                withdrawalType === "profit"
+                    ? "profit"
+                    : "capital"
+            } balance of ${formatMoney(available)}.`
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------
+       SUBMIT REQUEST
+    ----------------------------------------- */
+
+    const { error } =
+        await supabase
+            .from("withdrawals")
+            .insert({
+
+                user_id: user.id,
+
+                amount: amount,
+
+                withdrawal_type:
+                    withdrawalType,
+
+                withdrawal_method:
+                    "bank",
+
+                bank_name:
+                    bankName,
+
+                account_name:
+                    accountName,
+
+                account_number:
+                    accountNumber,
+
+                status:
+                    "pending"
+
+            });
+
+
+    if (error) {
+
+        console.error(
+            "Withdrawal submission error:",
+            error
+        );
+
+        showWithdrawalMessage(
+            "Unable to submit your withdrawal request. Please try again."
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------
+       SUCCESS
+    ----------------------------------------- */
+
+    if (amountInput) {
+        amountInput.value = "";
+    }
+
+    if (typeInput) {
+        typeInput.value = "";
+    }
+
+
+    showWithdrawalMessage(
+        "Withdrawal request submitted successfully. It is now pending admin review.",
+        "success"
+    );
+
+
+    await loadWithdrawalData();
+}
+
+
+/* =========================================================
+   LOAD WITHDRAWALS WHEN MEMBER DASHBOARD LOADS
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        if (
+            window.location.pathname.includes(
+                "dashboard.html"
+            )
+        ) {
+
+            await loadWithdrawalData();
+
+        }
+
+    }
+);
