@@ -1072,3 +1072,119 @@ a {
     color: var(--text-soft);
     font-size: 11px;
 }
+
+/* =========================================
+   EARNINGS
+========================================= */
+
+.earnings-summary,
+.withdrawal-summary,
+.referral-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+    padding: 18px;
+
+    background: var(--black-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.earnings-summary span,
+.withdrawal-summary span,
+.referral-summary span {
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.earnings-summary strong,
+.withdrawal-summary strong,
+.referral-summary strong {
+    color: var(--gold);
+    font-size: 20px;
+}
+
+
+/* EARNINGS LIST */
+
+.earnings-list {
+    display: grid;
+    gap: 10px;
+}
+
+.earning-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 15px;
+
+    background: var(--black-soft);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.earning-info strong {
+    display: block;
+    font-size: 13px;
+}
+
+.earning-info span {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-soft);
+    font-size: 10px;
+}
+
+.earning-amount {
+    color: var(--success);
+    font-weight: 700;
+}
+
+
+/* =========================================
+   WITHDRAWALS
+========================================= */
+
+.withdrawals-list {
+    display: grid;
+    gap: 10px;
+}
+
+.withdrawal-item {
+    padding: 15px;
+
+    background: var(--black-soft);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.withdrawal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.withdrawal-top strong {
+    font-size: 14px;
+}
+
+.withdrawal-amount {
+    color: var(--gold);
+    font-weight: 700;
+}
+
+.withdrawal-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    margin-top: 9px;
+
+    color: var(--text-soft);
+    font-size: 10px;
+}
