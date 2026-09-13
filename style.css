@@ -3804,3 +3804,597 @@ input[type="file"]::file-selector-button {
 /* =========================================================
    END OF PART 6
    ========================================================= */
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 7 — TABLES, LISTS & DATA DISPLAY
+   ========================================================= */
+
+
+/* =========================================================
+   93. DATA TABLE WRAPPER
+   ========================================================= */
+
+.table-wrapper,
+.table-container,
+.data-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+
+    border-radius: var(--radius);
+
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* =========================================================
+   94. DATA TABLE
+   ========================================================= */
+
+.data-table,
+.table,
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    color: var(--text);
+
+    font-size: 0.82rem;
+}
+
+
+.data-table th,
+.data-table td,
+.table th,
+.table td,
+table th,
+table td {
+    padding: 14px 16px;
+
+    border-bottom: 1px solid var(--border-soft);
+
+    text-align: left;
+
+    vertical-align: middle;
+
+    white-space: nowrap;
+}
+
+
+.data-table th,
+.table th,
+table th {
+    color: var(--muted);
+
+    background: rgba(255, 255, 255, 0.018);
+
+    font-size: 0.72rem;
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+
+.data-table tbody tr,
+.table tbody tr,
+table tbody tr {
+    transition: background var(--transition);
+}
+
+
+.data-table tbody tr:hover,
+.table tbody tr:hover,
+table tbody tr:hover {
+    background: rgba(212, 175, 55, 0.025);
+}
+
+
+.data-table tbody tr:last-child td,
+.table tbody tr:last-child td,
+table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* =========================================================
+   95. TABLE USER / MEMBER
+   ========================================================= */
+
+.table-user,
+.member-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.table-avatar,
+.member-avatar {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    color: var(--gold);
+
+    background: rgba(212, 175, 55, 0.08);
+
+    border: 1px solid var(--border);
+
+    border-radius: 50%;
+
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+
+.table-user-name,
+.member-name {
+    color: var(--white);
+
+    font-weight: 600;
+}
+
+
+.table-user-meta,
+.member-meta {
+    margin-top: 2px;
+
+    color: var(--muted);
+
+    font-size: 0.7rem;
+}
+
+
+/* =========================================================
+   96. UID DISPLAY
+   ========================================================= */
+
+.uid {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 9px;
+
+    color: var(--gold-light);
+
+    background: rgba(212, 175, 55, 0.06);
+
+    border: 1px solid var(--border);
+
+    border-radius: 7px;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    letter-spacing: 0.03em;
+}
+
+
+/* =========================================================
+   97. COPY FIELD
+   ========================================================= */
+
+.copy-field {
+    display: flex;
+    align-items: stretch;
+
+    width: 100%;
+}
+
+
+.copy-field input {
+    min-width: 0;
+
+    border-radius:
+        var(--radius-small) 0 0 var(--radius-small);
+
+    border-right: 0;
+}
+
+
+.copy-button {
+    flex-shrink: 0;
+
+    min-width: 76px;
+
+    padding: 0 13px;
+
+    color: var(--black);
+
+    background: var(--gold);
+
+    border: 1px solid var(--gold);
+
+    border-radius:
+        0 var(--radius-small) var(--radius-small) 0;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition);
+}
+
+
+.copy-button:hover {
+    background: var(--gold-light);
+
+    border-color: var(--gold-light);
+}
+
+
+/* =========================================================
+   98. INLINE COPY BUTTON
+   ========================================================= */
+
+.copy-btn,
+.copy-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 32px;
+
+    padding: 6px 10px;
+
+    color: var(--gold);
+
+    background: rgba(212, 175, 55, 0.06);
+
+    border: 1px solid var(--border);
+
+    border-radius: 7px;
+
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition);
+}
+
+
+.copy-btn:hover,
+.copy-inline:hover {
+    color: var(--black);
+
+    background: var(--gold);
+
+    border-color: var(--gold);
+}
+
+
+/* =========================================================
+   99. LIST GROUP
+   ========================================================= */
+
+.list-group {
+    width: 100%;
+
+    overflow: hidden;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+
+    border-radius: var(--radius);
+}
+
+
+.list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 16px 18px;
+
+    border-bottom: 1px solid var(--border-soft);
+}
+
+
+.list-item:last-child {
+    border-bottom: 0;
+}
+
+
+.list-item:hover {
+    background: rgba(255, 255, 255, 0.018);
+}
+
+
+.list-item-title {
+    color: var(--white);
+
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+
+.list-item-description {
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 0.75rem;
+}
+
+
+/* =========================================================
+   100. KEY VALUE LIST
+   ========================================================= */
+
+.key-value-list {
+    display: grid;
+
+    gap: 0;
+}
+
+
+.key-value-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid var(--border-soft);
+}
+
+
+.key-value-row:last-child {
+    border-bottom: 0;
+}
+
+
+.key-value-label {
+    color: var(--muted);
+
+    font-size: 0.78rem;
+}
+
+
+.key-value-value {
+    color: var(--white);
+
+    font-size: 0.82rem;
+    font-weight: 600;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   101. PAGINATION
+   ========================================================= */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 20px;
+}
+
+
+.pagination a,
+.pagination button {
+    min-width: 36px;
+    height: 36px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 9px;
+
+    color: var(--muted);
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+
+    border-radius: 8px;
+
+    font-size: 0.75rem;
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition);
+}
+
+
+.pagination a:hover,
+.pagination button:hover,
+.pagination .active {
+    color: var(--black);
+
+    background: var(--gold);
+
+    border-color: var(--gold);
+}
+
+
+/* =========================================================
+   102. FILTER BAR
+   ========================================================= */
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    min-width: 180px;
+}
+
+
+.filter-group label {
+    flex-shrink: 0;
+
+    color: var(--muted);
+
+    font-size: 0.75rem;
+}
+
+
+/* =========================================================
+   103. SORT CONTROL
+   ========================================================= */
+
+.sort-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--muted);
+
+    font-size: 0.76rem;
+}
+
+
+.sort-control select {
+    width: auto;
+
+    min-height: 38px;
+
+    padding: 7px 10px;
+
+    font-size: 0.76rem;
+}
+
+
+/* =========================================================
+   104. DATA COUNT
+   ========================================================= */
+
+.data-count {
+    color: var(--muted);
+
+    font-size: 0.75rem;
+}
+
+
+.data-count strong {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   105. RESPONSIVE TABLE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+    .table-wrapper,
+    .table-container,
+    .data-table-wrapper {
+        border-radius: var(--radius-small);
+    }
+
+
+    .data-table,
+    .table,
+    table {
+        min-width: 620px;
+    }
+
+
+    .data-table th,
+    .data-table td,
+    .table th,
+    .table td,
+    table th,
+    table td {
+        padding: 12px;
+    }
+
+
+    .copy-field {
+        width: 100%;
+    }
+
+
+    .copy-button {
+        min-width: 68px;
+    }
+
+
+    .list-item {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .key-value-row {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 5px;
+    }
+
+
+    .key-value-value {
+        text-align: left;
+    }
+
+
+    .filter-bar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .filter-group {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   END OF PART 7
+   ========================================================= */
