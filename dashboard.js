@@ -2336,3 +2336,48 @@ function initializeAllDashboardEvents() {
 
     initializeCryptoCopy();
 }
+
+/* =========================================
+   COMPLETE DASHBOARD STARTUP
+========================================= */
+
+async function startDashboard() {
+
+    try {
+
+        setLoadingMessage(
+            "Loading your dashboard..."
+        );
+
+        await loadPackages();
+
+        initializeAllDashboardEvents();
+
+        await refreshDashboardData();
+
+        console.log(
+            "Monarch Codex dashboard loaded successfully."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard startup error:",
+            error
+        );
+    }
+}
+
+
+/* =========================================
+   START AFTER PAGE LOAD
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        startDashboard();
+
+    }
+);
