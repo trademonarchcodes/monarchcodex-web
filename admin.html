@@ -9410,30 +9410,309 @@ window.reloadAdminEverything =
 
 <!-- =========================================================
      MONARCH CODEX — ADMIN
-     PART 12 — FINAL DOCUMENT CLOSE
+     PART 12 — FINAL STATISTICS FIX & DOCUMENT CLOSE
      ========================================================= -->
 
 <script>
 
-/* ---------------------------------------------------------
-   FINAL GLOBAL INITIALIZATION FLAG
-   --------------------------------------------------------- */
+/* =========================================================
+   FINAL STATISTICS FIX
+   ========================================================= */
 
-window.MONARCH_CODEX_ADMIN_READY = true;
+/*
+ * This function accepts either:
+ *   normalizeInvestmentStatus(investment)
+ * or:
+ *   normalizeInvestmentStatus("confirmed")
+ *
+ * This prevents the duplicate-function problem elsewhere
+ * in the admin file from breaking the overview statistics.
+ */
+
+function normalizeInvestmentStatus(
+    investmentOrStatus
+) {
+
+    const rawStatus =
+        typeof investmentOrStatus === "object" &&
+        investmentOrStatus !== null
+
+            ? (
+                investmentOrStatus.status ||
+                investmentOrStatus.investment_status ||
+                ""
+            )
+
+            : investmentOrStatus;
 
 
-/* ---------------------------------------------------------
-   FINAL CONSOLE STATUS
-   --------------------------------------------------------- */
+    const status =
+        String(
+            rawStatus || "pending"
+        )
+        .trim()
+        .toLowerCase();
 
-console.log(
-    "MONARCH CODEX Admin Panel initialized."
-);
+
+    if (
+        status === "approved" ||
+        status === "complete" ||
+        status === "completed" ||
+        status === "confirm" ||
+        status === "confirmed"
+    ) {
+
+        return "confirmed";
+
+    }
+
+
+    if (
+        status === "cancelled" ||
+        status === "canceled" ||
+        status === "declined" ||
+        status === "rejected"
+    ) {
+
+        return "rejected";
+
+    }
+
+
+    return status || "pending";
+}
 
 
 /* =========================================================
-   END OF ADMIN JAVASCRIPT
+   CORRECT INVESTMENT STATISTICS
    ========================================================= */
+
+function calculateInvestmentTotals() {
+
+    let total =
+        0;
+
+    let confirmed =
+        0;
+
+    let rejected =
+        0;
+
+
+    investmentsData.forEach(
+        investment => {
+
+            const amount =
+                Number(
+                    investment.amount ??
+                    investment.investment_amount ??
+                    investment.package_amount ??
+                    0
+                );
+
+
+            const status =
+                normalizeInvestmentStatus(
+                    investment
+                );
+
+
+            if (
+                status === "confirmed"
+            ) {
+
+                confirmed++;
+
+
+                if (
+                    Number.isFinite(
+                        amount
+                    )
+                ) {
+
+                    total +=
+                        amount;
+
+                }
+
+            }
+
+
+            if (
+                status === "rejected"
+            ) {
+
+                rejected++;
+
+            }
+
+        }
+    );
+
+
+    return {
+
+        total:
+            total,
+
+        confirmed:
+            confirmed,
+
+        rejected:
+            rejected
+
+    };
+
+}
+
+
+/* =========================================================
+   CORRECT MEMBER STATISTICS
+   ========================================================= */
+
+function calculateMemberTotals() {
+
+    /*
+     * Only count actual members.
+     * Admin / administrator / super_admin accounts
+     * are excluded from member statistics.
+     */
+
+    const memberProfiles =
+        profilesData.filter(
+            profile => {
+
+                const role =
+                    String(
+                        profile.role || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                return (
+                    role !== "admin" &&
+                    role !== "administrator" &&
+                    role !== "super_admin"
+                );
+
+            }
+        );
+
+
+    let pending =
+        0;
+
+
+    memberProfiles.forEach(
+        profile => {
+
+            const status =
+                String(
+                    profile.status || ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            if (
+                status === "pending"
+            ) {
+
+                pending++;
+
+            }
+
+        }
+    );
+
+
+    return {
+
+        total:
+            memberProfiles.length,
+
+        pending:
+            pending
+
+    };
+
+}
+
+
+/* =========================================================
+   REFRESH OVERVIEW STATISTICS
+   ========================================================= */
+
+function refreshOverviewStatistics() {
+
+    const memberTotals =
+        calculateMemberTotals();
+
+
+    const investmentTotals =
+        calculateInvestmentTotals();
+
+
+    setText(
+        "totalMembers",
+        formatNumber(
+            memberTotals.total
+        )
+    );
+
+
+    setText(
+        "pendingMembers",
+        formatNumber(
+            memberTotals.pending
+        )
+    );
+
+
+    setText(
+        "totalInvestedAdmin",
+        formatUsd(
+            investmentTotals.total
+        )
+    );
+
+
+    setText(
+        "confirmedInvestments",
+        formatNumber(
+            investmentTotals.confirmed
+        )
+    );
+
+
+    setText(
+        "rejectedInvestments",
+        formatNumber(
+            investmentTotals.rejected
+        )
+    );
+
+
+    setText(
+        "statsStatus",
+        "Updated"
+    );
+
+}
+
+
+/* =========================================================
+   FINAL GLOBAL FLAG
+   ========================================================= */
+
+window.MONARCH_CODEX_ADMIN_READY =
+    true;
+
+
+console.log(
+    "MONARCH CODEX Admin Panel initialized successfully."
+);
 
 </script>
 
