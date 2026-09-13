@@ -6944,3 +6944,385 @@ figure img {
 /* ---------------------------------------------------------
    END OF PART 11
    ========================================================= */
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 12 — FINAL COMPATIBILITY & CLEANUP
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   PUBLIC PAGE COMPATIBILITY
+   --------------------------------------------------------- */
+
+.navbar,
+.site-header,
+.public-header {
+    width: 100%;
+}
+
+.nav-container,
+.header-inner {
+    width: min(
+        100% - 40px,
+        var(--container-width)
+    );
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* ---------------------------------------------------------
+   COMMON SECTION WRAPPERS
+   --------------------------------------------------------- */
+
+.section,
+.public-section,
+.home-section {
+    position: relative;
+    width: 100%;
+}
+
+.section-inner {
+    width: min(
+        100% - 40px,
+        var(--container-width)
+    );
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* ---------------------------------------------------------
+   HERO COMPATIBILITY
+   --------------------------------------------------------- */
+
+.hero,
+.hero-section,
+.home-hero {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.hero-content,
+.hero-inner {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ---------------------------------------------------------
+   AUTH COMPATIBILITY
+   --------------------------------------------------------- */
+
+.auth-section {
+    position: relative;
+    width: 100%;
+}
+
+.auth-container {
+    width: min(
+        100% - 40px,
+        620px
+    );
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.auth-card {
+    width: 100%;
+}
+
+
+/* ---------------------------------------------------------
+   FORM MESSAGE COMPATIBILITY
+   --------------------------------------------------------- */
+
+.form-message {
+    width: 100%;
+
+    padding: 10px 12px;
+
+    color: var(--muted);
+
+    font-size: 0.86rem;
+    line-height: 1.5;
+
+    border-radius: var(--radius-small);
+}
+
+.form-message:empty {
+    display: none;
+}
+
+.form-message.success {
+    color: var(--green);
+    background: var(--green-soft);
+    border: 1px solid rgba(53, 208, 127, 0.22);
+}
+
+.form-message.error {
+    color: var(--red);
+    background: var(--red-soft);
+    border: 1px solid rgba(255, 92, 92, 0.22);
+}
+
+.form-message.warning {
+    color: var(--orange);
+    background: var(--orange-soft);
+    border: 1px solid rgba(243, 179, 61, 0.22);
+}
+
+.form-message.info {
+    color: var(--blue);
+    background: var(--blue-soft);
+    border: 1px solid rgba(77, 163, 255, 0.22);
+}
+
+
+/* ---------------------------------------------------------
+   FOOTER COMPATIBILITY
+   --------------------------------------------------------- */
+
+.footer,
+.site-footer {
+    width: 100%;
+}
+
+.footer a,
+.site-footer a {
+    text-decoration: none;
+}
+
+.footer a:hover,
+.site-footer a:hover {
+    color: var(--gold);
+}
+
+
+/* ---------------------------------------------------------
+   COMMON GRID HELPERS
+   --------------------------------------------------------- */
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+}
+
+
+/* ---------------------------------------------------------
+   RESPONSIVE GRIDS
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+    .grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .nav-container,
+    .header-inner,
+    .section-inner,
+    .auth-container {
+        width: calc(100% - 24px);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SAFE TEXT WRAPPING
+   --------------------------------------------------------- */
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+a,
+label,
+td,
+th {
+    overflow-wrap: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   SAFE LONG VALUES
+   --------------------------------------------------------- */
+
+.uid,
+.copy-field,
+.copy-inline,
+.wallet-address,
+.address,
+.account-number {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE BUTTON SAFETY
+   --------------------------------------------------------- */
+
+@media (max-width: 640px) {
+
+    .btn {
+        max-width: 100%;
+    }
+
+    .auth-submit {
+        width: 100%;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   REMOVE DEFAULT BUTTON APPEARANCE WHERE NEEDED
+   --------------------------------------------------------- */
+
+button {
+    font-family: inherit;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL BOX SIZING
+   --------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL BODY SAFETY
+   --------------------------------------------------------- */
+
+body {
+    min-width: 320px;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL LINK SAFETY
+   --------------------------------------------------------- */
+
+a {
+    overflow-wrap: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL FORM SAFETY
+   --------------------------------------------------------- */
+
+form {
+    width: 100%;
+}
+
+fieldset {
+    min-width: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL SELECT SAFETY
+   --------------------------------------------------------- */
+
+select {
+    cursor: pointer;
+}
+
+select:disabled {
+    cursor: not-allowed;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL TABLE SAFETY
+   --------------------------------------------------------- */
+
+.table-wrapper table,
+.table-container table,
+.data-table-wrapper table {
+    width: 100%;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL CARD SAFETY
+   --------------------------------------------------------- */
+
+.card,
+.mc-card,
+.auth-card,
+.content-panel,
+.panel {
+    max-width: 100%;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL MOBILE SPACING
+   --------------------------------------------------------- */
+
+@media (max-width: 480px) {
+
+    .card,
+    .mc-card,
+    .content-panel {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .auth-card {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   END OF MASTER STYLESHEET
+   ========================================================= */
