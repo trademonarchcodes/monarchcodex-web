@@ -5339,6 +5339,1247 @@ loadInvestmentStats();
 
 
 })();
+
+/* =========================================================
+   PART 11/12 — WITHDRAWALS MODULE
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+    const MIN_WITHDRAWAL = 10;
+    const CAPITAL_LOCK_MONTHS = 3;
+
+    let withdrawalRecords = [];
+    let availableProfit = 0;
+    let availableCapital = 0;
+    let lockedCapital = 0;
+
+
+    /* ---------------------------------------------------------
+       HELPERS
+    --------------------------------------------------------- */
+
+    function getUser() {
+
+        return window.MonarchCodex?.user || null;
+
+    }
+
+
+    function formatMoney(amount) {
+
+        const value = Number(amount || 0);
+
+        return value.toLocaleString(
+            "en-US",
+            {
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+    }
+
+
+    function escapeText(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function isConfirmedInvestment(investment) {
+
+        const status =
+            String(
+                investment.status || ""
+            ).toLowerCase();
+
+        return (
+            status === "confirmed" ||
+            status === "approved" ||
+            status === "active" ||
+            status === "completed"
+        );
+
+    }
+
+
+    function isCapitalUnlocked(investment) {
+
+        if (!investment.confirmed_at) {
+            return false;
+        }
+
+        const confirmedDate =
+            new Date(
+                investment.confirmed_at
+            );
+
+        if (
+            Number.isNaN(
+                confirmedDate.getTime()
+            )
+        ) {
+            return false;
+        }
+
+        const unlockDate =
+            new Date(
+                confirmedDate
+            );
+
+        unlockDate.setMonth(
+            unlockDate.getMonth() +
+            CAPITAL_LOCK_MONTHS
+        );
+
+        return new Date() >= unlockDate;
+
+    }
+
+
+    function getWithdrawalAmount(record) {
+
+        const amount =
+            Number(record.amount || 0);
+
+        return Number.isFinite(amount)
+            ? amount
+            : 0;
+
+    }
+
+
+    function getWithdrawalStatus(record) {
+
+        return String(
+            record.status || "pending"
+        ).toLowerCase();
+
+    }
+
+
+    function isWithdrawalCompleted(record) {
+
+        const status =
+            getWithdrawalStatus(record);
+
+        return (
+            status === "approved" ||
+            status === "paid"
+        );
+
+    }
+
+
+    /* ---------------------------------------------------------
+       CALCULATE BALANCES
+    --------------------------------------------------------- */
+
+    async function calculateWithdrawalBalances() {
+
+        const user = getUser();
+
+        if (!user) {
+
+            availableProfit = 0;
+            availableCapital = 0;
+            lockedCapital = 0;
+
+            return;
+
+        }
+
+
+        /* -----------------------------------------------------
+           INVESTMENTS
+        ----------------------------------------------------- */
+
+        const {
+            data: investments,
+            error: investmentError
+        } = await supabaseClient
+            .from("investments")
+            .select(
+                "id, amount, status, confirmed_at, created_at"
+            )
+            .eq(
+                "user_id",
+                user.id
+            );
+
+
+        if (investmentError) {
+            throw investmentError;
+        }
+
+
+        let unlockedCapital = 0;
+        let locked = 0;
+
+
+        (investments || []).forEach(
+            function (investment) {
+
+                if (!isConfirmedInvestment(investment)) {
+                    return;
+                }
+
+                const amount =
+                    Number(
+                        investment.amount || 0
+                    );
+
+                if (
+                    !Number.isFinite(amount) ||
+                    amount <= 0
+                ) {
+                    return;
+                }
+
+                if (
+                    isCapitalUnlocked(
+                        investment
+                    )
+                ) {
+
+                    unlockedCapital +=
+                        amount;
+
+                } else {
+
+                    locked +=
+                        amount;
+
+                }
+
+            }
+        );
+
+
+        /* -----------------------------------------------------
+           EARNINGS
+        ----------------------------------------------------- */
+
+        const {
+            data: earnings,
+            error: earningsError
+        } = await supabaseClient
+            .from("earnings")
+            .select("*")
+            .eq(
+                "user_id",
+                user.id
+            );
+
+
+        if (earningsError) {
+            throw earningsError;
+        }
+
+
+        let totalProfit = 0;
+
+
+        (earnings || []).forEach(
+            function (earning) {
+
+                const status =
+                    String(
+                        earning.status ||
+                        "confirmed"
+                    ).toLowerCase();
+
+                if (
+                    status === "confirmed" ||
+                    status === "approved" ||
+                    status === "paid" ||
+                    status === "active"
+                ) {
+
+                    const possibleAmounts = [
+                        earning.amount,
+                        earning.profit,
+                        earning.earning,
+                        earning.earnings,
+                        earning.value
+                    ];
+
+                    let amount = 0;
+
+                    for (
+                        const value
+                        of possibleAmounts
+                    ) {
+
+                        const number =
+                            Number(value);
+
+                        if (
+                            Number.isFinite(
+                                number
+                            )
+                        ) {
+
+                            amount = number;
+                            break;
+
+                        }
+
+                    }
+
+                    totalProfit += amount;
+
+                }
+
+            }
+        );
+
+
+        /* -----------------------------------------------------
+           EXISTING WITHDRAWALS
+        ----------------------------------------------------- */
+
+        const {
+            data: withdrawals,
+            error: withdrawalError
+        } = await supabaseClient
+            .from("withdrawals")
+            .select(
+                "amount, withdrawal_type, status"
+            )
+            .eq(
+                "user_id",
+                user.id
+            );
+
+
+        if (withdrawalError) {
+            throw withdrawalError;
+        }
+
+
+        let withdrawnProfit = 0;
+        let withdrawnCapital = 0;
+
+
+        (withdrawals || []).forEach(
+            function (withdrawal) {
+
+                if (
+                    !isWithdrawalCompleted(
+                        withdrawal
+                    )
+                ) {
+                    return;
+                }
+
+                const amount =
+                    getWithdrawalAmount(
+                        withdrawal
+                    );
+
+                const type =
+                    String(
+                        withdrawal.withdrawal_type ||
+                        ""
+                    ).toLowerCase();
+
+                if (type === "profit") {
+
+                    withdrawnProfit +=
+                        amount;
+
+                }
+
+                if (type === "capital") {
+
+                    withdrawnCapital +=
+                        amount;
+
+                }
+
+            }
+        );
+
+
+        availableProfit =
+            Math.max(
+                0,
+                totalProfit -
+                withdrawnProfit
+            );
+
+
+        availableCapital =
+            Math.max(
+                0,
+                unlockedCapital -
+                withdrawnCapital
+            );
+
+
+        lockedCapital =
+            Math.max(
+                0,
+                locked
+            );
+
+    }
+
+
+    /* ---------------------------------------------------------
+       LOAD WITHDRAWAL HISTORY
+    --------------------------------------------------------- */
+
+    async function loadWithdrawalHistory() {
+
+        const user = getUser();
+
+        if (!user) {
+            withdrawalRecords = [];
+            return;
+        }
+
+
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from("withdrawals")
+            .select("*")
+            .eq(
+                "user_id",
+                user.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        withdrawalRecords =
+            data || [];
+
+    }
+
+
+    /* ---------------------------------------------------------
+       STATUS DISPLAY
+    --------------------------------------------------------- */
+
+    function formatWithdrawalStatus(status) {
+
+        const value =
+            String(
+                status || "pending"
+            ).toLowerCase();
+
+        if (value === "approved") {
+            return "Approved / Processing";
+        }
+
+        if (value === "paid") {
+            return "Paid";
+        }
+
+        if (value === "rejected") {
+            return "Rejected";
+        }
+
+        return "Pending";
+
+    }
+
+
+    function statusClass(status) {
+
+        const value =
+            String(
+                status || "pending"
+            ).toLowerCase();
+
+        if (value === "paid") {
+            return "success";
+        }
+
+        if (value === "approved") {
+            return "success";
+        }
+
+        if (value === "rejected") {
+            return "danger";
+        }
+
+        return "pending";
+
+    }
+
+
+    /* ---------------------------------------------------------
+       RENDER WITHDRAWALS
+    --------------------------------------------------------- */
+
+    function renderWithdrawals() {
+
+        const container =
+            document.getElementById(
+                "withdrawalsContent"
+            );
+
+        if (!container) return;
+
+
+        const history =
+            withdrawalRecords.length
+                ? withdrawalRecords.map(
+                    function (withdrawal) {
+
+                        const amount =
+                            getWithdrawalAmount(
+                                withdrawal
+                            );
+
+                        const type =
+                            withdrawal.withdrawal_type ===
+                            "capital"
+                                ? "Capital"
+                                : "Profit";
+
+                        const status =
+                            formatWithdrawalStatus(
+                                withdrawal.status
+                            );
+
+                        const created =
+                            withdrawal.created_at
+                                ? new Date(
+                                    withdrawal.created_at
+                                ).toLocaleString()
+                                : "—";
+
+                        const rejection =
+                            withdrawal.rejection_reason
+                                ? `
+                                    <div class="withdrawal-rejection">
+                                        <span>Reason</span>
+                                        <strong>
+                                            ${escapeText(
+                                                withdrawal.rejection_reason
+                                            )}
+                                        </strong>
+                                    </div>
+                                  `
+                                : "";
+
+                        return `
+                            <div
+                                class="investment-history-item"
+                            >
+
+                                <div
+                                    class="investment-history-main"
+                                >
+
+                                    <div>
+
+                                        <strong>
+                                            ${type}
+                                            Withdrawal
+                                        </strong>
+
+                                        <div
+                                            class="investment-history-meta"
+                                        >
+                                            ${created}
+                                        </div>
+
+                                    </div>
+
+                                    <div
+                                        class="investment-history-amount"
+                                    >
+                                        ${formatMoney(
+                                            amount
+                                        )}
+                                    </div>
+
+                                </div>
+
+                                <div
+                                    class="investment-history-details"
+                                >
+
+                                    <div>
+
+                                        <span>
+                                            Status
+                                        </span>
+
+                                        <strong
+                                            class="status-badge ${statusClass(
+                                                withdrawal.status
+                                            )}"
+                                        >
+                                            ${status}
+                                        </strong>
+
+                                    </div>
+
+                                    ${
+                                        withdrawal.withdrawal_method
+                                            ? `
+                                                <div>
+                                                    <span>
+                                                        Method
+                                                    </span>
+                                                    <strong>
+                                                        ${escapeText(
+                                                            withdrawal.withdrawal_method
+                                                        )}
+                                                    </strong>
+                                                </div>
+                                              `
+                                            : ""
+                                    }
+
+                                </div>
+
+                                ${rejection}
+
+                            </div>
+                        `;
+
+                    }
+                ).join("")
+                : `
+                    <div class="module-placeholder">
+                        No withdrawal requests yet.
+                    </div>
+                `;
+
+
+        container.innerHTML = `
+
+            <div class="investment-stats">
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Available Profit
+                    </span>
+
+                    <strong
+                        id="withdrawableProfit"
+                        class="stat-value"
+                    >
+                        ${formatMoney(
+                            availableProfit
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Available Capital
+                    </span>
+
+                    <strong
+                        id="withdrawableCapital"
+                        class="stat-value"
+                    >
+                        ${formatMoney(
+                            availableCapital
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Locked Capital
+                    </span>
+
+                    <strong
+                        id="lockedCapital"
+                        class="stat-value"
+                    >
+                        ${formatMoney(
+                            lockedCapital
+                        )}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <section
+                class="investment-section"
+            >
+
+                <div class="section-heading">
+
+                    <h3>
+                        Request Withdrawal
+                    </h3>
+
+                    <p>
+                        Minimum withdrawal is $10.
+                        Capital remains locked for
+                        three months after confirmation.
+                    </p>
+
+                </div>
+
+
+                <div class="withdrawal-form">
+
+                    <label
+                        for="withdrawalType"
+                        class="field-label"
+                    >
+                        Withdrawal Type
+                    </label>
+
+                    <select
+                        id="withdrawalType"
+                        class="form-control"
+                    >
+
+                        <option value="profit">
+                            Profit
+                        </option>
+
+                        <option value="capital">
+                            Capital
+                        </option>
+
+                    </select>
+
+
+                    <label
+                        for="withdrawalAmount"
+                        class="field-label"
+                    >
+                        Amount
+                    </label>
+
+                    <input
+                        type="number"
+                        id="withdrawalAmount"
+                        class="form-control"
+                        min="${MIN_WITHDRAWAL}"
+                        step="0.01"
+                        placeholder="Enter amount"
+                    />
+
+
+                    <label
+                        for="withdrawalBankName"
+                        class="field-label"
+                    >
+                        Bank Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="withdrawalBankName"
+                        class="form-control"
+                        placeholder="Enter bank name"
+                    />
+
+
+                    <label
+                        for="withdrawalAccountName"
+                        class="field-label"
+                    >
+                        Account Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="withdrawalAccountName"
+                        class="form-control"
+                        placeholder="Enter account name"
+                    />
+
+
+                    <label
+                        for="withdrawalAccountNumber"
+                        class="field-label"
+                    >
+                        Account Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="withdrawalAccountNumber"
+                        class="form-control"
+                        placeholder="Enter account number"
+                        inputmode="numeric"
+                    />
+
+
+                    <button
+                        type="button"
+                        id="submitWithdrawalBtn"
+                        class="primary-action-btn"
+                    >
+                        Submit Withdrawal Request
+                    </button>
+
+
+                    <div
+                        id="withdrawalMessage"
+                        class="form-message"
+                        hidden
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <section
+                class="investment-section"
+            >
+
+                <div class="section-heading">
+
+                    <h3>
+                        Withdrawal History
+                    </h3>
+
+                    <p>
+                        Track the status of your requests.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="withdrawalHistory"
+                    class="investment-history"
+                >
+                    ${history}
+                </div>
+
+            </section>
+
+        `;
+
+
+        initializeWithdrawalForm();
+
+    }
+
+
+    /* ---------------------------------------------------------
+       SUBMIT WITHDRAWAL
+    --------------------------------------------------------- */
+
+    async function submitWithdrawal() {
+
+        const user = getUser();
+
+        if (!user) {
+
+            alert(
+                "Your session has expired. Please log in again."
+            );
+
+            return;
+
+        }
+
+
+        const amountInput =
+            document.getElementById(
+                "withdrawalAmount"
+            );
+
+        const typeInput =
+            document.getElementById(
+                "withdrawalType"
+            );
+
+        const bankNameInput =
+            document.getElementById(
+                "withdrawalBankName"
+            );
+
+        const accountNameInput =
+            document.getElementById(
+                "withdrawalAccountName"
+            );
+
+        const accountNumberInput =
+            document.getElementById(
+                "withdrawalAccountNumber"
+            );
+
+        const message =
+            document.getElementById(
+                "withdrawalMessage"
+            );
+
+        const button =
+            document.getElementById(
+                "submitWithdrawalBtn"
+            );
+
+
+        const amount =
+            Number(
+                amountInput?.value || 0
+            );
+
+        const type =
+            typeInput?.value || "profit";
+
+        const bankName =
+            bankNameInput?.value.trim() || "";
+
+        const accountName =
+            accountNameInput?.value.trim() || "";
+
+        const accountNumber =
+            accountNumberInput?.value.trim() || "";
+
+
+        function showMessage(text) {
+
+            if (!message) return;
+
+            message.hidden = false;
+            message.textContent = text;
+
+        }
+
+
+        if (
+            !Number.isFinite(amount) ||
+            amount < MIN_WITHDRAWAL
+        ) {
+
+            showMessage(
+                "Minimum withdrawal amount is $10."
+            );
+
+            return;
+
+        }
+
+
+        const balance =
+            type === "capital"
+                ? availableCapital
+                : availableProfit;
+
+
+        if (amount > balance) {
+
+            showMessage(
+                `Insufficient available ${type} balance.`
+            );
+
+            return;
+
+        }
+
+
+        if (!bankName) {
+
+            showMessage(
+                "Please enter your bank name."
+            );
+
+            return;
+
+        }
+
+
+        if (!accountName) {
+
+            showMessage(
+                "Please enter the account name."
+            );
+
+            return;
+
+        }
+
+
+        if (!accountNumber) {
+
+            showMessage(
+                "Please enter your account number."
+            );
+
+            return;
+
+        }
+
+
+        if (button) {
+
+            button.disabled = true;
+            button.textContent =
+                "Submitting...";
+
+        }
+
+
+        try {
+
+            const {
+                error
+            } = await supabaseClient
+                .from("withdrawals")
+                .insert({
+
+                    user_id:
+                        user.id,
+
+                    amount:
+                        amount,
+
+                    withdrawal_type:
+                        type,
+
+                    withdrawal_method:
+                        "bank",
+
+                    bank_name:
+                        bankName,
+
+                    account_name:
+                        accountName,
+
+                    account_number:
+                        accountNumber,
+
+                    status:
+                        "pending"
+
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            showMessage(
+                "Withdrawal request submitted successfully. It is now pending admin review."
+            );
+
+
+            if (amountInput) {
+                amountInput.value = "";
+            }
+
+            if (bankNameInput) {
+                bankNameInput.value = "";
+            }
+
+            if (accountNameInput) {
+                accountNameInput.value = "";
+            }
+
+            if (accountNumberInput) {
+                accountNumberInput.value = "";
+            }
+
+
+            await refreshWithdrawals();
+
+
+        } catch (error) {
+
+            console.error(
+                "Withdrawal submission error:",
+                error
+            );
+
+
+            showMessage(
+                error?.message ||
+                "Unable to submit withdrawal request."
+            );
+
+        } finally {
+
+            if (button) {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Submit Withdrawal Request";
+
+            }
+
+        }
+
+    }
+
+
+    /* ---------------------------------------------------------
+       INITIALIZE FORM
+    --------------------------------------------------------- */
+
+    function initializeWithdrawalForm() {
+
+        const button =
+            document.getElementById(
+                "submitWithdrawalBtn"
+            );
+
+        if (!button) return;
+
+
+        button.addEventListener(
+            "click",
+            submitWithdrawal
+        );
+
+    }
+
+
+    /* ---------------------------------------------------------
+       REFRESH EVERYTHING
+    --------------------------------------------------------- */
+
+    async function refreshWithdrawals() {
+
+        try {
+
+            await calculateWithdrawalBalances();
+
+            await loadWithdrawalHistory();
+
+            renderWithdrawals();
+
+        } catch (error) {
+
+            console.error(
+                "Withdrawal loading error:",
+                error
+            );
+
+
+            const container =
+                document.getElementById(
+                    "withdrawalsContent"
+                );
+
+            if (container) {
+
+                container.innerHTML = `
+                    <div class="module-placeholder">
+                        Unable to load withdrawal information.
+                    </div>
+                `;
+
+            }
+
+        }
+
+    }
+
+
+    /* ---------------------------------------------------------
+       MODULE NAVIGATION
+    --------------------------------------------------------- */
+
+    document.addEventListener(
+        "monarch:module-change",
+        function (event) {
+
+            if (
+                event.detail?.module ===
+                "withdrawals"
+            ) {
+
+                refreshWithdrawals();
+
+            }
+
+        }
+    );
+
+
+    /* ---------------------------------------------------------
+       PUBLIC API
+    --------------------------------------------------------- */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+    window.MonarchDashboard.withdrawals = {
+
+        load:
+            refreshWithdrawals,
+
+        getBalances:
+            function () {
+
+                return {
+
+                    profit:
+                        availableProfit,
+
+                    capital:
+                        availableCapital,
+
+                    lockedCapital:
+                        lockedCapital
+
+                };
+
+            },
+
+        getHistory:
+            function () {
+
+                return withdrawalRecords;
+
+            }
+
+    };
+
+
+})();
         
     </script>
 
