@@ -2011,3 +2011,162 @@ async function loadEarnings() {
         }
     }
 }
+
+/* =========================================
+   LOAD WITHDRAWALS
+========================================= */
+
+async function loadWithdrawals() {
+
+    const list =
+        getElement("withdrawalsList");
+
+    const empty =
+        getElement("withdrawalsEmpty");
+
+    const totalElement =
+        getElement("totalWithdrawn");
+
+    const overviewElement =
+        getElement("overviewWithdrawn");
+
+
+    try {
+
+        if (list) {
+            list.innerHTML = "";
+        }
+
+        hideElement(empty);
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("withdrawals")
+                .select("*")
+                .eq("user_id", currentUser.id)
+                .order("updated_at", {
+                    ascending: false
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        let total = 0;
+
+
+        if (!data || data.length === 0) {
+
+            if (totalElement) {
+                totalElement.textContent =
+                    formatCurrency(0);
+            }
+
+            if (overviewElement) {
+                overviewElement.textContent =
+                    formatCurrency(0);
+            }
+
+            showElement(empty);
+            return;
+        }
+
+
+        data.forEach(function (withdrawal) {
+
+            const amount =
+                Number(withdrawal.amount || 0);
+
+            if (
+                String(withdrawal.status)
+                    .toLowerCase() === "paid"
+            ) {
+                total += amount;
+            }
+
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "withdrawal-item";
+
+
+            const status =
+                String(
+                    withdrawal.status ||
+                    "pending"
+                ).toLowerCase();
+
+
+            item.innerHTML = `
+                <div class="withdrawal-info">
+
+                    <strong>
+                        ${formatCurrency(amount)}
+                    </strong>
+
+                    <span>
+                        ${escapeHtml(
+                            withdrawal.withdrawal_method ||
+                            withdrawal.withdrawal_type ||
+                            "Withdrawal"
+                        )}
+                    </span>
+
+                    <small>
+                        ${formatDate(
+                            withdrawal.updated_at
+                        )}
+                    </small>
+
+                </div>
+
+                <span class="status-badge status-${escapeHtml(status)}">
+                    ${escapeHtml(status)}
+                </span>
+            `;
+
+
+            list.appendChild(item);
+        });
+
+
+        if (totalElement) {
+            totalElement.textContent =
+                formatCurrency(total);
+        }
+
+        if (overviewElement) {
+            overviewElement.textContent =
+                formatCurrency(total);
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Withdrawals error:",
+            error
+        );
+
+
+        if (list) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <h3>
+                        Unable to Load Withdrawals
+                    </h3>
+
+                    <p>
+                        Please refresh the page
+                        and try again.
+                    </p>
+                </div>
+            `;
+        }
+    }
+}
