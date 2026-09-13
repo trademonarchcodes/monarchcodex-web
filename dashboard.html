@@ -5614,38 +5614,19 @@ loadInvestmentStats();
                     status === "active"
                 ) {
 
-                    const possibleAmounts = [
-                        earning.amount,
-                        earning.profit,
-                        earning.earning,
-                        earning.earnings,
-                        earning.value
-                    ];
+                    const amount =
+    Number(
+        earning.profit ??
+        earning.amount ??
+        0
+    );
 
-                    let amount = 0;
-
-                    for (
-                        const value
-                        of possibleAmounts
-                    ) {
-
-                        const number =
-                            Number(value);
-
-                        if (
-                            Number.isFinite(
-                                number
-                            )
-                        ) {
-
-                            amount = number;
-                            break;
-
-                        }
-
-                    }
-
-                    totalProfit += amount;
+if (
+    Number.isFinite(amount) &&
+    amount > 0
+) {
+    totalProfit += amount;
+}
 
                 }
 
