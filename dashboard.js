@@ -1450,3 +1450,281 @@ function initializeInvestmentEvents() {
 
     initializeReceiptUpload();
 }
+
+/* =========================================
+   SUBMIT INVESTMENT
+========================================= */
+
+async function submitInvestment() {
+
+    const button =
+        getElement("submitInvestmentBtn");
+
+    const message =
+        getElement("investmentMessage");
+
+    const receiptInput =
+        getElement("receiptInput");
+
+
+    if (!currentUser) {
+        showInvestmentMessage(
+            "Please log in again.",
+            "error"
+        );
+        return;
+    }
+
+
+    if (!selectedPackage) {
+        showInvestmentMessage(
+            "Please select an investment package.",
+            "error"
+        );
+        return;
+    }
+
+
+    if (!selectedPaymentMethod) {
+        showInvestmentMessage(
+            "Please select a payment method.",
+            "error"
+        );
+        return;
+    }
+
+
+    if (
+        selectedPaymentMethod.payment_type
+            ?.toLowerCase()
+            .includes("crypto") &&
+        !selectedCryptoNetwork
+    ) {
+        showInvestmentMessage(
+            "Please select the crypto network.",
+            "error"
+        );
+        return;
+    }
+
+
+    const file =
+        receiptInput?.files?.[0];
+
+
+    if (!file) {
+        showInvestmentMessage(
+            "Please upload your payment receipt.",
+            "error"
+        );
+        return;
+    }
+
+
+    try {
+
+        if (button) {
+            button.disabled = true;
+            button.textContent =
+                "Submitting...";
+        }
+
+
+        showInvestmentMessage(
+            "Creating your investment...",
+            "success"
+        );
+
+
+        /* CREATE INVESTMENT */
+
+        const { data: investment, error: investmentError } =
+            await supabaseClient
+                .from("investments")
+                .insert({
+                    user_id: currentUser.id,
+                    package_id: selectedPackage.id,
+                    amount: selectedPackage.amount,
+                    payment_method:
+                        selectedPaymentMethod.payment_type ||
+                        selectedPaymentMethod.title,
+                    status: "pending"
+                })
+                .select()
+                .single();
+
+
+        if (investmentError) {
+            throw investmentError;
+        }
+
+
+        /* UPLOAD RECEIPT */
+
+        const fileExtension =
+            file.name.split(".").pop();
+
+
+        const filePath =
+            `${currentUser.id}/${investment.id}_${Date.now()}.${fileExtension}`;
+
+
+        const { error: uploadError } =
+            await supabaseClient.storage
+                .from("payment-receipts")
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        cacheControl: "3600",
+                        upsert: false
+                    }
+                );
+
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+
+        /* SAVE RECEIPT RECORD */
+
+        const { error: receiptError } =
+            await supabaseClient
+                .from("payment_receipts")
+                .insert({
+                    investment_id:
+                        investment.id,
+
+                    user_id:
+                        currentUser.id,
+
+                    uid:
+                        currentProfile.uid,
+
+                    amount:
+                        selectedPackage.amount,
+
+                    payment_method:
+                        selectedPaymentMethod.payment_type ||
+                        selectedPaymentMethod.title,
+
+                    file_name:
+                        file.name,
+
+                    file_path:
+                        filePath,
+
+                    file_type:
+                        file.type,
+
+                    file_size:
+                        file.size,
+
+                    verification_status:
+                        "pending"
+                });
+
+
+        if (receiptError) {
+            throw receiptError;
+        }
+
+
+        showInvestmentMessage(
+            "Investment submitted successfully. Your payment receipt is now pending verification.",
+            "success"
+        );
+
+
+        receiptInput.value = "";
+
+
+        const preview =
+            getElement("receiptPreview");
+
+        hideElement(preview);
+
+
+        if (button) {
+            button.textContent =
+                "Submitted";
+        }
+
+
+        await loadInvestmentHistory();
+
+
+    } catch (error) {
+
+        console.error(
+            "Investment submission error:",
+            error
+        );
+
+
+        showInvestmentMessage(
+            error.message ||
+            "Unable to submit investment. Please try again.",
+            "error"
+        );
+
+
+        if (button) {
+            button.disabled = false;
+            button.textContent =
+                "Submit Investment";
+        }
+    }
+}
+
+
+/* =========================================
+   INVESTMENT MESSAGE
+========================================= */
+
+function showInvestmentMessage(
+    message,
+    type
+) {
+
+    const element =
+        getElement("investmentMessage");
+
+    if (!element) {
+        return;
+    }
+
+
+    element.textContent = message;
+
+    element.className =
+        "form-message " +
+        (type === "success"
+            ? "success"
+            : "error");
+
+
+    showElement(element);
+}
+
+
+/* =========================================
+   SUBMIT BUTTON EVENT
+========================================= */
+
+function initializeInvestmentSubmit() {
+
+    const button =
+        getElement("submitInvestmentBtn");
+
+    if (!button) {
+        return;
+    }
+
+
+    button.addEventListener(
+        "click",
+        submitInvestment
+    );
+}
