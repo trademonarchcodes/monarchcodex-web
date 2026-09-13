@@ -546,3 +546,119 @@ a {
     font-size: 12px;
     line-height: 1.6;
 }
+
+/* =========================================
+   STATS & QUICK ACTIONS
+========================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 20px;
+
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+}
+
+.stat-info span {
+    display: block;
+    color: var(--text-soft);
+    font-size: 11px;
+}
+
+.stat-info strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 16px;
+}
+
+
+/* QUICK ACTIONS */
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.quick-action {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 15px;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--black-soft);
+    color: var(--text);
+
+    text-align: left;
+
+    transition: 0.2s ease;
+}
+
+.quick-action:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+.quick-action-icon {
+    color: var(--gold);
+}
+
+
+/* INFO GRID */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.info-item {
+    padding: 15px;
+
+    background: var(--black-soft);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.info-item span {
+    display: block;
+    color: var(--text-soft);
+    font-size: 11px;
+}
+
+.info-item strong {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+    word-break: break-word;
+}
