@@ -2376,3 +2376,5 @@ document.addEventListener(
 
     }
 );
+
+console.log("MONARCH CODEX DASHBOARD.JS IS RUNNING");
