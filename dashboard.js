@@ -1,0 +1,658 @@
+/* =========================================================
+   MONARCH CODEX — DASHBOARD CORE
+   PART 1
+   ========================================================= */
+
+"use strict";
+
+/* =========================================================
+   SUPABASE CONFIGURATION
+   ========================================================= */
+
+const SUPABASE_URL =
+    "https://avaworleivncevaoqeny.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* =========================================================
+   GLOBAL APPLICATION STATE
+   ========================================================= */
+
+window.MonarchCodex = {
+
+    version: "1.0.0",
+
+    supabase: supabaseClient,
+
+    user: null,
+
+    profile: null,
+
+    modules: {},
+
+    state: {},
+
+    initialized: false
+
+};
+
+
+/* =========================================================
+   MODULE REGISTRY
+   ========================================================= */
+
+window.MonarchCodex.registerModule = function (
+    name,
+    module
+) {
+
+    if (!name) {
+
+        console.error(
+            "MONARCH CODEX: Module name is required."
+        );
+
+        return;
+    }
+
+
+    if (
+        typeof module !== "object" ||
+        module === null
+    ) {
+
+        console.error(
+            "MONARCH CODEX: Invalid module:",
+            name
+        );
+
+        return;
+    }
+
+
+    if (
+        window.MonarchCodex.modules[name]
+    ) {
+
+        console.warn(
+            "MONARCH CODEX: Module already registered:",
+            name
+        );
+
+        return;
+    }
+
+
+    window.MonarchCodex.modules[name] =
+        module;
+
+
+    console.log(
+        "MONARCH CODEX: Module registered:",
+        name
+    );
+
+};
+
+
+/* =========================================================
+   MODULE INITIALIZATION
+   ========================================================= */
+
+window.MonarchCodex.initializeModules =
+    async function () {
+
+        const modules =
+            window.MonarchCodex.modules;
+
+
+        for (
+            const name of Object.keys(modules)
+        ) {
+
+            const module =
+                modules[name];
+
+
+            if (
+                typeof module.init !== "function"
+            ) {
+
+                continue;
+            }
+
+
+            try {
+
+                await module.init(
+                    window.MonarchCodex
+                );
+
+
+                console.log(
+                    "MONARCH CODEX: Module initialized:",
+                    name
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "MONARCH CODEX: Module initialization failed:",
+                    name,
+                    error
+                );
+
+            }
+
+        }
+
+    };
+
+
+/* =========================================================
+   SHARED UTILITIES
+   ========================================================= */
+
+window.MonarchCodex.utils = {
+
+    escapeHTML(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+        }
+
+
+        return String(value)
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    },
+
+
+    formatNumber(
+        value,
+        decimals = 2
+    ) {
+
+        const number =
+            Number(value);
+
+
+        if (
+            !Number.isFinite(number)
+        ) {
+
+            return "0.00";
+        }
+
+
+        return number.toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits:
+                    decimals,
+
+                maximumFractionDigits:
+                    decimals
+            }
+        );
+
+    },
+
+
+    formatMoney(
+        value,
+        decimals = 2
+    ) {
+
+        return "$" +
+            this.formatNumber(
+                value,
+                decimals
+            );
+
+    },
+
+
+    formatDate(value) {
+
+        if (!value) {
+
+            return "—";
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return "—";
+        }
+
+
+        return date.toLocaleDateString(
+            "en-US",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+
+    },
+
+
+    setLoadingMessage(message) {
+
+        const element =
+            document.getElementById(
+                "loadingMessage"
+            );
+
+
+        if (element) {
+
+            element.textContent =
+                message;
+
+        }
+
+    }
+
+};
+
+
+/* =========================================================
+   AUTHENTICATION
+   ========================================================= */
+
+async function getCurrentUser() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+    if (error) {
+
+        console.error(
+            "Authentication error:",
+            error
+        );
+
+        return null;
+    }
+
+
+    return data?.user || null;
+
+}
+
+
+/* =========================================================
+   PROFILE LOADING
+   ========================================================= */
+
+async function loadCurrentProfile(
+    userId
+) {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("profiles")
+            .select("*")
+            .eq("id", userId)
+            .maybeSingle();
+
+
+    if (error) {
+
+        console.error(
+            "Profile loading error:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    return data;
+
+}
+
+
+/* =========================================================
+   SHOW APPLICATION
+   ========================================================= */
+
+function showApplication() {
+
+    const loading =
+        document.getElementById(
+            "appLoading"
+        );
+
+
+    const shell =
+        document.getElementById(
+            "appShell"
+        );
+
+
+    if (loading) {
+
+        loading.style.display =
+            "none";
+
+    }
+
+
+    if (shell) {
+
+        shell.style.display =
+            "block";
+
+    }
+
+}
+
+
+/* =========================================================
+   SHOW AUTHENTICATION ERROR
+   ========================================================= */
+
+function showAuthenticationError(
+    message
+) {
+
+    const loading =
+        document.getElementById(
+            "appLoading"
+        );
+
+
+    if (!loading) {
+
+        return;
+    }
+
+
+    loading.innerHTML = `
+
+        <div class="loading-box">
+
+            <h1>
+                MONARCH CODEX
+            </h1>
+
+            <p class="error-message">
+                ${
+                    window.MonarchCodex
+                        .utils
+                        .escapeHTML(
+                            message
+                        )
+                }
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   UPDATE BASIC MEMBER INFORMATION
+   ========================================================= */
+
+function updateMemberInformation() {
+
+    const profile =
+        window.MonarchCodex.profile;
+
+
+    const user =
+        window.MonarchCodex.user;
+
+
+    const welcomeName =
+        document.getElementById(
+            "welcomeName"
+        );
+
+
+    const welcomeMessage =
+        document.getElementById(
+            "welcomeMessage"
+        );
+
+
+    if (!profile) {
+
+        if (welcomeName) {
+
+            welcomeName.textContent =
+                "Welcome";
+
+        }
+
+
+        if (welcomeMessage) {
+
+            welcomeMessage.textContent =
+                "Your dashboard is ready.";
+
+        }
+
+
+        return;
+
+    }
+
+
+    const name =
+        profile.full_name ||
+        profile.name ||
+        user?.email ||
+        "Member";
+
+
+    if (welcomeName) {
+
+        welcomeName.textContent =
+            "Welcome, " + name;
+
+    }
+
+
+    if (welcomeMessage) {
+
+        welcomeMessage.textContent =
+            "Your MONARCH CODEX member dashboard is ready.";
+
+    }
+
+}
+
+
+/* =========================================================
+   CORE INITIALIZATION
+   ========================================================= */
+
+async function initializeMonarchCodex() {
+
+    try {
+
+        window.MonarchCodex.utils
+            .setLoadingMessage(
+                "Checking your account..."
+            );
+
+
+        const user =
+            await getCurrentUser();
+
+
+        if (!user) {
+
+            showAuthenticationError(
+                "You are not logged in. Please return to the login page."
+            );
+
+            return;
+        }
+
+
+        window.MonarchCodex.user =
+            user;
+
+
+        window.MonarchCodex.utils
+            .setLoadingMessage(
+                "Loading your profile..."
+            );
+
+
+        const profile =
+            await loadCurrentProfile(
+                user.id
+            );
+
+
+        window.MonarchCodex.profile =
+            profile;
+
+
+        updateMemberInformation();
+
+
+        showApplication();
+
+
+        window.MonarchCodex.utils
+            .setLoadingMessage(
+                "Loading dashboard modules..."
+            );
+
+
+        await window.MonarchCodex
+            .initializeModules();
+
+
+        window.MonarchCodex.initialized =
+            true;
+
+
+        console.log(
+            "MONARCH CODEX dashboard initialized."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "MONARCH CODEX dashboard initialization failed:",
+            error
+        );
+
+
+        showAuthenticationError(
+            "We could not load your dashboard. Please refresh and try again."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   AUTH STATE LISTENER
+   ========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+    (
+        event,
+        session
+    ) => {
+
+        console.log(
+            "MONARCH CODEX auth event:",
+            event
+        );
+
+
+        if (
+            event === "SIGNED_OUT"
+        ) {
+
+            window.location.href =
+                "index.html";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   START APPLICATION
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initializeMonarchCodex();
+
+    }
+);
