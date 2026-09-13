@@ -1,809 +1,612 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Monarch Codex | Learn. Build. Trade. Create.</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>MONARCH CODEX | Learn. Build. Trade.</title>
 
     <meta
         name="description"
-        content="Monarch Codex is a digital platform for learning, building, trading, creating and personal development."
+        content="MONARCH CODEX — a platform for learning, building financial knowledge, and developing disciplined trading skills."
     >
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet"
+        href="style.css"
     >
-
-    <link rel="stylesheet" href="style.css">
 </head>
+
 
 <body>
 
-    <!-- =========================
-         NAVIGATION
-    ========================== -->
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
-    <header class="navbar">
+<header class="navbar">
 
-        <div class="nav-container">
+    <div class="nav-container">
 
-            <a href="index.html" class="logo">
-                MONARCH<span>CODEX</span>
+        <a
+            href="index.html"
+            class="logo"
+        >
+            MONARCH<span>CODEX</span>
+        </a>
+
+
+        <nav class="nav-links">
+
+            <a href="#home">
+                Home
             </a>
 
-            <button
-                type="button"
-                class="menu-button"
-                id="menuButton"
-                aria-label="Open navigation"
+            <a href="#about">
+                About
+            </a>
+
+            <a href="#features">
+                Features
+            </a>
+
+            <a href="login.html">
+                Login
+            </a>
+
+            <a
+                href="register.html"
+                class="nav-button"
             >
-                ☰
-            </button>
+                Join Now
+            </a>
 
-            <nav class="nav-links" id="navLinks">
-
-                <a href="index.html">Home</a>
-
-                <a href="#about">About</a>
-
-                <a href="#ecosystem">Ecosystem</a>
-
-                <a href="#packages">Packages</a>
-
-                <a href="register.html" class="nav-gold">
-                    Register
-                </a>
-
-                <a href="login.html">
-                    Login
-                </a>
-
-            </nav>
-
-        </div>
-
-    </header>
+        </nav>
 
 
-    <!-- =========================
-         HERO
-    ========================== -->
-
-    <main>
-
-        <section class="hero">
-
-            <div class="hero-content">
-
-                <p class="section-label">
-                    WELCOME TO MONARCH CODEX
-                </p>
-
-                <h1>
-                    Learn.
-                    <span>Build.</span>
-                    Trade.
-                    Create.
-                </h1>
-
-                <p class="hero-description">
-                    A modern platform built for people who want to
-                    develop their knowledge, build digital opportunities,
-                    understand financial markets and create something meaningful.
-                </p>
-
-                <div class="hero-buttons">
-
-                    <a
-                        href="register.html"
-                        class="btn btn-primary"
-                    >
-                        Become a Monarch
-                    </a>
-
-                    <a
-                        href="#about"
-                        class="btn btn-secondary"
-                    >
-                        Explore Monarch Codex
-                    </a>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             ABOUT
-        ========================== -->
-
-        <section
-            class="section"
-            id="about"
+        <button
+            type="button"
+            class="mobile-menu-button"
+            id="mobileMenuButton"
+            aria-label="Open menu"
+            aria-expanded="false"
         >
+            ☰
+        </button>
 
-            <div class="container">
-
-                <div class="section-heading">
-
-                    <p class="section-label">
-                        ABOUT MONARCH CODEX
-                    </p>
-
-                    <h2>
-                        More Than A Platform.
-                        <span>An Ecosystem.</span>
-                    </h2>
-
-                    <p>
-                        Monarch Codex brings together knowledge,
-                        technology, financial markets, business,
-                        creativity and personal development in one ecosystem.
-                    </p>
-
-                </div>
-
-
-                <div class="about-grid">
-
-                    <div class="about-card">
-
-                        <div class="card-number">
-                            01
-                        </div>
-
-                        <h3>
-                            Knowledge
-                        </h3>
-
-                        <p>
-                            Learn practical concepts that can help
-                            you understand the world and improve yourself.
-                        </p>
-
-                    </div>
-
-
-                    <div class="about-card">
-
-                        <div class="card-number">
-                            02
-                        </div>
-
-                        <h3>
-                            Opportunity
-                        </h3>
-
-                        <p>
-                            Discover ways to develop digital skills,
-                            create projects and explore new opportunities.
-                        </p>
-
-                    </div>
-
-
-                    <div class="about-card">
-
-                        <div class="card-number">
-                            03
-                        </div>
-
-                        <h3>
-                            Community
-                        </h3>
-
-                        <p>
-                            Connect with people learning, building
-                            and creating in different fields.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             ECOSYSTEM
-        ========================== -->
-
-        <section
-            class="section section-dark"
-            id="ecosystem"
-        >
-
-            <div class="container">
-
-                <div class="section-heading">
-
-                    <p class="section-label">
-                        THE MONARCH ECOSYSTEM
-                    </p>
-
-                    <h2>
-                        Explore Your
-                        <span>Potential.</span>
-                    </h2>
-
-                    <p>
-                        Explore different areas designed to help you
-                        learn, develop and create.
-                    </p>
-
-                </div>
-
-
-                <div class="cards-grid">
-
-                    <article class="feature-card">
-
-                        <span class="feature-icon">
-                            AI
-                        </span>
-
-                        <h3>
-                            AI & Technology
-                        </h3>
-
-                        <p>
-                            Explore artificial intelligence,
-                            digital tools, automation and technology.
-                        </p>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <span class="feature-icon">
-                            TR
-                        </span>
-
-                        <h3>
-                            Trading
-                        </h3>
-
-                        <p>
-                            Learn about financial markets,
-                            technical analysis, risk management and trading psychology.
-                        </p>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <span class="feature-icon">
-                            BS
-                        </span>
-
-                        <h3>
-                            Business
-                        </h3>
-
-                        <p>
-                            Learn how ideas can become digital
-                            projects, businesses and opportunities.
-                        </p>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <span class="feature-icon">
-                            CR
-                        </span>
-
-                        <h3>
-                            Creative Studio
-                        </h3>
-
-                        <p>
-                            Explore AI art, music, visual content
-                            and other forms of digital creativity.
-                        </p>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <span class="feature-icon">
-                            LD
-                        </span>
-
-                        <h3>
-                            Leadership
-                        </h3>
-
-                        <p>
-                            Develop leadership, communication,
-                            decision-making and strategic thinking.
-                        </p>
-
-                    </article>
-
-
-                    <article class="feature-card">
-
-                        <span class="feature-icon">
-                            PG
-                        </span>
-
-                        <h3>
-                            Personal Growth
-                        </h3>
-
-                        <p>
-                            Develop your mindset, discipline,
-                            confidence and personal effectiveness.
-                        </p>
-
-                    </article>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             INVESTMENT PACKAGES
-        ========================== -->
-
-        <section
-            class="section"
-            id="packages"
-        >
-
-            <div class="container">
-
-                <div class="section-heading">
-
-                    <p class="section-label">
-                        MONARCH PACKAGES
-                    </p>
-
-                    <h2>
-                        Choose Your
-                        <span>Package.</span>
-                    </h2>
-
-                    <p>
-                        Available packages are displayed below.
-                        A package selection does not constitute a guarantee
-                        of profit or investment return.
-                    </p>
-
-                </div>
-
-
-                <div class="package-grid">
-
-                    <div class="package-card">
-                        <h3>$30</h3>
-                        <p>Starter Package</p>
-                        <a href="register.html" class="btn btn-secondary">
-                            Get Started
-                        </a>
-                    </div>
-
-
-                    <div class="package-card">
-                        <h3>$50</h3>
-                        <p>Starter Plus</p>
-                        <a href="register.html" class="btn btn-secondary">
-                            Get Started
-                        </a>
-                    </div>
-
-
-                    <div class="package-card">
-                        <h3>$100</h3>
-                        <p>Growth Package</p>
-                        <a href="register.html" class="btn btn-secondary">
-                            Get Started
-                        </a>
-                    </div>
-
-
-                    <div class="package-card">
-                        <h3>$300</h3>
-                        <p>Growth Plus</p>
-                        <a href="register.html" class="btn btn-secondary">
-                            Get Started
-                        </a>
-                    </div>
-
-
-                    <div class="package-card">
-                        <h3>$500</h3>
-                        <p>Advanced Package</p>
-                        <a href="register.html" class="btn btn-secondary">
-                            Get Started
-                        </a>
-                    </div>
-
-
-                    <div class="package-card featured-package">
-
-                        <span class="package-badge">
-                            PREMIUM
-                        </span>
-
-                        <h3>$1,000</h3>
-
-                        <p>
-                            Premium Package
-                        </p>
-
-                        <a
-                            href="register.html"
-                            class="btn btn-primary"
-                        >
-                            Get Started
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             HOW IT WORKS
-        ========================== -->
-
-        <section class="section section-dark">
-
-            <div class="container">
-
-                <div class="section-heading">
-
-                    <p class="section-label">
-                        HOW IT WORKS
-                    </p>
-
-                    <h2>
-                        Simple.
-                        <span>Structured.</span>
-                    </h2>
-
-                </div>
-
-
-                <div class="steps-grid">
-
-                    <div class="step-card">
-
-                        <span>
-                            01
-                        </span>
-
-                        <h3>
-                            Create Account
-                        </h3>
-
-                        <p>
-                            Register for your Monarch Codex account.
-                        </p>
-
-                    </div>
-
-
-                    <div class="step-card">
-
-                        <span>
-                            02
-                        </span>
-
-                        <h3>
-                            Access Dashboard
-                        </h3>
-
-                        <p>
-                            Log in to your personal member dashboard.
-                        </p>
-
-                    </div>
-
-
-                    <div class="step-card">
-
-                        <span>
-                            03
-                        </span>
-
-                        <h3>
-                            Select Package
-                        </h3>
-
-                        <p>
-                            Select an available package and payment method.
-                        </p>
-
-                    </div>
-
-
-                    <div class="step-card">
-
-                        <span>
-                            04
-                        </span>
-
-                        <h3>
-                            Request Review
-                        </h3>
-
-                        <p>
-                            Your request remains pending until it is reviewed.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             CTA
-        ========================== -->
-
-        <section class="cta-section">
-
-            <div class="container">
-
-                <div class="cta-content">
-
-                    <p class="section-label">
-                        YOUR JOURNEY STARTS HERE
-                    </p>
-
-                    <h2>
-                        Become A
-                        <span>Monarch.</span>
-                    </h2>
-
-                    <p>
-                        Create your account and enter the Monarch Codex ecosystem.
-                    </p>
-
-                    <div class="hero-buttons">
-
-                        <a
-                            href="register.html"
-                            class="btn btn-primary"
-                        >
-                            Create Account
-                        </a>
-
-                        <a
-                            href="login.html"
-                            class="btn btn-secondary"
-                        >
-                            Member Login
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- =========================
-         FOOTER
-    ========================== -->
-
-    <footer class="footer">
-
-        <div class="footer-container">
-
-            <div class="footer-brand">
-
-                <a href="index.html" class="logo">
-                    MONARCH<span>CODEX</span>
-                </a>
-
-                <p>
-                    Learn. Build. Trade. Create.
-                </p>
-
-            </div>
-
-
-            <div class="footer-links">
-
-                <a href="index.html">
-                    Home
-                </a>
-
-                <a href="#about">
-                    About
-                </a>
-
-                <a href="#ecosystem">
-                    Ecosystem
-                </a>
-
-                <a href="register.html">
-                    Register
-                </a>
-
-                <a href="login.html">
-                    Login
-                </a>
-
-            </div>
-
-        </div>
-        
-<div class="footer-contact">
-    <a
-        href="https://t.me/Trade_Monarch"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        Telegram
-    </a>
-
-    <a
-        href="https://api.whatsapp.com/send?phone=9135424851&text=Hello%20Trade%20Monarch%2C%20I%20need%20help"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        WhatsApp
-    </a>
-
-    <a href="mailto:trademonarchofficial@gmail.com">
-        Email
-    </a>
-</div>
-
-        <!-- =========================
-     LEGAL / DISCLAIMER
-========================= -->
-
-<div class="footer-legal">
-
-    <details class="legal-item">
-        <summary>Terms & Conditions</summary>
-
-        <div class="legal-content">
-            <p>
-                By using the MONARCH CODEX website and services, you agree to
-                use the platform responsibly and in accordance with these
-                terms. Information, educational materials, market analysis,
-                and other content provided by MONARCH CODEX are for
-                informational and educational purposes only.
-            </p>
-
-            <p>
-                Users are responsible for their own decisions, account
-                activity, funds, and risk management. MONARCH CODEX does not
-                guarantee financial results or the success of any trading or
-                investment activity.
-            </p>
-        </div>
-    </details>
-
-
-    <details class="legal-item">
-        <summary>Risk Disclaimer</summary>
-
-        <div class="legal-content">
-            <p>
-                Trading and investing in financial and cryptocurrency markets
-                involves substantial risk and may result in partial or total
-                loss of capital. Past performance is not an indication or
-                guarantee of future results.
-            </p>
-
-            <p>
-                You should never trade or invest money you cannot afford to
-                lose. Always conduct your own research and consider obtaining
-                independent financial advice where appropriate.
-            </p>
-        </div>
-    </details>
-
-
-    <details class="legal-item">
-        <summary>Investment Disclaimer</summary>
-
-        <div class="legal-content">
-            <p>
-                Any investment-related information, opportunities, figures,
-                projections, or examples presented by MONARCH CODEX are
-                provided for informational purposes only and should not be
-                interpreted as a promise, guarantee, or certainty of profit.
-            </p>
-
-            <p>
-                Individual results may vary depending on market conditions,
-                timing, strategy, capital, and other factors. MONARCH CODEX
-                does not guarantee any specific return on investment.
-            </p>
-        </div>
-    </details>
-
-
-    <div class="legal-notice">
-        <strong>Trading involves risk.</strong>
-        You may lose some or all of your invested capital.
-        <strong>No guaranteed profits.</strong>
     </div>
 
-</div>
 
-        <div class="footer-bottom">
+    <div
+        class="mobile-nav"
+        id="mobileNav"
+    >
+
+        <a href="#home">
+            Home
+        </a>
+
+        <a href="#about">
+            About
+        </a>
+
+        <a href="#features">
+            Features
+        </a>
+
+        <a href="login.html">
+            Login
+        </a>
+
+        <a href="register.html">
+            Join Now
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<!-- =====================================================
+     HERO
+     ===================================================== -->
+
+<main>
+
+<section
+    class="hero"
+    id="home"
+>
+
+    <div class="container hero-container">
+
+        <div class="hero-content">
+
+            <p class="section-label">
+                WELCOME TO MONARCH CODEX
+            </p>
+
+
+            <h1>
+                Build Knowledge.
+                <span>Build Your Future.</span>
+            </h1>
+
+
+            <p class="hero-description">
+                MONARCH CODEX is designed to help members develop
+                practical knowledge, disciplined trading skills,
+                and a stronger approach to financial growth.
+            </p>
+
+
+            <div class="hero-actions">
+
+                <a
+                    href="register.html"
+                    class="btn btn-primary"
+                >
+                    Create Account
+                </a>
+
+
+                <a
+                    href="login.html"
+                    class="btn btn-secondary"
+                >
+                    Member Login
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="hero-card">
+
+            <div class="hero-card-inner">
+
+                <p class="section-label">
+                    MONARCH CODEX
+                </p>
+
+                <h2>
+                    Learn.
+                    Build.
+                    Trade.
+                </h2>
+
+                <p>
+                    A structured environment for members
+                    who want to learn, develop discipline,
+                    and pursue financial growth.
+                </p>
+
+
+                <div class="hero-stat-row">
+
+                    <div>
+                        <strong>01</strong>
+                        <span>Learn</span>
+                    </div>
+
+                    <div>
+                        <strong>02</strong>
+                        <span>Build</span>
+                    </div>
+
+                    <div>
+                        <strong>03</strong>
+                        <span>Grow</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     ABOUT
+     ===================================================== -->
+
+<section
+    class="section"
+    id="about"
+>
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <p class="section-label">
+                ABOUT MONARCH CODEX
+            </p>
+
+
+            <h2>
+                A structured path toward
+                <span>financial growth.</span>
+            </h2>
+
 
             <p>
-                © 2026 Monarch Codex. All rights reserved.
+                MONARCH CODEX brings learning, practical
+                development, and disciplined financial
+                participation into one member-focused platform.
             </p>
 
         </div>
 
-    </footer>
+
+        <div class="feature-grid">
+
+            <article class="feature-card">
+
+                <div class="feature-number">
+                    01
+                </div>
+
+                <h3>
+                    Education
+                </h3>
+
+                <p>
+                    Develop practical knowledge and understand
+                    the principles behind disciplined trading
+                    and financial decision-making.
+                </p>
+
+            </article>
 
 
-    <!-- =========================
-         SIMPLE MENU SCRIPT
-    ========================== -->
+            <article class="feature-card">
 
-    <script>
+                <div class="feature-number">
+                    02
+                </div>
 
-        const menuButton =
-            document.getElementById("menuButton");
+                <h3>
+                    Discipline
+                </h3>
 
-        const navLinks =
-            document.getElementById("navLinks");
+                <p>
+                    Build a structured approach to risk,
+                    decision-making, and long-term financial
+                    development.
+                </p>
 
-
-        if (menuButton && navLinks) {
-
-            menuButton.addEventListener("click", function () {
-
-                navLinks.classList.toggle("active");
-
-            });
-
-        }
+            </article>
 
 
-        document.querySelectorAll(".nav-links a").forEach(function (link) {
+            <article class="feature-card">
 
-            link.addEventListener("click", function () {
+                <div class="feature-number">
+                    03
+                </div>
 
-                navLinks.classList.remove("active");
+                <h3>
+                    Community
+                </h3>
 
-            });
+                <p>
+                    Grow within a platform designed to support
+                    members through structured resources and
+                    future learning modules.
+                </p>
 
-        });
+            </article>
 
-    </script>
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     FEATURES
+     ===================================================== -->
+
+<section
+    class="section section-alt"
+    id="features"
+>
+
+    <div class="container">
+
+        <div class="section-heading">
+
+            <p class="section-label">
+                PLATFORM
+            </p>
+
+
+            <h2>
+                Built to <span>expand.</span>
+            </h2>
+
+
+            <p>
+                MONARCH CODEX is being structured so new
+                features can be introduced without disturbing
+                existing member systems.
+            </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+            <article class="feature-card">
+
+                <h3>
+                    Member Dashboard
+                </h3>
+
+                <p>
+                    Manage your account, investments, earnings,
+                    and withdrawal requests from one place.
+                </p>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <h3>
+                    Learning
+                </h3>
+
+                <p>
+                    Future educational modules can be added
+                    without rebuilding the existing platform.
+                </p>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <h3>
+                    Referrals
+                </h3>
+
+                <p>
+                    A structured referral system will allow
+                    members to receive and share their own
+                    unique referral links.
+                </p>
+
+            </article>
+
+
+            <article class="feature-card">
+
+                <h3>
+                    Future Modules
+                </h3>
+
+                <p>
+                    Signals, certificates, academy resources,
+                    and other features can be added independently
+                    as the platform grows.
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CTA
+     ===================================================== -->
+
+<section class="cta-section">
+
+    <div class="container">
+
+        <div class="cta-card">
+
+            <p class="section-label">
+                START YOUR JOURNEY
+            </p>
+
+
+            <h2>
+                Become a MONARCH.
+            </h2>
+
+
+            <p>
+                Create your account and enter the MONARCH CODEX
+                member platform.
+            </p>
+
+
+            <a
+                href="register.html"
+                class="btn btn-primary"
+            >
+                Create Your Account
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div>
+
+            <div class="logo">
+                MONARCH<span>CODEX</span>
+            </div>
+
+
+            <p>
+                Learn. Build. Trade.
+            </p>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="login.html">
+                Login
+            </a>
+
+            <a href="register.html">
+                Register
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <p>
+            ©
+            <span id="currentYear"></span>
+            MONARCH CODEX.
+            All rights reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+
+
+<!-- =====================================================
+     PAGE SCRIPT
+     ===================================================== -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const year =
+        document.getElementById(
+            "currentYear"
+        );
+
+
+    if (year) {
+
+        year.textContent =
+            new Date().getFullYear();
+
+    }
+
+
+    const menuButton =
+        document.getElementById(
+            "mobileMenuButton"
+        );
+
+
+    const mobileNav =
+        document.getElementById(
+            "mobileNav"
+        );
+
+
+    if (
+        menuButton &&
+        mobileNav
+    ) {
+
+        menuButton.addEventListener(
+            "click",
+            function () {
+
+                const isOpen =
+                    mobileNav.classList
+                        .toggle("open");
+
+
+                menuButton.setAttribute(
+                    "aria-expanded",
+                    isOpen
+                        ? "true"
+                        : "false"
+                );
+
+            }
+        );
+
+
+        mobileNav
+            .querySelectorAll("a")
+            .forEach(
+                function (link) {
+
+                    link.addEventListener(
+                        "click",
+                        function () {
+
+                            mobileNav.classList
+                                .remove("open");
+
+                            menuButton.setAttribute(
+                                "aria-expanded",
+                                "false"
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+})();
+
+</script>
+
 
 </body>
+
 </html>
