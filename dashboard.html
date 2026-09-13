@@ -1193,3 +1193,61 @@
     ></div>
 
 </div>
+
+<section
+    id="historySection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                TRANSACTIONS
+            </span>
+
+            <h2>Investment History</h2>
+
+            <p>
+                View your investment transactions and status.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div
+            id="investmentHistoryLoading"
+            class="inline-loading"
+        >
+            Loading investment history...
+        </div>
+
+
+        <div
+            id="investmentHistory"
+            class="investment-history"
+        >
+            <!-- Investment history from Supabase -->
+        </div>
+
+
+        <div
+            id="investmentHistoryEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Investments Yet</h3>
+
+            <p>
+                Your investment history will appear here
+                after your first investment.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
