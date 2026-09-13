@@ -662,3 +662,128 @@ a {
     font-size: 13px;
     word-break: break-word;
 }
+
+/* =========================================
+   PROFILE SECTION
+========================================= */
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.profile-avatar {
+    width: 75px;
+    height: 75px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: var(--gold);
+    color: #000;
+
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.profile-header h3 {
+    font-size: 20px;
+}
+
+.profile-header p {
+    margin-top: 4px;
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.profile-badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.profile-badge {
+    display: inline-block;
+    padding: 4px 9px;
+
+    border-radius: 20px;
+
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+
+/* =========================================
+   STATUS BADGES
+========================================= */
+
+.status-badge {
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    text-transform: capitalize;
+}
+
+.status-confirmed,
+.status-active,
+.status-approved,
+.status-paid {
+    background: rgba(53, 208, 127, 0.1);
+    color: var(--success);
+}
+
+.status-pending {
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--gold);
+}
+
+.status-rejected,
+.status-failed {
+    background: rgba(255, 92, 92, 0.1);
+    color: var(--danger);
+}
+
+
+/* =========================================
+   GENERAL LOADING / EMPTY STATES
+========================================= */
+
+.inline-loading {
+    padding: 25px;
+    color: var(--text-soft);
+    text-align: center;
+    font-size: 13px;
+}
+
+.empty-state {
+    padding: 35px 20px;
+    text-align: center;
+    color: var(--text-soft);
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 16px;
+}
+
+.empty-state p {
+    font-size: 12px;
+    line-height: 1.6;
+}
