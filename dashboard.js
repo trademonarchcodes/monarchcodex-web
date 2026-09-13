@@ -656,3 +656,324 @@ document.addEventListener(
 
     }
 );
+
+/* =========================================================
+   MONARCH CODEX — MODULE NAVIGATION CONTROLLER
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+    let activeModule = "overview";
+
+
+    /* =====================================================
+       SHOW DASHBOARD MODULE
+       ===================================================== */
+
+    function showDashboardModule(moduleName) {
+
+        if (!moduleName) {
+            moduleName = "overview";
+        }
+
+
+        const panels =
+            document.querySelectorAll(
+                "[data-module-panel]"
+            );
+
+
+        const buttons =
+            document.querySelectorAll(
+                "[data-module]"
+            );
+
+
+        let moduleExists = false;
+
+
+        panels.forEach(function (panel) {
+
+            const panelName =
+                panel.getAttribute(
+                    "data-module-panel"
+                );
+
+
+            if (panelName === moduleName) {
+
+                panel.classList.add("active");
+
+                panel.removeAttribute(
+                    "hidden"
+                );
+
+                moduleExists = true;
+
+            } else {
+
+                panel.classList.remove("active");
+
+                panel.setAttribute(
+                    "hidden",
+                    "hidden"
+                );
+
+            }
+
+        });
+
+
+        /* =================================================
+           UPDATE NAVIGATION BUTTONS
+           ================================================= */
+
+        buttons.forEach(function (button) {
+
+            const buttonModule =
+                button.getAttribute(
+                    "data-module"
+                );
+
+
+            if (
+                buttonModule === moduleName &&
+                moduleExists
+            ) {
+
+                button.classList.add("active");
+
+                button.setAttribute(
+                    "aria-current",
+                    "page"
+                );
+
+            } else {
+
+                button.classList.remove("active");
+
+                button.removeAttribute(
+                    "aria-current"
+                );
+
+            }
+
+        });
+
+
+        /* =================================================
+           FALLBACK TO OVERVIEW
+           ================================================= */
+
+        if (!moduleExists) {
+
+            moduleName = "overview";
+
+
+            panels.forEach(function (panel) {
+
+                const panelName =
+                    panel.getAttribute(
+                        "data-module-panel"
+                    );
+
+
+                if (
+                    panelName === "overview"
+                ) {
+
+                    panel.classList.add(
+                        "active"
+                    );
+
+                    panel.removeAttribute(
+                        "hidden"
+                    );
+
+                } else {
+
+                    panel.classList.remove(
+                        "active"
+                    );
+
+                    panel.setAttribute(
+                        "hidden",
+                        "hidden"
+                    );
+
+                }
+
+            });
+
+
+            buttons.forEach(function (button) {
+
+                const buttonModule =
+                    button.getAttribute(
+                        "data-module"
+                    );
+
+
+                if (
+                    buttonModule === "overview"
+                ) {
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                    button.setAttribute(
+                        "aria-current",
+                        "page"
+                    );
+
+                } else {
+
+                    button.classList.remove(
+                        "active"
+                    );
+
+                    button.removeAttribute(
+                        "aria-current"
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        activeModule =
+            moduleName;
+
+
+        /* =================================================
+           NOTIFY MODULE SYSTEM
+           ================================================= */
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "monarch:module-change",
+                {
+                    detail: {
+                        module:
+                            activeModule
+                    }
+                }
+            )
+        );
+
+    }
+
+
+    /* =====================================================
+       NAVIGATION CLICK HANDLER
+       ===================================================== */
+
+    function initializeModuleNavigation() {
+
+        const navigation =
+            document.getElementById(
+                "dashboardNavigation"
+            );
+
+
+        if (!navigation) {
+            return;
+        }
+
+
+        navigation.addEventListener(
+            "click",
+            function (event) {
+
+                const button =
+                    event.target.closest(
+                        "[data-module]"
+                    );
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                const moduleName =
+                    button.getAttribute(
+                        "data-module"
+                    );
+
+
+                if (!moduleName) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                showDashboardModule(
+                    moduleName
+                );
+
+            }
+        );
+
+
+        /* Start on Overview */
+
+        showDashboardModule(
+            "overview"
+        );
+
+    }
+
+
+    /* =====================================================
+       PUBLIC DASHBOARD API
+       ===================================================== */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+
+    window.MonarchDashboard.navigation = {
+
+        show:
+            showDashboardModule,
+
+        getActive:
+            function () {
+                return activeModule;
+            },
+
+        initialize:
+            initializeModuleNavigation
+
+    };
+
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeModuleNavigation
+        );
+
+    } else {
+
+        initializeModuleNavigation();
+
+    }
+
+})();
