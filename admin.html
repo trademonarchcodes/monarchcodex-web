@@ -1899,10 +1899,6 @@ function escapeHtml(
    MONEY FORMAT
    ========================================================= */
 
-function formatMoney(
-    value
-) {
-
 function formatNumber(value) {
 
     const number =
@@ -1918,7 +1914,12 @@ function formatNumber(value) {
             maximumFractionDigits: 2
         }
     );
-    }
+}
+
+
+function formatMoney(
+    value
+) {
     
     const amount =
         Number(value || 0);
