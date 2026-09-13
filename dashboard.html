@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#050505"
+    >
+
+    <title>MONARCH CODEX — Member Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="dashboard.css"
+    >
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         APPLICATION LOADING
+         ===================================================== -->
+
+    <div
+        id="appLoading"
+        class="app-loading"
+    >
+
+        <div class="loading-box">
+
+            <h1>MONARCH CODEX</h1>
+
+            <p>
+                Securing your member dashboard...
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         APPLICATION SHELL
+         ===================================================== -->
+
+    <div
+        id="appShell"
+        class="app-shell"
+        style="display:none;"
+    >
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <header class="app-header">
+
+            <div class="brand-area">
+
+                <div class="brand">
+                    MONARCH CODEX
+                </div>
+
+                <div class="brand-subtitle">
+                    Member Dashboard
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="dashboard-logout-btn"
+            >
+                Logout
+            </button>
+
+        </header>
+
+
+        <!-- =================================================
+             MAIN CONTENT
+             ================================================= -->
+
+        <main class="app-main">
+
+            <!-- =============================================
+                 WELCOME HERO
+                 ============================================= -->
+
+            <section class="welcome-card">
+
+                <h2>
+                    Welcome,
+                    <span id="welcomeName">
+                        Member
+                    </span>
+                </h2>
+
+                <p id="welcomeMessage">
+                    Welcome to your MONARCH CODEX member dashboard.
+                </p>
+
+            </section>
+
+
+            <!-- =============================================
+                 DASHBOARD NAVIGATION
+                 ============================================= -->
+
+            <section class="module-area">
+
+                <nav
+                    id="dashboardNavigation"
+                    class="dashboard-navigation"
+                    aria-label="Dashboard navigation"
+                >
+
+                    <button
+                        type="button"
+                        class="dashboard-nav-btn active"
+                        data-module="overview"
+                    >
+                        Overview
+                    </button>
+
+                    <button
+                        type="button"
+                        class="dashboard-nav-btn"
+                        data-module="investments"
+                    >
+                        Investments
+                    </button>
+
+                    <button
+                        type="button"
+                        class="dashboard-nav-btn"
+                        data-module="earnings"
+                    >
+                        Earnings
+                    </button>
+
+                    <button
+                        type="button"
+                        class="dashboard-nav-btn"
+                        data-module="withdrawals"
+                    >
+                        Withdrawals
+                    </button>
+
+                    <button
+                        type="button"
+                        class="dashboard-nav-btn"
+                        data-module="referrals"
+                    >
+                        Referrals
+                    </button>
+
+                </nav>
+
+
+                <!-- =========================================
+                     MODULE VIEWPORT
+                     ========================================= -->
+
+                <div id="moduleViewport">
+
+
+                    <!-- =====================================
+                         OVERVIEW MODULE
+                         ===================================== -->
+
+                    <section
+                        id="module-overview"
+                        class="dashboard-module active"
+                    >
+
+                        <div class="module-heading">
+
+                            <h2>
+                                Account Overview
+                            </h2>
+
+                            <p>
+                                Monitor your MONARCH CODEX account
+                                and investment activity.
+                            </p>
+
+                        </div>
+
+
+                        <div id="overviewContent">
+
+                            <!-- Overview content will be
+                                 populated by the dashboard
+                                 logic. -->
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================
+                         INVESTMENTS MODULE
+                         ===================================== -->
+
+                    <section
+                        id="module-investments"
+                        class="dashboard-module"
+                    >
+
+                        <div class="module-heading">
+
+                            <h2>
+                                Investments
+                            </h2>
+
+                            <p>
+                                Manage your investments and
+                                submit new investment requests.
+                            </p>
+
+                        </div>
+
+
+                        <div id="investmentsContent">
+
+                            <!-- Investment system content -->
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================
+                         EARNINGS MODULE
+                         ===================================== -->
+
+                    <section
+                        id="module-earnings"
+                        class="dashboard-module"
+                    >
+
+                        <div class="module-heading">
+
+                            <h2>
+                                Earnings
+                            </h2>
+
+                            <p>
+                                Track your investment earnings
+                                and available returns.
+                            </p>
+
+                        </div>
+
+
+                        <div id="earningsContent">
+
+                            <!-- Earnings system content -->
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================
+                         WITHDRAWALS MODULE
+                         ===================================== -->
+
+                    <section
+                        id="module-withdrawals"
+                        class="dashboard-module"
+                    >
+
+                        <div class="module-heading">
+
+                            <h2>
+                                Withdrawals
+                            </h2>
+
+                            <p>
+                                Request and track your withdrawals.
+                            </p>
+
+                        </div>
+
+
+                        <div id="withdrawalsContent">
+
+                            <!-- Withdrawal system content -->
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================
+                         REFERRALS MODULE
+                         ===================================== -->
+
+                    <section
+                        id="module-referrals"
+                        class="dashboard-module"
+                    >
+
+                        <div class="module-heading">
+
+                            <h2>
+                                Referrals
+                            </h2>
+
+                            <p>
+                                Build your network and track
+                                your referral activity.
+                            </p>
+
+                        </div>
+
+
+                        <div id="referralsContent">
+
+                            <!-- Referral system content -->
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =====================================
+                         FUTURE MODULES
+                         ===================================== -->
+
+                    <section
+                        id="futureModules"
+                        class="dashboard-module"
+                    >
+
+                        <!-- Reserved for future MONARCH CODEX
+                             modules such as Academy, Signals,
+                             Certificates and more. -->
+
+                    </section>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
+
+        <footer class="app-footer">
+
+            <strong>
+                MONARCH CODEX
+            </strong>
+
+            <br>
+
+            Build Knowledge. Build Your Future.
+
+        </footer>
+
+    </div>
+
+</body>
+</html>
