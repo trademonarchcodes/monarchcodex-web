@@ -2340,11 +2340,11 @@ async function startDashboard() {
 
     try {
 
-        setLoadingMessage(
-            "Loading your dashboard..."
-        );
+        await initializeDashboard();
 
-        await loadPackages();
+        if (!currentUser) {
+            return;
+        }
 
         initializeAllDashboardEvents();
 
