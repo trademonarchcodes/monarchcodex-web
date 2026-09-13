@@ -6454,3 +6454,493 @@ img {
         animation-iteration-count: 1 !important;
     }
 }
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 11 — FINAL SAFETY, INTERACTION & MOBILE POLISH
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   PREVENT HORIZONTAL OVERFLOW
+   --------------------------------------------------------- */
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+
+/* ---------------------------------------------------------
+   SAFE BUTTON / LINK INTERACTION
+   --------------------------------------------------------- */
+
+button,
+a,
+input,
+textarea,
+select {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button,
+.btn {
+    touch-action: manipulation;
+}
+
+
+/* ---------------------------------------------------------
+   CLICKABLE ELEMENTS
+   --------------------------------------------------------- */
+
+.clickable {
+    cursor: pointer;
+
+    transition:
+        transform var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.clickable:hover {
+    transform: translateY(-1px);
+}
+
+.clickable:active {
+    transform: translateY(0);
+}
+
+
+/* ---------------------------------------------------------
+   CARD HOVER
+   --------------------------------------------------------- */
+
+.card-hover {
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+.card-hover:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow);
+}
+
+
+/* ---------------------------------------------------------
+   GOLD BORDER HOVER
+   --------------------------------------------------------- */
+
+.gold-hover {
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+.gold-hover:hover {
+    border-color: var(--border-strong);
+    box-shadow:
+        0 0 0 1px rgba(212, 175, 55, 0.08),
+        var(--shadow-small);
+}
+
+
+/* ---------------------------------------------------------
+   BUTTON GROUP
+   --------------------------------------------------------- */
+
+.btn-group {
+    display: inline-flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-radius:
+        var(--radius-small)
+        0
+        0
+        var(--radius-small);
+}
+
+.btn-group .btn:last-child {
+    border-radius:
+        0
+        var(--radius-small)
+        var(--radius-small)
+        0;
+}
+
+.btn-group .btn:only-child {
+    border-radius: var(--radius-small);
+}
+
+
+/* ---------------------------------------------------------
+   STATUS DOT
+   --------------------------------------------------------- */
+
+.status-dot {
+    display: inline-block;
+
+    width: 8px;
+    height: 8px;
+
+    flex: 0 0 auto;
+
+    border-radius: 50%;
+
+    background: var(--muted);
+}
+
+.status-dot-success {
+    background: var(--green);
+}
+
+.status-dot-danger {
+    background: var(--red);
+}
+
+.status-dot-warning {
+    background: var(--orange);
+}
+
+.status-dot-info {
+    background: var(--blue);
+}
+
+
+/* ---------------------------------------------------------
+   STATUS ROW
+   --------------------------------------------------------- */
+
+.status-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* ---------------------------------------------------------
+   BADGE GROUP
+   --------------------------------------------------------- */
+
+.badge-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+/* ---------------------------------------------------------
+   PRICE / MONEY DISPLAY
+   --------------------------------------------------------- */
+
+.price-display {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.price-currency {
+    color: var(--muted);
+    font-size: 0.9em;
+}
+
+.price-value {
+    color: var(--gold);
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.price-period {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+
+/* ---------------------------------------------------------
+   SECURE / PRIVATE INFORMATION
+   --------------------------------------------------------- */
+
+.private-value {
+    letter-spacing: 0.08em;
+}
+
+.masked-value {
+    font-family: monospace;
+    letter-spacing: 0.12em;
+}
+
+
+/* ---------------------------------------------------------
+   COPY SUCCESS STATE
+   --------------------------------------------------------- */
+
+.copy-success {
+    color: var(--green) !important;
+    border-color: rgba(53, 208, 127, 0.35) !important;
+    background: var(--green-soft) !important;
+}
+
+
+/* ---------------------------------------------------------
+   FORM SUBMISSION STATE
+   --------------------------------------------------------- */
+
+form.is-submitting {
+    pointer-events: none;
+}
+
+form.is-submitting button[type="submit"] {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+
+/* ---------------------------------------------------------
+   INPUT WITH ACTION
+   --------------------------------------------------------- */
+
+.input-action-group {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+.input-action-group input,
+.input-action-group select {
+    flex: 1;
+    min-width: 0;
+
+    border-radius:
+        var(--radius-small)
+        0
+        0
+        var(--radius-small);
+}
+
+.input-action-group .btn,
+.input-action-group button {
+    flex: 0 0 auto;
+
+    border-radius:
+        0
+        var(--radius-small)
+        var(--radius-small)
+        0;
+}
+
+
+/* ---------------------------------------------------------
+   NOTICE TEXT
+   --------------------------------------------------------- */
+
+.notice-text {
+    margin: 8px 0 0;
+
+    color: var(--muted);
+
+    font-size: 0.8rem;
+    line-height: 1.55;
+}
+
+.notice-text strong {
+    color: var(--text-soft);
+}
+
+
+/* ---------------------------------------------------------
+   REQUIRED FIELD
+   --------------------------------------------------------- */
+
+.required::after {
+    content: " *";
+
+    color: var(--red);
+}
+
+
+/* ---------------------------------------------------------
+   DIVIDER WITH TEXT
+   --------------------------------------------------------- */
+
+.divider-text {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: 100%;
+
+    color: var(--muted);
+
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.divider-text::before,
+.divider-text::after {
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background: var(--border-soft);
+}
+
+
+/* ---------------------------------------------------------
+   RESPONSIVE TABLE SAFETY
+   --------------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+    .table-wrapper,
+    .table-container,
+    .data-table-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 600px;
+    }
+
+    .btn-group {
+        width: 100%;
+    }
+
+    .btn-group .btn {
+        flex: 1 1 auto;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   VERY SMALL SCREENS
+   --------------------------------------------------------- */
+
+@media (max-width: 380px) {
+
+    .container {
+        width: calc(100% - 20px);
+    }
+
+    .auth-card,
+    .card {
+        border-radius: 14px;
+    }
+
+    .btn {
+        padding: 11px 14px;
+    }
+
+    .input-action-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .input-action-group input,
+    .input-action-group select,
+    .input-action-group .btn,
+    .input-action-group button {
+        width: 100%;
+        border-radius: var(--radius-small);
+    }
+
+    .price-value {
+        font-size: 1.5rem;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   FINAL FORM SAFETY
+   --------------------------------------------------------- */
+
+input,
+textarea,
+select {
+    max-width: 100%;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="file"] {
+    max-width: 100%;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL RESPONSIVE IMAGE SAFETY
+   --------------------------------------------------------- */
+
+figure {
+    max-width: 100%;
+    margin: 0;
+}
+
+figure img {
+    display: block;
+    max-width: 100%;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL FOCUS FOR CUSTOM CONTROLS
+   --------------------------------------------------------- */
+
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+}
+
+
+/* ---------------------------------------------------------
+   FINAL SELECTION
+   --------------------------------------------------------- */
+
+::selection {
+    color: var(--black);
+    background: var(--gold);
+}
+
+
+/* ---------------------------------------------------------
+   FINAL MOBILE TOUCH TARGETS
+   --------------------------------------------------------- */
+
+@media (pointer: coarse) {
+
+    button,
+    .btn,
+    .copy-button,
+    .copy-btn,
+    .copy-inline,
+    .menu-toggle,
+    .modal-close,
+    .alert-close {
+        min-height: 40px;
+        min-width: 40px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   END OF PART 11
+   ========================================================= */
