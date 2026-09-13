@@ -1,0 +1,497 @@
+/* =========================================================
+   MONARCH CODEX — MEMBER DASHBOARD
+   PART 1/4 — FOUNDATION + LOADING + SIDEBAR
+   ========================================================= */
+
+:root {
+    --gold: #D4AF37;
+    --gold-light: #E6C65C;
+    --gold-dark: #A98620;
+
+    --black: #050505;
+    --black-2: #0A0A0A;
+    --black-3: #101010;
+
+    --card: #111111;
+    --card-2: #151515;
+
+    --border: rgba(212, 175, 55, 0.22);
+    --border-light: rgba(255, 255, 255, 0.08);
+
+    --white: #FFFFFF;
+    --text: #EDEDED;
+    --muted: #999999;
+
+    --success: #4CAF50;
+    --danger: #E05252;
+
+    --radius: 14px;
+    --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background: var(--black);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   LOADING SCREEN
+   ========================================================= */
+
+.app-loading {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(212, 175, 55, 0.08),
+            transparent 40%
+        ),
+        var(--black);
+}
+
+.loading-box {
+    width: min(90%, 430px);
+
+    padding: 45px 30px;
+
+    text-align: center;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+}
+
+.loading-logo {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 18px;
+
+    border: 1px solid var(--gold);
+
+    border-radius: 50%;
+
+    color: var(--gold);
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.loading-box h1 {
+    color: var(--gold);
+
+    font-size: 24px;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 8px;
+}
+
+.loading-box p {
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+.loading-line {
+    width: 100%;
+    height: 3px;
+
+    margin-top: 25px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.loading-line span {
+    display: block;
+
+    width: 35%;
+    height: 100%;
+
+    background: var(--gold);
+
+    animation: loading 1.4s infinite ease-in-out;
+}
+
+@keyframes loading {
+
+    0% {
+        transform: translateX(-120%);
+    }
+
+    100% {
+        transform: translateX(350%);
+    }
+
+}
+
+
+/* =========================================================
+   AUTH ERROR
+   ========================================================= */
+
+.auth-error {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: var(--black);
+}
+
+.error-box {
+    width: min(100%, 430px);
+
+    padding: 40px 30px;
+
+    text-align: center;
+
+    background: var(--card);
+
+    border: 1px solid rgba(224, 82, 82, 0.3);
+
+    border-radius: var(--radius);
+}
+
+.error-icon {
+    width: 55px;
+    height: 55px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 18px;
+
+    border: 1px solid var(--danger);
+
+    border-radius: 50%;
+
+    color: var(--danger);
+
+    font-size: 24px;
+
+    font-weight: 700;
+}
+
+.error-box h2 {
+    margin-bottom: 10px;
+
+    color: var(--white);
+}
+
+.error-box p {
+    margin-bottom: 25px;
+
+    color: var(--muted);
+}
+
+
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+
+.app-shell {
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.dashboard-sidebar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: 245px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 28px 18px;
+
+    background: #080808;
+
+    border-right: 1px solid var(--border-light);
+
+    z-index: 100;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 0 10px 30px;
+}
+
+.brand-mark {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: 1px solid var(--gold);
+
+    border-radius: 50%;
+
+    color: var(--gold);
+
+    font-size: 13px;
+
+    font-weight: 800;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.15;
+}
+
+.brand-text strong {
+    color: var(--white);
+
+    font-size: 14px;
+
+    letter-spacing: 2px;
+}
+
+.brand-text span {
+    color: var(--gold);
+
+    font-size: 11px;
+
+    letter-spacing: 3px;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.dashboard-nav {
+    display: flex;
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.nav-item {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 13px 14px;
+
+    border: 1px solid transparent;
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    text-align: left;
+
+    transition: 0.25s ease;
+}
+
+.nav-item span:first-child {
+    width: 20px;
+
+    color: var(--gold);
+
+    text-align: center;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: rgba(212, 175, 55, 0.08);
+
+    border-color: var(--border);
+
+    color: var(--white);
+}
+
+
+/* =========================================================
+   SIDEBAR MEMBER
+   ========================================================= */
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.member-mini-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 12px;
+
+    margin-bottom: 12px;
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 10px;
+}
+
+.member-avatar {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: rgba(212, 175, 55, 0.1);
+
+    border: 1px solid var(--gold);
+
+    color: var(--gold);
+
+    font-weight: 700;
+}
+
+.member-mini-card div:last-child {
+    min-width: 0;
+}
+
+.member-mini-card strong {
+    display: block;
+
+    color: var(--white);
+
+    font-size: 12px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.member-mini-card small {
+    display: block;
+
+    color: var(--success);
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+.logout-btn {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 11px;
+
+    border: 1px solid rgba(224, 82, 82, 0.25);
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: #d97878;
+
+    font-size: 12px;
+}
