@@ -666,12 +666,7 @@ async function initializeDashboard() {
    START DASHBOARD
 ========================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-        initializeDashboard();
-    }
-);
+
 
 /* =========================================
    LOAD PACKAGES
