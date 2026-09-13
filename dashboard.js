@@ -1728,3 +1728,144 @@ function initializeInvestmentSubmit() {
         submitInvestment
     );
 }
+
+/* =========================================
+   INVESTMENT HISTORY
+========================================= */
+
+async function loadInvestmentHistory() {
+
+    const loading =
+        getElement("investmentHistoryLoading");
+
+    const list =
+        getElement("investmentHistory");
+
+    const empty =
+        getElement("investmentHistoryEmpty");
+
+
+    try {
+
+        showElement(loading);
+
+        if (list) {
+            list.innerHTML = "";
+        }
+
+        hideElement(empty);
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("investments")
+                .select("*")
+                .eq("user_id", currentUser.id)
+                .order("created_at", {
+                    ascending: false
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        hideElement(loading);
+
+
+        if (!data || data.length === 0) {
+            showElement(empty);
+            return;
+        }
+
+
+        data.forEach(function (investment) {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "investment-history-item";
+
+
+            const status =
+                String(
+                    investment.status || "pending"
+                ).toLowerCase();
+
+
+            item.innerHTML = `
+                <div class="history-top">
+
+                    <h4>
+                        Investment #${investment.id}
+                    </h4>
+
+                    <span class="status-badge status-${escapeHtml(status)}">
+                        ${escapeHtml(status)}
+                    </span>
+
+                </div>
+
+                <div class="history-details">
+
+                    <span>
+                        Amount:
+                        <strong class="history-amount">
+                            ${formatCurrency(
+                                investment.amount
+                            )}
+                        </strong>
+                    </span>
+
+                    <span>
+                        Payment:
+                        ${escapeHtml(
+                            investment.payment_method ||
+                            "—"
+                        )}
+                    </span>
+
+                    <span>
+                        Date:
+                        ${formatDate(
+                            investment.created_at
+                        )}
+                    </span>
+
+                </div>
+            `;
+
+
+            list.appendChild(item);
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Investment history error:",
+            error
+        );
+
+
+        hideElement(loading);
+
+
+        if (list) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <h3>
+                        Unable to Load History
+                    </h3>
+
+                    <p>
+                        Please refresh the page
+                        and try again.
+                    </p>
+                </div>
+            `;
+        }
+    }
+}
