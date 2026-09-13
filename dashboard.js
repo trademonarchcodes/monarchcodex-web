@@ -1,159 +1,441 @@
 /* =========================================
-   PACKAGES
+   MONARCH CODEX MEMBER DASHBOARD
+   DASHBOARD.JS — PART 1
 ========================================= */
 
-async function loadPackages() {
-    const loading = getElement("packagesLoading");
-    const grid = getElement("packagesGrid");
-    const empty = getElement("packagesEmpty");
 
-    try {
-        if (loading) loading.classList.remove("hidden");
-        if (grid) grid.innerHTML = "";
-        if (empty) empty.classList.add("hidden");
+/* =========================================
+   SUPABASE CONFIGURATION
+========================================= */
 
-        const { data, error } = await supabaseClient
-            .from("packages")
-            .select("*")
-            .eq("active", true)
-            .order("amount", { ascending: true });
+const SUPABASE_URL =
+    "https://avaworleivncevaoqeny.supabase.co";
 
-        if (error) {
-            throw error;
-        }
+const SUPABASE_ANON_KEY =
+    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
-        if (loading) loading.classList.add("hidden");
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
 
-        if (!data || data.length === 0) {
-            if (empty) empty.classList.remove("hidden");
-            return;
-        }
 
-        data.forEach(function (pkg) {
-            const card = document.createElement("div");
+/* =========================================
+   GLOBAL VARIABLES
+========================================= */
 
-            card.className = "package-card";
+let currentUser = null;
+let currentProfile = null;
 
-            card.innerHTML = `
-                <h3>${escapeHtml(pkg.name)}</h3>
+let selectedPackage = null;
+let selectedPaymentMethod = null;
+let selectedCryptoNetwork = null;
 
-                <p>
-                    Choose this package to continue
-                    with your Monarch Codex investment.
-                </p>
 
-                <div class="package-price">
-                    ${formatCurrency(pkg.amount)}
-                </div>
+/* =========================================
+   DOM HELPERS
+========================================= */
 
-                <button
-                    type="button"
-                    class="package-select-btn"
-                    data-package-id="${pkg.id}"
-                >
-                    Select Package
-                </button>
-            `;
+function getElement(id) {
+    return document.getElementById(id);
+}
 
-            grid.appendChild(card);
-        });
+function showElement(element) {
+    if (element) {
+        element.classList.remove("hidden");
+    }
+}
 
-        document
-            .querySelectorAll(".package-select-btn")
-            .forEach(function (button) {
-                button.addEventListener("click", function () {
-                    const packageId = this.dataset.packageId;
-
-                    const selected = data.find(function (pkg) {
-                        return String(pkg.id) === String(packageId);
-                    });
-
-                    if (selected) {
-                        selectPackage(selected);
-                    }
-                });
-            });
-
-    } catch (error) {
-        console.error("Error loading packages:", error);
-
-        if (loading) loading.classList.add("hidden");
-
-        if (grid) {
-            grid.innerHTML = `
-                <div class="empty-state">
-                    <h3>Unable to Load Packages</h3>
-                    <p>Please refresh the page and try again.</p>
-                </div>
-            `;
-        }
+function hideElement(element) {
+    if (element) {
+        element.classList.add("hidden");
     }
 }
 
 
 /* =========================================
-   SELECT PACKAGE
+   SECURITY / FORMATTING HELPERS
 ========================================= */
 
-function selectPackage(pkg) {
-    selectedPackage = pkg;
-
-    const selectedSection =
-        getElement("selectedInvestmentSection");
-
-    const selectedCard =
-        getElement("selectedPackageCard");
-
-    const paymentCard =
-        getElement("paymentMethodCard");
-
-    const packageName =
-        getElement("selectedPackageName");
-
-    const packageAmount =
-        getElement("selectedPackageAmount");
-
-    const packageId =
-        getElement("selectedPackageId");
-
-    const investmentAmount =
-        getElement("investmentAmount");
-
-    if (packageName) {
-        packageName.textContent = pkg.name;
+function escapeHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
     }
 
-    if (packageAmount) {
-        packageAmount.textContent =
-            formatCurrency(pkg.amount);
+    const div = document.createElement("div");
+    div.textContent = String(value);
+
+    return div.innerHTML;
+}
+
+
+function formatCurrency(amount) {
+    const number = Number(amount || 0);
+
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2
+    }).format(number);
+}
+
+
+function formatDate(dateValue) {
+    if (!dateValue) {
+        return "—";
     }
 
-    if (packageId) {
-        packageId.value = pkg.id;
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "—";
     }
 
-    if (investmentAmount) {
-        investmentAmount.value = pkg.amount;
-    }
-
-    if (selectedCard) {
-        selectedCard.classList.remove("hidden");
-    }
-
-    if (paymentCard) {
-        paymentCard.classList.remove("hidden");
-    }
-
-    if (selectedSection) {
-        selectedSection.classList.add("active-section");
-    }
-
-    loadPaymentMethods();
-
-    window.scrollTo({
-        top: selectedCard
-            ? selectedCard.offsetTop - 20
-            : 0,
-        behavior: "smooth"
+    return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
     });
+}
+
+
+/* =========================================
+   LOADING / ERROR HANDLING
+========================================= */
+
+function setLoadingMessage(message) {
+    const loadingMessage =
+        getElement("loadingMessage");
+
+    if (loadingMessage) {
+        loadingMessage.textContent = message;
+    }
+}
+
+
+function showAuthError(message) {
+    const appLoading =
+        getElement("appLoading");
+
+    const appShell =
+        getElement("appShell");
+
+    const authError =
+        getElement("authError");
+
+    const authErrorMessage =
+        getElement("authErrorMessage");
+
+    if (appLoading) {
+        appLoading.classList.add("hidden");
+    }
+
+    if (appShell) {
+        appShell.classList.add("hidden");
+    }
+
+    if (authErrorMessage) {
+        authErrorMessage.textContent = message;
+    }
+
+    if (authError) {
+        authError.classList.remove("hidden");
+    }
+}
+
+
+function showDashboard() {
+    const appLoading =
+        getElement("appLoading");
+
+    const appShell =
+        getElement("appShell");
+
+    const authError =
+        getElement("authError");
+
+    if (appLoading) {
+        appLoading.classList.add("hidden");
+    }
+
+    if (authError) {
+        authError.classList.add("hidden");
+    }
+
+    if (appShell) {
+        appShell.classList.remove("hidden");
+    }
+}
+
+
+/* =========================================
+   GET CURRENT USER
+========================================= */
+
+async function getCurrentUser() {
+    const {
+        data,
+        error
+    } = await supabaseClient.auth.getUser();
+
+    if (error) {
+        throw error;
+    }
+
+    if (!data || !data.user) {
+        throw new Error(
+            "No authenticated user found."
+        );
+    }
+
+    return data.user;
+}
+
+
+/* =========================================
+   LOAD MEMBER PROFILE
+========================================= */
+
+async function loadCurrentProfile() {
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .single();
+
+    if (error) {
+        throw error;
+    }
+
+    currentProfile = data;
+
+    return data;
+}
+
+
+/* =========================================
+   GET INITIALS
+========================================= */
+
+function getInitials(name) {
+    if (!name) {
+        return "M";
+    }
+
+    const parts = String(name)
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (parts.length === 1) {
+        return parts[0]
+            .substring(0, 2)
+            .toUpperCase();
+    }
+
+    return (
+        parts[0][0] +
+        parts[parts.length - 1][0]
+    ).toUpperCase();
+}
+
+
+/* =========================================
+   RENDER PROFILE INFORMATION
+========================================= */
+
+function renderProfile() {
+    if (!currentProfile) {
+        return;
+    }
+
+    const name =
+        currentProfile.full_name || "Member";
+
+    const phone =
+        currentProfile.phone || "Not provided";
+
+    const role =
+        currentProfile.role || "member";
+
+    const status =
+        currentProfile.status || "pending";
+
+    const initials =
+        getInitials(name);
+
+
+    /* SIDEBAR */
+
+    const sidebarInitial =
+        getElement("sidebarMemberInitial");
+
+    const sidebarName =
+        getElement("sidebarMemberName");
+
+    if (sidebarInitial) {
+        sidebarInitial.textContent = initials;
+    }
+
+    if (sidebarName) {
+        sidebarName.textContent = name;
+    }
+
+
+    /* HEADER */
+
+    const headerName =
+        getElement("headerMemberName");
+
+    if (headerName) {
+        headerName.textContent = name;
+    }
+
+
+    /* OVERVIEW */
+
+    const overviewInitial =
+        getElement("overviewInitial");
+
+    const overviewName =
+        getElement("overviewName");
+
+    const overviewFullName =
+        getElement("overviewFullName");
+
+    const overviewEmail =
+        getElement("overviewEmail");
+
+    const overviewPhone =
+        getElement("overviewPhone");
+
+    const overviewUid =
+        getElement("overviewUid");
+
+
+    if (overviewInitial) {
+        overviewInitial.textContent = initials;
+    }
+
+    if (overviewName) {
+        overviewName.textContent = name;
+    }
+
+    if (overviewFullName) {
+        overviewFullName.textContent = name;
+    }
+
+    if (overviewEmail) {
+        overviewEmail.textContent =
+            currentUser.email || "—";
+    }
+
+    if (overviewPhone) {
+        overviewPhone.textContent = phone;
+    }
+
+    if (overviewUid) {
+        overviewUid.textContent =
+            currentProfile.uid || "—";
+    }
+
+
+    /* PROFILE */
+
+    const profileInitial =
+        getElement("profileInitial");
+
+    const profileName =
+        getElement("profileName");
+
+    const profileRole =
+        getElement("profileRole");
+
+    const profileStatus =
+        getElement("profileStatus");
+
+    const profileFullName =
+        getElement("profileFullName");
+
+    const profileEmail =
+        getElement("profileEmail");
+
+    const profilePhone =
+        getElement("profilePhone");
+
+    const profileUid =
+        getElement("profileUid");
+
+    const profileRoleDetails =
+        getElement("profileRoleDetails");
+
+    const profileAccountStatus =
+        getElement("profileAccountStatus");
+
+    const profileCreatedAt =
+        getElement("profileCreatedAt");
+
+
+    if (profileInitial) {
+        profileInitial.textContent = initials;
+    }
+
+    if (profileName) {
+        profileName.textContent = name;
+    }
+
+    if (profileRole) {
+        profileRole.textContent = role;
+    }
+
+    if (profileStatus) {
+        profileStatus.textContent = status;
+    }
+
+    if (profileFullName) {
+        profileFullName.textContent = name;
+    }
+
+    if (profileEmail) {
+        profileEmail.textContent =
+            currentUser.email || "—";
+    }
+
+    if (profilePhone) {
+        profilePhone.textContent = phone;
+    }
+
+    if (profileUid) {
+        profileUid.textContent =
+            currentProfile.uid || "—";
+    }
+
+    if (profileRoleDetails) {
+        profileRoleDetails.textContent = role;
+    }
+
+    if (profileAccountStatus) {
+        profileAccountStatus.textContent = status;
+    }
+
+    if (profileCreatedAt) {
+        profileCreatedAt.textContent =
+            formatDate(currentProfile.created_at);
+    }
+
+
+    /* ACCOUNT STATUS */
+
+    const accountStatus =
+        getElement("accountStatus");
+
+    if (accountStatus) {
+        accountStatus.textContent =
+            status.charAt(0).toUpperCase() +
+            status.slice(1);
+    }
 }
