@@ -3984,6 +3984,40 @@
 
 let selectedReceiptFile = null;
 
+        let selectedPaymentMethod = "";
+
+document.addEventListener(
+    "monarch:payment-method-selected",
+    function (event) {
+
+        selectedPaymentMethod =
+            event.detail?.method || "";
+
+        window.MonarchDashboard =
+            window.MonarchDashboard || {};
+
+        window.MonarchDashboard.investment =
+            window.MonarchDashboard.investment || {};
+
+        window.MonarchDashboard.investment.selectedPaymentMethod =
+            selectedPaymentMethod;
+
+        const methodDisplay =
+            document.getElementById(
+                "selectedPaymentMethodDisplay"
+            );
+
+        if (methodDisplay) {
+            methodDisplay.textContent =
+                selectedPaymentMethod === "bank"
+                    ? "Bank Transfer"
+                    : selectedPaymentMethod === "crypto"
+                        ? "Crypto Payment"
+                        : "—";
+        }
+    }
+);
+        
 /* ---------------------------------------------------------
    Receipt file selection
 --------------------------------------------------------- */
