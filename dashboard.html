@@ -6963,52 +6963,82 @@ if (
                         `
                         :
                         myReferrals
-                            .map(
-                                function (record) {
+    .map(
+        function (record) {
 
-                                    return `
+            return `
 
-                                        <div
-                                            class="investment-request-summary"
-                                            style="margin-bottom:12px;"
-                                        >
+                <div
+                    class="investment-request-summary"
+                    style="margin-bottom:12px;"
+                >
 
-                                            <div class="payment-detail-row">
+                    <div class="payment-detail-row">
 
-                                                <span>
-                                                    Referral UID
-                                                </span>
+                        <span>
+                            Name
+                        </span>
 
-                                                <strong>
-                                                    ${escapeHTML(
-                                                        record.referral_code
-                                                    )}
-                                                </strong>
+                        <strong>
+                            ${escapeHTML(
+                                record.member_name
+                            )}
+                        </strong>
 
-                                            </div>
+                    </div>
 
 
-                                            <div class="payment-detail-row">
+                    <div class="payment-detail-row">
 
-                                                <span>
-                                                    Joined
-                                                </span>
+                        <span>
+                            UID
+                        </span>
 
-                                                <strong>
-                                                    ${formatDate(
-                                                        record.created_at
-                                                    )}
-                                                </strong>
+                        <strong>
+                            ${escapeHTML(
+                                record.member_uid
+                            )}
+                        </strong>
 
-                                            </div>
+                    </div>
 
-                                        </div>
 
-                                    `;
+                    <div class="payment-detail-row">
 
-                                }
-                            )
-                            .join("")
+                        <span>
+                            Status
+                        </span>
+
+                        <strong>
+                            ${escapeHTML(
+                                record.member_status
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-detail-row">
+
+                        <span>
+                            Joined
+                        </span>
+
+                        <strong>
+                            ${formatDate(
+                                record.joined_at
+                            )}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    )
+    .join("")
                     }
 
                 </div>
