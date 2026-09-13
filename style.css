@@ -5899,3 +5899,558 @@ table tbody tr:last-child td {
         margin-bottom: 24px !important;
     }
 }
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 10 — ACCESSIBILITY, RESPONSIVE REFINEMENT & FINAL
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   ACCESSIBILITY — FOCUS STATES
+   --------------------------------------------------------- */
+
+:focus {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+}
+
+
+/* ---------------------------------------------------------
+   LINKS
+   --------------------------------------------------------- */
+
+a {
+    color: inherit;
+}
+
+a:not(.btn):hover {
+    text-decoration-color: var(--gold);
+}
+
+
+/* ---------------------------------------------------------
+   IMAGES
+   --------------------------------------------------------- */
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.img-fluid {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.img-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.img-contain {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+
+/* ---------------------------------------------------------
+   ICON HELPERS
+   --------------------------------------------------------- */
+
+.icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+}
+
+.icon-sm {
+    width: 18px;
+    height: 18px;
+}
+
+.icon-md {
+    width: 24px;
+    height: 24px;
+}
+
+.icon-lg {
+    width: 32px;
+    height: 32px;
+}
+
+
+/* ---------------------------------------------------------
+   GOLD HIGHLIGHT
+   --------------------------------------------------------- */
+
+.highlight,
+.gold {
+    color: var(--gold);
+}
+
+.gold-gradient {
+    background: linear-gradient(
+        135deg,
+        var(--gold-light),
+        var(--gold),
+        var(--gold-dark)
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* ---------------------------------------------------------
+   CONTENT WIDTH HELPERS
+   --------------------------------------------------------- */
+
+.content-narrow {
+    width: 100%;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-medium {
+    width: 100%;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-wide {
+    width: 100%;
+    max-width: 1180px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* ---------------------------------------------------------
+   CENTERING
+   --------------------------------------------------------- */
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.center-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+
+/* ---------------------------------------------------------
+   FULL HEIGHT
+   --------------------------------------------------------- */
+
+.min-height-screen {
+    min-height: 100vh;
+}
+
+.min-height-content {
+    min-height: 400px;
+}
+
+
+/* ---------------------------------------------------------
+   NO WRAP
+   --------------------------------------------------------- */
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+
+/* ---------------------------------------------------------
+   TEXT TRUNCATION
+   --------------------------------------------------------- */
+
+.text-truncate {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+.text-break {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   STACK
+   --------------------------------------------------------- */
+
+.stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.stack-8 {
+    gap: 8px;
+}
+
+.stack-12 {
+    gap: 12px;
+}
+
+.stack-16 {
+    gap: 16px;
+}
+
+.stack-20 {
+    gap: 20px;
+}
+
+.stack-24 {
+    gap: 24px;
+}
+
+.stack-32 {
+    gap: 32px;
+}
+
+
+/* ---------------------------------------------------------
+   INLINE GROUP
+   --------------------------------------------------------- */
+
+.inline-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+
+/* ---------------------------------------------------------
+   ACTION ROW
+   --------------------------------------------------------- */
+
+.action-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.action-row-start {
+    justify-content: flex-start;
+}
+
+.action-row-center {
+    justify-content: center;
+}
+
+.action-row-between {
+    justify-content: space-between;
+}
+
+
+/* ---------------------------------------------------------
+   SECTION SPACING
+   --------------------------------------------------------- */
+
+.section-spacing {
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+.section-spacing-sm {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.section-spacing-lg {
+    padding-top: 110px;
+    padding-bottom: 110px;
+}
+
+
+/* ---------------------------------------------------------
+   VISUAL BACKDROP
+   --------------------------------------------------------- */
+
+.gold-glow {
+    position: relative;
+}
+
+.gold-glow::before {
+    content: "";
+
+    position: absolute;
+
+    width: 280px;
+    height: 280px;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    background: rgba(212, 175, 55, 0.06);
+
+    border-radius: 50%;
+
+    filter: blur(60px);
+
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------
+   HORIZONTAL SCROLL
+   --------------------------------------------------------- */
+
+.scroll-x {
+    overflow-x: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) transparent;
+}
+
+.scroll-x::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scroll-x::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scroll-x::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.45);
+    border-radius: var(--radius-round);
+}
+
+
+/* ---------------------------------------------------------
+   DISABLED STATE
+   --------------------------------------------------------- */
+
+.is-disabled,
+.disabled {
+    opacity: 0.55 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+
+/* ---------------------------------------------------------
+   HIDDEN STATE
+   --------------------------------------------------------- */
+
+.is-hidden,
+.hidden {
+    display: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   PRINT
+   --------------------------------------------------------- */
+
+@media print {
+
+    .site-header,
+    .navbar,
+    .mobile-nav,
+    .menu-toggle,
+    .site-footer,
+    .footer,
+    .btn,
+    .toast-container,
+    .modal-overlay,
+    .loading-overlay {
+        display: none !important;
+    }
+
+    body {
+        color: #000;
+        background: #fff;
+    }
+
+    .card,
+    .panel,
+    .auth-card {
+        color: #000;
+        background: #fff;
+        border: 1px solid #ccc;
+        box-shadow: none;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   TABLET
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+    .section-spacing {
+        padding-top: 65px;
+        padding-bottom: 65px;
+    }
+
+    .section-spacing-lg {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .container {
+        width: min(
+            100% - 32px,
+            var(--container-width)
+        );
+    }
+
+    .action-row {
+        justify-content: flex-start;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+    body {
+        font-size: 15px;
+    }
+
+    .section-spacing {
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+
+    .section-spacing-sm {
+        padding-top: 35px;
+        padding-bottom: 35px;
+    }
+
+    .section-spacing-lg {
+        padding-top: 65px;
+        padding-bottom: 65px;
+    }
+
+    .container {
+        width: min(
+            100% - 24px,
+            var(--container-width)
+        );
+    }
+
+    .action-row {
+        width: 100%;
+    }
+
+    .action-row .btn {
+        flex: 1 1 auto;
+    }
+
+    .inline-group {
+        align-items: stretch;
+    }
+
+    .inline-group > * {
+        max-width: 100%;
+    }
+
+    .content-narrow,
+    .content-medium,
+    .content-wide {
+        max-width: 100%;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SMALL PHONES
+   --------------------------------------------------------- */
+
+@media (max-width: 480px) {
+
+    body {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.55rem;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+    }
+
+    .section-spacing {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .section-spacing-lg {
+        padding-top: 55px;
+        padding-bottom: 55px;
+    }
+
+    .action-row .btn {
+        width: 100%;
+    }
+
+    .gold-glow::before {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   REDUCED MOTION — GLOBAL
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
