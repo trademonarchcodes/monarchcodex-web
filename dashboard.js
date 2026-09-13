@@ -362,6 +362,7 @@ async function loadCurrentProfile(
         );
 
         throw error;
+
     }
 
 
