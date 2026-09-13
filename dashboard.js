@@ -2082,3 +2082,782 @@ document.addEventListener(
             };
 
 })();
+
+/* =========================================================
+   MONARCH CODEX — CRYPTO PAYMENT MODULE
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+    let cryptoPaymentDetails = null;
+    let selectedNetwork = null;
+
+
+    /* =====================================================
+       HELPERS
+       ===================================================== */
+
+    function getElement(id) {
+        return document.getElementById(id);
+    }
+
+
+    function escapeText(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function formatCryptoAmount(amount) {
+
+        const value = Number(amount);
+
+        if (!Number.isFinite(value)) {
+            return "—";
+        }
+
+        return "$" + value.toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       EXTRACT NETWORK ADDRESS
+       ===================================================== */
+
+    function getNetworkAddress(
+        details,
+        network
+    ) {
+
+        if (!details || !network) {
+            return "";
+        }
+
+
+        const normalized =
+            String(network)
+                .toLowerCase()
+                .replace(/\s+/g, "")
+                .replace(/-/g, "");
+
+
+        /*
+         * Supports both dedicated database columns
+         * and the existing wallet/address structures.
+         */
+
+        const possibleKeys = {
+
+            bep20: [
+                "bep20_address",
+                "bep20_wallet",
+                "bep20"
+            ],
+
+            arbitrum: [
+                "arbitrum_address",
+                "arbitrum_wallet",
+                "arbitrum"
+            ],
+
+            ton: [
+                "ton_address",
+                "ton_wallet",
+                "ton"
+            ],
+
+            solana: [
+                "solana_address",
+                "solana_wallet",
+                "solana"
+            ],
+
+            erc20: [
+                "erc20_address",
+                "erc20_wallet",
+                "erc20",
+                "ethereum_address",
+                "ethereum_wallet"
+            ]
+
+        };
+
+
+        const keys =
+            possibleKeys[normalized] ||
+            [];
+
+
+        for (
+            const key of keys
+        ) {
+
+            if (
+                details[key] !== null &&
+                details[key] !== undefined &&
+                String(details[key]).trim() !== ""
+            ) {
+
+                return String(
+                    details[key]
+                ).trim();
+
+            }
+
+        }
+
+
+        /*
+         * Support a JSON wallet_addresses object
+         * if the payment record uses one.
+         */
+
+        const walletAddresses =
+            details.wallet_addresses ||
+            details.addresses ||
+            details.wallets;
+
+
+        if (
+            walletAddresses &&
+            typeof walletAddresses === "object"
+        ) {
+
+            const address =
+                walletAddresses[normalized] ||
+                walletAddresses[network] ||
+                walletAddresses[
+                    String(network).toUpperCase()
+                ];
+
+
+            if (
+                address !== null &&
+                address !== undefined &&
+                String(address).trim() !== ""
+            ) {
+
+                return String(
+                    address
+                ).trim();
+
+            }
+
+        }
+
+
+        /*
+         * Existing EVM behavior:
+         * BEP20 and Arbitrum share the same address.
+         */
+
+        if (
+            normalized === "bep20" ||
+            normalized === "arbitrum"
+        ) {
+
+            return (
+                details.evm_address ||
+                details.bep20_address ||
+                details.arbitrum_address ||
+                details.wallet_address ||
+                details.address ||
+                ""
+            );
+
+        }
+
+
+        return (
+            details.wallet_address ||
+            details.address ||
+            ""
+        );
+
+    }
+
+
+    /* =====================================================
+       DISPLAY WALLET
+       ===================================================== */
+
+    function displayWalletAddress(
+        network
+    ) {
+
+        const walletBox =
+            getElement("cryptoWalletBox");
+
+        const walletAddress =
+            getElement("cryptoWalletAddress");
+
+        const selectedNetworkElement =
+            getElement("selectedCryptoNetwork");
+
+
+        if (selectedNetworkElement) {
+
+            selectedNetworkElement.textContent =
+                network || "—";
+
+        }
+
+
+        const address =
+            getNetworkAddress(
+                cryptoPaymentDetails,
+                network
+            );
+
+
+        if (walletAddress) {
+
+            walletAddress.textContent =
+                address || "Wallet address unavailable";
+
+        }
+
+
+        if (walletBox) {
+
+            walletBox.hidden = false;
+
+        }
+
+
+        selectedNetwork =
+            network;
+
+    }
+
+
+    /* =====================================================
+       DISPLAY CRYPTO DETAILS
+       ===================================================== */
+
+    function displayCryptoPaymentDetails(
+        details
+    ) {
+
+        if (!details) {
+            return;
+        }
+
+
+        cryptoPaymentDetails =
+            details;
+
+
+        const minimumAmount =
+            getElement(
+                "cryptoMinimumAmount"
+            );
+
+        const feeAmount =
+            getElement(
+                "cryptoFeeAmount"
+            );
+
+        const totalAmount =
+            getElement(
+                "cryptoTotalAmount"
+            );
+
+        const instructions =
+            getElement(
+                "cryptoInstructions"
+            );
+
+
+        const minimum =
+            details.minimum_amount ??
+            details.min_amount ??
+            details.minimum ??
+            0;
+
+
+        const fee =
+            details.fee_amount ??
+            details.fee ??
+            0;
+
+
+        const total =
+            details.total_amount ??
+            details.total ??
+            (
+                Number(minimum) +
+                Number(fee)
+            );
+
+
+        if (minimumAmount) {
+
+            minimumAmount.textContent =
+                formatCryptoAmount(
+                    minimum
+                );
+
+        }
+
+
+        if (feeAmount) {
+
+            feeAmount.textContent =
+                formatCryptoAmount(
+                    fee
+                );
+
+        }
+
+
+        if (totalAmount) {
+
+            totalAmount.textContent =
+                formatCryptoAmount(
+                    total
+                );
+
+        }
+
+
+        if (instructions) {
+
+            instructions.textContent =
+                details.instructions ||
+                details.description ||
+                "Send your payment using the selected network, then upload your payment receipt.";
+
+        }
+
+
+        /*
+         * Default to the first available network.
+         */
+
+        const networkSelect =
+            getElement("cryptoNetwork");
+
+
+        if (networkSelect) {
+
+            const currentValue =
+                networkSelect.value;
+
+
+            if (currentValue) {
+
+                displayWalletAddress(
+                    currentValue
+                );
+
+            }
+
+        }
+
+    }
+
+
+    /* =====================================================
+       LOAD CRYPTO PAYMENT DETAILS
+       ===================================================== */
+
+    async function loadCryptoPaymentDetails() {
+
+        const cryptoDetails =
+            getElement("cryptoDetails");
+
+
+        if (!cryptoDetails) {
+            return;
+        }
+
+
+        cryptoDetails.hidden = false;
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient
+                    .from("payment_details")
+                    .select("*")
+                    .eq(
+                        "payment_type",
+                        "crypto"
+                    )
+                    .maybeSingle();
+
+
+            if (error) {
+
+                console.error(
+                    "Crypto payment details error:",
+                    error
+                );
+
+                return;
+
+            }
+
+
+            if (!data) {
+
+                console.warn(
+                    "No crypto payment details found."
+                );
+
+                return;
+
+            }
+
+
+            displayCryptoPaymentDetails(
+                data
+            );
+
+
+            window.MonarchDashboard =
+                window.MonarchDashboard || {};
+
+
+            window.MonarchDashboard.payment =
+                window.MonarchDashboard.payment || {};
+
+
+            window.MonarchDashboard
+                .payment.crypto =
+                    data;
+
+
+        } catch (error) {
+
+            console.error(
+                "Unexpected crypto payment error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       NETWORK SELECTOR
+       ===================================================== */
+
+    function initializeCryptoNetworkSelector() {
+
+        const networkSelect =
+            getElement("cryptoNetwork");
+
+
+        if (!networkSelect) {
+            return;
+        }
+
+
+        networkSelect.addEventListener(
+            "change",
+            function () {
+
+                const network =
+                    networkSelect.value;
+
+
+                if (!network) {
+
+                    const walletAddress =
+                        getElement(
+                            "cryptoWalletAddress"
+                        );
+
+
+                    if (walletAddress) {
+
+                        walletAddress.textContent =
+                            "Select a network";
+
+                    }
+
+
+                    return;
+
+                }
+
+
+                displayWalletAddress(
+                    network
+                );
+
+            }
+        );
+
+
+        if (networkSelect.value) {
+
+            displayWalletAddress(
+                networkSelect.value
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       COPY WALLET ADDRESS
+       ===================================================== */
+
+    function initializeCopyWalletButton() {
+
+        const button =
+            getElement(
+                "copyWalletBtn"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+                const walletAddress =
+                    getElement(
+                        "cryptoWalletAddress"
+                    );
+
+
+                if (!walletAddress) {
+                    return;
+                }
+
+
+                const address =
+                    walletAddress.textContent.trim();
+
+
+                if (
+                    !address ||
+                    address ===
+                    "Wallet address unavailable" ||
+                    address ===
+                    "Select a network"
+                ) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    await navigator
+                        .clipboard
+                        .writeText(
+                            address
+                        );
+
+
+                    const originalText =
+                        button.textContent;
+
+
+                    button.textContent =
+                        "Copied";
+
+
+                    setTimeout(
+                        function () {
+
+                            button.textContent =
+                                originalText;
+
+                        },
+                        1500
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Wallet copy failed:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       CRYPTO PAYMENT BUTTON
+       ===================================================== */
+
+    function initializeCryptoPaymentButton() {
+
+        const button =
+            getElement(
+                "cryptoPayment"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+                const bankDetails =
+                    getElement(
+                        "bankDetails"
+                    );
+
+                const cryptoDetails =
+                    getElement(
+                        "cryptoDetails"
+                    );
+
+
+                if (bankDetails) {
+
+                    bankDetails.hidden =
+                        true;
+
+                }
+
+
+                if (cryptoDetails) {
+
+                    cryptoDetails.hidden =
+                        false;
+
+                }
+
+
+                const selectedMethod =
+                    getElement(
+                        "selectedPaymentMethodDisplay"
+                    );
+
+
+                if (selectedMethod) {
+
+                    selectedMethod.textContent =
+                        "Crypto Payment";
+
+                }
+
+
+                await loadCryptoPaymentDetails();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            initializeCryptoPaymentButton();
+
+            initializeCryptoNetworkSelector();
+
+            initializeCopyWalletButton();
+
+        }
+    );
+
+
+    /* =====================================================
+       PUBLIC API
+       ===================================================== */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+
+    window.MonarchDashboard.payment =
+        window.MonarchDashboard.payment || {};
+
+
+    window.MonarchDashboard
+        .payment
+        .loadCryptoDetails =
+            loadCryptoPaymentDetails;
+
+
+    window.MonarchDashboard
+        .payment
+        .getCryptoDetails =
+            function () {
+
+                return cryptoPaymentDetails;
+
+            };
+
+
+    window.MonarchDashboard
+        .payment
+        .getSelectedNetwork =
+            function () {
+
+                return selectedNetwork;
+
+            };
+
+
+    window.MonarchDashboard
+        .payment
+        .getWalletAddress =
+            function (network) {
+
+                return getNetworkAddress(
+                    cryptoPaymentDetails,
+                    network
+                );
+
+            };
+
+})();
