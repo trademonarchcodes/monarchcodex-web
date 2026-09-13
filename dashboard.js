@@ -2861,3 +2861,913 @@ document.addEventListener(
             };
 
 })();
+
+/* =========================================================
+   MONARCH CODEX — INVESTMENT REQUEST MODULE
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+    let selectedReceiptFile = null;
+
+
+    /* =====================================================
+       HELPERS
+       ===================================================== */
+
+    function getElement(id) {
+        return document.getElementById(id);
+    }
+
+
+    function escapeText(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    function showMessage(
+        message,
+        type = "info"
+    ) {
+
+        const element =
+            getElement(
+                "investmentValidationMessage"
+            );
+
+        if (!element) {
+            return;
+        }
+
+        element.textContent =
+            message || "";
+
+        element.className =
+            "form-message " + type;
+
+    }
+
+
+    function getSelectedPackage() {
+
+        return window.MonarchDashboard
+            ?.investment
+            ?.getSelectedPackage?.() ||
+            null;
+
+    }
+
+
+    function getCurrentUser() {
+
+        return window.MonarchCodex?.user ||
+            null;
+
+    }
+
+
+    /* =====================================================
+       PAYMENT METHOD
+       ===================================================== */
+
+    function getSelectedPaymentMethod() {
+
+        const display =
+            getElement(
+                "selectedPaymentMethodDisplay"
+            );
+
+        if (
+            display &&
+            display.textContent.trim()
+        ) {
+
+            return display.textContent.trim();
+
+        }
+
+
+        const bank =
+            getElement("bankPayment");
+
+        const crypto =
+            getElement("cryptoPayment");
+
+
+        if (
+            bank &&
+            bank.classList.contains("active")
+        ) {
+
+            return "Bank Transfer";
+
+        }
+
+
+        if (
+            crypto &&
+            crypto.classList.contains("active")
+        ) {
+
+            return "Crypto Payment";
+
+        }
+
+
+        return "";
+
+    }
+
+
+    /* =====================================================
+       UPDATE REQUEST SUMMARY
+       ===================================================== */
+
+    function updateInvestmentSummary() {
+
+        const packageData =
+            getSelectedPackage();
+
+
+        const packageName =
+            getElement(
+                "selectedPackageName"
+            );
+
+        const amountDisplay =
+            getElement(
+                "investmentAmountDisplay"
+            );
+
+        const amountInput =
+            getElement(
+                "investmentAmount"
+            );
+
+
+        if (!packageData) {
+
+            if (packageName) {
+
+                packageName.textContent =
+                    "No package selected";
+
+            }
+
+            return;
+
+        }
+
+
+        const packageAmount =
+            Number(
+                packageData.amount
+            ) || 0;
+
+
+        const packageTitle =
+            packageData.name ||
+            packageData.title ||
+            "Investment Package";
+
+
+        if (packageName) {
+
+            packageName.textContent =
+                packageTitle;
+
+        }
+
+
+        if (amountDisplay) {
+
+            amountDisplay.textContent =
+                "$" +
+                packageAmount.toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+        }
+
+
+        if (amountInput) {
+
+            amountInput.value =
+                packageAmount;
+
+        }
+
+
+        const method =
+            getSelectedPaymentMethod();
+
+
+        const methodDisplay =
+            getElement(
+                "selectedPaymentMethodDisplay"
+            );
+
+
+        if (
+            methodDisplay &&
+            !method
+        ) {
+
+            methodDisplay.textContent =
+                "Select payment method";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       RECEIPT PREVIEW
+       ===================================================== */
+
+    function showReceiptPreview(file) {
+
+        const preview =
+            getElement(
+                "receiptPreview"
+            );
+
+
+        if (!preview) {
+            return;
+        }
+
+
+        preview.innerHTML = "";
+
+
+        if (!file) {
+
+            preview.hidden = true;
+
+            return;
+
+        }
+
+
+        if (
+            file.type &&
+            file.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            const image =
+                document.createElement(
+                    "img"
+                );
+
+
+            image.alt =
+                "Payment receipt preview";
+
+
+            image.className =
+                "receipt-preview-image";
+
+
+            image.src =
+                URL.createObjectURL(
+                    file
+                );
+
+
+            preview.appendChild(
+                image
+            );
+
+
+        } else {
+
+            const fileName =
+                document.createElement(
+                    "div"
+                );
+
+
+            fileName.className =
+                "receipt-file-name";
+
+
+            fileName.textContent =
+                file.name;
+
+
+            preview.appendChild(
+                fileName
+            );
+
+        }
+
+
+        preview.hidden = false;
+
+    }
+
+
+    /* =====================================================
+       RECEIPT FILE SELECTION
+       ===================================================== */
+
+    function initializeReceiptInput() {
+
+        const input =
+            getElement(
+                "receiptInput"
+            );
+
+
+        if (!input) {
+            return;
+        }
+
+
+        input.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    input.files &&
+                    input.files[0];
+
+
+                selectedReceiptFile =
+                    file || null;
+
+
+                showReceiptPreview(
+                    selectedReceiptFile
+                );
+
+
+                if (selectedReceiptFile) {
+
+                    showMessage(
+                        "Receipt selected successfully.",
+                        "success"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       VALIDATE INVESTMENT REQUEST
+       ===================================================== */
+
+    function validateInvestmentRequest() {
+
+        const user =
+            getCurrentUser();
+
+
+        if (!user) {
+
+            return {
+                valid: false,
+                message:
+                    "Your session has expired. Please log in again."
+            };
+
+        }
+
+
+        const packageData =
+            getSelectedPackage();
+
+
+        if (!packageData) {
+
+            return {
+                valid: false,
+                message:
+                    "Please select an investment package."
+            };
+
+        }
+
+
+        const amountInput =
+            getElement(
+                "investmentAmount"
+            );
+
+
+        const amount =
+            Number(
+                amountInput?.value
+            );
+
+
+        if (
+            !Number.isFinite(amount) ||
+            amount <= 0
+        ) {
+
+            return {
+                valid: false,
+                message:
+                    "Please enter a valid investment amount."
+            };
+
+        }
+
+
+        const paymentMethod =
+            getSelectedPaymentMethod();
+
+
+        if (
+            !paymentMethod ||
+            paymentMethod ===
+            "Select payment method"
+        ) {
+
+            return {
+                valid: false,
+                message:
+                    "Please select a payment method."
+            };
+
+        }
+
+
+        if (!selectedReceiptFile) {
+
+            return {
+                valid: false,
+                message:
+                    "Please upload your payment receipt."
+            };
+
+        }
+
+
+        return {
+            valid: true,
+            amount,
+            packageData,
+            paymentMethod,
+            user
+        };
+
+    }
+
+
+    /* =====================================================
+       UPLOAD RECEIPT
+       ===================================================== */
+
+    async function uploadReceipt(
+        file,
+        userId
+    ) {
+
+        if (!file) {
+            throw new Error(
+                "No receipt file selected."
+            );
+        }
+
+
+        const extension =
+            file.name.includes(".")
+                ? file.name
+                    .split(".")
+                    .pop()
+                    .toLowerCase()
+                : "jpg";
+
+
+        const filePath =
+            `${userId}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .storage
+                .from("payment-receipts")
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        upsert: false
+                    }
+                );
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        return data?.path ||
+            filePath;
+
+    }
+
+
+    /* =====================================================
+       SUBMIT INVESTMENT REQUEST
+       ===================================================== */
+
+    async function submitInvestmentRequest() {
+
+        const validation =
+            validateInvestmentRequest();
+
+
+        if (!validation.valid) {
+
+            showMessage(
+                validation.message,
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const button =
+            getElement(
+                "submitInvestmentBtn"
+            );
+
+
+        if (button) {
+
+            button.disabled =
+                true;
+
+            button.textContent =
+                "Submitting...";
+
+        }
+
+
+        showMessage(
+            "Submitting your investment request...",
+            "info"
+        );
+
+
+        try {
+
+            /*
+             * Upload the receipt first.
+             */
+
+            const receiptPath =
+                await uploadReceipt(
+                    selectedReceiptFile,
+                    validation.user.id
+                );
+
+
+            /*
+             * Create the investment record.
+             */
+
+            const investmentPayload = {
+
+                user_id:
+                    validation.user.id,
+
+                package_id:
+                    validation.packageData.id,
+
+                amount:
+                    validation.amount,
+
+                status:
+                    "pending"
+
+            };
+
+
+            const {
+                data:
+                    investment,
+                error:
+                    investmentError
+            } =
+                await supabaseClient
+                    .from("investments")
+                    .insert(
+                        investmentPayload
+                    )
+                    .select()
+                    .single();
+
+
+            if (investmentError) {
+
+                throw investmentError;
+
+            }
+
+
+            /*
+             * Create the payment receipt record.
+             */
+
+            const receiptPayload = {
+
+                user_id:
+                    validation.user.id,
+
+                investment_id:
+                    investment.id,
+
+                receipt_url:
+                    receiptPath,
+
+                payment_method:
+                    validation.paymentMethod,
+
+                amount:
+                    validation.amount,
+
+                status:
+                    "pending"
+
+            };
+
+
+            const {
+                error:
+                    receiptError
+            } =
+                await supabaseClient
+                    .from("payment_receipts")
+                    .insert(
+                        receiptPayload
+                    );
+
+
+            if (receiptError) {
+
+                throw receiptError;
+
+            }
+
+
+            showMessage(
+                "Investment request submitted successfully. Your payment is now awaiting confirmation.",
+                "success"
+            );
+
+
+            const confirmation =
+                getElement(
+                    "receiptConfirmation"
+                );
+
+
+            if (confirmation) {
+
+                confirmation.hidden =
+                    false;
+
+                confirmation.textContent =
+                    "Payment receipt submitted successfully. Please wait for admin confirmation.";
+
+            }
+
+
+            /*
+             * Reset receipt selection.
+             */
+
+            selectedReceiptFile =
+                null;
+
+
+            const input =
+                getElement(
+                    "receiptInput"
+                );
+
+
+            if (input) {
+
+                input.value = "";
+
+            }
+
+
+            showReceiptPreview(
+                null
+            );
+
+
+            /*
+             * Refresh dashboard data.
+             */
+
+            document.dispatchEvent(
+                new CustomEvent(
+                    "monarch:investment-submitted",
+                    {
+                        detail: {
+                            investment
+                        }
+                    }
+                )
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Investment submission error:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to submit your investment request.",
+                "error"
+            );
+
+        } finally {
+
+            if (button) {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "Submit Investment Request";
+
+            }
+
+        }
+
+    }
+
+
+    /* =====================================================
+       SUBMIT BUTTON
+       ===================================================== */
+
+    function initializeSubmitButton() {
+
+        const button =
+            getElement(
+                "submitInvestmentBtn"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                submitInvestmentRequest();
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       PACKAGE SELECTED EVENT
+       ===================================================== */
+
+    document.addEventListener(
+        "monarch:package-selected",
+        function () {
+
+            updateInvestmentSummary();
+
+        }
+    );
+
+
+    /* =====================================================
+       PAYMENT METHOD EVENTS
+       ===================================================== */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    "#bankPayment, #cryptoPayment"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            setTimeout(
+                function () {
+
+                    updateInvestmentSummary();
+
+                },
+                50
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       INITIALIZATION
+       ===================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            initializeReceiptInput();
+
+            initializeSubmitButton();
+
+            updateInvestmentSummary();
+
+        }
+    );
+
+
+    /* =====================================================
+       PUBLIC API
+       ===================================================== */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+
+    window.MonarchDashboard.investment =
+        window.MonarchDashboard.investment || {};
+
+
+    window.MonarchDashboard
+        .investment
+        .submit =
+            submitInvestmentRequest;
+
+
+    window.MonarchDashboard
+        .investment
+        .validate =
+            validateInvestmentRequest;
+
+
+    window.MonarchDashboard
+        .investment
+        .getReceiptFile =
+            function () {
+
+                return selectedReceiptFile;
+
+            };
+
+})();
