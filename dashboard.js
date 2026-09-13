@@ -2170,3 +2170,137 @@ async function loadWithdrawals() {
         }
     }
 }
+
+/* =========================================
+   LOAD REFERRALS
+========================================= */
+
+async function loadReferrals() {
+
+    const list =
+        getElement("referralsList");
+
+    const empty =
+        getElement("referralsEmpty");
+
+    const totalElement =
+        getElement("totalReferrals");
+
+    const overviewElement =
+        getElement("overviewReferrals");
+
+
+    try {
+
+        if (list) {
+            list.innerHTML = "";
+        }
+
+        hideElement(empty);
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("referrals")
+                .select("*")
+                .eq("referrer_id", currentUser.id)
+                .order("created_at", {
+                    ascending: false
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        const referrals =
+            data || [];
+
+
+        if (totalElement) {
+            totalElement.textContent =
+                referrals.length;
+        }
+
+        if (overviewElement) {
+            overviewElement.textContent =
+                referrals.length;
+        }
+
+
+        if (referrals.length === 0) {
+            showElement(empty);
+            return;
+        }
+
+
+        referrals.forEach(function (referral, index) {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "referral-item";
+
+
+            item.innerHTML = `
+                <div class="referral-info">
+
+                    <strong>
+                        Referral #${index + 1}
+                    </strong>
+
+                    <span>
+                        Member ID:
+                        ${escapeHtml(
+                            referral.referred_user_id
+                        )}
+                    </span>
+
+                    <small>
+                        Joined:
+                        ${formatDate(
+                            referral.created_at
+                        )}
+                    </small>
+
+                </div>
+
+                <div class="referral-code">
+                    ${escapeHtml(
+                        referral.referral_code ||
+                        "—"
+                    )}
+                </div>
+            `;
+
+
+            list.appendChild(item);
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Referrals error:",
+            error
+        );
+
+
+        if (list) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <h3>
+                        Unable to Load Referrals
+                    </h3>
+
+                    <p>
+                        Please refresh the page
+                        and try again.
+                    </p>
+                </div>
+            `;
+        }
+    }
+}
