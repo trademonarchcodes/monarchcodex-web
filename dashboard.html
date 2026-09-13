@@ -4049,7 +4049,10 @@ if (receiptInput) {
 
 async function submitInvestmentRequest() {
 
-    if (!currentUser) {
+    const currentUser =
+    window.MonarchCodex?.user;
+
+if (!currentUser) {
         alert("Your session has expired. Please log in again.");
         return;
     }
