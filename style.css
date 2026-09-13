@@ -1056,3 +1056,727 @@ section {
 /* =========================================================
    END OF PART 2
    ========================================================= */
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 3 — BUTTONS, FORMS & INPUTS
+   ========================================================= */
+
+
+/* =========================================================
+   24. BUTTON FOUNDATION
+   ========================================================= */
+
+.btn,
+button.btn,
+a.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 46px;
+
+    padding: 11px 20px;
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.2;
+
+    cursor: pointer;
+    user-select: none;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition),
+        opacity var(--transition);
+}
+
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+
+.btn:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   25. PRIMARY BUTTON
+   ========================================================= */
+
+.btn-primary,
+.primary-btn,
+.btn-gold {
+    color: var(--black);
+
+    background: var(--gold);
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 8px 22px rgba(212, 175, 55, 0.12);
+}
+
+
+.btn-primary:hover,
+.primary-btn:hover,
+.btn-gold:hover {
+    color: var(--black);
+
+    background: var(--gold-light);
+
+    border-color: var(--gold-light);
+
+    box-shadow:
+        0 10px 28px rgba(212, 175, 55, 0.20);
+}
+
+
+/* =========================================================
+   26. SECONDARY BUTTON
+   ========================================================= */
+
+.btn-secondary,
+.secondary-btn {
+    color: var(--gold);
+
+    background: transparent;
+
+    border-color: var(--border);
+}
+
+
+.btn-secondary:hover,
+.secondary-btn:hover {
+    color: var(--black);
+
+    background: var(--gold);
+
+    border-color: var(--gold);
+}
+
+
+/* =========================================================
+   27. DARK BUTTON
+   ========================================================= */
+
+.btn-dark,
+.dark-btn {
+    color: var(--text);
+
+    background: var(--panel-light);
+
+    border-color: var(--border-soft);
+}
+
+
+.btn-dark:hover,
+.dark-btn:hover {
+    color: var(--white);
+
+    background: var(--panel-hover);
+
+    border-color: var(--border);
+}
+
+
+/* =========================================================
+   28. SUCCESS / DANGER / WARNING BUTTONS
+   ========================================================= */
+
+.btn-success {
+    color: #06150d;
+
+    background: var(--green);
+
+    border-color: var(--green);
+}
+
+
+.btn-success:hover {
+    background: #55df93;
+}
+
+
+.btn-danger {
+    color: #1a0505;
+
+    background: var(--red);
+
+    border-color: var(--red);
+}
+
+
+.btn-danger:hover {
+    background: #ff7777;
+}
+
+
+.btn-warning {
+    color: #171004;
+
+    background: var(--orange);
+
+    border-color: var(--orange);
+}
+
+
+.btn-warning:hover {
+    background: #f7c25e;
+}
+
+
+/* =========================================================
+   29. BUTTON SIZES
+   ========================================================= */
+
+.btn-small,
+.btn-sm {
+    min-height: 38px;
+
+    padding: 8px 13px;
+
+    font-size: 0.8rem;
+}
+
+
+.btn-large,
+.btn-lg {
+    min-height: 52px;
+
+    padding: 13px 24px;
+
+    font-size: 0.98rem;
+}
+
+
+.btn-block,
+.btn-full {
+    width: 100%;
+}
+
+
+/* =========================================================
+   30. BUTTON GROUP
+   ========================================================= */
+
+.btn-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+
+.btn-group-center {
+    justify-content: center;
+}
+
+
+/* =========================================================
+   31. ICON BUTTON
+   ========================================================= */
+
+.icon-btn {
+    width: 42px;
+    height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    color: var(--text-soft);
+
+    background: var(--panel-light);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-small);
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition);
+}
+
+
+.icon-btn:hover {
+    color: var(--gold);
+
+    background: var(--panel-hover);
+
+    border-color: var(--border);
+}
+
+
+/* =========================================================
+   32. FORM LAYOUT
+   ========================================================= */
+
+.form-group,
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+
+.form-row {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-top: 22px;
+}
+
+
+/* =========================================================
+   33. FORM LABELS
+   ========================================================= */
+
+label,
+.form-label {
+    display: block;
+
+    color: var(--text);
+
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+
+label span,
+.form-label span {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   34. INPUT FOUNDATION
+   ========================================================= */
+
+.form-control,
+.form-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+    width: 100%;
+
+    min-height: 48px;
+
+    padding: 12px 14px;
+
+    color: var(--white);
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-small);
+
+    outline: none;
+
+    font-size: 0.9rem;
+
+    transition:
+        border-color var(--transition),
+        background var(--transition),
+        box-shadow var(--transition);
+}
+
+
+/* =========================================================
+   35. INPUT HOVER
+   ========================================================= */
+
+.form-control:hover,
+.form-input:hover,
+input:hover,
+textarea:hover,
+select:hover {
+    border-color: rgba(212, 175, 55, 0.30);
+}
+
+
+/* =========================================================
+   36. INPUT FOCUS
+   ========================================================= */
+
+.form-control:focus,
+.form-input:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    background: var(--panel-light);
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 0 0 3px rgba(212, 175, 55, 0.08);
+}
+
+
+/* =========================================================
+   37. PLACEHOLDER
+   ========================================================= */
+
+::placeholder {
+    color: var(--muted-dark);
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   38. SELECT
+   ========================================================= */
+
+select {
+    appearance: auto;
+
+    cursor: pointer;
+}
+
+
+select option {
+    color: var(--white);
+
+    background: var(--panel);
+}
+
+
+/* =========================================================
+   39. TEXTAREA
+   ========================================================= */
+
+textarea.form-control,
+textarea.form-input {
+    min-height: 120px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   40. CHECKBOX & RADIO
+   ========================================================= */
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: auto;
+
+    min-height: auto;
+
+    accent-color: var(--gold);
+
+    cursor: pointer;
+}
+
+
+.checkbox-group,
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    color: var(--text-soft);
+
+    font-size: 0.85rem;
+}
+
+
+.checkbox-group label,
+.radio-group label {
+    color: var(--text-soft);
+
+    font-weight: 400;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   41. INPUT WITH ICON / ACTION
+   ========================================================= */
+
+.input-wrapper {
+    position: relative;
+}
+
+
+.input-wrapper .form-control,
+.input-wrapper .form-input {
+    padding-right: 48px;
+}
+
+
+.input-action {
+    position: absolute;
+
+    top: 50%;
+    right: 8px;
+
+    width: 34px;
+    height: 34px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    transform: translateY(-50%);
+
+    color: var(--muted);
+
+    background: transparent;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition),
+        background var(--transition);
+}
+
+
+.input-action:hover {
+    color: var(--gold);
+
+    background: rgba(212, 175, 55, 0.08);
+}
+
+
+/* =========================================================
+   42. HELP / FIELD TEXT
+   ========================================================= */
+
+.form-help,
+.field-help,
+.help-text {
+    color: var(--muted);
+
+    font-size: 0.78rem;
+
+    line-height: 1.5;
+}
+
+
+.form-error,
+.field-error {
+    color: var(--red);
+
+    font-size: 0.78rem;
+}
+
+
+.form-success,
+.field-success {
+    color: var(--green);
+
+    font-size: 0.78rem;
+}
+
+
+/* =========================================================
+   43. INVALID INPUT
+   ========================================================= */
+
+.form-control.is-invalid,
+.form-input.is-invalid,
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+    border-color: var(--red);
+
+    box-shadow:
+        0 0 0 3px rgba(255, 92, 92, 0.07);
+}
+
+
+/* =========================================================
+   44. VALID INPUT
+   ========================================================= */
+
+.form-control.is-valid,
+.form-input.is-valid,
+input.is-valid,
+select.is-valid,
+textarea.is-valid {
+    border-color: var(--green);
+
+    box-shadow:
+        0 0 0 3px rgba(53, 208, 127, 0.06);
+}
+
+
+/* =========================================================
+   45. DISABLED INPUTS
+   ========================================================= */
+
+.form-control:disabled,
+.form-input:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+    color: var(--muted);
+
+    background: #0b0b0b;
+
+    border-color: rgba(255, 255, 255, 0.04);
+
+    cursor: not-allowed;
+
+    opacity: 0.65;
+}
+
+
+/* =========================================================
+   46. FILE INPUT
+   ========================================================= */
+
+input[type="file"] {
+    min-height: 48px;
+
+    padding: 10px;
+
+    color: var(--muted);
+
+    background: var(--panel);
+
+    border: 1px dashed var(--border-soft);
+
+    border-radius: var(--radius-small);
+
+    cursor: pointer;
+}
+
+
+input[type="file"]:hover {
+    border-color: var(--border);
+}
+
+
+input[type="file"]::file-selector-button {
+    margin-right: 10px;
+
+    padding: 8px 12px;
+
+    color: var(--black);
+
+    background: var(--gold);
+
+    border: 0;
+
+    border-radius: 7px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   47. SEARCH FIELD
+   ========================================================= */
+
+.search-box {
+    position: relative;
+
+    width: 100%;
+}
+
+
+.search-box input {
+    padding-left: 42px;
+}
+
+
+.search-box-icon {
+    position: absolute;
+
+    top: 50%;
+    left: 13px;
+
+    color: var(--muted);
+
+    transform: translateY(-50%);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   48. RESPONSIVE FORMS
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+    .form-row {
+        grid-template-columns: 1fr;
+
+        gap: 0;
+    }
+
+
+    .form-actions {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+
+    .btn {
+        min-height: 45px;
+    }
+
+
+    .btn-group {
+        width: 100%;
+    }
+
+
+    .btn-group .btn {
+        flex: 1 1 auto;
+    }
+
+}
+
+
+/* =========================================================
+   END OF PART 3
+   ========================================================= */
