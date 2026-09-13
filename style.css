@@ -511,3 +511,548 @@ section {
 /* =========================================================
    END OF PART 1
    ========================================================= */
+
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 2 — PUBLIC HEADER & NAVIGATION
+   ========================================================= */
+
+
+/* =========================================================
+   12. SITE HEADER
+   ========================================================= */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    width: 100%;
+
+    background: rgba(5, 5, 5, 0.94);
+
+    border-bottom: 1px solid var(--border-soft);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+
+.site-header.scrolled {
+    background: rgba(5, 5, 5, 0.98);
+
+    border-bottom-color: var(--border);
+}
+
+
+/* =========================================================
+   13. NAVIGATION CONTAINER
+   ========================================================= */
+
+.navbar {
+    min-height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    width: min(
+        calc(100% - 40px),
+        var(--container-width)
+    );
+
+    margin-inline: auto;
+}
+
+
+/* =========================================================
+   14. BRAND / LOGO
+   ========================================================= */
+
+.logo,
+.nav-logo,
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    flex-shrink: 0;
+
+    color: var(--white);
+
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+
+    transition:
+        color var(--transition),
+        opacity var(--transition);
+}
+
+
+.logo:hover,
+.nav-logo:hover,
+.brand-logo:hover {
+    color: var(--gold);
+}
+
+
+.logo span,
+.nav-logo span,
+.brand-logo span {
+    color: var(--gold);
+}
+
+
+.logo img,
+.nav-logo img,
+.brand-logo img {
+    width: auto;
+    max-height: 42px;
+}
+
+
+/* =========================================================
+   15. MAIN NAVIGATION
+   ========================================================= */
+
+.nav-menu,
+.nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+
+.nav-menu a,
+.nav-links a {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 42px;
+
+    padding: 8px 13px;
+
+    color: var(--muted);
+
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    border-radius: var(--radius-small);
+
+    transition:
+        color var(--transition),
+        background var(--transition);
+}
+
+
+.nav-menu a:hover,
+.nav-links a:hover {
+    color: var(--white);
+
+    background: rgba(255, 255, 255, 0.04);
+}
+
+
+.nav-menu a.active,
+.nav-links a.active {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   16. NAV LINK UNDERLINE
+   ========================================================= */
+
+.nav-menu a::after,
+.nav-links a::after {
+    content: "";
+
+    position: absolute;
+    left: 13px;
+    right: 13px;
+    bottom: 4px;
+
+    height: 2px;
+
+    background: var(--gold);
+
+    border-radius: var(--radius-round);
+
+    transform: scaleX(0);
+    transform-origin: center;
+
+    transition: transform var(--transition);
+}
+
+
+.nav-menu a:hover::after,
+.nav-menu a.active::after,
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    transform: scaleX(1);
+}
+
+
+/* =========================================================
+   17. NAVIGATION ACTIONS
+   ========================================================= */
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+
+.nav-actions a {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   18. NAVIGATION BUTTONS
+   ========================================================= */
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 9px 17px;
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-small);
+
+    color: var(--gold);
+
+    font-size: 0.88rem;
+    font-weight: 600;
+
+    background: transparent;
+
+    transition:
+        color var(--transition),
+        background var(--transition),
+        border-color var(--transition),
+        transform var(--transition);
+}
+
+
+.nav-btn:hover {
+    color: var(--black);
+
+    background: var(--gold);
+
+    border-color: var(--gold);
+
+    transform: translateY(-1px);
+}
+
+
+.nav-btn-primary {
+    color: var(--black);
+
+    background: var(--gold);
+
+    border-color: var(--gold);
+}
+
+
+.nav-btn-primary:hover {
+    color: var(--black);
+
+    background: var(--gold-light);
+
+    border-color: var(--gold-light);
+}
+
+
+/* =========================================================
+   19. MOBILE MENU BUTTON
+   ========================================================= */
+
+.menu-toggle,
+.mobile-menu-toggle,
+.nav-toggle {
+    display: none;
+
+    width: 44px;
+    height: 44px;
+
+    align-items: center;
+    justify-content: center;
+
+    color: var(--white);
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-small);
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition),
+        border-color var(--transition),
+        background var(--transition);
+}
+
+
+.menu-toggle:hover,
+.mobile-menu-toggle:hover,
+.nav-toggle:hover {
+    color: var(--gold);
+
+    border-color: var(--border);
+}
+
+
+/* =========================================================
+   20. HAMBURGER ICON
+   ========================================================= */
+
+.menu-toggle span,
+.mobile-menu-toggle span,
+.nav-toggle span {
+    display: block;
+
+    width: 20px;
+    height: 2px;
+
+    margin: 4px auto;
+
+    background: currentColor;
+
+    border-radius: var(--radius-round);
+
+    transition:
+        transform var(--transition),
+        opacity var(--transition);
+}
+
+
+/* =========================================================
+   21. MOBILE NAVIGATION
+   ========================================================= */
+
+.mobile-nav,
+.mobile-menu {
+    display: none;
+
+    width: min(
+        calc(100% - 24px),
+        var(--container-width)
+    );
+
+    margin: 0 auto 12px;
+
+    padding: 12px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+}
+
+
+.mobile-nav.active,
+.mobile-menu.active,
+.mobile-nav.open,
+.mobile-menu.open {
+    display: block;
+}
+
+
+.mobile-nav a,
+.mobile-menu a {
+    display: flex;
+    align-items: center;
+
+    min-height: 46px;
+
+    padding: 10px 14px;
+
+    color: var(--text-soft);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.92rem;
+    font-weight: 500;
+
+    transition:
+        color var(--transition),
+        background var(--transition);
+}
+
+
+.mobile-nav a:hover,
+.mobile-menu a:hover {
+    color: var(--gold);
+
+    background: rgba(212, 175, 55, 0.07);
+}
+
+
+.mobile-nav .nav-btn,
+.mobile-menu .nav-btn {
+    width: 100%;
+
+    margin-top: 8px;
+}
+
+
+/* =========================================================
+   22. PUBLIC PAGE HEADER VARIANTS
+   ========================================================= */
+
+.public-header {
+    position: relative;
+
+    width: 100%;
+
+    background: var(--black);
+
+    border-bottom: 1px solid var(--border-soft);
+}
+
+
+.header-inner {
+    width: min(
+        calc(100% - 40px),
+        var(--container-width)
+    );
+
+    min-height: 76px;
+
+    margin-inline: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+
+/* =========================================================
+   23. HEADER RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .navbar,
+    .header-inner {
+        min-height: 70px;
+    }
+
+
+    .nav-menu,
+    .nav-links {
+        gap: 2px;
+    }
+
+
+    .nav-menu a,
+    .nav-links a {
+        padding-inline: 9px;
+
+        font-size: 0.84rem;
+    }
+
+
+    .nav-actions {
+        gap: 6px;
+    }
+
+
+    .nav-btn {
+        padding-inline: 13px;
+
+        font-size: 0.82rem;
+    }
+
+}
+
+
+@media (max-width: 720px) {
+
+    .navbar,
+    .header-inner {
+        width: min(
+            calc(100% - 28px),
+            var(--container-width)
+        );
+    }
+
+
+    .nav-menu,
+    .nav-links,
+    .nav-actions {
+        display: none;
+    }
+
+
+    .menu-toggle,
+    .mobile-menu-toggle,
+    .nav-toggle {
+        display: inline-flex;
+    }
+
+
+    .logo,
+    .nav-logo,
+    .brand-logo {
+        font-size: 0.98rem;
+    }
+
+
+    .logo img,
+    .nav-logo img,
+    .brand-logo img {
+        max-height: 36px;
+    }
+
+}
+
+
+@media (max-width: 420px) {
+
+    .navbar,
+    .header-inner {
+        width: calc(100% - 20px);
+    }
+
+
+    .logo,
+    .nav-logo,
+    .brand-logo {
+        font-size: 0.9rem;
+    }
+
+
+    .menu-toggle,
+    .mobile-menu-toggle,
+    .nav-toggle {
+        width: 42px;
+        height: 42px;
+    }
+
+}
+
+
+/* =========================================================
+   END OF PART 2
+   ========================================================= */
