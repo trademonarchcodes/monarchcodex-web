@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
@@ -22,9 +23,13 @@
 
     <div class="container nav-container">
 
-        <a href="index.html" class="logo">
+        <a
+            href="index.html"
+            class="logo"
+        >
             MONARCH <span>CODEX</span>
         </a>
+
 
         <nav class="main-nav">
 
@@ -41,6 +46,7 @@
     </div>
 
 </header>
+
 
 
 <main class="auth-page">
@@ -64,6 +70,7 @@
         </div>
 
 
+
         <form id="loginForm">
 
             <div class="form-group">
@@ -84,6 +91,7 @@
             </div>
 
 
+
             <div class="form-group">
 
                 <label for="password">
@@ -102,6 +110,7 @@
             </div>
 
 
+
             <button
                 type="submit"
                 class="btn btn-primary auth-submit"
@@ -113,6 +122,7 @@
         </form>
 
 
+
         <div
             id="loginMessage"
             class="form-message"
@@ -120,9 +130,11 @@
         ></div>
 
 
+
         <div class="auth-footer">
 
             <p>
+
                 Don't have an account?
 
                 <a href="register.html">
@@ -147,15 +159,18 @@
 </main>
 
 
+
 <footer class="site-footer">
 
     <div class="container">
 
         <p>
+
             ©
             <span id="currentYear"></span>
             Monarch Codex.
             All rights reserved.
+
         </p>
 
     </div>
@@ -163,357 +178,446 @@
 </footer>
 
 
+
+<!-- =====================================================
+     SUPABASE
+     ===================================================== -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- =====================================================
+     MONARCH CODEX CORE
+     ===================================================== -->
+
+<script src="script.js"></script>
+
 
 
 <script>
 
-const SUPABASE_URL =
-    "https://avaworleivncevaoqeny.supabase.co";
+(function () {
 
-const SUPABASE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+    "use strict";
 
 
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
 
-
-const loginForm =
-    document.getElementById("loginForm");
-
-const loginButton =
-    document.getElementById("loginButton");
-
-const loginMessage =
-    document.getElementById("loginMessage");
-
-
-function showMessage(
-    text,
-    type = "error"
-) {
-
-    loginMessage.textContent =
-        text;
-
-
-    loginMessage.style.display =
-        "block";
-
-
-    if (type === "success") {
-
-        loginMessage.style.color =
-            "#D4AF37";
-
-    } else if (type === "info") {
-
-        loginMessage.style.color =
-            "#ffffff";
-
-    } else {
-
-        loginMessage.style.color =
-            "#ff6b6b";
-
-    }
-
-}
-
-
-function setLoading(
-    loading
-) {
-
-    loginButton.disabled =
-        loading;
-
-    loginButton.textContent =
-        loading
-            ? "Logging in..."
-            : "Login";
-
-}
-
-
-async function loginUser(event) {
-
-    event.preventDefault();
-
-
-    const email =
-        document
-            .getElementById("email")
-            .value
-            .trim();
-
-
-    const password =
-        document
-            .getElementById("password")
-            .value;
-
-
-    if (!email || !password) {
-
-        showMessage(
-            "Please enter your email and password.",
-            "error"
+    const loginForm =
+        document.getElementById(
+            "loginForm"
         );
 
-        return;
+    const loginButton =
+        document.getElementById(
+            "loginButton"
+        );
+
+    const loginMessage =
+        document.getElementById(
+            "loginMessage"
+        );
+
+    const currentYear =
+        document.getElementById(
+            "currentYear"
+        );
+
+
+    /* =====================================================
+       YEAR
+       ===================================================== */
+
+    if (currentYear) {
+
+        currentYear.textContent =
+            new Date().getFullYear();
+
     }
 
 
-    setLoading(true);
+    /* =====================================================
+       MESSAGE
+       ===================================================== */
+
+    function showLoginMessage(
+        message,
+        type = "error"
+    ) {
+
+        if (!loginMessage) {
+            return;
+        }
+
+        loginMessage.textContent =
+            message;
+
+        loginMessage.style.display =
+            "block";
+
+        loginMessage.className =
+            "form-message";
+
+        if (type === "success") {
+
+            loginMessage.style.color =
+                "#D4AF37";
+
+        } else if (type === "info") {
+
+            loginMessage.style.color =
+                "#ffffff";
+
+        } else {
+
+            loginMessage.style.color =
+                "#ff6b6b";
+
+        }
+
+    }
 
 
-    showMessage(
-        "Logging in...",
-        "info"
-    );
+    /* =====================================================
+       LOADING STATE
+       ===================================================== */
+
+    function setLoading(
+        loading
+    ) {
+
+        if (!loginButton) {
+            return;
+        }
+
+        loginButton.disabled =
+            loading;
+
+        loginButton.textContent =
+            loading
+                ? "Logging in..."
+                : "Login";
+
+    }
 
 
-    try {
+    /* =====================================================
+       LOGIN
+       ===================================================== */
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth
-                .signInWithPassword({
+    async function loginUser(
+        event
+    ) {
 
-                    email: email,
-
-                    password: password
-
-                });
+        event.preventDefault();
 
 
-        if (error) {
+        const email =
+            document
+                .getElementById("email")
+                .value
+                .trim();
 
-            console.error(
-                "LOGIN ERROR:",
+        const password =
+            document
+                .getElementById("password")
+                .value;
+
+
+        if (!email || !password) {
+
+            showLoginMessage(
+                "Please enter your email and password.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const core =
+            window.MonarchCodex?.core;
+
+
+        if (!core) {
+
+            showLoginMessage(
+                "The MONARCH CODEX system could not be loaded. Please refresh the page.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const supabase =
+            core.getSupabase();
+
+
+        if (!supabase) {
+
+            showLoginMessage(
+                "Unable to connect to the authentication system. Please try again.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        setLoading(true);
+
+
+        showLoginMessage(
+            "Logging in...",
+            "info"
+        );
+
+
+        try {
+
+            const {
+                data,
                 error
-            );
+            } =
+                await supabase.auth
+                    .signInWithPassword({
 
-            showMessage(
-                error.message ||
-                "Login failed.",
-                "error"
-            );
+                        email,
 
-            setLoading(false);
+                        password
 
-            return;
-        }
+                    });
 
 
-        if (!data || !data.user) {
+            if (error) {
 
-            showMessage(
-                "Login failed. No user account was returned.",
-                "error"
-            );
+                console.error(
+                    "LOGIN ERROR:",
+                    error
+                );
 
-            setLoading(false);
+                showLoginMessage(
+                    error.message ||
+                    "Login failed.",
+                    "error"
+                );
 
-            return;
-        }
+                setLoading(false);
 
+                return;
 
-        const {
-            data: profile,
-            error: profileError
-        } =
-            await supabaseClient
-                .from("profiles")
-                .select(
-                    "id, full_name, role, status, uid"
-                )
-                .eq(
-                    "id",
-                    data.user.id
-                )
-                .single();
+            }
 
 
-        if (profileError) {
+            if (
+                !data ||
+                !data.user
+            ) {
 
-            console.error(
-                "PROFILE ERROR:",
-                profileError
-            );
+                showLoginMessage(
+                    "Login failed. No user account was returned.",
+                    "error"
+                );
 
+                setLoading(false);
 
-            await supabaseClient.auth.signOut();
+                return;
 
-
-            showMessage(
-                "Your account was found, but your member profile could not be loaded. Please contact support.",
-                "error"
-            );
-
-            setLoading(false);
-
-            return;
-        }
+            }
 
 
-        if (!profile) {
-
-            await supabaseClient.auth.signOut();
-
-
-            showMessage(
-                "No member profile was found for this account.",
-                "error"
-            );
-
-            setLoading(false);
-
-            return;
-        }
+            const profile =
+                await core.getCurrentProfile();
 
 
-        if (
-            profile.status ===
-            "blocked"
-        ) {
+            if (!profile) {
 
-            await supabaseClient.auth.signOut();
+                await supabase.auth
+                    .signOut();
 
+                showLoginMessage(
+                    "Your account was found, but your member profile could not be loaded. Please contact support.",
+                    "error"
+                );
 
-            showMessage(
-                "Your account has been blocked. Please contact support.",
-                "error"
-            );
+                setLoading(false);
 
-            setLoading(false);
+                return;
 
-            return;
-        }
+            }
 
 
-        if (
-            profile.role === "admin" &&
-            profile.status === "active"
-        ) {
+            /* =================================================
+               BLOCKED ACCOUNT
+               ================================================= */
 
-            showMessage(
-                "Admin login successful. Loading dashboard...",
+            if (
+                profile.status ===
+                "blocked"
+            ) {
+
+                await supabase.auth
+                    .signOut();
+
+                showLoginMessage(
+                    "Your account has been blocked. Please contact support.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+            /* =================================================
+               ADMIN
+               ================================================= */
+
+            if (
+                core.isAdmin(profile) &&
+                profile.status ===
+                "active"
+            ) {
+
+                showLoginMessage(
+                    "Admin login successful. Loading dashboard...",
+                    "success"
+                );
+
+
+                setTimeout(
+                    function () {
+
+                        window.location.href =
+                            "admin.html";
+
+                    },
+                    400
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               PENDING
+               ================================================= */
+
+            if (
+                profile.status ===
+                "pending"
+            ) {
+
+                await supabase.auth
+                    .signOut();
+
+                showLoginMessage(
+                    "Your account is pending approval. Please wait for an administrator to activate your account.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+            /* =================================================
+               NON-ACTIVE ACCOUNT
+               ================================================= */
+
+            if (
+                profile.status !==
+                "active"
+            ) {
+
+                await supabase.auth
+                    .signOut();
+
+                showLoginMessage(
+                    "Your account is not currently active. Please contact support.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+            /* =================================================
+               MEMBER
+               ================================================= */
+
+            showLoginMessage(
+                "Login successful. Loading your dashboard...",
                 "success"
             );
 
 
             setTimeout(
-                () => {
+                function () {
 
                     window.location.href =
-                        "admin.html";
+                        "dashboard.html";
 
                 },
-                500
+                400
             );
 
-            return;
-        }
+
+        } catch (error) {
+
+            console.error(
+                "UNEXPECTED LOGIN ERROR:",
+                error
+            );
 
 
-        if (
-            profile.status ===
-            "pending"
-        ) {
-
-            await supabaseClient.auth.signOut();
-
-
-            showMessage(
-                "Your account is pending approval. Please wait for an administrator to activate your account.",
+            showLoginMessage(
+                error?.message ||
+                "Unable to login. Please try again.",
                 "error"
             );
 
-            setLoading(false);
-
-            return;
-        }
-
-
-        if (
-            profile.status !==
-            "active"
-        ) {
-
-            await supabaseClient.auth.signOut();
-
-
-            showMessage(
-                "Your account is not currently active. Please contact support.",
-                "error"
-            );
 
             setLoading(false);
 
-            return;
         }
-
-
-        showMessage(
-            "Login successful. Loading your dashboard...",
-            "success"
-        );
-
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    "dashboard.html";
-
-            },
-            500
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "UNEXPECTED LOGIN ERROR:",
-            error
-        );
-
-
-        showMessage(
-            error.message ||
-            "Unable to login. Please try again.",
-            "error"
-        );
-
-
-        setLoading(false);
 
     }
 
-}
+
+    /* =====================================================
+       FORM LISTENER
+       ===================================================== */
+
+    if (loginForm) {
+
+        loginForm.addEventListener(
+            "submit",
+            loginUser
+        );
+
+    }
 
 
-loginForm.addEventListener(
-    "submit",
-    loginUser
-);
-
-
-document.getElementById(
-    "currentYear"
-).textContent =
-    new Date().getFullYear();
+})();
 
 </script>
 
 
 </body>
+
 </html>
