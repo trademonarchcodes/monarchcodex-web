@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -8,183 +9,133 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>MONARCH CODEX — Member Dashboard</title>
+    <meta
+        name="description"
+        content="Monarch Codex Member Dashboard"
+    >
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Monarch Codex | Member Dashboard</title>
+
+    <!-- Google Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet"
     >
 
+    <!-- Dashboard CSS -->
     <link
         rel="stylesheet"
         href="dashboard.css"
     >
+
 </head>
 
 <body>
 
-<!-- =====================================================
-     APPLICATION LOADING
-     ===================================================== -->
+    <!-- =========================================
+         APP LOADING
+    ========================================== -->
 
-<div id="appLoading" class="app-loading">
-
-    <div class="loading-box">
-
-        <div class="loading-logo">
-            MC
-        </div>
-
-        <h1>MONARCH CODEX</h1>
-
-        <p id="loadingMessage">
-            Securing your member dashboard...
-        </p>
-
-        <div class="loading-line">
-            <span></span>
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     AUTHENTICATION ERROR
-     ===================================================== -->
-
-<div
-    id="authError"
-    class="auth-error"
-    style="display: none;"
->
-
-    <div class="error-box">
-
-        <div class="error-icon">!</div>
-
-        <h2>Dashboard Unavailable</h2>
-
-        <p id="authErrorMessage">
-            We could not load your dashboard.
-        </p>
-
-        <button
-            type="button"
-            id="returnLoginBtn"
-            class="btn btn-gold"
-        >
-            Return to Login
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     MAIN APPLICATION
-     ===================================================== -->
-
-<div
-    id="appShell"
-    class="app-shell"
-    style="display: none;"
->
-
-
-    <!-- =================================================
-         SIDEBAR
-         ================================================= -->
-
-    <aside
-        id="dashboardSidebar"
-        class="dashboard-sidebar"
+    <div
+        id="appLoading"
+        class="app-loading"
     >
 
-        <div class="brand">
+        <div class="loading-spinner"></div>
 
-            <div class="brand-mark">
-                MC
+        <p id="loadingMessage">
+            Loading your dashboard...
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         AUTH ERROR
+    ========================================== -->
+
+    <div
+        id="authError"
+        class="auth-error hidden"
+    >
+
+        <div class="auth-error-card">
+
+            <div class="auth-error-icon">
+                !
             </div>
 
-            <div class="brand-text">
-                <strong>MONARCH</strong>
-                <span>CODEX</span>
-            </div>
+            <h2>
+                Unable to Load Dashboard
+            </h2>
+
+            <p id="authErrorMessage">
+                Please log in to continue.
+            </p>
+
+            <button
+                type="button"
+                id="returnLoginBtn"
+                class="primary-btn"
+            >
+                Return to Login
+            </button>
 
         </div>
 
-
-        <nav class="dashboard-nav">
-
-            <button
-                type="button"
-                class="nav-item active"
-                data-section="overview"
-            >
-                <span>⌂</span>
-                <span>Overview</span>
-            </button>
+    </div>
 
 
-            <button
-                type="button"
-                class="nav-item"
-                data-section="investment"
-            >
-                <span>◆</span>
-                <span>Investment</span>
-            </button>
+    <!-- =========================================
+         DASHBOARD APP
+    ========================================== -->
+
+    <div
+        id="appShell"
+        class="app-shell hidden"
+    >
 
 
-            <button
-                type="button"
-                class="nav-item"
-                data-section="payments"
-            >
-                <span>₦</span>
-                <span>Payments</span>
-            </button>
+        <!-- =====================================
+             SIDEBAR
+        ====================================== -->
+
+        <aside
+            id="sidebar"
+            class="sidebar"
+        >
+
+            <div class="sidebar-logo">
+
+                <a href="index.html">
+
+                    <span class="logo-main">
+                        MONARCH
+                    </span>
+
+                    <span class="logo-sub">
+                        CODEX
+                    </span>
+
+                </a>
+
+            </div>
 
 
-            <button
-                type="button"
-                class="nav-item"
-                data-section="earnings"
-            >
-                <span>↗</span>
-                <span>Earnings</span>
-            </button>
+            <!-- MEMBER MINI PROFILE -->
 
-
-            <button
-                type="button"
-                class="nav-item"
-                data-section="history"
-            >
-                <span>▤</span>
-                <span>History</span>
-            </button>
-
-
-            <button
-                type="button"
-                class="nav-item"
-                data-section="profile"
-            >
-                <span>◉</span>
-                <span>My Profile</span>
-            </button>
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <div class="member-mini-card">
+            <div class="sidebar-member">
 
                 <div
                     id="sidebarMemberInitial"
@@ -193,1245 +144,206 @@
                     M
                 </div>
 
-                <div>
+                <div class="member-mini-info">
 
                     <strong id="sidebarMemberName">
                         Member
                     </strong>
 
-                    <small>
-                        Active Member
-                    </small>
+                    <span>
+                        Monarch Member
+                    </span>
 
                 </div>
 
             </div>
 
 
-            <button
-                type="button"
-                id="logoutBtn"
-                class="logout-btn"
-            >
-                <span>↪</span>
-                Logout
-            </button>
+            <!-- NAVIGATION -->
 
-        </div>
+            <nav class="sidebar-nav">
 
-    </aside>
-
-
-
-    <!-- =================================================
-         MAIN CONTENT
-         ================================================= -->
-
-    <main class="dashboard-main">
-
-
-        <!-- =================================================
-             TOP HEADER
-             ================================================= -->
-
-        <header class="dashboard-header">
-
-            <button
-                type="button"
-                id="mobileMenuBtn"
-                class="mobile-menu-btn"
-                aria-label="Open menu"
-            >
-                ☰
-            </button>
-
-
-            <div class="header-title">
-
-                <span class="eyebrow">
-                    MEMBER PORTAL
-                </span>
-
-                <h1>
-                    Welcome,
-                    <span id="headerMemberName">
-                        Member
+                <button
+                    type="button"
+                    class="nav-item active"
+                    data-section="overview"
+                >
+                    <span class="nav-icon">
+                        ◈
                     </span>
-                </h1>
+
+                    <span>
+                        Overview
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="profile"
+                >
+                    <span class="nav-icon">
+                        ◉
+                    </span>
+
+                    <span>
+                        My Profile
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="investment"
+                >
+                    <span class="nav-icon">
+                        ◆
+                    </span>
+
+                    <span>
+                        Investment
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="history"
+                >
+                    <span class="nav-icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Investment History
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="earnings"
+                >
+                    <span class="nav-icon">
+                        ◇
+                    </span>
+
+                    <span>
+                        Earnings
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="withdrawals"
+                >
+                    <span class="nav-icon">
+                        ⇩
+                    </span>
+
+                    <span>
+                        Withdrawals
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="referrals"
+                >
+                    <span class="nav-icon">
+                        ♧
+                    </span>
+
+                    <span>
+                        Referrals
+                    </span>
+                </button>
+
+            </nav>
+
+
+            <!-- SIDEBAR BOTTOM -->
+
+            <div class="sidebar-bottom">
+
+                <a
+                    href="index.html"
+                    class="sidebar-home"
+                >
+                    ← Back to Website
+                </a>
+
+                <button
+                    type="button"
+                    id="logoutBtn"
+                    class="logout-btn"
+                >
+                    Logout
+                </button>
 
             </div>
 
+        </aside>
 
-            <div class="header-actions">
 
-                <div class="member-status">
+        <!-- =====================================
+             MAIN AREA
+        ====================================== -->
+
+        <main class="dashboard-main">
+
+
+            <!-- TOP HEADER -->
+
+            <header class="dashboard-header">
+
+                <button
+                    type="button"
+                    id="mobileMenuBtn"
+                    class="mobile-menu-btn"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+
+                <div class="header-title">
+
+                    <span>
+                        MEMBER DASHBOARD
+                    </span>
+
+                    <h1>
+                        Welcome,
+                        <span id="headerMemberName">
+                            Member
+                        </span>
+                    </h1>
+
+                </div>
+
+
+                <div class="header-status">
 
                     <span class="status-dot"></span>
 
                     <span>
-                        Active
+                        Member Area
                     </span>
 
                 </div>
 
-            </div>
+            </header>
 
-        </header>
 
+            <!-- CONTENT STARTS HERE -->
 
-
-        <!-- =================================================
-             DASHBOARD CONTENT
-             ================================================= -->
-
-        <div class="dashboard-content">
-
-
-            <!-- =================================================
-                 OVERVIEW
-                 ================================================= -->
-
-            <section
-                id="section-overview"
-                class="dashboard-section active-section"
-            >
-
-                <div class="section-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            ACCOUNT OVERVIEW
-                        </span>
-
-                        <h2>
-                            Your Monarch Codex Account
-                        </h2>
-
-                        <p>
-                            Monitor your investment activity,
-                            earnings and account information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- STATS -->
-
-                <div class="stats-grid">
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-                            $
-                        </div>
-
-                        <div>
-
-                            <span>
-                                My Investment
-                            </span>
-
-                            <strong id="totalInvestment">
-                                $0.00
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-                            ↑
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Total Earnings
-                            </span>
-
-                            <strong id="totalEarnings">
-                                $0.00
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-                            #
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Investment Requests
-                            </span>
-
-                            <strong id="investmentCount">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-icon">
-                            ●
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Account Status
-                            </span>
-
-                            <strong id="accountStatus">
-                                Active
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- QUICK ACTIONS -->
-
-                <div class="dashboard-grid-two">
-
-
-                    <div class="dashboard-card">
-
-                        <div class="card-heading">
-
-                            <div>
-
-                                <span class="eyebrow">
-                                    QUICK ACTION
-                                </span>
-
-                                <h3>
-                                    Make an Investment
-                                </h3>
-
-                            </div>
-
-                        </div>
-
-                        <p>
-                            Choose an available investment
-                            package and submit your payment
-                            details for review.
-                        </p>
-
-                        <button
-                            type="button"
-                            class="btn btn-gold"
-                            data-section-target="investment"
-                        >
-                            View Packages
-                        </button>
-
-                    </div>
-
-
-
-                    <div class="dashboard-card">
-
-                        <div class="card-heading">
-
-                            <div>
-
-                                <span class="eyebrow">
-                                    ACCOUNT
-                                </span>
-
-                                <h3>
-                                    My Profile
-                                </h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="profile-summary">
-
-                            <div
-                                id="overviewInitial"
-                                class="large-avatar"
-                            >
-                                M
-                            </div>
-
-                            <div>
-
-                                <strong id="overviewName">
-                                    Member
-                                </strong>
-
-                                <span id="overviewEmail">
-                                    —
-                                </span>
-
-                                <span id="overviewPhone">
-                                    —
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                        <button
-                            type="button"
-                            class="btn btn-outline"
-                            data-section-target="profile"
-                        >
-                            View Profile
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 INVESTMENT
-                 ================================================= -->
-
-            <section
-                id="section-investment"
-                class="dashboard-section"
-            >
-
-                <div class="section-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            INVESTMENT
-                        </span>
-
-                        <h2>
-                            Investment Packages
-                        </h2>
-
-                        <p>
-                            Select an available package to
-                            begin your investment request.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    id="packagesGrid"
-                    class="packages-grid"
-                >
-
-                    <div class="empty-state">
-                        Loading packages...
-                    </div>
-
-                </div>
-
-
-                <!-- SELECTED PACKAGE -->
-
-                <div
-                    id="selectedPackageCard"
-                    class="dashboard-card selected-package"
-                    style="display: none;"
-                >
-
-                    <div class="card-heading">
-
-                        <div>
-
-                            <span class="eyebrow">
-                                SELECTED PACKAGE
-                            </span>
-
-                            <h3 id="selectedPackageName">
-                                —
-                            </h3>
-
-                        </div>
-
-                        <strong id="selectedPackageAmount">
-                            $0
-                        </strong>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        id="continueToPaymentBtn"
-                        class="btn btn-gold"
-                    >
-                        Continue to Payment
-                    </button>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 PAYMENTS
-                 ================================================= -->
-
-            <section
-                id="section-payments"
-                class="dashboard-section"
-            >
-
-                <div class="section-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            PAYMENT
-                        </span>
-
-                        <h2>
-                            Payment Methods
-                        </h2>
-
-                        <p>
-                            Select your preferred payment method.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="payment-method-grid">
-
-
-                    <!-- BANK -->
-
-                    <div class="payment-method-card">
-
-                        <div class="payment-method-icon">
-                            ₦
-                        </div>
-
-                        <h3>
-                            Bank Transfer
-                        </h3>
-
-                        <p>
-                            Pay through the available bank
-                            transfer details.
-                        </p>
-
-                        <button
-                            type="button"
-                            id="bankPayment"
-                            class="btn btn-gold"
-                        >
-                            Pay by Bank
-                        </button>
-
-                    </div>
-
-
-
-                    <!-- CRYPTO -->
-
-                    <div class="payment-method-card">
-
-                        <div class="payment-method-icon">
-                            ₿
-                        </div>
-
-                        <h3>
-                            Crypto Payment
-                        </h3>
-
-                        <p>
-                            Pay using supported USDT networks.
-                        </p>
-
-                        <button
-                            type="button"
-                            id="cryptoPayment"
-                            class="btn btn-outline"
-                        >
-                            Pay with Crypto
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- BANK DETAILS -->
-
-                <div
-                    id="bankDetails"
-                    class="payment-details-card"
-                    style="display: none;"
-                >
-
-                    <div class="card-heading">
-
-                        <div>
-
-                            <span class="eyebrow">
-                                BANK TRANSFER
-                            </span>
-
-                            <h3>
-                                Payment Details
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="payment-detail-list">
-
-                        <div class="payment-detail-row">
-
-                            <span>
-                                Bank
-                            </span>
-
-                            <strong id="bankName">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="payment-detail-row">
-
-                            <span>
-                                Account Name
-                            </span>
-
-                            <strong id="bankAccountName">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="payment-detail-row">
-
-                            <span>
-                                Account Number
-                            </span>
-
-                            <strong id="bankAccountNumber">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="payment-detail-row">
-
-                            <span>
-                                Minimum
-                            </span>
-
-                            <strong id="bankMinimumAmount">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="payment-detail-row">
-
-                            <span>
-                                Fee
-                            </span>
-
-                            <strong id="bankFeeAmount">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="payment-detail-row total-row">
-
-                            <span>
-                                Total
-                            </span>
-
-                            <strong id="bankTotalAmount">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        id="bankInstructions"
-                        class="payment-instructions"
-                    >
-                    </div>
-
-                </div>
-
-
-
-                <!-- CRYPTO DETAILS -->
-
-                <div
-                    id="cryptoDetails"
-                    class="payment-details-card"
-                    style="display: none;"
-                >
-
-                    <div class="card-heading">
-
-                        <div>
-
-                            <span class="eyebrow">
-                                CRYPTO PAYMENT
-                            </span>
-
-                            <h3>
-                                USDT Payment
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="crypto-network-selector">
-
-                        <label for="cryptoNetwork">
-                            Select Network
-                        </label>
-
-                        <select id="cryptoNetwork">
-
-                            <option value="">
-                                Select network
-                            </option>
-
-                            <option value="BEP20">
-                                BEP20
-                            </option>
-
-                            <option value="Arbitrum">
-                                Arbitrum
-                            </option>
-
-                            <option value="TON">
-                                TON
-                            </option>
-
-                            <option value="TRC20">
-                                TRC20
-                            </option>
-
-                            <option value="Solana">
-                                Solana
-                            </option>
-
-                            <option value="Ethereum">
-                                Ethereum / ERC20
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="wallet-box">
-
-                        <span>
-                            Wallet Address
-                        </span>
-
-                        <div class="wallet-address-row">
-
-                            <code id="cryptoWalletAddress">
-                                Select a network
-                            </code>
-
-                            <button
-                                type="button"
-                                id="copyWalletBtn"
-                                class="copy-btn"
-                            >
-                                Copy
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="crypto-payment-summary">
-
-                        <div>
-
-                            <span>
-                                Minimum
-                            </span>
-
-                            <strong>
-                                $30
-                            </strong>
-
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Fee
-                            </span>
-
-                            <strong>
-                                $1
-                            </strong>
-
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Total
-                            </span>
-
-                            <strong>
-                                $31
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 INVESTMENT REQUEST
-                 ================================================= -->
-
-            <section
-                id="section-request"
-                class="dashboard-section"
-            >
-
-                <div class="section-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            REQUEST
-                        </span>
-
-                        <h2>
-                            Submit Investment Request
-                        </h2>
-
-                        <p>
-                            Provide your payment information
-                            and receipt for admin review.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="request-card">
-
-
-                    <div class="request-summary">
-
-                        <div>
-
-                            <span>
-                                Package
-                            </span>
-
-                            <strong id="requestPackageName">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Amount
-                            </span>
-
-                            <strong id="requestAmount">
-                                $0.00
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Payment Method
-                            </span>
-
-                            <strong id="requestPaymentMethod">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="request-field">
-
-                        <label for="paymentMethodSelect">
-                            Payment Method
-                        </label>
-
-                        <select id="paymentMethodSelect">
-
-                            <option value="">
-                                Select payment method
-                            </option>
-
-                            <option value="bank">
-                                Bank Transfer
-                            </option>
-
-                            <option value="crypto">
-                                Crypto
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-
-                    <div
-                        id="cryptoNetworkRequest"
-                        class="request-field"
-                        style="display: none;"
-                    >
-
-                        <label for="requestCryptoNetwork">
-                            Crypto Network
-                        </label>
-
-                        <select id="requestCryptoNetwork">
-
-                            <option value="">
-                                Select network
-                            </option>
-
-                            <option value="BEP20">
-                                BEP20
-                            </option>
-
-                            <option value="Arbitrum">
-                                Arbitrum
-                            </option>
-
-                            <option value="TON">
-                                TON
-                            </option>
-
-                            <option value="TRC20">
-                                TRC20
-                            </option>
-
-                            <option value="Solana">
-                                Solana
-                            </option>
-
-                            <option value="Ethereum">
-                                Ethereum / ERC20
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-
-                    <div class="receipt-area">
-
-                        <label for="receiptInput">
-                            Upload Payment Receipt
-                        </label>
-
-                        <input
-                            type="file"
-                            id="receiptInput"
-                            accept="image/*,.pdf"
-                        >
-
-                        <div
-                            id="receiptPreview"
-                            class="receipt-preview"
-                        >
-                        </div>
-
-                    </div>
-
-
-
-                    <div
-                        id="receiptConfirmation"
-                        class="alert alert-success"
-                        style="display: none;"
-                    >
-                    </div>
-
-
-                    <div
-                        id="requestError"
-                        class="alert alert-error"
-                        style="display: none;"
-                    >
-                    </div>
-
-
-                    <button
-                        type="button"
-                        id="submitInvestmentBtn"
-                        class="btn btn-gold btn-large"
-                    >
-                        Submit Investment Request
-                    </button>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 EARNINGS
-                 ================================================= -->
-
-            <section
-                id="section-earnings"
-                class="dashboard-section"
-            >
-
-                <div class="section-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            EARNINGS
-                        </span>
-
-                        <h2>
-                            My Earnings
-                        </h2>
-
-                        <p>
-                            View earnings recorded on your account.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="earning-total-card">
-
-                    <span>
-                        Total Earnings
-                    </span>
-
-                    <strong id="earningsTotalLarge">
-                        $0.00
-                    </strong>
-
-                </div>
-
-
-                <div
-                    id="earningsList"
-                    class="earnings-list"
-                >
-
-                    <div class="empty-state">
-                        Loading earnings...
-                    </div>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 HISTORY
-                 ================================================= -->
-
-            <section
-                id="section-history"
-                class="dashboard-section"
-            >
-
-                <div class="section-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            HISTORY
-                        </span>
-
-                        <h2>
-                            Investment History
-                        </h2>
-
-                        <p>
-                            Review your previous investment requests.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    id="investmentHistory"
-                    class="history-list"
-                >
-
-                    <div class="empty-state">
-                        Loading investment history...
-                    </div>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 PROFILE
-                 ================================================= -->
-
-            <section
-                id="section-profile"
-                class="dashboard-section"
-            >
-
-                <div class="section-intro">
-
-                    <div>
-
-                        <span class="eyebrow">
-                            PROFILE
-                        </span>
-
-                        <h2>
-                            My Profile
-                        </h2>
-
-                        <p>
-                            Your Monarch Codex member information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="profile-card">
-
-                    <div class="profile-header">
-
-                        <div
-                            id="profileInitial"
-                            class="profile-avatar"
-                        >
-                            M
-                        </div>
-
-                        <div>
-
-                            <h3 id="profileName">
-                                Member
-                            </h3>
-
-                            <span id="profileStatus">
-                                Active Member
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="profile-info-grid">
-
-                        <div class="info-item">
-
-                            <span>
-                                Full Name
-                            </span>
-
-                            <strong id="profileFullName">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <span>
-                                Email
-                            </span>
-
-                            <strong id="profileEmail">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <span>
-                                Phone
-                            </span>
-
-                            <strong id="profilePhone">
-                                —
-                            </strong>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <span>
-                                Role
-                            </span>
-
-                            <strong id="profileRole">
-                                Member
-                            </strong>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <span>
-                                Account Status
-                            </span>
-
-                            <strong id="profileAccountStatus">
-                                Active
-                            </strong>
-
-                        </div>
-
-
-                        <div class="info-item">
-
-                            <span>
-                                Member Since
-                            </span>
-
-                            <strong id="profileCreatedAt">
-                                —
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-
-        <!-- =================================================
-             FOOTER
-             ================================================= -->
-
-        <footer class="dashboard-footer">
-
-            <div>
-
-                <strong>
-                    MONARCH CODEX
-                </strong>
-
-                <span>
-                    Member Dashboard
-                </span>
-
-            </div>
-
-            <p>
-                © 2026 MONARCH CODEX. All rights reserved.
-            </p>
-
-        </footer>
-
-    </main>
-
-</div>
-
-
-<!-- =====================================================
-     SUPABASE
-     ===================================================== -->
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- =====================================================
-     DASHBOARD JAVASCRIPT
-     ===================================================== -->
-
-<script src="dashboard.js"></script>
-
-</body>
-</html>
+            <div class="dashboard-content">
