@@ -6859,49 +6859,79 @@ if (
 
 
                 ${
-                    referredBy
-                    ?
-                    `
-                        <div class="investment-request-summary">
+    referredBy
+    ?
+    `
+        <div class="investment-request-summary">
 
-                            <div class="payment-detail-row">
+            <div class="payment-detail-row">
 
-                                <span>
-                                    Referral UID
-                                </span>
+                <span>
+                    Name
+                </span>
 
-                                <strong>
-                                    ${escapeHTML(
-                                        referredBy.referral_code
-                                    )}
-                                </strong>
+                <strong>
+                    ${escapeHTML(
+                        referredBy.member_name
+                    )}
+                </strong>
 
-                            </div>
+            </div>
 
 
-                            <div class="payment-detail-row">
+            <div class="payment-detail-row">
 
-                                <span>
-                                    Referral Date
-                                </span>
+                <span>
+                    UID
+                </span>
 
-                                <strong>
-                                    ${formatDate(
-                                        referredBy.created_at
-                                    )}
-                                </strong>
+                <strong>
+                    ${escapeHTML(
+                        referredBy.member_uid
+                    )}
+                </strong>
 
-                            </div>
+            </div>
 
-                        </div>
-                    `
-                    :
-                    `
-                        <div class="module-placeholder">
-                            You were not referred by another member.
-                        </div>
-                    `
-                }
+
+            <div class="payment-detail-row">
+
+                <span>
+                    Status
+                </span>
+
+                <strong>
+                    ${escapeHTML(
+                        referredBy.member_status
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="payment-detail-row">
+
+                <span>
+                    Joined
+                </span>
+
+                <strong>
+                    ${formatDate(
+                        referredBy.joined_at
+                    )}
+                </strong>
+
+            </div>
+
+        </div>
+    `
+    :
+    `
+        <div class="module-placeholder">
+            You were not referred by another member.
+        </div>
+    `
+}
 
             </section>
 
