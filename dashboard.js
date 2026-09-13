@@ -863,3 +863,156 @@ function selectPackage(pkg) {
         behavior: "smooth"
     });
 }
+
+/* =========================================
+   LOAD PAYMENT METHODS
+========================================= */
+
+async function loadPaymentMethods() {
+
+    const loading =
+        getElement("paymentMethodsLoading");
+
+    const grid =
+        getElement("paymentMethodsGrid");
+
+    try {
+
+        showElement(loading);
+
+        if (grid) {
+            grid.innerHTML = "";
+        }
+
+        const { data, error } =
+            await supabaseClient
+                .from("payment_details")
+                .select("*")
+                .eq("active", true)
+                .order("id", {
+                    ascending: true
+                });
+
+        if (error) {
+            throw error;
+        }
+
+        hideElement(loading);
+
+        if (!data || data.length === 0) {
+
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No Payment Methods</h3>
+                        <p>
+                            No active payment methods
+                            are currently available.
+                        </p>
+                    </div>
+                `;
+            }
+
+            return;
+        }
+
+        data.forEach(function (method) {
+
+            const card =
+                document.createElement("div");
+
+            card.className =
+                "payment-method-card";
+
+            card.innerHTML = `
+                <h4>
+                    ${escapeHtml(
+                        method.title
+                    )}
+                </h4>
+
+                <p>
+                    ${escapeHtml(
+                        method.payment_type ||
+                        "Payment Method"
+                    )}
+                </p>
+            `;
+
+            card.addEventListener(
+                "click",
+                function () {
+                    selectPaymentMethod(
+                        method,
+                        card
+                    );
+                }
+            );
+
+            grid.appendChild(card);
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error loading payment methods:",
+            error
+        );
+
+        hideElement(loading);
+
+        if (grid) {
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <h3>
+                        Unable to Load Payment Methods
+                    </h3>
+
+                    <p>
+                        Please refresh the page
+                        and try again.
+                    </p>
+                </div>
+            `;
+        }
+    }
+}
+
+
+/* =========================================
+   SELECT PAYMENT METHOD
+========================================= */
+
+function selectPaymentMethod(method, card) {
+
+    selectedPaymentMethod = method;
+
+    document
+        .querySelectorAll(".payment-method-card")
+        .forEach(function (item) {
+            item.classList.remove("selected");
+        });
+
+    if (card) {
+        card.classList.add("selected");
+    }
+
+    const methodInput =
+        getElement("selectedPaymentMethod");
+
+    const detailIdInput =
+        getElement("selectedPaymentDetailId");
+
+    if (methodInput) {
+        methodInput.value =
+            method.payment_type ||
+            method.title;
+    }
+
+    if (detailIdInput) {
+        detailIdInput.value =
+            method.id;
+    }
+
+    displayPaymentDetails(method);
+}
