@@ -3977,6 +3977,401 @@
     }
 
 })();
+
+/* =========================================================
+   PART 8/12 — RECEIPT UPLOAD & INVESTMENT SUBMISSION
+   ========================================================= */
+
+let selectedReceiptFile = null;
+
+/* ---------------------------------------------------------
+   Receipt file selection
+--------------------------------------------------------- */
+
+const receiptInput = document.getElementById("receiptInput");
+const submitInvestmentBtn =
+    document.getElementById("submitInvestmentBtn");
+const receiptConfirmation =
+    document.getElementById("receiptConfirmation");
+
+if (receiptInput) {
+    receiptInput.addEventListener("change", function () {
+
+        selectedReceiptFile = this.files?.[0] || null;
+
+        if (!receiptConfirmation) return;
+
+        if (!selectedReceiptFile) {
+            receiptConfirmation.textContent = "";
+            return;
+        }
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "application/pdf"
+        ];
+
+        if (!allowedTypes.includes(selectedReceiptFile.type)) {
+
+            selectedReceiptFile = null;
+            this.value = "";
+
+            receiptConfirmation.textContent =
+                "Please upload a JPG, PNG, WEBP or PDF receipt.";
+
+            return;
+        }
+
+        const maxSize = 10 * 1024 * 1024;
+
+        if (selectedReceiptFile.size > maxSize) {
+
+            selectedReceiptFile = null;
+            this.value = "";
+
+            receiptConfirmation.textContent =
+                "Receipt file must not exceed 10MB.";
+
+            return;
+        }
+
+        receiptConfirmation.textContent =
+            `Receipt selected: ${selectedReceiptFile.name}`;
+    });
+}
+
+
+/* ---------------------------------------------------------
+   Investment submission
+--------------------------------------------------------- */
+
+async function submitInvestmentRequest() {
+
+    if (!currentUser) {
+        alert("Your session has expired. Please log in again.");
+        return;
+    }
+
+    const investmentState =
+        window.MonarchDashboard?.investment;
+
+    const selectedPackage =
+        investmentState?.selectedPackage;
+
+    const selectedPaymentMethod =
+        investmentState?.selectedPaymentMethod;
+
+    if (!selectedPackage) {
+        alert("Please select an investment package.");
+        return;
+    }
+
+    if (!selectedPaymentMethod) {
+        alert("Please select a payment method.");
+        return;
+    }
+
+    if (!selectedReceiptFile) {
+        alert("Please upload your payment receipt.");
+        return;
+    }
+
+    const packageAmount =
+        Number(
+            selectedPackage.amount ??
+            selectedPackage.price ??
+            0
+        );
+
+    if (!Number.isFinite(packageAmount) || packageAmount <= 0) {
+        alert("Unable to determine the investment amount.");
+        return;
+    }
+
+    if (submitInvestmentBtn) {
+        submitInvestmentBtn.disabled = true;
+        submitInvestmentBtn.textContent = "Submitting...";
+    }
+
+    if (receiptConfirmation) {
+        receiptConfirmation.textContent =
+            "Uploading receipt and creating investment request...";
+    }
+
+    let investment = null;
+    let uploadedReceiptPath = null;
+
+    try {
+
+        /* -------------------------------------------------
+           1. Create pending investment
+        ------------------------------------------------- */
+
+        const { data: investmentData, error: investmentError } =
+            await supabaseClient
+                .from("investments")
+                .insert({
+                    user_id: currentUser.id,
+                    package_id: selectedPackage.id,
+                    amount: packageAmount,
+                    payment_method: selectedPaymentMethod,
+                    status: "pending"
+                })
+                .select()
+                .single();
+
+        if (investmentError) {
+            throw investmentError;
+        }
+
+        investment = investmentData;
+
+
+        /* -------------------------------------------------
+           2. Upload receipt to storage
+        ------------------------------------------------- */
+
+        const fileExtension =
+            selectedReceiptFile.name.includes(".")
+                ? selectedReceiptFile.name
+                    .split(".")
+                    .pop()
+                    .toLowerCase()
+                : "file";
+
+        const uniqueFileName =
+            `${Date.now()}-${crypto.randomUUID()}.${fileExtension}`;
+
+        uploadedReceiptPath =
+            `${currentUser.id}/${investment.id}/${uniqueFileName}`;
+
+        const { error: uploadError } =
+            await supabaseClient
+                .storage
+                .from("payment-receipts")
+                .upload(
+                    uploadedReceiptPath,
+                    selectedReceiptFile,
+                    {
+                        cacheControl: "3600",
+                        upsert: false
+                    }
+                );
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+
+        /* -------------------------------------------------
+           3. Get member UID
+        ------------------------------------------------- */
+
+        let memberUid = "";
+
+        try {
+
+            const { data: profileData } =
+                await supabaseClient
+                    .from("profiles")
+                    .select("uid")
+                    .eq("id", currentUser.id)
+                    .single();
+
+            memberUid = profileData?.uid || "";
+
+        } catch (profileError) {
+
+            console.warn(
+                "Could not load member UID:",
+                profileError
+            );
+
+        }
+
+
+        /* -------------------------------------------------
+           4. Create payment receipt record
+        ------------------------------------------------- */
+
+        const { error: receiptError } =
+            await supabaseClient
+                .from("payment_receipts")
+                .insert({
+                    investment_id: investment.id,
+                    user_id: currentUser.id,
+                    uid: memberUid,
+                    amount: packageAmount,
+                    payment_method: selectedPaymentMethod,
+                    file_name: selectedReceiptFile.name,
+                    file_path: uploadedReceiptPath,
+                    file_type: selectedReceiptFile.type,
+                    file_size: selectedReceiptFile.size,
+                    verification_status: "pending"
+                });
+
+        if (receiptError) {
+            throw receiptError;
+        }
+
+
+        /* -------------------------------------------------
+           5. Success
+        ------------------------------------------------- */
+
+        if (receiptConfirmation) {
+            receiptConfirmation.textContent =
+                "Investment request submitted successfully. Your payment is pending admin verification.";
+        }
+
+        alert(
+            "Investment request submitted successfully."
+        );
+
+
+        /* -------------------------------------------------
+           6. Reset form
+        ------------------------------------------------- */
+
+        selectedReceiptFile = null;
+
+        if (receiptInput) {
+            receiptInput.value = "";
+        }
+
+        if (submitInvestmentBtn) {
+            submitInvestmentBtn.disabled = false;
+            submitInvestmentBtn.textContent =
+                "Submit Investment Request";
+        }
+
+
+        /* -------------------------------------------------
+           7. Refresh investment information
+        ------------------------------------------------- */
+
+        if (
+            window.MonarchDashboard?.investment?.loadHistory
+        ) {
+            await window.MonarchDashboard.investment.loadHistory();
+        }
+
+        if (
+            window.MonarchDashboard?.investment?.loadStats
+        ) {
+            await window.MonarchDashboard.investment.loadStats();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Investment submission error:",
+            error
+        );
+
+
+        /* -------------------------------------------------
+           Rollback investment if receipt process failed
+        ------------------------------------------------- */
+
+        if (investment?.id) {
+
+            try {
+
+                await supabaseClient
+                    .from("investments")
+                    .delete()
+                    .eq("id", investment.id);
+
+            } catch (rollbackError) {
+
+                console.error(
+                    "Investment rollback failed:",
+                    rollbackError
+                );
+
+            }
+        }
+
+
+        /* -------------------------------------------------
+           Remove uploaded receipt if necessary
+        ------------------------------------------------- */
+
+        if (uploadedReceiptPath) {
+
+            try {
+
+                await supabaseClient
+                    .storage
+                    .from("payment-receipts")
+                    .remove([
+                        uploadedReceiptPath
+                    ]);
+
+            } catch (storageError) {
+
+                console.error(
+                    "Receipt cleanup failed:",
+                    storageError
+                );
+
+            }
+        }
+
+
+        if (receiptConfirmation) {
+            receiptConfirmation.textContent =
+                error?.message ||
+                "Unable to submit investment request. Please try again.";
+        }
+
+        alert(
+            error?.message ||
+            "Unable to submit investment request."
+        );
+
+        if (submitInvestmentBtn) {
+            submitInvestmentBtn.disabled = false;
+            submitInvestmentBtn.textContent =
+                "Submit Investment Request";
+        }
+    }
+}
+
+
+/* ---------------------------------------------------------
+   Submit button
+--------------------------------------------------------- */
+
+if (submitInvestmentBtn) {
+
+    submitInvestmentBtn.addEventListener(
+        "click",
+        submitInvestmentRequest
+    );
+}
+
+
+/* ---------------------------------------------------------
+   Public investment submission API
+--------------------------------------------------------- */
+
+window.MonarchDashboard =
+    window.MonarchDashboard || {};
+
+window.MonarchDashboard.investment =
+    window.MonarchDashboard.investment || {};
+
+window.MonarchDashboard.investment.submit =
+    submitInvestmentRequest;
+
+window.MonarchDashboard.investment.getReceiptFile =
+    function () {
+        return selectedReceiptFile;
+    };
         
     </script>
 
