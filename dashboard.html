@@ -6583,5 +6583,259 @@ loadInvestmentStats();
         
     </script>
 
+    /* =========================================================
+   PART 12/12 — FINAL DASHBOARD INTEGRATION
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+    /*
+     * ---------------------------------------------------------
+     * CENTRAL DASHBOARD REFRESH
+     * ---------------------------------------------------------
+     */
+
+    async function refreshDashboardData() {
+
+        try {
+
+            /* Investment data */
+            if (
+                window.MonarchDashboard?.investment
+                    ?.loadHistory
+            ) {
+                await window.MonarchDashboard
+                    .investment
+                    .loadHistory();
+            }
+
+            if (
+                window.MonarchDashboard?.investment
+                    ?.loadStats
+            ) {
+                await window.MonarchDashboard
+                    .investment
+                    .loadStats();
+            }
+
+
+            /* Earnings */
+            if (
+                window.MonarchDashboard?.earnings
+                    ?.load
+            ) {
+                await window.MonarchDashboard
+                    .earnings
+                    .load();
+            }
+
+
+            /* Withdrawals */
+            if (
+                window.MonarchDashboard?.withdrawals
+                    ?.load
+            ) {
+                await window.MonarchDashboard
+                    .withdrawals
+                    .load();
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard refresh error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+     * ---------------------------------------------------------
+     * REFRESH WHEN USER CHANGES MODULE
+     * ---------------------------------------------------------
+     */
+
+    document.addEventListener(
+        "monarch:module-change",
+        function (event) {
+
+            const module =
+                event.detail?.module;
+
+            if (!module) {
+                return;
+            }
+
+            /*
+             * Refresh only the module being opened.
+             */
+
+            if (
+                module === "investments" &&
+                window.MonarchDashboard
+                    ?.investment
+            ) {
+
+                if (
+                    window.MonarchDashboard
+                        .investment
+                        .loadHistory
+                ) {
+                    window.MonarchDashboard
+                        .investment
+                        .loadHistory();
+                }
+
+                if (
+                    window.MonarchDashboard
+                        .investment
+                        .loadStats
+                ) {
+                    window.MonarchDashboard
+                        .investment
+                        .loadStats();
+                }
+
+            }
+
+
+            if (
+                module === "earnings" &&
+                window.MonarchDashboard
+                    ?.earnings
+                    ?.load
+            ) {
+
+                window.MonarchDashboard
+                    .earnings
+                    .load();
+
+            }
+
+
+            if (
+                module === "withdrawals" &&
+                window.MonarchDashboard
+                    ?.withdrawals
+                    ?.load
+            ) {
+
+                window.MonarchDashboard
+                    .withdrawals
+                    .load();
+
+            }
+
+        }
+    );
+
+
+    /*
+     * ---------------------------------------------------------
+     * REFRESH AFTER INVESTMENT SUBMISSION
+     * ---------------------------------------------------------
+     */
+
+    document.addEventListener(
+        "monarch:investment-submitted",
+        async function () {
+
+            await refreshDashboardData();
+
+        }
+    );
+
+
+    /*
+     * ---------------------------------------------------------
+     * REFRESH AFTER WITHDRAWAL SUBMISSION
+     * ---------------------------------------------------------
+     */
+
+    document.addEventListener(
+        "monarch:withdrawal-submitted",
+        async function () {
+
+            if (
+                window.MonarchDashboard
+                    ?.withdrawals
+                    ?.load
+            ) {
+
+                await window.MonarchDashboard
+                    .withdrawals
+                    .load();
+
+            }
+
+        }
+    );
+
+
+    /*
+     * ---------------------------------------------------------
+     * PUBLIC FINAL DASHBOARD API
+     * ---------------------------------------------------------
+     */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+    window.MonarchDashboard.refresh =
+        refreshDashboardData;
+
+
+    /*
+     * ---------------------------------------------------------
+     * FINAL INITIALIZATION
+     *
+     * Wait briefly so the existing authentication
+     * and dashboard initialization can finish first.
+     * ---------------------------------------------------------
+     */
+
+    function initializeFinalIntegration() {
+
+        setTimeout(
+            function () {
+
+                if (
+                    window.MonarchCodex?.user
+                ) {
+
+                    refreshDashboardData();
+
+                }
+
+            },
+            800
+        );
+
+    }
+
+
+    if (
+        document.readyState === "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeFinalIntegration
+        );
+
+    } else {
+
+        initializeFinalIntegration();
+
+    }
+
+
+})();
+
 </body>
 </html>
