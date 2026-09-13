@@ -3196,3 +3196,611 @@ input[type="file"]::file-selector-button {
 /* =========================================================
    END OF PART 5
    ========================================================= */
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 6 — LOGIN, REGISTER & AUTHENTICATION
+   ========================================================= */
+
+
+/* =========================================================
+   76. AUTHENTICATION PAGE FOUNDATION
+   ========================================================= */
+
+.auth-page {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(212, 175, 55, 0.08),
+            transparent 38%
+        ),
+        var(--black);
+}
+
+
+/* =========================================================
+   77. AUTH CONTAINER
+   ========================================================= */
+
+.auth-container {
+    width: 100%;
+    min-height: calc(100vh - 1px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 50px 20px;
+}
+
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 480px;
+
+    margin-inline: auto;
+}
+
+
+/* =========================================================
+   78. AUTH CARD
+   ========================================================= */
+
+.auth-card {
+    width: 100%;
+
+    padding: 38px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(21, 21, 21, 0.98),
+            rgba(12, 12, 12, 0.98)
+        );
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-large);
+
+    box-shadow: var(--shadow-large);
+}
+
+
+/* =========================================================
+   79. AUTH LOGO
+   ========================================================= */
+
+.auth-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 25px;
+
+    color: var(--gold);
+
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+
+.auth-logo img {
+    max-width: 180px;
+    max-height: 60px;
+
+    margin-inline: auto;
+}
+
+
+/* =========================================================
+   80. AUTH HEADER
+   ========================================================= */
+
+.auth-header {
+    margin-bottom: 28px;
+
+    text-align: center;
+}
+
+
+.auth-header h1 {
+    margin-bottom: 8px;
+
+    color: var(--white);
+
+    font-size: clamp(
+        1.55rem,
+        5vw,
+        2rem
+    );
+
+    font-weight: 700;
+}
+
+
+.auth-header p {
+    color: var(--muted);
+
+    font-size: 0.84rem;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   81. AUTH FORM
+   ========================================================= */
+
+.auth-form {
+    width: 100%;
+}
+
+
+.auth-form .form-group,
+.auth-form .form-field {
+    margin-bottom: 17px;
+}
+
+
+.auth-form label {
+    margin-bottom: 1px;
+}
+
+
+.auth-form .btn,
+.auth-form button[type="submit"] {
+    width: 100%;
+
+    min-height: 50px;
+
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   82. AUTH SUBMIT
+   ========================================================= */
+
+.auth-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 50px;
+
+    padding: 12px 20px;
+
+    color: var(--black);
+
+    background: var(--gold);
+
+    border: 1px solid var(--gold);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.92rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
+}
+
+
+.auth-submit:hover {
+    background: var(--gold-light);
+
+    border-color: var(--gold-light);
+
+    box-shadow:
+        0 10px 30px rgba(212, 175, 55, 0.16);
+
+    transform: translateY(-1px);
+}
+
+
+.auth-submit:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   83. AUTH LINKS
+   ========================================================= */
+
+.auth-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    margin-top: 20px;
+
+    color: var(--muted);
+
+    font-size: 0.82rem;
+
+    text-align: center;
+}
+
+
+.auth-links a {
+    color: var(--gold);
+
+    font-weight: 600;
+
+    transition: color var(--transition);
+}
+
+
+.auth-links a:hover {
+    color: var(--gold-light);
+
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   84. AUTH DIVIDER
+   ========================================================= */
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin: 25px 0;
+
+    color: var(--muted-dark);
+
+    font-size: 0.72rem;
+}
+
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background: var(--border-soft);
+}
+
+
+/* =========================================================
+   85. AUTH FOOTER
+   ========================================================= */
+
+.auth-footer {
+    margin-top: 25px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid var(--border-soft);
+
+    color: var(--muted-dark);
+
+    font-size: 0.72rem;
+
+    text-align: center;
+}
+
+
+.auth-footer a {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   86. AUTH MESSAGE AREA
+   ========================================================= */
+
+.auth-message,
+#message,
+#authMessage {
+    width: 100%;
+
+    margin-bottom: 18px;
+
+    padding: 12px 14px;
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.8rem;
+
+    line-height: 1.5;
+}
+
+
+.auth-message:empty,
+#message:empty,
+#authMessage:empty {
+    display: none;
+}
+
+
+/* =========================================================
+   87. LOADING MESSAGE
+   ========================================================= */
+
+.loading-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    color: var(--muted);
+
+    font-size: 0.8rem;
+}
+
+
+.loading-message::before {
+    content: "";
+
+    width: 15px;
+    height: 15px;
+
+    border: 2px solid rgba(212, 175, 55, 0.25);
+    border-top-color: var(--gold);
+
+    border-radius: 50%;
+
+    animation:
+        monarch-spin 0.8s linear infinite;
+}
+
+
+@keyframes monarch-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   88. PASSWORD HELP
+   ========================================================= */
+
+.password-wrapper {
+    position: relative;
+}
+
+
+.password-wrapper input {
+    padding-right: 48px;
+}
+
+
+.password-toggle {
+    position: absolute;
+
+    top: 50%;
+    right: 8px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform: translateY(-50%);
+
+    color: var(--muted);
+
+    background: transparent;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+}
+
+
+.password-toggle:hover {
+    color: var(--gold);
+
+    background: rgba(212, 175, 55, 0.07);
+}
+
+
+/* =========================================================
+   89. AUTH REMEMBER / OPTIONS
+   ========================================================= */
+
+.auth-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin: 4px 0 18px;
+
+    font-size: 0.78rem;
+}
+
+
+.auth-options label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: var(--muted);
+
+    font-size: 0.78rem;
+
+    font-weight: 400;
+}
+
+
+.auth-options a {
+    color: var(--gold);
+}
+
+
+.auth-options a:hover {
+    color: var(--gold-light);
+}
+
+
+/* =========================================================
+   90. REFERRAL NOTICE
+   ========================================================= */
+
+.referral-notice {
+    margin-bottom: 18px;
+
+    padding: 12px 14px;
+
+    color: var(--gold-light);
+
+    background: rgba(212, 175, 55, 0.07);
+
+    border: 1px solid var(--border);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.78rem;
+
+    line-height: 1.5;
+}
+
+
+.referral-notice strong {
+    color: var(--gold);
+}
+
+
+/* =========================================================
+   91. AUTH BRAND MARK
+   ========================================================= */
+
+.auth-brand {
+    margin-bottom: 20px;
+
+    text-align: center;
+}
+
+
+.auth-brand-title {
+    color: var(--white);
+
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+
+.auth-brand-title span {
+    color: var(--gold);
+}
+
+
+.auth-brand-tagline {
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 0.7rem;
+
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   92. AUTH MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+    .auth-container {
+        min-height: 100vh;
+
+        align-items: flex-start;
+
+        padding:
+            30px 14px;
+    }
+
+
+    .auth-wrapper {
+        max-width: 100%;
+    }
+
+
+    .auth-card {
+        padding: 27px 20px;
+
+        border-radius: var(--radius);
+    }
+
+
+    .auth-header {
+        margin-bottom: 23px;
+    }
+
+
+    .auth-header h1 {
+        font-size: 1.5rem;
+    }
+
+
+    .auth-header p {
+        font-size: 0.8rem;
+    }
+
+
+    .auth-options {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+
+    .auth-footer {
+        margin-top: 20px;
+    }
+
+}
+
+
+@media (max-width: 380px) {
+
+    .auth-container {
+        padding-inline: 10px;
+    }
+
+
+    .auth-card {
+        padding: 24px 16px;
+    }
+
+
+    .auth-logo {
+        margin-bottom: 20px;
+    }
+
+}
+
+
+/* =========================================================
+   END OF PART 6
+   ========================================================= */
