@@ -1869,3 +1869,145 @@ async function loadInvestmentHistory() {
         }
     }
 }
+
+/* =========================================
+   LOAD EARNINGS
+========================================= */
+
+async function loadEarnings() {
+
+    const list =
+        getElement("earningsList");
+
+    const empty =
+        getElement("earningsEmpty");
+
+    const totalElement =
+        getElement("totalEarnings");
+
+    const overviewElement =
+        getElement("overviewEarnings");
+
+
+    try {
+
+        if (list) {
+            list.innerHTML = "";
+        }
+
+        hideElement(empty);
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("earnings")
+                .select("*")
+                .eq("user_id", currentUser.id)
+                .order("created_at", {
+                    ascending: false
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        if (!data || data.length === 0) {
+
+            if (totalElement) {
+                totalElement.textContent =
+                    formatCurrency(0);
+            }
+
+            if (overviewElement) {
+                overviewElement.textContent =
+                    formatCurrency(0);
+            }
+
+            showElement(empty);
+            return;
+        }
+
+
+        let total = 0;
+
+
+        data.forEach(function (earning) {
+
+            const amount =
+                Number(earning.amount || 0);
+
+            total += amount;
+
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "earning-item";
+
+
+            item.innerHTML = `
+                <div class="earning-info">
+
+                    <strong>
+                        ${escapeHtml(
+                            earning.description ||
+                            "Earning"
+                        )}
+                    </strong>
+
+                    <span>
+                        ${formatDate(
+                            earning.created_at
+                        )}
+                    </span>
+
+                </div>
+
+                <div class="earning-amount">
+                    +${formatCurrency(amount)}
+                </div>
+            `;
+
+
+            list.appendChild(item);
+        });
+
+
+        if (totalElement) {
+            totalElement.textContent =
+                formatCurrency(total);
+        }
+
+        if (overviewElement) {
+            overviewElement.textContent =
+                formatCurrency(total);
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Earnings error:",
+            error
+        );
+
+
+        if (list) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <h3>
+                        Unable to Load Earnings
+                    </h3>
+
+                    <p>
+                        Please refresh the page
+                        and try again.
+                    </p>
+                </div>
+            `;
+        }
+    }
+}
