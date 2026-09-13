@@ -6606,7 +6606,549 @@ if (
 
 })();
 
-        
+   /* =========================================================
+   REFERRALS MODULE
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+
+    let referralData = {
+        referredBy: null,
+        myReferrals: []
+    };
+
+
+    function escapeHTML(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function formatDate(value) {
+
+        if (!value) {
+            return "—";
+        }
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "—";
+        }
+
+        return date.toLocaleDateString(
+            "en-US",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
+
+    }
+
+
+    function getReferralLink() {
+
+        const profile =
+            window.MonarchCodex?.profile;
+
+        if (
+            !profile ||
+            !profile.uid
+        ) {
+            return "";
+        }
+
+        return (
+            window.location.origin +
+            window.location.pathname
+                .replace(
+                    /[^/]*$/,
+                    ""
+                ) +
+            "register.html?ref=" +
+            encodeURIComponent(
+                profile.uid
+            )
+        );
+
+    }
+
+
+    async function loadReferralData() {
+
+        const user =
+            window.MonarchCodex?.user;
+
+        if (!user) {
+            return;
+        }
+
+
+        const referrals =
+            await supabaseClient
+                .from("referrals")
+                .select(`
+                    id,
+                    referrer_id,
+                    referred_user_id,
+                    referral_code,
+                    created_at
+                `)
+                .or(
+                    `referrer_id.eq.${user.id},referred_user_id.eq.${user.id}`
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (referrals.error) {
+            throw referrals.error;
+        }
+
+
+        const records =
+            referrals.data || [];
+
+
+        referralData.referredBy =
+            records.find(
+                function (record) {
+
+                    return (
+                        record.referred_user_id ===
+                        user.id
+                    );
+
+                }
+            ) || null;
+
+
+        referralData.myReferrals =
+            records.filter(
+                function (record) {
+
+                    return (
+                        record.referrer_id ===
+                        user.id
+                    );
+
+                }
+            );
+
+
+        renderReferrals();
+
+    }
+
+
+    function renderReferrals() {
+
+        const container =
+            document.getElementById(
+                "referralsContent"
+            );
+
+        if (!container) {
+            return;
+        }
+
+
+        const profile =
+            window.MonarchCodex?.profile;
+
+
+        const referralLink =
+            getReferralLink();
+
+
+        const referredBy =
+            referralData.referredBy;
+
+
+        const myReferrals =
+            referralData.myReferrals;
+
+
+        container.innerHTML = `
+
+            <div class="referral-summary-grid">
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Total Referrals
+                    </span>
+
+                    <strong class="stat-value">
+                        ${myReferrals.length}
+                    </strong>
+
+                </div>
+
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Your UID
+                    </span>
+
+                    <strong class="stat-value">
+                        ${escapeHTML(
+                            profile?.uid || "—"
+                        )}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <section class="investment-section">
+
+                <div class="section-heading">
+
+                    <h3>
+                        Your Referral Link
+                    </h3>
+
+                    <p>
+                        Share this link with someone you want
+                        to invite to MONARCH CODEX.
+                    </p>
+
+                </div>
+
+
+                <div class="wallet-address-row">
+
+                    <code
+                        id="memberReferralLink"
+                    >
+                        ${escapeHTML(
+                            referralLink || "—"
+                        )}
+                    </code>
+
+
+                    <button
+                        type="button"
+                        id="copyReferralLinkBtn"
+                        class="copy-wallet-btn"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <section class="investment-section">
+
+                <div class="section-heading">
+
+                    <h3>
+                        Referred By
+                    </h3>
+
+                </div>
+
+
+                ${
+                    referredBy
+                    ?
+                    `
+                        <div class="investment-request-summary">
+
+                            <div class="payment-detail-row">
+
+                                <span>
+                                    Referral UID
+                                </span>
+
+                                <strong>
+                                    ${escapeHTML(
+                                        referredBy.referral_code
+                                    )}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-detail-row">
+
+                                <span>
+                                    Referral Date
+                                </span>
+
+                                <strong>
+                                    ${formatDate(
+                                        referredBy.created_at
+                                    )}
+                                </strong>
+
+                            </div>
+
+                        </div>
+                    `
+                    :
+                    `
+                        <div class="module-placeholder">
+                            You were not referred by another member.
+                        </div>
+                    `
+                }
+
+            </section>
+
+
+            <section class="investment-section">
+
+                <div class="section-heading">
+
+                    <h3>
+                        My Referrals
+                    </h3>
+
+                    <p>
+                        Members who joined using your referral link.
+                    </p>
+
+                </div>
+
+
+                <div id="myReferralsList">
+
+                    ${
+                        myReferrals.length === 0
+                        ?
+                        `
+                            <div class="module-placeholder">
+                                You have no referrals yet.
+                            </div>
+                        `
+                        :
+                        myReferrals
+                            .map(
+                                function (record) {
+
+                                    return `
+
+                                        <div
+                                            class="investment-request-summary"
+                                            style="margin-bottom:12px;"
+                                        >
+
+                                            <div class="payment-detail-row">
+
+                                                <span>
+                                                    Referral UID
+                                                </span>
+
+                                                <strong>
+                                                    ${escapeHTML(
+                                                        record.referral_code
+                                                    )}
+                                                </strong>
+
+                                            </div>
+
+
+                                            <div class="payment-detail-row">
+
+                                                <span>
+                                                    Joined
+                                                </span>
+
+                                                <strong>
+                                                    ${formatDate(
+                                                        record.created_at
+                                                    )}
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    `;
+
+                                }
+                            )
+                            .join("")
+                    }
+
+                </div>
+
+            </section>
+
+        `;
+
+
+        const copyButton =
+            document.getElementById(
+                "copyReferralLinkBtn"
+            );
+
+
+        if (copyButton) {
+
+            copyButton.addEventListener(
+                "click",
+                async function () {
+
+                    if (!referralLink) {
+                        return;
+                    }
+
+
+                    try {
+
+                        await navigator
+                            .clipboard
+                            .writeText(
+                                referralLink
+                            );
+
+                        copyButton.textContent =
+                            "Copied!";
+
+
+                        setTimeout(
+                            function () {
+
+                                copyButton.textContent =
+                                    "Copy";
+
+                            },
+                            1500
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            "Referral link copy failed:",
+                            error
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+    }
+
+
+    async function refreshReferrals() {
+
+        const container =
+            document.getElementById(
+                "referralsContent"
+            );
+
+        if (container) {
+
+            container.innerHTML = `
+                <div class="module-placeholder">
+                    Loading referral information...
+                </div>
+            `;
+
+        }
+
+
+        try {
+
+            await loadReferralData();
+
+        } catch (error) {
+
+            console.error(
+                "Referral loading error:",
+                error
+            );
+
+
+            if (container) {
+
+                container.innerHTML = `
+                    <div class="module-placeholder error-message">
+                        Unable to load referral information.
+                    </div>
+                `;
+
+            }
+
+        }
+
+    }
+
+
+    document.addEventListener(
+        "monarch:module-change",
+        function (event) {
+
+            if (
+                event.detail?.module ===
+                "referrals"
+            ) {
+
+                refreshReferrals();
+
+            }
+
+        }
+    );
+
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+
+    window.MonarchDashboard.referrals = {
+
+        load:
+            refreshReferrals,
+
+        getData:
+            function () {
+
+                return referralData;
+
+            }
+
+    };
+
+
+})();     
 
     /* =========================================================
    PART 12/12 — FINAL DASHBOARD INTEGRATION
