@@ -5478,15 +5478,16 @@ loadInvestmentStats();
 
     function isWithdrawalCompleted(record) {
 
-        const status =
-            getWithdrawalStatus(record);
+    const status =
+        getWithdrawalStatus(record);
 
-        return (
-            status === "approved" ||
-            status === "paid"
-        );
+    return (
+        status === "pending" ||
+        status === "approved" ||
+        status === "paid"
+    );
 
-    }
+}
 
 
     /* ---------------------------------------------------------
