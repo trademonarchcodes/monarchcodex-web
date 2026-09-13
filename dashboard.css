@@ -495,3 +495,493 @@ a {
 
     font-size: 12px;
 }
+
+/* =========================================================
+   MONARCH CODEX — DASHBOARD CSS
+   PART 2/4 — MAIN AREA + HEADER + STATS + CARDS
+   ========================================================= */
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.dashboard-main {
+    min-height: 100vh;
+
+    margin-left: 245px;
+
+    background:
+        radial-gradient(
+            circle at 75% 0%,
+            rgba(212, 175, 55, 0.05),
+            transparent 28%
+        ),
+        var(--black);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.dashboard-header {
+    min-height: 85px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 20px 40px;
+
+    border-bottom: 1px solid var(--border-light);
+
+    background: rgba(5, 5, 5, 0.88);
+}
+
+.header-title h1 {
+    color: var(--white);
+
+    font-size: 22px;
+
+    font-weight: 600;
+}
+
+.header-title h1 span {
+    color: var(--gold);
+}
+
+.header-actions {
+    display: flex;
+
+    align-items: center;
+}
+
+.member-status {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 7px 12px;
+
+    border: 1px solid rgba(76, 175, 80, 0.2);
+
+    border-radius: 20px;
+
+    color: var(--success);
+
+    font-size: 11px;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--success);
+}
+
+
+/* =========================================================
+   MOBILE MENU
+   ========================================================= */
+
+.mobile-menu-btn {
+    display: none;
+
+    padding: 8px 11px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--gold);
+
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   DASHBOARD CONTENT
+   ========================================================= */
+
+.dashboard-content {
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 35px 40px 60px;
+}
+
+.dashboard-section {
+    display: none;
+}
+
+.dashboard-section.active-section {
+    display: block;
+}
+
+
+/* =========================================================
+   SECTION INTRO
+   ========================================================= */
+
+.section-intro {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 25px;
+}
+
+.section-intro h2 {
+    color: var(--white);
+
+    font-size: 24px;
+
+    font-weight: 600;
+}
+
+.section-intro p {
+    max-width: 650px;
+
+    margin-top: 5px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   EYEBROW
+   ========================================================= */
+
+.eyebrow {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--gold);
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   STATS GRID
+   ========================================================= */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+
+/* =========================================================
+   STAT CARD
+   ========================================================= */
+
+.stat-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 20px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border-light);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+}
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background: rgba(212, 175, 55, 0.09);
+
+    color: var(--gold);
+
+    font-weight: 700;
+}
+
+.stat-card span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+.stat-card strong {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--white);
+
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   TWO COLUMN GRID
+   ========================================================= */
+
+.dashboard-grid-two {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 20px;
+}
+
+
+/* =========================================================
+   GENERAL DASHBOARD CARDS
+   ========================================================= */
+
+.dashboard-card,
+.profile-card,
+.payment-details-card,
+.request-card {
+    padding: 25px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border-light);
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+}
+
+
+/* =========================================================
+   CARD HEADING
+   ========================================================= */
+
+.card-heading {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+}
+
+.card-heading h3 {
+    color: var(--white);
+
+    font-size: 17px;
+}
+
+.dashboard-card > p {
+    margin-bottom: 20px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.btn {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 18px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    transition: 0.25s ease;
+}
+
+.btn-gold {
+    border: 1px solid var(--gold);
+
+    background: var(--gold);
+
+    color: #080808;
+}
+
+.btn-gold:hover {
+    background: var(--gold-light);
+
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    border: 1px solid var(--border);
+
+    background: transparent;
+
+    color: var(--gold);
+}
+
+.btn-outline:hover {
+    background: rgba(212, 175, 55, 0.08);
+}
+
+.btn-large {
+    width: 100%;
+
+    min-height: 48px;
+}
+
+
+/* =========================================================
+   PROFILE SUMMARY
+   ========================================================= */
+
+.profile-summary {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.large-avatar {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: rgba(212, 175, 55, 0.1);
+
+    border: 1px solid var(--gold);
+
+    color: var(--gold);
+
+    font-weight: 700;
+}
+
+.profile-summary strong {
+    display: block;
+
+    color: var(--white);
+
+    font-size: 14px;
+}
+
+.profile-summary span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   FORM CONTROLS
+   ========================================================= */
+
+select,
+input[type="file"] {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid var(--border-light);
+
+    border-radius: 8px;
+
+    background: var(--black-3);
+
+    color: var(--white);
+
+    font-size: 12px;
+
+    outline: none;
+}
+
+select:focus {
+    border-color: var(--gold);
+}
+
+input[type="file"] {
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   GENERAL HOVER
+   ========================================================= */
+
+.dashboard-card,
+.profile-card,
+.payment-details-card,
+.request-card,
+.stat-card {
+    transition:
+        border-color 0.25s ease,
+        transform 0.25s ease;
+}
+
+.dashboard-card:hover,
+.profile-card:hover {
+    border-color: rgba(212, 175, 55, 0.18);
+}
