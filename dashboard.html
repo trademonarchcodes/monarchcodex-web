@@ -4409,6 +4409,348 @@ window.MonarchDashboard.investment.getReceiptFile =
     function () {
         return selectedReceiptFile;
     };
+
+ /* =========================================================
+    PART 9/12 — INVESTMENT HISTORY & STATUS TRACKING
+    ========================================================= */
+
+async function loadInvestmentHistory() {
+
+    const historyContainer =
+        document.getElementById("investmentHistory");
+
+    if (!historyContainer) return;
+
+    const user =
+        window.MonarchCodex?.user;
+
+    if (!user) {
+        historyContainer.innerHTML =
+            `<div class="empty-state">Please log in to view your investments.</div>`;
+        return;
+    }
+
+    historyContainer.innerHTML =
+        `<div class="empty-state">Loading investment history...</div>`;
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+                .from("investments")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", {
+                    ascending: false
+                });
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data || data.length === 0) {
+
+            historyContainer.innerHTML =
+                `<div class="empty-state">
+                    No investment requests yet.
+                </div>`;
+
+            return;
+        }
+
+        historyContainer.innerHTML =
+            data.map(investment => {
+
+                const amount =
+                    Number(investment.amount || 0);
+
+                const status =
+                    String(
+                        investment.status || "pending"
+                    ).toLowerCase();
+
+                let statusClass = "pending";
+                let statusText = "Pending";
+
+                if (
+                    status === "confirmed" ||
+                    status === "approved" ||
+                    status === "active" ||
+                    status === "completed"
+                ) {
+                    statusClass = "success";
+                    statusText =
+                        status.charAt(0).toUpperCase() +
+                        status.slice(1);
+                }
+
+                if (
+                    status === "rejected" ||
+                    status === "cancelled" ||
+                    status === "canceled"
+                ) {
+                    statusClass = "danger";
+                    statusText =
+                        status.charAt(0).toUpperCase() +
+                        status.slice(1);
+                }
+
+                const paymentMethod =
+                    String(
+                        investment.payment_method || "—"
+                    );
+
+                const formattedPayment =
+                    paymentMethod === "bank"
+                        ? "Bank Transfer"
+                        : paymentMethod === "crypto"
+                            ? "Crypto Payment"
+                            : paymentMethod;
+
+                const date =
+                    investment.created_at
+                        ? new Date(
+                            investment.created_at
+                        ).toLocaleString()
+                        : "—";
+
+                const confirmedDate =
+                    investment.confirmed_at
+                        ? new Date(
+                            investment.confirmed_at
+                        ).toLocaleString()
+                        : "";
+
+                return `
+                    <div class="investment-history-item">
+
+                        <div class="investment-history-main">
+
+                            <div>
+                                <strong>
+                                    Investment
+                                </strong>
+
+                                <div class="investment-history-meta">
+                                    ${date}
+                                </div>
+                            </div>
+
+                            <div class="investment-history-amount">
+                                $${amount.toLocaleString(
+                                    undefined,
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )}
+                            </div>
+
+                        </div>
+
+                        <div class="investment-history-details">
+
+                            <div>
+                                <span>Payment</span>
+                                <strong>
+                                    ${formattedPayment}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Status</span>
+                                <strong class="status-badge ${statusClass}">
+                                    ${statusText}
+                                </strong>
+                            </div>
+
+                            ${
+                                confirmedDate
+                                    ? `
+                                        <div>
+                                            <span>Confirmed</span>
+                                            <strong>
+                                                ${confirmedDate}
+                                            </strong>
+                                        </div>
+                                      `
+                                    : ""
+                            }
+
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+
+    } catch (error) {
+
+        console.error(
+            "Investment history error:",
+            error
+        );
+
+        historyContainer.innerHTML =
+            `<div class="empty-state">
+                Unable to load investment history.
+            </div>`;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   Investment statistics
+--------------------------------------------------------- */
+
+async function loadInvestmentStats() {
+
+    const user =
+        window.MonarchCodex?.user;
+
+    if (!user) return;
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+                .from("investments")
+                .select("amount, status")
+                .eq("user_id", user.id);
+
+        if (error) {
+            throw error;
+        }
+
+        const investments =
+            data || [];
+
+        let totalInvested = 0;
+        let activeInvestments = 0;
+        let pendingInvestments = 0;
+
+        investments.forEach(investment => {
+
+            const amount =
+                Number(investment.amount || 0);
+
+            const status =
+                String(
+                    investment.status || ""
+                ).toLowerCase();
+
+            if (
+                status === "confirmed" ||
+                status === "approved" ||
+                status === "active" ||
+                status === "completed"
+            ) {
+                totalInvested += amount;
+            }
+
+            if (
+                status === "confirmed" ||
+                status === "approved" ||
+                status === "active"
+            ) {
+                activeInvestments++;
+            }
+
+            if (status === "pending") {
+                pendingInvestments++;
+            }
+
+        });
+
+        const totalElement =
+            document.getElementById(
+                "totalInvested"
+            );
+
+        const activeElement =
+            document.getElementById(
+                "activeInvestments"
+            );
+
+        const pendingElement =
+            document.getElementById(
+                "pendingInvestments"
+            );
+
+        if (totalElement) {
+            totalElement.textContent =
+                `$${totalInvested.toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )}`;
+        }
+
+        if (activeElement) {
+            activeElement.textContent =
+                activeInvestments;
+        }
+
+        if (pendingElement) {
+            pendingElement.textContent =
+                pendingInvestments;
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Investment statistics error:",
+            error
+        );
+    }
+}
+
+
+/* ---------------------------------------------------------
+   Public investment history API
+--------------------------------------------------------- */
+
+window.MonarchDashboard =
+    window.MonarchDashboard || {};
+
+window.MonarchDashboard.investment =
+    window.MonarchDashboard.investment || {};
+
+window.MonarchDashboard.investment.loadHistory =
+    loadInvestmentHistory;
+
+window.MonarchDashboard.investment.loadStats =
+    loadInvestmentStats;
+
+
+/* ---------------------------------------------------------
+   Reload history whenever Investments module opens
+--------------------------------------------------------- */
+
+document.addEventListener(
+    "monarch:module-change",
+    function (event) {
+
+        if (
+            event.detail?.module ===
+            "investments"
+        ) {
+            loadInvestmentHistory();
+            loadInvestmentStats();
+        }
+
+    }
+);
+
+
+/* ---------------------------------------------------------
+   Initial load
+--------------------------------------------------------- */
+
+loadInvestmentHistory();
+loadInvestmentStats();
         
     </script>
 
