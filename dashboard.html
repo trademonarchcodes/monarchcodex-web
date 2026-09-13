@@ -1027,3 +1027,114 @@
     </div>
 
 </section>
+
+<div
+    id="paymentDetailsArea"
+    class="dashboard-card hidden"
+>
+
+    <span class="section-label">
+        PAYMENT INFORMATION
+    </span>
+
+    <h3>Payment Details</h3>
+
+    <p id="paymentInstructions">
+        Follow the payment instructions below.
+    </p>
+
+
+    <!-- BANK PAYMENT -->
+
+    <div
+        id="bankPayment"
+        class="payment-detail-panel hidden"
+    >
+
+        <h4>🏦 Bank Transfer</h4>
+
+        <p>
+            Transfer the required amount to the account below.
+        </p>
+
+        <div class="payment-details-list">
+
+            <div class="payment-detail-row">
+                <span>Bank Name</span>
+                <strong id="bankName">—</strong>
+            </div>
+
+            <div class="payment-detail-row">
+                <span>Account Name</span>
+                <strong id="bankAccountName">—</strong>
+            </div>
+
+            <div class="payment-detail-row">
+                <span>Account Number</span>
+                <strong id="bankAccountNumber">—</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CRYPTO PAYMENT -->
+
+    <div
+        id="cryptoPayment"
+        class="payment-detail-panel hidden"
+    >
+
+        <h4>₿ Cryptocurrency</h4>
+
+        <p>
+            Select the correct network before making payment.
+        </p>
+
+        <label for="cryptoNetwork">
+            Network
+        </label>
+
+        <select id="cryptoNetwork">
+
+            <option value="">
+                Select Network
+            </option>
+
+        </select>
+
+
+        <div
+            id="cryptoWalletArea"
+            class="hidden"
+        >
+
+            <div class="payment-detail-row">
+                <span>Crypto</span>
+                <strong id="selectedCryptoName">—</strong>
+            </div>
+
+            <div class="payment-detail-row">
+                <span>Network</span>
+                <strong id="selectedCryptoNetwork">—</strong>
+            </div>
+
+            <div class="payment-detail-row">
+                <span>Wallet Address</span>
+                <strong id="cryptoWalletAddress">—</strong>
+            </div>
+
+            <button
+                type="button"
+                id="copyCryptoAddressBtn"
+                class="secondary-btn"
+            >
+                Copy Wallet Address
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
