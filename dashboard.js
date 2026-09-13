@@ -1697,7 +1697,9 @@ document.addEventListener(
 
 
     function getElement(id) {
+
         return document.getElementById(id);
+
     }
 
 
@@ -1706,7 +1708,9 @@ document.addEventListener(
         const value = Number(amount);
 
         if (!Number.isFinite(value)) {
+
             return "—";
+
         }
 
         const code = currency || "NGN";
@@ -1725,11 +1729,29 @@ document.addEventListener(
 
         } catch (error) {
 
-            return `${code} ${value.toLocaleString(
-                "en-NG"
-            )}`;
+            return `${code} ${value.toLocaleString("en-NG")}`;
 
         }
+
+    }
+
+
+    function setText(id, value) {
+
+        const element = getElement(id);
+
+        if (!element) {
+
+            return;
+
+        }
+
+        element.textContent =
+            value !== null &&
+            value !== undefined &&
+            value !== ""
+                ? value
+                : "—";
 
     }
 
@@ -1737,54 +1759,42 @@ document.addEventListener(
     function showBankDetails() {
 
         const paymentSection =
-            getElement(
-                "paymentDetailsPanel"
-            );
+            getElement("paymentDetailsPanel");
 
         const bankDetails =
-            getElement(
-                "bankDetails"
-            );
+            getElement("bankDetails");
 
         const cryptoDetails =
-            getElement(
-                "cryptoDetails"
-            );
+            getElement("cryptoDetails");
 
         const request =
-            getElement(
-                "investmentRequest"
-            );
+            getElement("investmentRequest");
 
 
         if (paymentSection) {
 
-            paymentSection.hidden =
-                false;
+            paymentSection.hidden = false;
 
         }
 
 
         if (bankDetails) {
 
-            bankDetails.hidden =
-                false;
+            bankDetails.hidden = false;
 
         }
 
 
         if (cryptoDetails) {
 
-            cryptoDetails.hidden =
-                true;
+            cryptoDetails.hidden = true;
 
         }
 
 
         if (request) {
 
-            request.hidden =
-                false;
+            request.hidden = false;
 
         }
 
@@ -1819,9 +1829,157 @@ document.addEventListener(
     }
 
 
+    function renderBankPaymentDetails(details) {
+
+        if (!details) {
+
+            console.warn(
+                "Monarch Codex: No bank payment details found."
+            );
+
+            return;
+
+        }
+
+
+        bankPaymentDetails = details;
+
+
+        /*
+         * BANK NAME
+         */
+
+        setText(
+            "bankName",
+            details.bank_name ||
+            details.bank ||
+            details.bankName
+        );
+
+
+        /*
+         * ACCOUNT NAME
+         */
+
+        setText(
+            "accountName",
+            details.account_name ||
+            details.account_holder ||
+            details.accountName
+        );
+
+
+        /*
+         * ACCOUNT NUMBER
+         */
+
+        setText(
+            "accountNumber",
+            details.account_number ||
+            details.accountNumber
+        );
+
+
+        /*
+         * AMOUNT
+         */
+
+        const amount =
+            details.amount ||
+            details.minimum_amount ||
+            details.min_amount;
+
+
+        if (amount !== undefined && amount !== null) {
+
+            setText(
+                "bankAmount",
+                formatBankAmount(
+                    amount,
+                    details.currency || "NGN"
+                )
+            );
+
+        }
+
+
+        /*
+         * CURRENCY
+         */
+
+        setText(
+            "bankCurrency",
+            details.currency || "NGN"
+        );
+
+
+        /*
+         * INSTRUCTIONS
+         */
+
+        setText(
+            "bankInstructions",
+            details.instructions ||
+            details.instruction ||
+            details.description
+        );
+
+
+        /*
+         * PAYMENT TITLE
+         */
+
+        setText(
+            "bankPaymentTitle",
+            details.title ||
+            "Bank Transfer"
+        );
+
+
+        /*
+         * SHOW BANK SECTION
+         */
+
+        showBankDetails();
+
+
+        /*
+         * EVENT
+         */
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "monarch:bank-payment-loaded",
+                {
+                    detail: {
+                        details:
+                            bankPaymentDetails
+                    }
+                }
+            )
+        );
+
+    }
+
+
     async function loadBankPaymentDetails() {
 
         try {
+
+            if (
+                typeof supabaseClient ===
+                "undefined" ||
+                !supabaseClient
+            ) {
+
+                console.error(
+                    "Monarch Codex: supabaseClient is not available."
+                );
+
+                return;
+
+            }
+
 
             const {
                 data,
@@ -1849,8 +2007,179 @@ document.addEventListener(
             if (error) {
 
                 console.error(
-                    "Bank payment loading error
-   
+                    "Bank payment loading error:",
+                    error
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !data ||
+                !Array.isArray(data) ||
+                data.length === 0
+            ) {
+
+                console.warn(
+                    "Monarch Codex: No active bank payment details found."
+                );
+
+                return;
+
+            }
+
+
+            renderBankPaymentDetails(
+                data[0]
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Monarch Codex: Unexpected bank payment error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function hideBankDetails() {
+
+        const bankDetails =
+            getElement("bankDetails");
+
+        if (bankDetails) {
+
+            bankDetails.hidden = true;
+
+        }
+
+    }
+
+
+    function initializeBankPaymentModule() {
+
+        /*
+         * LOAD BANK DETAILS
+         */
+
+        loadBankPaymentDetails();
+
+
+        /*
+         * BANK PAYMENT BUTTONS
+         *
+         * The module supports several possible
+         * button IDs so it can work with the
+         * existing dashboard without changing
+         * the rest of the page.
+         */
+
+        const bankButton =
+            getElement("bankPaymentButton") ||
+            getElement("selectBankPayment") ||
+            getElement("bankTransferButton");
+
+
+        if (bankButton) {
+
+            bankButton.addEventListener(
+                "click",
+                function () {
+
+                    showBankDetails();
+
+                }
+            );
+
+        }
+
+
+        /*
+         * LISTEN FOR PAYMENT METHOD EVENTS
+         */
+
+        document.addEventListener(
+            "monarch:show-bank-payment",
+            function () {
+
+                showBankDetails();
+
+            }
+        );
+
+
+        document.addEventListener(
+            "monarch:payment-method-bank",
+            function () {
+
+                showBankDetails();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * INITIALIZE AFTER DOM LOAD
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeBankPaymentModule
+        );
+
+    } else {
+
+        initializeBankPaymentModule();
+
+    }
+
+
+    /*
+     * PUBLIC API
+     *
+     * Other dashboard modules can use these
+     * functions without needing to access
+     * the internal variables directly.
+     */
+
+    window.MonarchBankPayment = {
+
+        load:
+            loadBankPaymentDetails,
+
+        show:
+            showBankDetails,
+
+        hide:
+            hideBankDetails,
+
+        getDetails:
+            function () {
+
+                return bankPaymentDetails;
+
+            },
+
+        formatAmount:
+            formatBankAmount
+
+    };
+
+
+})();
+
 /* =========================================================
    MONARCH CODEX — CRYPTO PAYMENT MODULE
    ========================================================= */
