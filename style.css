@@ -1780,3 +1780,717 @@ input[type="file"]::file-selector-button {
 /* =========================================================
    END OF PART 3
    ========================================================= */
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 4 — CARDS, PANELS, ALERTS & STATUS
+   ========================================================= */
+
+
+/* =========================================================
+   49. CARD SYSTEM
+   ========================================================= */
+
+.card,
+.mc-card {
+    position: relative;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow-small);
+
+    transition:
+        border-color var(--transition),
+        background var(--transition),
+        transform var(--transition),
+        box-shadow var(--transition);
+}
+
+
+.card:hover,
+.mc-card:hover {
+    border-color: var(--border);
+
+    background: var(--panel-light);
+}
+
+
+/* =========================================================
+   50. CARD CONTENT
+   ========================================================= */
+
+.card-header,
+.mc-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    padding: 20px 22px;
+
+    border-bottom: 1px solid var(--border-soft);
+}
+
+
+.card-body,
+.mc-card-body {
+    padding: 22px;
+}
+
+
+.card-footer,
+.mc-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+
+    padding: 16px 22px;
+
+    border-top: 1px solid var(--border-soft);
+}
+
+
+/* =========================================================
+   51. GOLD CARD
+   ========================================================= */
+
+.card-gold,
+.mc-card-gold {
+    border-color: var(--border);
+
+    box-shadow:
+        0 12px 35px rgba(212, 175, 55, 0.06);
+}
+
+
+.card-gold:hover,
+.mc-card-gold:hover {
+    border-color: var(--border-strong);
+
+    box-shadow:
+        0 16px 42px rgba(212, 175, 55, 0.10);
+}
+
+
+/* =========================================================
+   52. CARD TITLE
+   ========================================================= */
+
+.card-title,
+.mc-card-title {
+    color: var(--white);
+
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+
+.card-subtitle,
+.mc-card-subtitle {
+    margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 0.8rem;
+}
+
+
+/* =========================================================
+   53. CARD GRID
+   ========================================================= */
+
+.card-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+
+.card-grid-2 {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+}
+
+
+.card-grid-4 {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================================
+   54. STAT CARD
+   ========================================================= */
+
+.stat-card {
+    position: relative;
+
+    min-height: 130px;
+
+    padding: 20px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow-small);
+}
+
+
+.stat-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 2px;
+
+    background: var(--gold);
+
+    opacity: 0.65;
+}
+
+
+.stat-label {
+    color: var(--muted);
+
+    font-size: 0.78rem;
+    font-weight: 500;
+
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+
+.stat-value {
+    margin-top: 8px;
+
+    color: var(--white);
+
+    font-size: clamp(1.35rem, 3vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+
+.stat-meta {
+    margin-top: 8px;
+
+    color: var(--muted);
+
+    font-size: 0.75rem;
+}
+
+
+/* =========================================================
+   55. FEATURE CARD
+   ========================================================= */
+
+.feature-card {
+    padding: 26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--panel-light),
+            var(--panel)
+        );
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+
+    transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+
+.feature-card:hover {
+    transform: translateY(-3px);
+
+    border-color: var(--border);
+
+    box-shadow: var(--shadow);
+}
+
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 18px;
+
+    color: var(--gold);
+
+    background: rgba(212, 175, 55, 0.08);
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+}
+
+
+.feature-card h3 {
+    margin-bottom: 9px;
+}
+
+
+.feature-card p {
+    color: var(--muted);
+
+    font-size: 0.88rem;
+}
+
+
+/* =========================================================
+   56. CONTENT PANEL
+   ========================================================= */
+
+.content-panel {
+    width: 100%;
+
+    padding: 24px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius);
+}
+
+
+.content-panel + .content-panel {
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   57. INFO BOX
+   ========================================================= */
+
+.info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    padding: 15px 16px;
+
+    color: var(--text-soft);
+
+    background: var(--blue-soft);
+
+    border: 1px solid rgba(77, 163, 255, 0.20);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.84rem;
+}
+
+
+.info-box strong {
+    color: var(--blue);
+}
+
+
+/* =========================================================
+   58. SUCCESS BOX
+   ========================================================= */
+
+.success-box {
+    padding: 15px 16px;
+
+    color: #b9f4d1;
+
+    background: var(--green-soft);
+
+    border: 1px solid rgba(53, 208, 127, 0.22);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.84rem;
+}
+
+
+.success-box strong {
+    color: var(--green);
+}
+
+
+/* =========================================================
+   59. WARNING BOX
+   ========================================================= */
+
+.warning-box {
+    padding: 15px 16px;
+
+    color: #f8d993;
+
+    background: var(--orange-soft);
+
+    border: 1px solid rgba(243, 179, 61, 0.22);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.84rem;
+}
+
+
+.warning-box strong {
+    color: var(--orange);
+}
+
+
+/* =========================================================
+   60. ERROR BOX
+   ========================================================= */
+
+.error-box {
+    padding: 15px 16px;
+
+    color: #ffc0c0;
+
+    background: var(--red-soft);
+
+    border: 1px solid rgba(255, 92, 92, 0.22);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.84rem;
+}
+
+
+.error-box strong {
+    color: var(--red);
+}
+
+
+/* =========================================================
+   61. GENERIC ALERT
+   ========================================================= */
+
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border: 1px solid var(--border-soft);
+
+    border-radius: var(--radius-small);
+
+    font-size: 0.84rem;
+}
+
+
+.alert-gold {
+    color: var(--gold-light);
+
+    background: rgba(212, 175, 55, 0.08);
+
+    border-color: var(--border);
+}
+
+
+.alert-success {
+    color: #b9f4d1;
+
+    background: var(--green-soft);
+
+    border-color: rgba(53, 208, 127, 0.22);
+}
+
+
+.alert-danger {
+    color: #ffc0c0;
+
+    background: var(--red-soft);
+
+    border-color: rgba(255, 92, 92, 0.22);
+}
+
+
+.alert-warning {
+    color: #f8d993;
+
+    background: var(--orange-soft);
+
+    border-color: rgba(243, 179, 61, 0.22);
+}
+
+
+.alert-info {
+    color: #bcdcff;
+
+    background: var(--blue-soft);
+
+    border-color: rgba(77, 163, 255, 0.22);
+}
+
+
+/* =========================================================
+   62. STATUS BADGES
+   ========================================================= */
+
+.status-badge,
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 28px;
+
+    padding: 5px 10px;
+
+    border-radius: var(--radius-round);
+
+    font-size: 0.72rem;
+    font-weight: 600;
+
+    line-height: 1;
+
+    white-space: nowrap;
+}
+
+
+.status-pending,
+.badge-pending {
+    color: var(--orange);
+
+    background: var(--orange-soft);
+
+    border: 1px solid rgba(243, 179, 61, 0.20);
+}
+
+
+.status-approved,
+.badge-approved {
+    color: var(--blue);
+
+    background: var(--blue-soft);
+
+    border: 1px solid rgba(77, 163, 255, 0.20);
+}
+
+
+.status-paid,
+.status-active,
+.badge-paid,
+.badge-active {
+    color: var(--green);
+
+    background: var(--green-soft);
+
+    border: 1px solid rgba(53, 208, 127, 0.20);
+}
+
+
+.status-rejected,
+.status-inactive,
+.badge-rejected,
+.badge-inactive {
+    color: var(--red);
+
+    background: var(--red-soft);
+
+    border: 1px solid rgba(255, 92, 92, 0.20);
+}
+
+
+.status-locked,
+.badge-locked {
+    color: var(--muted);
+
+    background: rgba(255, 255, 255, 0.05);
+
+    border: 1px solid var(--border-soft);
+}
+
+
+/* =========================================================
+   63. PRICE / MONEY DISPLAY
+   ========================================================= */
+
+.money {
+    color: var(--gold);
+
+    font-weight: 700;
+}
+
+
+.money-large {
+    color: var(--white);
+
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+}
+
+
+.money-positive {
+    color: var(--green);
+}
+
+
+.money-negative {
+    color: var(--red);
+}
+
+
+/* =========================================================
+   64. EMPTY STATE
+   ========================================================= */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 180px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    background: var(--panel);
+
+    border: 1px dashed var(--border-soft);
+
+    border-radius: var(--radius);
+}
+
+
+.empty-state-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 12px;
+
+    color: var(--gold);
+
+    background: rgba(212, 175, 55, 0.07);
+
+    border-radius: 50%;
+}
+
+
+.empty-state h3 {
+    margin-bottom: 6px;
+
+    font-size: 1rem;
+}
+
+
+.empty-state p {
+    max-width: 460px;
+
+    color: var(--muted);
+
+    font-size: 0.82rem;
+}
+
+
+/* =========================================================
+   65. RESPONSIVE CARDS
+   ========================================================= */
+
+@media (max-width: 960px) {
+
+    .card-grid-4 {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .card-grid-2,
+    .card-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 640px) {
+
+    .card-grid,
+    .card-grid-2,
+    .card-grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+
+    .card-header,
+    .mc-card-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .card-footer,
+    .mc-card-footer {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+
+    .content-panel {
+        padding: 18px;
+    }
+
+
+    .card-body,
+    .mc-card-body {
+        padding: 18px;
+    }
+
+
+    .stat-card {
+        min-height: 115px;
+
+        padding: 17px;
+    }
+
+}
+
+
+/* =========================================================
+   END OF PART 4
+   ========================================================= */
