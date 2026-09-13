@@ -947,3 +947,128 @@ a {
     text-align: right;
     word-break: break-word;
 }
+
+/* =========================================
+   RECEIPT UPLOAD
+========================================= */
+
+#receiptInput {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+
+    background: var(--black-soft);
+    color: var(--text-soft);
+}
+
+#receiptArea small {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-soft);
+    font-size: 10px;
+}
+
+.receipt-preview {
+    margin-top: 15px;
+    padding: 15px;
+
+    background: var(--black-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    color: var(--text-soft);
+    font-size: 12px;
+}
+
+.receipt-preview img {
+    display: block;
+    max-width: 100%;
+    max-height: 300px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+#submitInvestmentBtn {
+    margin-top: 18px;
+}
+
+.primary-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================
+   FORM MESSAGE
+========================================= */
+
+.form-message {
+    margin-top: 15px;
+    padding: 12px 14px;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.form-message.success {
+    border: 1px solid rgba(53, 208, 127, 0.25);
+    background: rgba(53, 208, 127, 0.08);
+    color: var(--success);
+}
+
+.form-message.error {
+    border: 1px solid rgba(255, 92, 92, 0.25);
+    background: rgba(255, 92, 92, 0.08);
+    color: var(--danger);
+}
+
+
+/* =========================================
+   HISTORY
+========================================= */
+
+.investment-history {
+    display: grid;
+    gap: 12px;
+}
+
+.investment-history-item {
+    padding: 17px;
+
+    background: var(--black-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.history-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.history-top h4 {
+    font-size: 14px;
+}
+
+.history-amount {
+    color: var(--gold);
+    font-weight: 700;
+}
+
+.history-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    margin-top: 10px;
+
+    color: var(--text-soft);
+    font-size: 11px;
+}
