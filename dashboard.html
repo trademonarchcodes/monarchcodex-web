@@ -225,10 +225,236 @@
                  ================================================= -->
 
             <section
-                id="dashboardModules"
-                class="module-area"
+    id="dashboardModules"
+    class="module-area"
+>
+
+    <!-- =====================================================
+         DASHBOARD NAVIGATION
+         ===================================================== -->
+
+    <nav
+        id="dashboardNavigation"
+        class="dashboard-navigation"
+        aria-label="Dashboard navigation"
+    >
+
+        <button
+            type="button"
+            class="dashboard-nav-btn active"
+            data-module="overview"
+        >
+            Overview
+        </button>
+
+        <button
+            type="button"
+            class="dashboard-nav-btn"
+            data-module="investments"
+        >
+            Investments
+        </button>
+
+        <button
+            type="button"
+            class="dashboard-nav-btn"
+            data-module="earnings"
+        >
+            Earnings
+        </button>
+
+        <button
+            type="button"
+            class="dashboard-nav-btn"
+            data-module="withdrawals"
+        >
+            Withdrawals
+        </button>
+
+        <!--
+            FUTURE MODULES
+
+            Academy
+            Signals
+            Referrals
+            Certificates
+
+            will be registered here later.
+        -->
+
+    </nav>
+
+
+    <!-- =====================================================
+         MODULE VIEWPORT
+         ===================================================== -->
+
+    <div
+        id="moduleViewport"
+        class="module-viewport"
+    >
+
+        <!-- ================================================
+             OVERVIEW MODULE
+             ================================================ -->
+
+        <section
+            id="module-overview"
+            class="dashboard-module active"
+            data-module-panel="overview"
+        >
+
+            <div class="module-heading">
+
+                <h2>
+                    Dashboard Overview
+                </h2>
+
+                <p>
+                    Welcome to your MONARCH CODEX member area.
+                </p>
+
+            </div>
+
+
+            <div
+                id="overviewContent"
+                class="module-content"
             >
 
+                <div class="module-placeholder">
+                    Your account overview will appear here.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             INVESTMENTS MODULE
+             ================================================ -->
+
+        <section
+            id="module-investments"
+            class="dashboard-module"
+            data-module-panel="investments"
+        >
+
+            <div class="module-heading">
+
+                <h2>
+                    Investments
+                </h2>
+
+                <p>
+                    Manage your investment packages
+                    and requests.
+                </p>
+
+            </div>
+
+
+            <div
+                id="investmentsContent"
+                class="module-content"
+            >
+
+                <div class="module-placeholder">
+                    Investment module loading...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             EARNINGS MODULE
+             ================================================ -->
+
+        <section
+            id="module-earnings"
+            class="dashboard-module"
+            data-module-panel="earnings"
+        >
+
+            <div class="module-heading">
+
+                <h2>
+                    Earnings
+                </h2>
+
+                <p>
+                    View your available earnings and profit history.
+                </p>
+
+            </div>
+
+
+            <div
+                id="earningsContent"
+                class="module-content"
+            >
+
+                <div class="module-placeholder">
+                    Earnings module will load here.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             WITHDRAWALS MODULE
+             ================================================ -->
+
+        <section
+            id="module-withdrawals"
+            class="dashboard-module"
+            data-module-panel="withdrawals"
+        >
+
+            <div class="module-heading">
+
+                <h2>
+                    Withdrawals
+                </h2>
+
+                <p>
+                    Request and track your withdrawals.
+                </p>
+
+            </div>
+
+
+            <div
+                id="withdrawalsContent"
+                class="module-content"
+            >
+
+                <div class="module-placeholder">
+                    Withdrawal module will load here.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================
+             FUTURE MODULE MOUNT POINT
+             ================================================ -->
+
+        <div
+            id="futureModules"
+            class="future-modules"
+        ></div>
+
+    </div>
+
+</section>
                 <div class="module-placeholder">
                     Dashboard modules will load here.
                 </div>
@@ -823,6 +1049,302 @@
 
             }
         );
+
+        <script>
+/* =========================================================
+   MONARCH CODEX — MODULE NAVIGATION CONTROLLER
+   PART 3/12
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+    /*
+     * -------------------------------------------------------
+     * MODULE STATE
+     * -------------------------------------------------------
+     */
+
+    let activeModule = "overview";
+
+
+    /*
+     * -------------------------------------------------------
+     * SHOW MODULE
+     * -------------------------------------------------------
+     */
+
+    function showDashboardModule(moduleName) {
+
+        if (!moduleName) {
+            moduleName = "overview";
+        }
+
+        const panels = document.querySelectorAll(
+            "[data-module-panel]"
+        );
+
+        const buttons = document.querySelectorAll(
+            "[data-module]"
+        );
+
+        let moduleExists = false;
+
+        panels.forEach(function (panel) {
+
+            const panelName =
+                panel.getAttribute("data-module-panel");
+
+            if (panelName === moduleName) {
+
+                panel.classList.add("active");
+
+                panel.removeAttribute("hidden");
+
+                moduleExists = true;
+
+            } else {
+
+                panel.classList.remove("active");
+
+                panel.setAttribute("hidden", "hidden");
+
+            }
+
+        });
+
+
+        /*
+         * ---------------------------------------------------
+         * UPDATE NAVIGATION BUTTONS
+         * ---------------------------------------------------
+         */
+
+        buttons.forEach(function (button) {
+
+            const buttonModule =
+                button.getAttribute("data-module");
+
+            if (
+                buttonModule === moduleName &&
+                moduleExists
+            ) {
+
+                button.classList.add("active");
+
+                button.setAttribute(
+                    "aria-current",
+                    "page"
+                );
+
+            } else {
+
+                button.classList.remove("active");
+
+                button.removeAttribute(
+                    "aria-current"
+                );
+
+            }
+
+        });
+
+
+        /*
+         * ---------------------------------------------------
+         * FALLBACK
+         * ---------------------------------------------------
+         */
+
+        if (!moduleExists) {
+
+            moduleName = "overview";
+
+            panels.forEach(function (panel) {
+
+                const panelName =
+                    panel.getAttribute(
+                        "data-module-panel"
+                    );
+
+                if (panelName === "overview") {
+
+                    panel.classList.add("active");
+
+                    panel.removeAttribute("hidden");
+
+                } else {
+
+                    panel.classList.remove("active");
+
+                    panel.setAttribute(
+                        "hidden",
+                        "hidden"
+                    );
+
+                }
+
+            });
+
+            buttons.forEach(function (button) {
+
+                const buttonModule =
+                    button.getAttribute("data-module");
+
+                if (buttonModule === "overview") {
+
+                    button.classList.add("active");
+
+                    button.setAttribute(
+                        "aria-current",
+                        "page"
+                    );
+
+                } else {
+
+                    button.classList.remove("active");
+
+                    button.removeAttribute(
+                        "aria-current"
+                    );
+
+                }
+
+            });
+
+        }
+
+
+        activeModule = moduleName;
+
+
+        /*
+         * ---------------------------------------------------
+         * NOTIFY MODULE SYSTEM
+         * ---------------------------------------------------
+         */
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "monarch:module-change",
+                {
+                    detail: {
+                        module: activeModule
+                    }
+                }
+            )
+        );
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * NAVIGATION CLICK HANDLER
+     * -------------------------------------------------------
+     */
+
+    function initializeModuleNavigation() {
+
+        const navigation =
+            document.getElementById(
+                "dashboardNavigation"
+            );
+
+        if (!navigation) {
+            return;
+        }
+
+
+        navigation.addEventListener(
+            "click",
+            function (event) {
+
+                const button =
+                    event.target.closest(
+                        "[data-module]"
+                    );
+
+                if (!button) {
+                    return;
+                }
+
+                const moduleName =
+                    button.getAttribute(
+                        "data-module"
+                    );
+
+                if (!moduleName) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                showDashboardModule(
+                    moduleName
+                );
+
+            }
+        );
+
+
+        /*
+         * Start on Overview
+         */
+
+        showDashboardModule("overview");
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * PUBLIC MODULE API
+     * -------------------------------------------------------
+     */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+    window.MonarchDashboard.navigation = {
+
+        show: showDashboardModule,
+
+        getActive: function () {
+            return activeModule;
+        },
+
+        initialize:
+            initializeModuleNavigation
+
+    };
+
+
+    /*
+     * -------------------------------------------------------
+     * INITIALIZE
+     * -------------------------------------------------------
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeModuleNavigation
+        );
+
+    } else {
+
+        initializeModuleNavigation();
+
+    }
+
+})();
+</script>
 
     </script>
 
