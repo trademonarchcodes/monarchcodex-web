@@ -2080,10 +2080,10 @@ document.addEventListener(
          */
 
         const bankButton =
-            getElement("bankPaymentButton") ||
-            getElement("selectBankPayment") ||
-            getElement("bankTransferButton");
-
+    getElement("bankPayment") ||
+    getElement("bankPaymentButton") ||
+    getElement("selectBankPayment") ||
+    getElement("bankTransferButton");
 
         if (bankButton) {
 
