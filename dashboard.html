@@ -4751,6 +4751,594 @@ document.addEventListener(
 
 loadInvestmentHistory();
 loadInvestmentStats();
+
+        /* =========================================================
+   PART 10/12 — EARNINGS MODULE
+   ========================================================= */
+
+(function () {
+
+    "use strict";
+
+    let earningsRecords = [];
+
+
+    /* ---------------------------------------------------------
+       ELEMENT
+    --------------------------------------------------------- */
+
+    function getEarningsContainer() {
+
+        return document.getElementById(
+            "earningsContent"
+        );
+
+    }
+
+
+    /* ---------------------------------------------------------
+       FORMAT MONEY
+    --------------------------------------------------------- */
+
+    function formatEarningsAmount(amount) {
+
+        const value = Number(amount || 0);
+
+        if (!Number.isFinite(value)) {
+            return "$0.00";
+        }
+
+        return value.toLocaleString(
+            "en-US",
+            {
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+    }
+
+
+    /* ---------------------------------------------------------
+       ESCAPE HTML
+    --------------------------------------------------------- */
+
+    function escapeEarningsText(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    /* ---------------------------------------------------------
+       GET EARNING AMOUNT
+    --------------------------------------------------------- */
+
+    function getEarningAmount(record) {
+
+        const possibleValues = [
+            record.amount,
+            record.profit,
+            record.earning,
+            record.earnings,
+            record.value
+        ];
+
+        for (
+            const possibleValue of possibleValues
+        ) {
+
+            const number =
+                Number(possibleValue);
+
+            if (
+                Number.isFinite(number)
+            ) {
+                return number;
+            }
+
+        }
+
+        return 0;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       GET EARNING DATE
+    --------------------------------------------------------- */
+
+    function getEarningDate(record) {
+
+        const dateValue =
+            record.created_at ||
+            record.earned_at ||
+            record.date ||
+            record.updated_at;
+
+        if (!dateValue) {
+            return "—";
+        }
+
+        const date =
+            new Date(dateValue);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return escapeEarningsText(
+                dateValue
+            );
+        }
+
+        return date.toLocaleString();
+
+    }
+
+
+    /* ---------------------------------------------------------
+       GET DESCRIPTION
+    --------------------------------------------------------- */
+
+    function getEarningDescription(record) {
+
+        return (
+            record.description ||
+            record.note ||
+            record.title ||
+            record.type ||
+            "Profit"
+        );
+
+    }
+
+
+    /* ---------------------------------------------------------
+       RENDER LOADING
+    --------------------------------------------------------- */
+
+    function renderEarningsLoading() {
+
+        const container =
+            getEarningsContainer();
+
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="module-placeholder">
+                Loading your earnings...
+            </div>
+        `;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       RENDER EMPTY
+    --------------------------------------------------------- */
+
+    function renderEarningsEmpty() {
+
+        const container =
+            getEarningsContainer();
+
+        if (!container) return;
+
+        container.innerHTML = `
+
+            <div class="investment-stats">
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Total Earnings
+                    </span>
+
+                    <strong class="stat-value">
+                        $0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <div class="module-placeholder">
+                No earnings have been recorded yet.
+            </div>
+
+        `;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       RENDER EARNINGS
+    --------------------------------------------------------- */
+
+    function renderEarnings(records) {
+
+        const container =
+            getEarningsContainer();
+
+        if (!container) return;
+
+        if (
+            !Array.isArray(records) ||
+            records.length === 0
+        ) {
+
+            renderEarningsEmpty();
+            return;
+
+        }
+
+
+        let totalEarnings = 0;
+
+        records.forEach(function (record) {
+
+            totalEarnings +=
+                getEarningAmount(record);
+
+        });
+
+
+        const historyRows =
+            records.map(function (record) {
+
+                const amount =
+                    getEarningAmount(record);
+
+                const description =
+                    escapeEarningsText(
+                        getEarningDescription(record)
+                    );
+
+                const date =
+                    getEarningDate(record);
+
+                const status =
+                    escapeEarningsText(
+                        record.status ||
+                        "Recorded"
+                    );
+
+                return `
+
+                    <div
+                        class="investment-history-item"
+                    >
+
+                        <div
+                            class="investment-history-main"
+                        >
+
+                            <div>
+
+                                <strong>
+                                    ${description}
+                                </strong>
+
+                                <div
+                                    class="investment-history-meta"
+                                >
+                                    ${date}
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                class="investment-history-amount"
+                            >
+                                ${formatEarningsAmount(
+                                    amount
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="investment-history-details"
+                        >
+
+                            <div>
+
+                                <span>
+                                    Status
+                                </span>
+
+                                <strong>
+                                    ${status}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }).join("");
+
+
+        container.innerHTML = `
+
+            <div class="investment-stats">
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Total Earnings
+                    </span>
+
+                    <strong
+                        class="stat-value"
+                    >
+                        ${formatEarningsAmount(
+                            totalEarnings
+                        )}
+                    </strong>
+
+                </div>
+
+                <div class="investment-stat-card">
+
+                    <span class="stat-label">
+                        Earnings Records
+                    </span>
+
+                    <strong
+                        class="stat-value"
+                    >
+                        ${records.length}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <section
+                class="investment-section"
+            >
+
+                <div class="section-heading">
+
+                    <h3>
+                        Earnings History
+                    </h3>
+
+                    <p>
+                        Your recorded profits and earnings.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="investment-history"
+                >
+
+                    ${historyRows}
+
+                </div>
+
+            </section>
+
+        `;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       LOAD EARNINGS
+    --------------------------------------------------------- */
+
+    async function loadEarnings() {
+
+        const container =
+            getEarningsContainer();
+
+        if (!container) return;
+
+        const user =
+            window.MonarchCodex?.user;
+
+        if (!user) {
+
+            container.innerHTML = `
+                <div class="module-placeholder">
+                    Please log in to view your earnings.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        renderEarningsLoading();
+
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+
+                .from("earnings")
+
+                .select("*")
+
+                .eq(
+                    "user_id",
+                    user.id
+                )
+
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            earningsRecords =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+
+            renderEarnings(
+                earningsRecords
+            );
+
+
+            /* -------------------------------------------------
+               Make earnings available globally
+            ------------------------------------------------- */
+
+            window.MonarchDashboard =
+                window.MonarchDashboard ||
+                {};
+
+            window.MonarchDashboard.earnings =
+                window.MonarchDashboard.earnings ||
+                {};
+
+            window.MonarchDashboard.earnings.records =
+                earningsRecords;
+
+
+            let total =
+                0;
+
+            earningsRecords.forEach(
+                function (record) {
+
+                    total +=
+                        getEarningAmount(
+                            record
+                        );
+
+                }
+            );
+
+
+            window.MonarchDashboard.earnings.total =
+                total;
+
+
+        } catch (error) {
+
+            console.error(
+                "Earnings loading error:",
+                error
+            );
+
+
+            container.innerHTML = `
+
+                <div class="module-placeholder">
+
+                    Unable to load your earnings.
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+
+    /* ---------------------------------------------------------
+       MODULE NAVIGATION
+    --------------------------------------------------------- */
+
+    document.addEventListener(
+        "monarch:module-change",
+        function (event) {
+
+            if (
+                event.detail?.module ===
+                "earnings"
+            ) {
+
+                loadEarnings();
+
+            }
+
+        }
+    );
+
+
+    /* ---------------------------------------------------------
+       PUBLIC API
+    --------------------------------------------------------- */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard ||
+        {};
+
+    window.MonarchDashboard.earnings =
+        window.MonarchDashboard.earnings ||
+        {};
+
+    window.MonarchDashboard.earnings.load =
+        loadEarnings;
+
+    window.MonarchDashboard.earnings.getRecords =
+        function () {
+
+            return earningsRecords;
+
+        };
+
+    window.MonarchDashboard.earnings.getTotal =
+        function () {
+
+            return earningsRecords.reduce(
+                function (total, record) {
+
+                    return total +
+                        getEarningAmount(
+                            record
+                        );
+
+                },
+                0
+            );
+
+        };
+
+
+})();
         
     </script>
 
