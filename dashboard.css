@@ -1377,3 +1377,108 @@ select option {
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 600px) {
+
+    .dashboard-card {
+        padding: 18px;
+    }
+
+    .welcome-card {
+        gap: 14px;
+    }
+
+    .welcome-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+    }
+
+    .welcome-content h2 {
+        font-size: 18px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-header {
+        align-items: flex-start;
+    }
+
+    .profile-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
+    }
+
+    .payment-detail-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .payment-detail-row strong {
+        max-width: 100%;
+        text-align: left;
+    }
+
+    .history-top,
+    .earning-item,
+    .withdrawal-top,
+    .referral-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .history-details,
+    .withdrawal-details {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .earnings-summary,
+    .withdrawal-summary,
+    .referral-summary {
+        padding: 15px;
+    }
+
+    .earnings-summary strong,
+    .withdrawal-summary strong,
+    .referral-summary strong {
+        font-size: 17px;
+    }
+
+    .section-heading {
+        margin-bottom: 18px;
+    }
+}
+
+
+/* =========================================
+   SCROLLBAR
+========================================= */
+
+::-webkit-scrollbar {
+    width: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.35);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+}
