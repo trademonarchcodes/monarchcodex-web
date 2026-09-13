@@ -380,3 +380,621 @@
 
 </body>
 </html>
+
+<div id="investmentsContent">
+
+    <!-- =================================================
+         INVESTMENT SUMMARY
+         ================================================= -->
+
+    <section class="investment-section">
+
+        <div class="section-heading">
+
+            <h3>
+                Investment Summary
+            </h3>
+
+            <p>
+                Your current investment position.
+            </p>
+
+        </div>
+
+        <div
+            id="investmentStats"
+            class="investment-stats"
+        >
+
+            <div class="investment-stat-card">
+
+                <span class="stat-label">
+                    Total Invested
+                </span>
+
+                <span
+                    id="totalInvested"
+                    class="stat-value"
+                >
+                    ₦0
+                </span>
+
+            </div>
+
+
+            <div class="investment-stat-card">
+
+                <span class="stat-label">
+                    Active Investments
+                </span>
+
+                <span
+                    id="activeInvestments"
+                    class="stat-value"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="investment-stat-card">
+
+                <span class="stat-label">
+                    Pending Investments
+                </span>
+
+                <span
+                    id="pendingInvestments"
+                    class="stat-value"
+                >
+                    0
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         INVESTMENT NOTICE
+         ================================================= -->
+
+    <section class="investment-section">
+
+        <div class="investment-notice">
+
+            <strong>
+                Investment Notice
+            </strong>
+
+            <br>
+
+            Select an investment package below,
+            choose your payment method and submit
+            your payment receipt for verification.
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         INVESTMENT PACKAGES
+         ================================================= -->
+
+    <section
+        id="investmentPackagesSection"
+        class="investment-section"
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Investment Packages
+            </h3>
+
+            <p>
+                Choose an available package to begin.
+            </p>
+
+        </div>
+
+
+        <div
+            id="packagesLoading"
+            class="loading-state"
+        >
+            Loading investment packages...
+        </div>
+
+
+        <div
+            id="packagesGrid"
+            class="packages-grid"
+        >
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PAYMENT SECTION
+         ================================================= -->
+
+    <section
+        id="paymentSection"
+        class="investment-section"
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Payment Method
+            </h3>
+
+            <p>
+                Select how you want to make your payment.
+            </p>
+
+        </div>
+
+
+        <div
+            id="paymentMethodOptions"
+            class="payment-method-options"
+        >
+
+            <button
+                type="button"
+                id="bankPayment"
+                class="payment-method-btn"
+            >
+
+                <span class="payment-method-title">
+                    Bank Transfer
+                </span>
+
+                <span class="payment-method-description">
+                    Pay directly through the available
+                    bank account details.
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                id="cryptoPayment"
+                class="payment-method-btn"
+            >
+
+                <span class="payment-method-title">
+                    Crypto Payment
+                </span>
+
+                <span class="payment-method-description">
+                    Pay using an available cryptocurrency
+                    network.
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <!-- =============================================
+             PAYMENT DETAILS
+             ============================================= -->
+
+        <div
+            id="paymentDetailsPanel"
+            class="payment-details"
+            style="display:none;"
+        >
+
+
+            <!-- BANK DETAILS -->
+
+            <div
+                id="bankDetails"
+                style="display:none;"
+            >
+
+                <div class="section-heading">
+
+                    <h3>
+                        Bank Transfer Details
+                    </h3>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Bank
+                    </span>
+
+                    <strong id="bankName">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Account Name
+                    </span>
+
+                    <strong id="bankAccountName">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Account Number
+                    </span>
+
+                    <strong id="bankAccountNumber">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Minimum Amount
+                    </span>
+
+                    <strong id="bankMinimumAmount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Fee
+                    </span>
+
+                    <strong id="bankFeeAmount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="bankTotalAmount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    id="bankInstructions"
+                    class="payment-instructions"
+                >
+                </div>
+
+            </div>
+
+
+            <!-- CRYPTO DETAILS -->
+
+            <div
+                id="cryptoDetails"
+                style="display:none;"
+            >
+
+                <div class="section-heading">
+
+                    <h3>
+                        Crypto Payment
+                    </h3>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="cryptoNetwork">
+                        Select Network
+                    </label>
+
+                    <select
+                        id="cryptoNetwork"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Select network
+                        </option>
+
+                        <option value="BEP20">
+                            BEP20
+                        </option>
+
+                        <option value="Arbitrum">
+                            Arbitrum
+                        </option>
+
+                        <option value="TON">
+                            TON
+                        </option>
+
+                        <option value="Solana">
+                            Solana
+                        </option>
+
+                        <option value="ERC20">
+                            Ethereum ERC20
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="cryptoWalletBox"
+                    class="crypto-wallet-box"
+                    style="display:none;"
+                >
+
+                    <div
+                        id="selectedCryptoNetwork"
+                        class="selected-network"
+                    >
+                    </div>
+
+
+                    <div class="wallet-address-row">
+
+                        <code
+                            id="cryptoWalletAddress"
+                        >
+                        </code>
+
+                        <button
+                            type="button"
+                            id="copyWalletBtn"
+                            class="copy-wallet-btn"
+                        >
+                            Copy Address
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Minimum Amount
+                    </span>
+
+                    <strong id="cryptoMinimumAmount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Fee
+                    </span>
+
+                    <strong id="cryptoFeeAmount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="cryptoTotalAmount">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    id="cryptoInstructions"
+                    class="payment-instructions"
+                >
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         INVESTMENT REQUEST
+         ================================================= -->
+
+    <section
+        id="investmentRequest"
+        class="investment-request"
+        style="display:none;"
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Investment Request
+            </h3>
+
+            <p>
+                Review your investment and submit
+                your payment receipt.
+            </p>
+
+        </div>
+
+
+        <div class="request-summary">
+
+            <div class="request-summary-item">
+
+                <span>
+                    Package
+                </span>
+
+                <strong id="selectedPackageName">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="request-summary-item">
+
+                <span>
+                    Amount
+                </span>
+
+                <strong id="investmentAmountDisplay">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="request-summary-item">
+
+                <span>
+                    Payment Method
+                </span>
+
+                <strong id="selectedPaymentMethodDisplay">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <input
+            type="hidden"
+            id="investmentAmount"
+        >
+
+
+        <div
+            id="investmentValidationMessage"
+            class="alert"
+            style="display:none;"
+        >
+        </div>
+
+
+        <!-- RECEIPT -->
+
+        <div
+            id="receiptArea"
+            class="receipt-area"
+        >
+
+            <label for="receiptInput">
+                Upload Payment Receipt
+            </label>
+
+            <input
+                type="file"
+                id="receiptInput"
+                accept="image/*,.pdf"
+            >
+
+
+            <div
+                id="receiptPreview"
+                class="receipt-preview"
+            >
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            id="submitInvestmentBtn"
+            class="btn"
+        >
+            Submit Investment Request
+        </button>
+
+
+        <div
+            id="receiptConfirmation"
+            class="alert alert-success"
+            style="display:none;"
+        >
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         INVESTMENT HISTORY
+         ================================================= -->
+
+    <section
+        id="investmentHistorySection"
+        class="investment-section"
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Investment History
+            </h3>
+
+            <p>
+                Review your previous investment activity.
+            </p>
+
+        </div>
+
+
+        <div
+            id="investmentHistory"
+            class="investment-history"
+        >
+        </div>
+
+    </section>
+
+</div>
