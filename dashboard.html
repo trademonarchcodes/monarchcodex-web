@@ -939,3 +939,91 @@
     </div>
 
 </section>
+
+<section
+    id="selectedInvestmentSection"
+    class="dashboard-section"
+>
+
+    <div
+        id="selectedPackageCard"
+        class="dashboard-card hidden"
+    >
+
+        <span class="section-label">
+            SELECTED PACKAGE
+        </span>
+
+        <h3 id="selectedPackageName">
+            —
+        </h3>
+
+        <div class="info-grid">
+
+            <div class="info-item">
+                <span>Investment Amount</span>
+
+                <strong id="selectedPackageAmount">
+                    $0.00
+                </strong>
+            </div>
+
+            <div class="info-item">
+                <span>Status</span>
+
+                <strong>Active</strong>
+            </div>
+
+        </div>
+
+        <input
+            type="hidden"
+            id="selectedPackageId"
+        >
+
+        <input
+            type="hidden"
+            id="investmentAmount"
+        >
+
+    </div>
+
+
+    <div
+        id="paymentMethodCard"
+        class="dashboard-card hidden"
+    >
+
+        <span class="section-label">
+            STEP 2
+        </span>
+
+        <h3>Select Payment Method</h3>
+
+        <div
+            id="paymentMethodsLoading"
+            class="inline-loading"
+        >
+            Loading payment methods...
+        </div>
+
+        <div
+            id="paymentMethodsGrid"
+            class="payment-methods-grid"
+        >
+            <!-- Payment methods from Supabase -->
+        </div>
+
+        <input
+            type="hidden"
+            id="selectedPaymentMethod"
+        >
+
+        <input
+            type="hidden"
+            id="selectedPaymentDetailId"
+        >
+
+    </div>
+
+</section>
