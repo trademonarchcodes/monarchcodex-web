@@ -869,3 +869,73 @@
                     </div>
 
                 </section>
+
+<section
+    id="investmentSection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                MONARCH INVESTMENT
+            </span>
+
+            <h2>Make an Investment</h2>
+
+            <p>
+                Select an available package to continue.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div class="card-heading">
+
+            <div>
+                <span class="section-label">
+                    STEP 1
+                </span>
+
+                <h3>Select Your Package</h3>
+            </div>
+
+        </div>
+
+
+        <div
+            id="packagesLoading"
+            class="inline-loading"
+        >
+            Loading available packages...
+        </div>
+
+
+        <div
+            id="packagesGrid"
+            class="packages-grid"
+        >
+            <!-- Packages loaded from Supabase -->
+        </div>
+
+
+        <div
+            id="packagesEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Packages Available</h3>
+
+            <p>
+                There are currently no active packages.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
