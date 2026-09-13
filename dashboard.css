@@ -1027,3 +1027,691 @@ img {
     font-size: .72rem;
     font-weight: 850;
 }
+
+/* =========================================================
+   MONARCH CODEX — MEMBER DASHBOARD
+   PART 3 OF 4
+   FORMS • STATUS • BUTTONS • HISTORY • EARNINGS
+   ========================================================= */
+
+
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--mc-text);
+
+    font-size: .74rem;
+    font-weight: 750;
+}
+
+.form-control,
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 10px 13px;
+
+    color: var(--mc-white);
+
+    background: #0a0a0a;
+
+    border:
+        1px solid rgba(255, 255, 255, .10);
+
+    border-radius: 9px;
+
+    outline: none;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.form-control:focus,
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    background: #0d0d0d;
+
+    border-color:
+        rgba(212, 175, 55, .55);
+
+    box-shadow:
+        0 0 0 3px rgba(212, 175, 55, .07);
+}
+
+.form-group textarea {
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+.form-group select option {
+    color: #111;
+
+    background: #fff;
+}
+
+.form-help {
+    display: block;
+
+    margin-top: 6px;
+
+    color: var(--mc-muted-2);
+
+    font-size: .68rem;
+}
+
+
+/* =========================================================
+   INVESTMENT REQUEST
+   ========================================================= */
+
+.investment-request {
+    padding: 23px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(212, 175, 55, .06),
+            rgba(255, 255, 255, .018)
+        );
+
+    border:
+        1px solid rgba(212, 175, 55, .18);
+
+    border-radius: var(--mc-radius);
+
+    box-shadow: var(--mc-shadow-soft);
+}
+
+.request-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 12px;
+
+    margin-bottom: 20px;
+}
+
+.request-summary-item {
+    padding: 14px;
+
+    background:
+        rgba(0, 0, 0, .25);
+
+    border:
+        1px solid rgba(255, 255, 255, .06);
+
+    border-radius: 10px;
+}
+
+.request-summary-item span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--mc-muted);
+
+    font-size: .65rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.request-summary-item strong {
+    display: block;
+
+    color: var(--mc-gold-light);
+
+    font-size: .82rem;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   RECEIPT UPLOAD
+   ========================================================= */
+
+.receipt-area {
+    margin-top: 18px;
+
+    padding: 18px;
+
+    background:
+        rgba(255, 255, 255, .02);
+
+    border:
+        1px dashed rgba(212, 175, 55, .28);
+
+    border-radius: 12px;
+}
+
+.receipt-area label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--mc-white);
+
+    font-size: .75rem;
+    font-weight: 800;
+}
+
+.receipt-area input[type="file"] {
+    width: 100%;
+
+    padding: 12px;
+
+    color: var(--mc-muted);
+
+    background: #080808;
+
+    border:
+        1px solid rgba(255, 255, 255, .08);
+
+    border-radius: 9px;
+
+    font-size: .7rem;
+}
+
+.receipt-preview {
+    margin-top: 14px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #050505;
+}
+
+.receipt-preview img {
+    display: block;
+
+    width: 100%;
+    max-height: 300px;
+
+    object-fit: contain;
+}
+
+
+/* =========================================================
+   PRIMARY BUTTONS
+   ========================================================= */
+
+.btn,
+.primary-btn,
+.action-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 43px;
+
+    padding: 10px 17px;
+
+    color: #080808;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--mc-gold-light),
+            var(--mc-gold)
+        );
+
+    border:
+        1px solid var(--mc-gold);
+
+    border-radius: 9px;
+
+    font-size: .74rem;
+    font-weight: 850;
+
+    text-decoration: none;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        filter .2s ease;
+}
+
+.btn:hover,
+.primary-btn:hover,
+.action-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(212, 175, 55, .18);
+
+    filter: brightness(1.04);
+}
+
+
+/* =========================================================
+   SECONDARY BUTTONS
+   ========================================================= */
+
+.secondary-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 9px 16px;
+
+    color: var(--mc-text);
+
+    background:
+        rgba(255, 255, 255, .025);
+
+    border:
+        1px solid rgba(255, 255, 255, .10);
+
+    border-radius: 9px;
+
+    font-size: .73rem;
+    font-weight: 750;
+
+    transition:
+        color .2s ease,
+        border-color .2s ease,
+        background .2s ease;
+}
+
+.secondary-btn:hover {
+    color: var(--mc-gold-light);
+
+    background:
+        rgba(212, 175, 55, .045);
+
+    border-color:
+        rgba(212, 175, 55, .28);
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+.status-badge {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 26px;
+
+    padding: 4px 9px;
+
+    border-radius: 999px;
+
+    font-size: .62rem;
+    font-weight: 850;
+
+    letter-spacing: .03em;
+
+    text-transform: uppercase;
+}
+
+.status-confirmed,
+.status-active,
+.status-approved,
+.status-paid,
+.status-success {
+    color: var(--mc-green);
+
+    background:
+        rgba(53, 208, 127, .10);
+
+    border:
+        1px solid rgba(53, 208, 127, .22);
+}
+
+.status-pending {
+    color: var(--mc-orange);
+
+    background:
+        rgba(242, 184, 75, .10);
+
+    border:
+        1px solid rgba(242, 184, 75, .22);
+}
+
+.status-rejected,
+.status-blocked,
+.status-failed {
+    color: var(--mc-red);
+
+    background:
+        rgba(255, 98, 98, .10);
+
+    border:
+        1px solid rgba(255, 98, 98, .22);
+}
+
+.status-info {
+    color: var(--mc-blue);
+
+    background:
+        rgba(103, 169, 255, .10);
+
+    border:
+        1px solid rgba(103, 169, 255, .22);
+}
+
+
+/* =========================================================
+   HISTORY LIST
+   ========================================================= */
+
+.investment-history {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.history-item {
+    display: grid;
+
+    grid-template-columns:
+        1.2fr
+        .8fr
+        .8fr
+        auto;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 16px;
+
+    background:
+        rgba(255, 255, 255, .022);
+
+    border:
+        1px solid rgba(255, 255, 255, .065);
+
+    border-radius: 12px;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+}
+
+.history-item:hover {
+    background:
+        rgba(212, 175, 55, .035);
+
+    border-color:
+        rgba(212, 175, 55, .17);
+}
+
+.history-item strong {
+    color: var(--mc-white);
+
+    font-size: .75rem;
+}
+
+.history-item span {
+    color: var(--mc-muted);
+
+    font-size: .69rem;
+}
+
+
+/* =========================================================
+   EARNINGS
+   ========================================================= */
+
+.earnings-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+}
+
+.earning-card {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #171717,
+            #0d0d0d
+        );
+
+    border:
+        1px solid rgba(53, 208, 127, .16);
+
+    border-radius: 16px;
+
+    box-shadow: var(--mc-shadow-soft);
+}
+
+.earning-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 130px;
+    height: 130px;
+
+    right: -55px;
+    bottom: -60px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(53, 208, 127, .08),
+            transparent 70%
+        );
+
+    pointer-events: none;
+}
+
+.earning-label {
+    display: block;
+
+    color: var(--mc-muted);
+
+    font-size: .66rem;
+    font-weight: 700;
+
+    letter-spacing: .07em;
+
+    text-transform: uppercase;
+}
+
+.earning-value {
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--mc-green);
+
+    font-size: 1.45rem;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   WITHDRAWAL CARDS
+   ========================================================= */
+
+.withdrawal-card {
+    padding: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 255, 255, .035),
+            rgba(255, 255, 255, .012)
+        );
+
+    border:
+        1px solid var(--mc-border-soft);
+
+    border-radius: 16px;
+
+    box-shadow: var(--mc-shadow-soft);
+}
+
+.withdrawal-balance {
+    margin-bottom: 20px;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(53, 208, 127, .07),
+            rgba(255, 255, 255, .018)
+        );
+
+    border:
+        1px solid rgba(53, 208, 127, .17);
+
+    border-radius: 14px;
+}
+
+.withdrawal-balance span {
+    display: block;
+
+    color: var(--mc-muted);
+
+    font-size: .68rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.withdrawal-balance strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color: var(--mc-green);
+
+    font-size: 1.65rem;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   REFERRAL AREA
+   ========================================================= */
+
+.referral-card {
+    padding: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(212, 175, 55, .07),
+            rgba(255, 255, 255, .018)
+        );
+
+    border:
+        1px solid rgba(212, 175, 55, .18);
+
+    border-radius: 17px;
+
+    box-shadow: var(--mc-shadow-soft);
+}
+
+.referral-link-box {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin-top: 15px;
+}
+
+.referral-link-box input {
+    flex: 1;
+
+    min-width: 0;
+
+    min-height: 43px;
+
+    padding: 10px 12px;
+
+    color: var(--mc-text);
+
+    background: #080808;
+
+    border:
+        1px solid rgba(255, 255, 255, .08);
+
+    border-radius: 9px;
+
+    outline: none;
+}
+
+.referral-link-box button {
+    flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   EMPTY / LOADING STATES
+   ========================================================= */
+
+.empty-state,
+.loading-state {
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: var(--mc-muted);
+
+    background:
+        rgba(255, 255, 255, .018);
+
+    border:
+        1px dashed rgba(255, 255, 255, .08);
+
+    border-radius: 13px;
+
+    font-size: .76rem;
+}
+
+.empty-state strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--mc-text);
+
+    font-size: .86rem;
+}
