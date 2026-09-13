@@ -1903,6 +1903,23 @@ function formatMoney(
     value
 ) {
 
+function formatNumber(value) {
+
+    const number =
+        Number(value || 0);
+
+    if (!Number.isFinite(number)) {
+        return "0";
+    }
+
+    return number.toLocaleString(
+        "en-US",
+        {
+            maximumFractionDigits: 2
+        }
+    );
+    }
+    
     const amount =
         Number(value || 0);
 
