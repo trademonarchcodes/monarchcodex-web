@@ -1016,3 +1016,195 @@ function selectPaymentMethod(method, card) {
 
     displayPaymentDetails(method);
 }
+
+/* =========================================
+   DISPLAY PAYMENT DETAILS
+========================================= */
+
+function displayPaymentDetails(method) {
+
+    const detailsArea =
+        getElement("paymentDetailsArea");
+
+    const bankPanel =
+        getElement("bankPayment");
+
+    const cryptoPanel =
+        getElement("cryptoPayment");
+
+    const instructions =
+        getElement("paymentInstructions");
+
+
+    showElement(detailsArea);
+
+    hideElement(bankPanel);
+    hideElement(cryptoPanel);
+
+
+    if (instructions) {
+        instructions.textContent =
+            method.instructions ||
+            "Follow the payment instructions below.";
+    }
+
+
+    const type =
+        String(method.payment_type || "")
+            .toLowerCase();
+
+
+    if (
+        type.includes("bank") ||
+        method.bank_name ||
+        method.account_number
+    ) {
+        displayBankDetails(method);
+    } else {
+        displayCryptoDetails(method);
+    }
+}
+
+
+/* =========================================
+   BANK PAYMENT DETAILS
+========================================= */
+
+function displayBankDetails(method) {
+
+    const bankPanel =
+        getElement("bankPayment");
+
+    const bankName =
+        getElement("bankName");
+
+    const accountName =
+        getElement("bankAccountName");
+
+    const accountNumber =
+        getElement("bankAccountNumber");
+
+
+    showElement(bankPanel);
+
+
+    if (bankName) {
+        bankName.textContent =
+            method.bank_name || "—";
+    }
+
+    if (accountName) {
+        accountName.textContent =
+            method.account_name || "—";
+    }
+
+    if (accountNumber) {
+        accountNumber.textContent =
+            method.account_number || "—";
+    }
+
+
+    showElement(
+        getElement("receiptArea")
+    );
+}
+
+
+/* =========================================
+   CRYPTO PAYMENT DETAILS
+========================================= */
+
+function displayCryptoDetails(method) {
+
+    const cryptoPanel =
+        getElement("cryptoPayment");
+
+    const networkSelect =
+        getElement("cryptoNetwork");
+
+    const walletArea =
+        getElement("cryptoWalletArea");
+
+
+    showElement(cryptoPanel);
+
+    hideElement(walletArea);
+
+
+    if (!networkSelect) {
+        return;
+    }
+
+
+    networkSelect.innerHTML = `
+        <option value="">
+            Select Network
+        </option>
+    `;
+
+
+    /*
+       The network may be stored as:
+
+       "BTC"
+       "TRC20"
+       "ERC20"
+       "BEP20"
+
+       or multiple networks separated
+       by commas.
+    */
+
+    const networkText =
+        method.crypto_network || "";
+
+
+    const networks =
+        networkText
+            .split(",")
+            .map(function (item) {
+                return item.trim();
+            })
+            .filter(Boolean);
+
+
+    if (networks.length === 0) {
+
+        networks.push(
+            method.crypto_name || "Default Network"
+        );
+    }
+
+
+    networks.forEach(function (network) {
+
+        const option =
+            document.createElement("option");
+
+        option.value = network;
+        option.textContent = network;
+
+        networkSelect.appendChild(option);
+    });
+
+
+    networkSelect.onchange =
+        function () {
+
+            const network =
+                this.value;
+
+            if (!network) {
+                hideElement(walletArea);
+                return;
+            }
+
+            selectedCryptoNetwork =
+                network;
+
+            displayCryptoWallet(
+                method,
+                network
+            );
+        };
+}
