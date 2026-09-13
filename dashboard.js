@@ -1696,10 +1696,6 @@ document.addEventListener(
     let bankPaymentDetails = null;
 
 
-    /* =====================================================
-       HELPERS
-       ===================================================== */
-
     function getElement(id) {
         return document.getElementById(id);
     }
@@ -1738,180 +1734,92 @@ document.addEventListener(
     }
 
 
-    function escapeBankText(value) {
+    function showBankDetails() {
 
-        if (
-            value === null ||
-            value === undefined
-        ) {
-            return "";
-        }
+        const paymentSection =
+            getElement(
+                "paymentDetailsPanel"
+            );
 
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+        const bankDetails =
+            getElement(
+                "bankDetails"
+            );
 
-    }
+        const cryptoDetails =
+            getElement(
+                "cryptoDetails"
+            );
 
-
-    /* =====================================================
-       DISPLAY BANK DETAILS
-       ===================================================== */
-
-    function displayBankPaymentDetails(details) {
-
-        if (!details) {
-            return;
-        }
-
-        bankPaymentDetails = details;
-
-
-        const bankName =
-            getElement("bankName");
-
-        const accountName =
-            getElement("bankAccountName");
-
-        const accountNumber =
-            getElement("bankAccountNumber");
-
-        const minimumAmount =
-            getElement("bankMinimumAmount");
-
-        const feeAmount =
-            getElement("bankFeeAmount");
-
-        const totalAmount =
-            getElement("bankTotalAmount");
-
-        const instructions =
-            getElement("bankInstructions");
-
-
-        if (bankName) {
-
-            bankName.textContent =
-                details.bank_name ||
-                details.name ||
-                details.title ||
-                "—";
-
-        }
-
-
-        if (accountName) {
-
-            accountName.textContent =
-                details.account_name ||
-                details.accountName ||
-                "—";
-
-        }
-
-
-        if (accountNumber) {
-
-            accountNumber.textContent =
-                details.account_number ||
-                details.accountNumber ||
-                "—";
-
-        }
-
-
-        const currency =
-            details.currency ||
-            "NGN";
-
-
-        const minimum =
-            details.minimum_amount ??
-            details.min_amount ??
-            details.minimum ??
-            0;
-
-
-        const fee =
-            details.fee_amount ??
-            details.fee ??
-            0;
-
-
-        const total =
-            details.total_amount ??
-            details.total ??
-            (
-                Number(minimum) +
-                Number(fee)
+        const request =
+            getElement(
+                "investmentRequest"
             );
 
 
-        if (minimumAmount) {
+        if (paymentSection) {
 
-            minimumAmount.textContent =
-                formatBankAmount(
-                    minimum,
-                    currency
-                );
+            paymentSection.hidden =
+                false;
 
         }
 
 
-        if (feeAmount) {
+        if (bankDetails) {
 
-            feeAmount.textContent =
-                formatBankAmount(
-                    fee,
-                    currency
-                );
+            bankDetails.hidden =
+                false;
 
         }
 
 
-        if (totalAmount) {
+        if (cryptoDetails) {
 
-            totalAmount.textContent =
-                formatBankAmount(
-                    total,
-                    currency
-                );
+            cryptoDetails.hidden =
+                true;
 
         }
 
 
-        if (instructions) {
+        if (request) {
 
-            instructions.textContent =
-                details.instructions ||
-                details.description ||
-                "Please complete the bank transfer using the details above.";
+            request.hidden =
+                false;
 
         }
+
+
+        const methodDisplay =
+            getElement(
+                "selectedPaymentMethodDisplay"
+            );
+
+
+        if (methodDisplay) {
+
+            methodDisplay.textContent =
+                "Bank Transfer";
+
+        }
+
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "monarch:payment-method-selected",
+                {
+                    detail: {
+                        method: "bank",
+                        details:
+                            bankPaymentDetails
+                    }
+                }
+            )
+        );
 
     }
 
 
-    /* =====================================================
-       LOAD BANK PAYMENT DETAILS
-       ===================================================== */
-
     async function loadBankPaymentDetails() {
-
-        const bankDetails =
-            getElement("bankDetails");
-
-
-        if (!bankDetails) {
-            return;
-        }
-
-
-        bankDetails.hidden = false;
-
 
         try {
 
@@ -1926,163 +1834,23 @@ document.addEventListener(
                         "payment_type",
                         "bank"
                     )
-                    .maybeSingle();
+                    .eq(
+                        "active",
+                        true
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    );
 
 
             if (error) {
 
                 console.error(
-                    "Bank payment details error:",
-                    error
-                );
-
-                return;
-
-            }
-
-
-            if (!data) {
-
-                console.warn(
-                    "No bank payment details found."
-                );
-
-                return;
-
-            }
-
-
-            displayBankPaymentDetails(
-                data
-            );
-
-
-            window.MonarchDashboard =
-                window.MonarchDashboard || {};
-
-
-            window.MonarchDashboard.payment =
-                window.MonarchDashboard.payment || {};
-
-
-            window.MonarchDashboard
-                .payment.bank =
-                    data;
-
-
-        } catch (error) {
-
-            console.error(
-                "Unexpected bank payment error:",
-                error
-            );
-
-        }
-
-    }
-
-
-    /* =====================================================
-       BANK PAYMENT BUTTON
-       ===================================================== */
-
-    function initializeBankPaymentButton() {
-
-        const button =
-            getElement("bankPayment");
-
-
-        if (!button) {
-            return;
-        }
-
-
-        button.addEventListener(
-            "click",
-            async function () {
-
-                const bankDetails =
-                    getElement("bankDetails");
-
-                const cryptoDetails =
-                    getElement("cryptoDetails");
-
-
-                if (bankDetails) {
-                    bankDetails.hidden = false;
-                }
-
-
-                if (cryptoDetails) {
-                    cryptoDetails.hidden = true;
-                }
-
-
-                const selectedMethod =
-                    getElement(
-                        "selectedPaymentMethodDisplay"
-                    );
-
-
-                if (selectedMethod) {
-
-                    selectedMethod.textContent =
-                        "Bank Transfer";
-
-                }
-
-
-                await loadBankPaymentDetails();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       INITIALIZE
-       ===================================================== */
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-
-            initializeBankPaymentButton();
-
-        }
-    );
-
-
-    /* =====================================================
-       PUBLIC API
-       ===================================================== */
-
-    window.MonarchDashboard =
-        window.MonarchDashboard || {};
-
-
-    window.MonarchDashboard.payment =
-        window.MonarchDashboard.payment || {};
-
-
-    window.MonarchDashboard
-        .payment
-        .loadBankDetails =
-            loadBankPaymentDetails;
-
-
-    window.MonarchDashboard
-        .payment
-        .getBankDetails =
-            function () {
-
-                return bankPaymentDetails;
-
-            };
-
-})();
-
+                    "Bank payment loading error
+   
 /* =========================================================
    MONARCH CODEX — CRYPTO PAYMENT MODULE
    ========================================================= */
