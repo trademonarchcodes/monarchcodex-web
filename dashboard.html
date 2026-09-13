@@ -1311,3 +1311,63 @@
     </div>
 
 </section>
+
+<section
+    id="withdrawalsSection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                WITHDRAWALS
+            </span>
+
+            <h2>Withdrawals</h2>
+
+            <p>
+                View your withdrawal requests and their status.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div class="withdrawal-summary">
+
+            <span>Total Withdrawn</span>
+
+            <strong id="totalWithdrawn">
+                $0.00
+            </strong>
+
+        </div>
+
+
+        <div
+            id="withdrawalsList"
+            class="withdrawals-list"
+        >
+            <!-- Withdrawals loaded from Supabase -->
+        </div>
+
+
+        <div
+            id="withdrawalsEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Withdrawals Yet</h3>
+
+            <p>
+                Your withdrawal requests will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
