@@ -439,3 +439,236 @@ function renderProfile() {
             status.slice(1);
     }
 }
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function switchSection(sectionName) {
+    const sections = document.querySelectorAll(
+        ".dashboard-section"
+    );
+
+    sections.forEach(function (section) {
+        section.classList.remove("active-section");
+    });
+
+    const targetSection =
+        getElement(sectionName + "Section");
+
+    if (targetSection) {
+        targetSection.classList.add("active-section");
+    }
+
+    const navItems =
+        document.querySelectorAll(".nav-item");
+
+    navItems.forEach(function (item) {
+        item.classList.remove("active");
+
+        if (item.dataset.section === sectionName) {
+            item.classList.add("active");
+        }
+    });
+
+    closeMobileSidebar();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* =========================================
+   NAVIGATION EVENTS
+========================================= */
+
+function initializeNavigation() {
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(function (item) {
+
+            item.addEventListener("click", function () {
+                switchSection(
+                    this.dataset.section
+                );
+            });
+        });
+
+
+    document
+        .querySelectorAll("[data-section-target]")
+        .forEach(function (button) {
+
+            button.addEventListener("click", function () {
+                switchSection(
+                    this.dataset.sectionTarget
+                );
+            });
+        });
+}
+
+
+/* =========================================
+   MOBILE SIDEBAR
+========================================= */
+
+function openMobileSidebar() {
+    const sidebar =
+        getElement("sidebar");
+
+    if (sidebar) {
+        sidebar.classList.add("mobile-open");
+    }
+}
+
+
+function closeMobileSidebar() {
+    const sidebar =
+        getElement("sidebar");
+
+    if (sidebar) {
+        sidebar.classList.remove("mobile-open");
+    }
+}
+
+
+function initializeMobileMenu() {
+    const menuButton =
+        getElement("mobileMenuBtn");
+
+    if (menuButton) {
+        menuButton.addEventListener(
+            "click",
+            function () {
+
+                const sidebar =
+                    getElement("sidebar");
+
+                if (!sidebar) {
+                    return;
+                }
+
+                sidebar.classList.toggle(
+                    "mobile-open"
+                );
+            }
+        );
+    }
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logoutUser() {
+    try {
+        const { error } =
+            await supabaseClient.auth.signOut();
+
+        if (error) {
+            throw error;
+        }
+
+        window.location.href = "login.html";
+
+    } catch (error) {
+        console.error(
+            "Logout error:",
+            error
+        );
+
+        alert(
+            "Unable to log out. Please try again."
+        );
+    }
+}
+
+
+function initializeLogout() {
+    const logoutButton =
+        getElement("logoutBtn");
+
+    if (logoutButton) {
+        logoutButton.addEventListener(
+            "click",
+            logoutUser
+        );
+    }
+
+    const returnLoginButton =
+        getElement("returnLoginBtn");
+
+    if (returnLoginButton) {
+        returnLoginButton.addEventListener(
+            "click",
+            function () {
+                window.location.href =
+                    "login.html";
+            }
+        );
+    }
+}
+
+
+/* =========================================
+   DASHBOARD INITIALIZATION
+========================================= */
+
+async function initializeDashboard() {
+
+    try {
+
+        setLoadingMessage(
+            "Checking your account..."
+        );
+
+        currentUser =
+            await getCurrentUser();
+
+        setLoadingMessage(
+            "Loading your member profile..."
+        );
+
+        await loadCurrentProfile();
+
+        renderProfile();
+
+        initializeNavigation();
+        initializeMobileMenu();
+        initializeLogout();
+
+        showDashboard();
+
+        setLoadingMessage(
+            "Loading dashboard..."
+        );
+
+        await loadPackages();
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard initialization error:",
+            error
+        );
+
+        showAuthError(
+            "Unable to load your member dashboard. Please log in again."
+        );
+    }
+}
+
+
+/* =========================================
+   START DASHBOARD
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+        initializeDashboard();
+    }
+);
