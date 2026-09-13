@@ -356,16 +356,572 @@
 
 
             <div
-                id="investmentsContent"
-                class="module-content"
+    id="investmentsContent"
+    class="module-content"
+>
+
+    <!-- =================================================
+         INVESTMENT SUMMARY
+         ================================================= -->
+
+    <div
+        id="investmentStats"
+        class="investment-stats"
+    >
+
+        <div class="investment-stat-card">
+            <span class="stat-label">
+                Total Invested
+            </span>
+
+            <strong
+                id="totalInvested"
+                class="stat-value"
+            >
+                $0.00
+            </strong>
+        </div>
+
+
+        <div class="investment-stat-card">
+            <span class="stat-label">
+                Active Investments
+            </span>
+
+            <strong
+                id="activeInvestments"
+                class="stat-value"
+            >
+                0
+            </strong>
+        </div>
+
+
+        <div class="investment-stat-card">
+            <span class="stat-label">
+                Pending Requests
+            </span>
+
+            <strong
+                id="pendingInvestments"
+                class="stat-value"
+            >
+                0
+            </strong>
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         INVESTMENT PACKAGES
+         ================================================= -->
+
+    <section
+        id="investmentPackagesSection"
+        class="investment-section"
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Investment Packages
+            </h3>
+
+            <p>
+                Choose an investment package to continue.
+            </p>
+
+        </div>
+
+
+        <div
+            id="packagesGrid"
+            class="packages-grid"
+        >
+
+            <div
+                id="packagesLoading"
+                class="module-placeholder"
+            >
+                Loading investment packages...
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PAYMENT METHOD
+         ================================================= -->
+
+    <section
+        id="paymentSection"
+        class="investment-section"
+        hidden
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Payment Method
+            </h3>
+
+            <p>
+                Select how you would like to make your payment.
+            </p>
+
+        </div>
+
+
+        <div
+            id="paymentMethodOptions"
+            class="payment-method-options"
+        >
+
+            <button
+                type="button"
+                id="bankPayment"
+                class="payment-method-btn"
+                data-payment-method="bank"
+            >
+                <span class="payment-method-title">
+                    Bank Transfer
+                </span>
+
+                <span class="payment-method-description">
+                    Pay directly to the provided bank account.
+                </span>
+            </button>
+
+
+            <button
+                type="button"
+                id="cryptoPayment"
+                class="payment-method-btn"
+                data-payment-method="crypto"
+            >
+                <span class="payment-method-title">
+                    Crypto Payment
+                </span>
+
+                <span class="payment-method-description">
+                    Pay using supported cryptocurrency networks.
+                </span>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PAYMENT DETAILS
+         ================================================= -->
+
+    <section
+        id="paymentDetailsPanel"
+        class="investment-section"
+        hidden
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Payment Details
+            </h3>
+
+            <p>
+                Use the details below to complete your payment.
+            </p>
+
+        </div>
+
+
+        <!-- BANK DETAILS -->
+
+        <div
+            id="bankDetails"
+            class="payment-details"
+            hidden
+        >
+
+            <div class="payment-detail-row">
+                <span>Bank</span>
+
+                <strong id="bankName">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="payment-detail-row">
+                <span>Account Name</span>
+
+                <strong id="bankAccountName">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="payment-detail-row">
+                <span>Account Number</span>
+
+                <strong id="bankAccountNumber">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="payment-detail-row">
+                <span>Minimum Amount</span>
+
+                <strong id="bankMinimumAmount">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="payment-detail-row">
+                <span>Fee</span>
+
+                <strong id="bankFeeAmount">
+                    —
+                </strong>
+            </div>
+
+
+            <div class="payment-detail-row">
+                <span>Total Required</span>
+
+                <strong id="bankTotalAmount">
+                    —
+                </strong>
+            </div>
+
+
+            <div
+                id="bankInstructions"
+                class="payment-instructions"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <!-- CRYPTO DETAILS -->
+
+        <div
+            id="cryptoDetails"
+            class="payment-details"
+            hidden
+        >
+
+            <label
+                for="cryptoNetwork"
+                class="field-label"
+            >
+                Select Network
+            </label>
+
+            <select
+                id="cryptoNetwork"
+                class="form-control"
             >
 
-                <div class="module-placeholder">
-                    Investment module loading...
+                <option value="">
+                    Select crypto network
+                </option>
+
+                <option value="BEP20">
+                    BNB Smart Chain (BEP20)
+                </option>
+
+                <option value="Arbitrum">
+                    Arbitrum
+                </option>
+
+                <option value="TON">
+                    TON
+                </option>
+
+                <option value="Solana">
+                    Solana
+                </option>
+
+                <option value="ERC20">
+                    Ethereum (ERC20)
+                </option>
+
+            </select>
+
+
+            <div
+                id="cryptoWalletBox"
+                class="crypto-wallet-box"
+                hidden
+            >
+
+                <span class="field-label">
+                    Wallet Address
+                </span>
+
+
+                <div
+                    id="selectedCryptoNetwork"
+                    class="selected-network"
+                >
+                    —
+                </div>
+
+
+                <div
+                    class="wallet-address-row"
+                >
+
+                    <code
+                        id="cryptoWalletAddress"
+                    >
+                        —
+                    </code>
+
+                    <button
+                        type="button"
+                        id="copyWalletBtn"
+                        class="copy-wallet-btn"
+                    >
+                        Copy
+                    </button>
+
+                </div>
+
+
+                <div class="payment-detail-row">
+                    <span>
+                        Minimum Amount
+                    </span>
+
+                    <strong id="cryptoMinimumAmount">
+                        —
+                    </strong>
+                </div>
+
+
+                <div class="payment-detail-row">
+                    <span>
+                        Fee
+                    </span>
+
+                    <strong id="cryptoFeeAmount">
+                        —
+                    </strong>
+                </div>
+
+
+                <div class="payment-detail-row">
+                    <span>
+                        Total Required
+                    </span>
+
+                    <strong id="cryptoTotalAmount">
+                        —
+                    </strong>
+                </div>
+
+
+                <div
+                    id="cryptoInstructions"
+                    class="payment-instructions"
+                >
+                    —
                 </div>
 
             </div>
 
+        </div>
+
+    </section>
+
+
+    <!-- =================================================
+         INVESTMENT REQUEST
+         ================================================= -->
+
+    <section
+        id="investmentRequest"
+        class="investment-section"
+        hidden
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Investment Request
+            </h3>
+
+            <p>
+                Confirm your investment information and
+                upload your payment receipt.
+            </p>
+
+        </div>
+
+
+        <div
+            class="investment-request-summary"
+        >
+
+            <div class="payment-detail-row">
+
+                <span>
+                    Selected Package
+                </span>
+
+                <strong id="selectedPackageName">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="payment-detail-row">
+
+                <span>
+                    Investment Amount
+                </span>
+
+                <strong id="investmentAmountDisplay">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="payment-detail-row">
+
+                <span>
+                    Payment Method
+                </span>
+
+                <strong id="selectedPaymentMethodDisplay">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <input
+            type="hidden"
+            id="investmentAmount"
+            value=""
+        />
+
+
+        <div
+            id="investmentValidationMessage"
+            class="form-message"
+            hidden
+        ></div>
+
+
+        <!-- RECEIPT AREA -->
+
+        <div
+            id="receiptArea"
+            class="receipt-area"
+        >
+
+            <label
+                for="receiptInput"
+                class="field-label"
+            >
+                Payment Receipt
+            </label>
+
+
+            <input
+                type="file"
+                id="receiptInput"
+                accept="image/*,.pdf"
+                class="form-control"
+            />
+
+
+            <p class="field-help">
+                Upload a clear screenshot or PDF of your
+                payment receipt.
+            </p>
+
+
+            <div
+                id="receiptPreview"
+                class="receipt-preview"
+                hidden
+            ></div>
+
+        </div>
+
+
+        <!-- SUBMIT -->
+
+        <button
+            type="button"
+            id="submitInvestmentBtn"
+            class="primary-action-btn"
+        >
+            Submit Investment Request
+        </button>
+
+
+        <div
+            id="receiptConfirmation"
+            class="form-message success-message"
+            hidden
+        ></div>
+
+    </section>
+
+
+    <!-- =================================================
+         INVESTMENT HISTORY
+         ================================================= -->
+
+    <section
+        id="investmentHistorySection"
+        class="investment-section"
+    >
+
+        <div class="section-heading">
+
+            <h3>
+                Investment History
+            </h3>
+
+            <p>
+                Track your investment requests and their status.
+            </p>
+
+        </div>
+
+
+        <div
+            id="investmentHistory"
+            class="investment-history"
+        >
+
+            <div class="module-placeholder">
+                No investment history loaded yet.
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
         </section>
 
 
