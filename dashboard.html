@@ -6699,74 +6699,51 @@ if (
 
     async function loadReferralData() {
 
-        const user =
-            window.MonarchCodex?.user;
+    const user =
+        window.MonarchCodex?.user;
 
-        if (!user) {
-            return;
-        }
-
-
-        const referrals =
-            await supabaseClient
-                .from("referrals")
-                .select(`
-                    id,
-                    referrer_id,
-                    referred_user_id,
-                    referral_code,
-                    created_at
-                `)
-                .or(
-                    `referrer_id.eq.${user.id},referred_user_id.eq.${user.id}`
-                )
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                );
-
-
-        if (referrals.error) {
-            throw referrals.error;
-        }
-
-
-        const records =
-            referrals.data || [];
-
-
-        referralData.referredBy =
-            records.find(
-                function (record) {
-
-                    return (
-                        record.referred_user_id ===
-                        user.id
-                    );
-
-                }
-            ) || null;
-
-
-        referralData.myReferrals =
-            records.filter(
-                function (record) {
-
-                    return (
-                        record.referrer_id ===
-                        user.id
-                    );
-
-                }
-            );
-
-
-        renderReferrals();
-
+    if (!user) {
+        return;
     }
 
+    const result =
+        await supabaseClient
+            .rpc("get_my_referrals");
+
+    if (result.error) {
+        throw result.error;
+    }
+
+    const records =
+        result.data || [];
+
+    referralData.referredBy =
+        records.find(
+            function (record) {
+
+                return (
+                    record.relationship ===
+                    "referred_by"
+                );
+
+            }
+        ) || null;
+
+    referralData.myReferrals =
+        records.filter(
+            function (record) {
+
+                return (
+                    record.relationship ===
+                    "my_referral"
+                );
+
+            }
+        );
+
+    renderReferrals();
+
+}
 
     function renderReferrals() {
 
