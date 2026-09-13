@@ -1322,3 +1322,131 @@ function initializeCryptoCopy() {
         }
     );
 }
+
+/* =========================================
+   RECEIPT FILE HANDLING
+========================================= */
+
+function initializeReceiptUpload() {
+
+    const input =
+        getElement("receiptInput");
+
+    const preview =
+        getElement("receiptPreview");
+
+    const submitButton =
+        getElement("submitInvestmentBtn");
+
+    if (!input) {
+        return;
+    }
+
+
+    input.addEventListener(
+        "change",
+        function () {
+
+            const file =
+                this.files && this.files[0];
+
+            if (!file) {
+                hideElement(preview);
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+                return;
+            }
+
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "application/pdf"
+            ];
+
+            if (
+                !allowedTypes.includes(
+                    file.type
+                )
+            ) {
+                alert(
+                    "Please upload a JPG, PNG or PDF file."
+                );
+
+                this.value = "";
+
+                hideElement(preview);
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+                return;
+            }
+
+
+            const maxSize =
+                10 * 1024 * 1024;
+
+
+            if (file.size > maxSize) {
+
+                alert(
+                    "Receipt file must not exceed 10MB."
+                );
+
+                this.value = "";
+
+                hideElement(preview);
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+                return;
+            }
+
+
+            if (preview) {
+
+                preview.innerHTML = `
+                    <strong>
+                        Selected Receipt
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(file.name)}
+                    </p>
+
+                    <small>
+                        ${(
+                            file.size / 1024 / 1024
+                        ).toFixed(2)} MB
+                    </small>
+                `;
+
+                showElement(preview);
+            }
+
+
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
+    );
+}
+
+
+/* =========================================
+   INITIALIZE INVESTMENT EVENTS
+========================================= */
+
+function initializeInvestmentEvents() {
+
+    initializeCryptoCopy();
+
+    initializeReceiptUpload();
+}
