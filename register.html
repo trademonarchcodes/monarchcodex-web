@@ -1,45 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Register | Monarch Codex</title>
-    <meta name="description" content="Create your Monarch Codex member account.">
+
+    <meta
+        name="description"
+        content="Create your Monarch Codex member account."
+    >
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
 
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet"
     >
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-        defer
-    ></script>
 </head>
+
 
 <body>
 
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+
 <header class="navbar">
+
     <div class="nav-container">
 
-        <a href="index.html" class="logo">
+        <a
+            href="index.html"
+            class="logo"
+        >
             MONARCH<span>CODEX</span>
         </a>
 
+
         <nav class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="login.html">Login</a>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="login.html">
+                Login
+            </a>
+
         </nav>
 
     </div>
+
 </header>
 
+
+
+<!-- =====================================================
+     REGISTRATION
+     ===================================================== -->
 
 <main>
 
@@ -47,15 +85,18 @@
 
         <div class="auth-container">
 
+
             <div class="auth-header">
 
                 <p class="section-label">
                     BECOME A MONARCH
                 </p>
 
+
                 <h1>
                     Create Your <span>Account</span>
                 </h1>
+
 
                 <p>
                     Join Monarch Codex and create your personal member account.
@@ -64,15 +105,24 @@
             </div>
 
 
+
             <div class="auth-card">
 
-                <form id="registerForm">
+
+                <form
+                    id="registerForm"
+                    novalidate
+                >
+
+
+                    <!-- FULL NAME -->
 
                     <div class="form-group">
 
                         <label for="fullName">
                             Full Name
                         </label>
+
 
                         <input
                             type="text"
@@ -86,11 +136,15 @@
                     </div>
 
 
+
+                    <!-- EMAIL -->
+
                     <div class="form-group">
 
                         <label for="email">
                             Email Address
                         </label>
+
 
                         <input
                             type="email"
@@ -104,11 +158,15 @@
                     </div>
 
 
+
+                    <!-- PHONE -->
+
                     <div class="form-group">
 
                         <label for="phone">
                             Phone Number
                         </label>
+
 
                         <input
                             type="tel"
@@ -122,11 +180,15 @@
                     </div>
 
 
+
+                    <!-- PASSWORD -->
+
                     <div class="form-group">
 
                         <label for="password">
                             Password
                         </label>
+
 
                         <input
                             type="password"
@@ -141,6 +203,29 @@
                     </div>
 
 
+
+                    <!-- REFERRAL INFORMATION -->
+
+                    <div
+                        id="referralNotice"
+                        class="form-message"
+                        style="display:none;"
+                    ></div>
+
+
+                    <!-- REFERRAL VALUE IS KEPT FOR FUTURE
+                         REFERRAL MODULE INTEGRATION -->
+
+                    <input
+                        type="hidden"
+                        id="referralCode"
+                        name="referralCode"
+                    >
+
+
+
+                    <!-- SUBMIT -->
+
                     <button
                         type="submit"
                         class="btn btn-primary"
@@ -150,25 +235,36 @@
                     </button>
 
 
+
+                    <!-- MESSAGE -->
+
                     <p
                         id="registrationMessage"
                         class="form-message"
                         style="display:none;"
                     ></p>
 
+
                 </form>
 
+
+
+                <!-- AUTH FOOTER -->
 
                 <div class="auth-footer">
 
                     <p>
+
                         Already have an account?
+
                         <a href="login.html">
                             Login here
                         </a>
+
                     </p>
 
                 </div>
+
 
             </div>
 
@@ -179,15 +275,22 @@
 </main>
 
 
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+
 <footer class="footer">
 
     <div class="footer-container">
+
 
         <div>
 
             <div class="logo">
                 MONARCH<span>CODEX</span>
             </div>
+
 
             <p>
                 Learn. Build. Trade. Create.
@@ -196,283 +299,564 @@
         </div>
 
 
+
         <div class="footer-bottom">
 
             <p>
-                © 2026 Monarch Codex. All rights reserved.
+                ©
+                <span id="currentYear"></span>
+                Monarch Codex.
+                All rights reserved.
             </p>
 
         </div>
+
 
     </div>
 
 </footer>
 
 
+
+<!-- =====================================================
+     SUPABASE LIBRARY
+     ===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
+<!-- =====================================================
+     MONARCH CODEX CORE
+     ===================================================== -->
+
+<script src="script.js"></script>
+
+
+
+<!-- =====================================================
+     REGISTRATION PAGE LOGIC
+     ===================================================== -->
+
 <script>
-const SUPABASE_URL =
-    "https://avaworleivncevaoqeny.supabase.co";
 
-const SUPABASE_KEY =
-    "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+(function () {
 
-
-let supabaseClient = null;
+    "use strict";
 
 
-const form =
-    document.getElementById("registerForm");
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
 
-const button =
-    document.getElementById("registerButton");
+    const form =
+        document.getElementById(
+            "registerForm"
+        );
 
-const message =
-    document.getElementById("registrationMessage");
+
+    const button =
+        document.getElementById(
+            "registerButton"
+        );
 
 
-function showRegistrationMessage(
-    text,
-    type = "info"
-) {
+    const message =
+        document.getElementById(
+            "registrationMessage"
+        );
 
-    message.textContent = text;
 
-    message.style.display = "block";
+    const referralNotice =
+        document.getElementById(
+            "referralNotice"
+        );
 
-    if (type === "success") {
 
-        message.style.color = "#D4AF37";
+    const referralInput =
+        document.getElementById(
+            "referralCode"
+        );
 
-    } else if (type === "error") {
 
-        message.style.color = "#ff6b6b";
+    const currentYear =
+        document.getElementById(
+            "currentYear"
+        );
 
-    } else {
 
-        message.style.color = "#ffffff";
+
+    /* =====================================================
+       YEAR
+       ===================================================== */
+
+    if (currentYear) {
+
+        currentYear.textContent =
+            new Date().getFullYear();
 
     }
 
-}
 
 
-function setLoading(loading) {
+    /* =====================================================
+       MESSAGE
+       ===================================================== */
 
-    button.disabled = loading;
-
-    button.textContent =
-        loading
-            ? "Creating Account..."
-            : "Create Account";
-
-}
-
-
-async function registerUser(event) {
-
-    event.preventDefault();
-
-
-    const fullName =
-        document
-            .getElementById("fullName")
-            .value
-            .trim();
-
-
-    const email =
-        document
-            .getElementById("email")
-            .value
-            .trim();
-
-
-    const phone =
-        document
-            .getElementById("phone")
-            .value
-            .trim();
-
-
-    const password =
-        document
-            .getElementById("password")
-            .value;
-
-
-    if (
-        !fullName ||
-        !email ||
-        !phone ||
-        !password
+    function showMessage(
+        text,
+        type = "info"
     ) {
 
-        showRegistrationMessage(
-            "Please complete all required fields.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (password.length < 6) {
-
-        showRegistrationMessage(
-            "Password must be at least 6 characters.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    setLoading(true);
-
-
-    showRegistrationMessage(
-        "Creating your account...",
-        "info"
-    );
-
-
-    try {
-
-        if (
-            !window.supabase ||
-            !window.supabase.createClient
-        ) {
-
-            throw new Error(
-                "Supabase library failed to load. Please refresh the page."
-            );
-
-        }
-
-
-        if (!supabaseClient) {
-
-            supabaseClient =
-                window.supabase.createClient(
-                    SUPABASE_URL,
-                    SUPABASE_KEY
-                );
-
-        }
-
-
-        const {
-            data,
-            error
-        } =
-            await supabaseClient.auth.signUp({
-
-                email: email,
-
-                password: password,
-
-                options: {
-
-                    data: {
-
-                        full_name: fullName,
-
-                        phone: phone
-
-                    }
-
-                }
-
-            });
-
-
-        if (error) {
-
-            console.error(
-                "REGISTRATION ERROR:",
-                error
-            );
-
-            showRegistrationMessage(
-                error.message ||
-                "Unable to create your account.",
-                "error"
-            );
-
-            setLoading(false);
-
+        if (!message) {
             return;
         }
 
 
-        if (!data || !data.user) {
+        message.textContent =
+            text;
 
-            showRegistrationMessage(
-                "Account creation failed. Please try again.",
-                "error"
-            );
 
-            setLoading(false);
+        message.style.display =
+            "block";
 
+
+        message.className =
+            "form-message";
+
+
+        if (type === "success") {
+
+            message.style.color =
+                "#D4AF37";
+
+        }
+
+        else if (type === "error") {
+
+            message.style.color =
+                "#ff6b6b";
+
+        }
+
+        else {
+
+            message.style.color =
+                "#ffffff";
+
+        }
+
+    }
+
+
+
+    /* =====================================================
+       LOADING
+       ===================================================== */
+
+    function setLoading(
+        loading
+    ) {
+
+        if (!button) {
             return;
+        }
+
+
+        button.disabled =
+            loading;
+
+
+        button.textContent =
+            loading
+                ? "Creating Account..."
+                : "Create Account";
+
+    }
+
+
+
+    /* =====================================================
+       REFERRAL CAPTURE
+       ===================================================== */
+
+    function initializeReferral() {
+
+        const core =
+            window.MonarchCodex?.core;
+
+
+        if (!core) {
+            return;
+        }
+
+
+        const referralCode =
+            core.getReferralCode();
+
+
+        if (!referralCode) {
+            return;
+        }
+
+
+        /*
+         * We intentionally do NOT write this to Supabase yet.
+         *
+         * This keeps registration safe while we build
+         * the proper referral database structure.
+         */
+
+        if (referralInput) {
+
+            referralInput.value =
+                referralCode;
+
+        }
+
+
+        if (referralNotice) {
+
+            referralNotice.textContent =
+                "Referral code detected: " +
+                referralCode;
+
+
+            referralNotice.style.display =
+                "block";
+
+
+            referralNotice.style.color =
+                "#D4AF37";
+
         }
 
 
         console.log(
-            "AUTH ACCOUNT CREATED:",
-            data.user.id
+            "REFERRAL CODE DETECTED:",
+            referralCode
         );
-
-
-        showRegistrationMessage(
-            "Account created successfully. Your account is now pending approval.",
-            "success"
-        );
-
-
-        button.textContent =
-            "Account Created";
-
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    "login.html";
-
-            },
-            2500
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "UNEXPECTED REGISTRATION ERROR:",
-            error
-        );
-
-
-        showRegistrationMessage(
-            error.message ||
-            "Something went wrong. Please try again.",
-            "error"
-        );
-
-
-        setLoading(false);
 
     }
 
-}
 
 
-form.addEventListener(
-    "submit",
-    registerUser
-);
+    /* =====================================================
+       REGISTRATION
+       ===================================================== */
+
+    async function registerUser(
+        event
+    ) {
+
+        event.preventDefault();
+
+
+        const fullName =
+            document
+                .getElementById("fullName")
+                .value
+                .trim();
+
+
+        const email =
+            document
+                .getElementById("email")
+                .value
+                .trim();
+
+
+        const phone =
+            document
+                .getElementById("phone")
+                .value
+                .trim();
+
+
+        const password =
+            document
+                .getElementById("password")
+                .value;
+
+
+        const referralCode =
+            referralInput?.value
+                ?.trim()
+                ?.toUpperCase() ||
+            null;
+
+
+
+        /* =================================================
+           VALIDATION
+           ================================================= */
+
+        if (
+            !fullName ||
+            !email ||
+            !phone ||
+            !password
+        ) {
+
+            showMessage(
+                "Please complete all required fields.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (password.length < 6) {
+
+            showMessage(
+                "Password must be at least 6 characters.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+
+        /* =================================================
+           CORE
+           ================================================= */
+
+        const core =
+            window.MonarchCodex?.core;
+
+
+        if (!core) {
+
+            showMessage(
+                "The MONARCH CODEX system could not be loaded. Please refresh the page.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const supabase =
+            core.getSupabase();
+
+
+        if (!supabase) {
+
+            showMessage(
+                "Unable to connect to the registration system. Please try again.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+
+        /* =================================================
+           LOADING
+           ================================================= */
+
+        setLoading(true);
+
+
+        showMessage(
+            "Creating your account...",
+            "info"
+        );
+
+
+
+        try {
+
+
+            /* =============================================
+               CREATE AUTH ACCOUNT
+               ============================================= */
+
+            const {
+                data,
+                error
+            } =
+                await supabase.auth.signUp({
+
+                    email,
+
+                    password,
+
+                    options: {
+
+                        data: {
+
+                            full_name:
+                                fullName,
+
+                            phone:
+                                phone
+
+                        }
+
+                    }
+
+                });
+
+
+
+            if (error) {
+
+                console.error(
+                    "REGISTRATION ERROR:",
+                    error
+                );
+
+
+                showMessage(
+                    error.message ||
+                    "Unable to create your account.",
+                    "error"
+                );
+
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+
+            /* =============================================
+               VERIFY AUTH USER
+               ============================================= */
+
+            if (
+                !data ||
+                !data.user
+            ) {
+
+                showMessage(
+                    "Account creation failed. Please try again.",
+                    "error"
+                );
+
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+
+            console.log(
+                "AUTH ACCOUNT CREATED:",
+                data.user.id
+            );
+
+
+            /*
+             * Referral is intentionally only captured here
+             * for now.
+             *
+             * The actual referral relationship will be
+             * connected after we establish the proper
+             * database structure.
+             */
+
+            if (referralCode) {
+
+                console.log(
+                    "REFERRAL TO CONNECT:",
+                    referralCode
+                );
+
+            }
+
+
+
+            /* =============================================
+               SUCCESS
+               ============================================= */
+
+            showMessage(
+                "Account created successfully. Your account is now pending approval.",
+                "success"
+            );
+
+
+            button.textContent =
+                "Account Created";
+
+
+            setTimeout(
+                function () {
+
+                    window.location.href =
+                        "login.html";
+
+                },
+                2500
+            );
+
+
+        }
+
+
+        catch (error) {
+
+            console.error(
+                "UNEXPECTED REGISTRATION ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error?.message ||
+                "Something went wrong. Please try again.",
+                "error"
+            );
+
+
+            setLoading(false);
+
+        }
+
+    }
+
+
+
+    /* =====================================================
+       FORM LISTENER
+       ===================================================== */
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            registerUser
+        );
+
+    }
+
+
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    initializeReferral();
+
+
+})();
 
 </script>
 
+
 </body>
+
 </html>
