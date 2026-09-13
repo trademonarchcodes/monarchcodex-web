@@ -5255,3 +5255,647 @@ table tbody tr:last-child td {
         animation: none;
     }
 }
+
+/* =========================================================
+   MONARCH CODEX
+   MASTER STYLESHEET
+   PART 9 — GLOBAL LAYOUT & UTILITY HELPERS
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   DISPLAY UTILITIES
+   --------------------------------------------------------- */
+
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-inline {
+    display: inline !important;
+}
+
+.d-inline-block {
+    display: inline-block !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+.d-inline-flex {
+    display: inline-flex !important;
+}
+
+.d-grid {
+    display: grid !important;
+}
+
+
+/* ---------------------------------------------------------
+   FLEX UTILITIES
+   --------------------------------------------------------- */
+
+.flex-row {
+    flex-direction: row !important;
+}
+
+.flex-column {
+    flex-direction: column !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+.flex-nowrap {
+    flex-wrap: nowrap !important;
+}
+
+.items-start {
+    align-items: flex-start !important;
+}
+
+.items-center {
+    align-items: center !important;
+}
+
+.items-end {
+    align-items: flex-end !important;
+}
+
+.justify-start {
+    justify-content: flex-start !important;
+}
+
+.justify-center {
+    justify-content: center !important;
+}
+
+.justify-end {
+    justify-content: flex-end !important;
+}
+
+.justify-between {
+    justify-content: space-between !important;
+}
+
+.justify-around {
+    justify-content: space-around !important;
+}
+
+
+/* ---------------------------------------------------------
+   GAP UTILITIES
+   --------------------------------------------------------- */
+
+.gap-4 {
+    gap: 4px !important;
+}
+
+.gap-8 {
+    gap: 8px !important;
+}
+
+.gap-10 {
+    gap: 10px !important;
+}
+
+.gap-12 {
+    gap: 12px !important;
+}
+
+.gap-16 {
+    gap: 16px !important;
+}
+
+.gap-20 {
+    gap: 20px !important;
+}
+
+.gap-24 {
+    gap: 24px !important;
+}
+
+.gap-30 {
+    gap: 30px !important;
+}
+
+.gap-32 {
+    gap: 32px !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEXT ALIGNMENT
+   --------------------------------------------------------- */
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEXT COLORS
+   --------------------------------------------------------- */
+
+.text-white {
+    color: var(--white) !important;
+}
+
+.text-gold {
+    color: var(--gold) !important;
+}
+
+.text-muted {
+    color: var(--muted) !important;
+}
+
+.text-soft {
+    color: var(--text-soft) !important;
+}
+
+.text-green {
+    color: var(--green) !important;
+}
+
+.text-red {
+    color: var(--red) !important;
+}
+
+.text-orange {
+    color: var(--orange) !important;
+}
+
+.text-blue {
+    color: var(--blue) !important;
+}
+
+
+/* ---------------------------------------------------------
+   FONT WEIGHTS
+   --------------------------------------------------------- */
+
+.fw-400 {
+    font-weight: 400 !important;
+}
+
+.fw-500 {
+    font-weight: 500 !important;
+}
+
+.fw-600 {
+    font-weight: 600 !important;
+}
+
+.fw-700 {
+    font-weight: 700 !important;
+}
+
+.fw-800 {
+    font-weight: 800 !important;
+}
+
+
+/* ---------------------------------------------------------
+   MARGIN UTILITIES
+   --------------------------------------------------------- */
+
+.m-0 {
+    margin: 0 !important;
+}
+
+.mt-0 {
+    margin-top: 0 !important;
+}
+
+.mt-8 {
+    margin-top: 8px !important;
+}
+
+.mt-10 {
+    margin-top: 10px !important;
+}
+
+.mt-12 {
+    margin-top: 12px !important;
+}
+
+.mt-16 {
+    margin-top: 16px !important;
+}
+
+.mt-20 {
+    margin-top: 20px !important;
+}
+
+.mt-24 {
+    margin-top: 24px !important;
+}
+
+.mt-32 {
+    margin-top: 32px !important;
+}
+
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+
+.mb-8 {
+    margin-bottom: 8px !important;
+}
+
+.mb-10 {
+    margin-bottom: 10px !important;
+}
+
+.mb-12 {
+    margin-bottom: 12px !important;
+}
+
+.mb-16 {
+    margin-bottom: 16px !important;
+}
+
+.mb-20 {
+    margin-bottom: 20px !important;
+}
+
+.mb-24 {
+    margin-bottom: 24px !important;
+}
+
+.mb-32 {
+    margin-bottom: 32px !important;
+}
+
+
+/* ---------------------------------------------------------
+   PADDING UTILITIES
+   --------------------------------------------------------- */
+
+.p-0 {
+    padding: 0 !important;
+}
+
+.p-8 {
+    padding: 8px !important;
+}
+
+.p-10 {
+    padding: 10px !important;
+}
+
+.p-12 {
+    padding: 12px !important;
+}
+
+.p-16 {
+    padding: 16px !important;
+}
+
+.p-20 {
+    padding: 20px !important;
+}
+
+.p-24 {
+    padding: 24px !important;
+}
+
+.p-32 {
+    padding: 32px !important;
+}
+
+
+/* ---------------------------------------------------------
+   WIDTH UTILITIES
+   --------------------------------------------------------- */
+
+.w-100 {
+    width: 100% !important;
+}
+
+.w-auto {
+    width: auto !important;
+}
+
+.max-width-sm {
+    max-width: 420px;
+}
+
+.max-width-md {
+    max-width: 700px;
+}
+
+.max-width-lg {
+    max-width: 900px;
+}
+
+.max-width-xl {
+    max-width: 1180px;
+}
+
+
+/* ---------------------------------------------------------
+   POSITION UTILITIES
+   --------------------------------------------------------- */
+
+.position-relative {
+    position: relative !important;
+}
+
+.position-absolute {
+    position: absolute !important;
+}
+
+.position-fixed {
+    position: fixed !important;
+}
+
+.position-sticky {
+    position: sticky !important;
+}
+
+
+/* ---------------------------------------------------------
+   VISIBILITY
+   --------------------------------------------------------- */
+
+.visible {
+    visibility: visible !important;
+}
+
+.invisible {
+    visibility: hidden !important;
+}
+
+
+/* ---------------------------------------------------------
+   OVERFLOW
+   --------------------------------------------------------- */
+
+.overflow-hidden {
+    overflow: hidden !important;
+}
+
+.overflow-auto {
+    overflow: auto !important;
+}
+
+.overflow-x-auto {
+    overflow-x: auto !important;
+}
+
+.overflow-y-auto {
+    overflow-y: auto !important;
+}
+
+
+/* ---------------------------------------------------------
+   BORDER UTILITIES
+   --------------------------------------------------------- */
+
+.border {
+    border: 1px solid var(--border-soft) !important;
+}
+
+.border-gold {
+    border: 1px solid var(--border) !important;
+}
+
+.border-none {
+    border: 0 !important;
+}
+
+
+/* ---------------------------------------------------------
+   RADIUS UTILITIES
+   --------------------------------------------------------- */
+
+.radius-small {
+    border-radius: var(--radius-small) !important;
+}
+
+.radius {
+    border-radius: var(--radius) !important;
+}
+
+.radius-large {
+    border-radius: var(--radius-large) !important;
+}
+
+.radius-round {
+    border-radius: var(--radius-round) !important;
+}
+
+
+/* ---------------------------------------------------------
+   BACKGROUND UTILITIES
+   --------------------------------------------------------- */
+
+.bg-black {
+    background: var(--black) !important;
+}
+
+.bg-panel {
+    background: var(--panel) !important;
+}
+
+.bg-panel-light {
+    background: var(--panel-light) !important;
+}
+
+.bg-gold-soft {
+    background: rgba(212, 175, 55, 0.08) !important;
+}
+
+
+/* ---------------------------------------------------------
+   SHADOW UTILITIES
+   --------------------------------------------------------- */
+
+.shadow-none {
+    box-shadow: none !important;
+}
+
+.shadow-small {
+    box-shadow: var(--shadow-small) !important;
+}
+
+.shadow {
+    box-shadow: var(--shadow) !important;
+}
+
+.shadow-large {
+    box-shadow: var(--shadow-large) !important;
+}
+
+
+/* ---------------------------------------------------------
+   CURSOR
+   --------------------------------------------------------- */
+
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+.cursor-default {
+    cursor: default !important;
+}
+
+.cursor-not-allowed {
+    cursor: not-allowed !important;
+}
+
+
+/* ---------------------------------------------------------
+   USER SELECT
+   --------------------------------------------------------- */
+
+.user-select-none {
+    user-select: none !important;
+}
+
+.user-select-all {
+    user-select: all !important;
+}
+
+
+/* ---------------------------------------------------------
+   VISUAL DIVIDER
+   --------------------------------------------------------- */
+
+.divider {
+    width: 100%;
+    height: 1px;
+
+    margin: 20px 0;
+
+    background: var(--border-soft);
+}
+
+.divider-gold {
+    background: var(--border);
+}
+
+
+/* ---------------------------------------------------------
+   GOLD ACCENT LINE
+   --------------------------------------------------------- */
+
+.gold-line {
+    width: 60px;
+    height: 3px;
+
+    margin: 12px 0;
+
+    background: var(--gold);
+    border-radius: var(--radius-round);
+}
+
+.gold-line-center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+/* ---------------------------------------------------------
+   VISUALLY HIDDEN
+   --------------------------------------------------------- */
+
+.sr-only {
+    position: absolute !important;
+
+    width: 1px !important;
+    height: 1px !important;
+
+    padding: 0 !important;
+    margin: -1px !important;
+
+    overflow: hidden !important;
+
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+
+    border: 0 !important;
+}
+
+
+/* ---------------------------------------------------------
+   RESPONSIVE VISIBILITY
+   --------------------------------------------------------- */
+
+.show-mobile {
+    display: none !important;
+}
+
+.show-desktop {
+    display: block !important;
+}
+
+@media (max-width: 768px) {
+
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .show-mobile {
+        display: block !important;
+    }
+
+    .show-desktop {
+        display: none !important;
+    }
+
+    .text-center-mobile {
+        text-align: center !important;
+    }
+
+    .w-100-mobile {
+        width: 100% !important;
+    }
+
+    .flex-column-mobile {
+        flex-direction: column !important;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SMALL MOBILE ADJUSTMENTS
+   --------------------------------------------------------- */
+
+@media (max-width: 480px) {
+
+    .container {
+        width: min(100% - 24px, var(--container-width));
+    }
+
+    .p-32 {
+        padding: 24px !important;
+    }
+
+    .gap-32 {
+        gap: 24px !important;
+    }
+
+    .mt-32 {
+        margin-top: 24px !important;
+    }
+
+    .mb-32 {
+        margin-bottom: 24px !important;
+    }
+}
