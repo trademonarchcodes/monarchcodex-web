@@ -2304,3 +2304,35 @@ async function loadReferrals() {
         }
     }
 }
+
+/* =========================================
+   REFRESH DASHBOARD DATA
+========================================= */
+
+async function refreshDashboardData() {
+
+    if (!currentUser) {
+        return;
+    }
+
+    await Promise.all([
+        loadInvestmentHistory(),
+        loadEarnings(),
+        loadWithdrawals(),
+        loadReferrals()
+    ]);
+}
+
+
+/* =========================================
+   INITIALIZE ALL DASHBOARD EVENTS
+========================================= */
+
+function initializeAllDashboardEvents() {
+
+    initializeInvestmentEvents();
+
+    initializeInvestmentSubmit();
+
+    initializeCryptoCopy();
+}
