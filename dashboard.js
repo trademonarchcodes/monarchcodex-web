@@ -1208,3 +1208,117 @@ function displayCryptoDetails(method) {
             );
         };
 }
+
+/* =========================================
+   DISPLAY CRYPTO WALLET
+========================================= */
+
+function displayCryptoWallet(method, network) {
+
+    const walletArea =
+        getElement("cryptoWalletArea");
+
+    const cryptoName =
+        getElement("selectedCryptoName");
+
+    const cryptoNetwork =
+        getElement("selectedCryptoNetwork");
+
+    const walletAddress =
+        getElement("cryptoWalletAddress");
+
+
+    showElement(walletArea);
+
+
+    if (cryptoName) {
+        cryptoName.textContent =
+            method.crypto_name || "—";
+    }
+
+    if (cryptoNetwork) {
+        cryptoNetwork.textContent =
+            network || "—";
+    }
+
+    if (walletAddress) {
+        walletAddress.textContent =
+            method.wallet_address || "—";
+    }
+
+
+    showElement(
+        getElement("receiptArea")
+    );
+}
+
+
+/* =========================================
+   COPY CRYPTO ADDRESS
+========================================= */
+
+function initializeCryptoCopy() {
+
+    const button =
+        getElement("copyCryptoAddressBtn");
+
+    if (!button) {
+        return;
+    }
+
+
+    button.addEventListener(
+        "click",
+        async function () {
+
+            const wallet =
+                getElement(
+                    "cryptoWalletAddress"
+                );
+
+            if (!wallet) {
+                return;
+            }
+
+            const address =
+                wallet.textContent.trim();
+
+            if (
+                !address ||
+                address === "—"
+            ) {
+                return;
+            }
+
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    address
+                );
+
+                const originalText =
+                    button.textContent;
+
+                button.textContent =
+                    "Copied!";
+
+                setTimeout(function () {
+                    button.textContent =
+                        originalText;
+                }, 1500);
+
+            } catch (error) {
+
+                console.error(
+                    "Copy failed:",
+                    error
+                );
+
+                alert(
+                    "Unable to copy the wallet address."
+                );
+            }
+        }
+    );
+}
