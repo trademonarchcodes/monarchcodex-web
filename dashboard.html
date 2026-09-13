@@ -2555,6 +2555,570 @@
     );
 
 })();
+
+ /* =========================================================
+    MONARCH CODEX — BANK PAYMENT MODULE
+    PART 6/12
+    ========================================================= */
+
+(function () {
+
+    "use strict";
+
+
+    /*
+     * -------------------------------------------------------
+     * STATE
+     * -------------------------------------------------------
+     */
+
+    let bankPaymentDetails = null;
+
+
+    /*
+     * -------------------------------------------------------
+     * ELEMENT HELPERS
+     * -------------------------------------------------------
+     */
+
+    function getElement(id) {
+
+        return document.getElementById(id);
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * FORMAT CURRENCY
+     * -------------------------------------------------------
+     */
+
+    function formatBankAmount(amount, currency) {
+
+        const value = Number(amount);
+
+        if (!Number.isFinite(value)) {
+            return "—";
+        }
+
+
+        const code =
+            currency ||
+            "NGN";
+
+
+        try {
+
+            return value.toLocaleString(
+                "en-NG",
+                {
+                    style: "currency",
+                    currency: code,
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+
+        } catch (error) {
+
+            return `${code} ${value.toLocaleString(
+                "en-NG",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            )}`;
+
+        }
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * SHOW BANK DETAILS
+     * -------------------------------------------------------
+     */
+
+    function showBankDetails() {
+
+        const paymentSection =
+            getElement("paymentDetailsPanel");
+
+        const bankDetails =
+            getElement("bankDetails");
+
+        const cryptoDetails =
+            getElement("cryptoDetails");
+
+        if (paymentSection) {
+            paymentSection.hidden = false;
+        }
+
+        if (bankDetails) {
+            bankDetails.hidden = false;
+        }
+
+        if (cryptoDetails) {
+            cryptoDetails.hidden = true;
+        }
+
+
+        /*
+         * Show the investment request area
+         * once a payment method has been selected.
+         */
+
+        const request =
+            getElement("investmentRequest");
+
+        if (request) {
+            request.hidden = false;
+        }
+
+
+        /*
+         * Update payment method text.
+         */
+
+        const methodDisplay =
+            getElement(
+                "selectedPaymentMethodDisplay"
+            );
+
+        if (methodDisplay) {
+            methodDisplay.textContent =
+                "Bank Transfer";
+        }
+
+
+        /*
+         * Notify other modules.
+         */
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "monarch:payment-method-selected",
+                {
+                    detail: {
+                        method: "bank",
+                        details:
+                            bankPaymentDetails
+                    }
+                }
+            )
+        );
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * HIDE BANK DETAILS
+     * -------------------------------------------------------
+     */
+
+    function hideBankDetails() {
+
+        const bankDetails =
+            getElement("bankDetails");
+
+        if (bankDetails) {
+            bankDetails.hidden = true;
+        }
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * RENDER BANK DETAILS
+     * -------------------------------------------------------
+     */
+
+    function renderBankPaymentDetails(details) {
+
+        if (!details) {
+            return;
+        }
+
+
+        bankPaymentDetails = details;
+
+
+        const bankName =
+            getElement("bankName");
+
+        const accountName =
+            getElement("bankAccountName");
+
+        const accountNumber =
+            getElement("bankAccountNumber");
+
+        const minimumAmount =
+            getElement("bankMinimumAmount");
+
+        const feeAmount =
+            getElement("bankFeeAmount");
+
+        const totalAmount =
+            getElement("bankTotalAmount");
+
+        const instructions =
+            getElement("bankInstructions");
+
+
+        /*
+         * Bank information
+         */
+
+        if (bankName) {
+
+            bankName.textContent =
+                details.bank_name ||
+                "—";
+
+        }
+
+
+        if (accountName) {
+
+            accountName.textContent =
+                details.account_name ||
+                "—";
+
+        }
+
+
+        if (accountNumber) {
+
+            accountNumber.textContent =
+                details.account_number ||
+                "—";
+
+        }
+
+
+        /*
+         * Currency
+         */
+
+        const currency =
+            details.currency ||
+            "NGN";
+
+
+        /*
+         * Minimum
+         */
+
+        if (minimumAmount) {
+
+            minimumAmount.textContent =
+                formatBankAmount(
+                    details.minimum_amount,
+                    currency
+                );
+
+        }
+
+
+        /*
+         * Fee
+         */
+
+        if (feeAmount) {
+
+            feeAmount.textContent =
+                formatBankAmount(
+                    details.fee_amount,
+                    currency
+                );
+
+        }
+
+
+        /*
+         * Total
+         */
+
+        if (totalAmount) {
+
+            totalAmount.textContent =
+                formatBankAmount(
+                    details.total_amount,
+                    currency
+                );
+
+        }
+
+
+        /*
+         * Instructions
+         */
+
+        if (instructions) {
+
+            instructions.textContent =
+                details.instructions ||
+                "Please complete your payment using the bank details above.";
+
+        }
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * LOAD BANK PAYMENT DETAILS
+     * -------------------------------------------------------
+     */
+
+    async function loadBankPaymentDetails() {
+
+        if (
+            typeof supabaseClient ===
+            "undefined"
+        ) {
+
+            console.error(
+                "Supabase client is unavailable."
+            );
+
+            return null;
+
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabaseClient
+
+                .from("payment_details")
+
+                .select("*")
+
+                .eq(
+                    "payment_type",
+                    "bank"
+                )
+
+                .eq(
+                    "active",
+                    true
+                )
+
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+            if (error) {
+
+                console.error(
+                    "Bank payment loading error:",
+                    error
+                );
+
+                return null;
+
+            }
+
+
+            /*
+             * Use the newest active bank
+             * payment configuration.
+             */
+
+            const details =
+                Array.isArray(data) &&
+                data.length > 0
+                    ? data[0]
+                    : null;
+
+
+            if (!details) {
+
+                console.warn(
+                    "No active bank payment details found."
+                );
+
+                return null;
+
+            }
+
+
+            renderBankPaymentDetails(
+                details
+            );
+
+
+            return details;
+
+        } catch (error) {
+
+            console.error(
+                "Unexpected bank payment error:",
+                error
+            );
+
+            return null;
+
+        }
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * BANK PAYMENT BUTTON
+     * -------------------------------------------------------
+     */
+
+    function initializeBankPaymentButton() {
+
+        const button =
+            getElement("bankPayment");
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+                /*
+                 * Mark bank as selected.
+                 */
+
+                document
+                    .querySelectorAll(
+                        ".payment-method-btn"
+                    )
+                    .forEach(
+                        function (item) {
+
+                            item.classList.remove(
+                                "active"
+                            );
+
+                        }
+                    );
+
+
+                button.classList.add(
+                    "active"
+                );
+
+
+                /*
+                 * Load the latest bank
+                 * configuration.
+                 */
+
+                const details =
+                    await loadBankPaymentDetails();
+
+
+                if (!details) {
+
+                    const bankDetails =
+                        getElement(
+                            "bankDetails"
+                        );
+
+                    if (bankDetails) {
+
+                        bankDetails.hidden =
+                            false;
+
+                        bankDetails.innerHTML = `
+                            <div class="module-placeholder">
+                                Bank payment details are
+                                temporarily unavailable.
+                                Please try again later.
+                            </div>
+                        `;
+
+                    }
+
+                    return;
+
+                }
+
+
+                showBankDetails();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * -------------------------------------------------------
+     * PUBLIC API
+     * -------------------------------------------------------
+     */
+
+    window.MonarchDashboard =
+        window.MonarchDashboard || {};
+
+    window.MonarchDashboard.payment =
+        window.MonarchDashboard.payment || {};
+
+    window.MonarchDashboard.payment.bank = {
+
+        load:
+            loadBankPaymentDetails,
+
+        show:
+            showBankDetails,
+
+        hide:
+            hideBankDetails,
+
+        getDetails:
+            function () {
+                return bankPaymentDetails;
+            }
+
+    };
+
+
+    /*
+     * -------------------------------------------------------
+     * INITIALIZE
+     * -------------------------------------------------------
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeBankPaymentButton
+        );
+
+    } else {
+
+        initializeBankPaymentButton();
+
+    }
+
+
+})();
     
     </script>
 
