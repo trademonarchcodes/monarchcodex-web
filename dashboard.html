@@ -236,17 +236,26 @@ document.getElementById("logoutBtn")?.addEventListener("click",async()=>{await s
 async function loadOverview(){
   const {data:investments}=await supabaseClient.from("investments").select("amount,status,created_at").eq("user_id",currentUser.id);
   const totalInv=investments?.filter(i=>i.status==="approved").reduce((s,i)=>s+Number(i.amount),0)||0;
-  const {data:trans}=await supabaseClient.from("transactions").select("amount,type").eq("user_id",currentUser.id);
-  const earnings=trans?.filter(t=> Number(t.amount)>0 && (t.type==="earning"||t.type==="referral_bonus"||t.type==="profit"||t.type==="bonus"||t.type==="admin_add")).reduce((s,i)=>s+Number(i.amount),0)||0;
+  const {data:trans}=await supabaseClient.from("transactions").select("amount,type,description").eq("user_id",currentUser.id);
+  // Separate referral earnings vs normal earnings
+  const referralEarnings=trans?.filter(t=> Number(t.amount)>0 && t.type==="referral_bonus").reduce((s,i)=>s+Number(i.amount),0)||0;
+  const normalEarnings=trans?.filter(t=> Number(t.amount)>0 && (t.type==="earning"||t.type==="profit"||t.type==="bonus"||t.type==="admin_add")).reduce((s,i)=>s+Number(i.amount),0)||0;
+  const totalEarnings = normalEarnings; // Normal earnings only
+  const allEarnings = normalEarnings + referralEarnings; // For balance calc
   const totalWithdrawn=trans?.filter(t=> Number(t.amount)<0).reduce((s,i)=>s+Math.abs(Number(i.amount)),0)||0;
   let balance = currentProfile.balance;
-  if(balance===null || balance===undefined) balance = earnings - totalWithdrawn;
-  if(balance < 0 && totalInv>0 && earnings===0) balance = 0;
+  if(balance===null || balance===undefined) balance = allEarnings - totalWithdrawn;
+  if(balance < 0 && totalInv>0 && allEarnings===0) balance = 0;
   document.getElementById("balance").textContent="$"+Number(balance).toFixed(2);
   document.getElementById("totalInvested").textContent="$"+totalInv.toFixed(2);
-  document.getElementById("totalEarnings").textContent="$"+earnings.toFixed(2);
-  document.getElementById("refEarnings").textContent="$"+earnings.toFixed(2);
-  const earnEl=document.getElementById("earningsTotal"); if(earnEl) earnEl.textContent="$"+earnings.toFixed(2);
+  document.getElementById("totalEarnings").textContent="$"+totalEarnings.toFixed(2);
+  document.getElementById("refEarnings").textContent="$"+referralEarnings.toFixed(2);
+  const earnEl=document.getElementById("earningsTotal"); if(earnEl) earnEl.textContent="$"+totalEarnings.toFixed(2);
+  // Also update referral earnings in referral section if exists
+  const refEarnDetail=document.getElementById("referralEarningsDetail");
+  if(refEarnDetail) refEarnDetail.textContent="$"+referralEarnings.toFixed(2);
+  // Store separated values
+  window._referralEarnings = referralEarnings;
   const kycBadge=document.getElementById("kycStatusBadge");
   if(currentProfile.kyc_status==="approved"){
     kycBadge.innerHTML='<span style="background:#00c851;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Approved - Active</span>';
@@ -267,7 +276,9 @@ async function loadOverview(){
   } else {
     kycBadge.innerHTML='<span style="background:#D4AF37;color:#000;padding:4px 10px;border-radius:20px;font-size:11px">KYC Pending</span>';
   }
-  window._earnings = earnings;
+  window._earnings = allEarnings;
+  window._normalEarnings = normalEarnings;
+  window._referralEarnings = referralEarnings;
   window._totalInv = totalInv;
   window._investments = investments;
   window._totalWithdrawn = totalWithdrawn;
@@ -420,14 +431,55 @@ async function loadProfile(){
       document.getElementById("uploadAvatarBtn")?.addEventListener("click", async()=>{
         const file=document.getElementById("avatarFile")?.files[0];
         if(!file){showToast("Choose picture first","warning");return;}
+        // Validate file
+        if(file.size > 2*1024*1024){showToast("Image too large - max 2MB","warning");return;}
+        if(!file.type.startsWith("image/")){showToast("Only image files allowed","warning");return;}
         try{
-          const {data,error}=await supabaseClient.storage.from("avatars").upload(`${currentUser.id}/avatar_${Date.now()}_${file.name}`, file, {upsert:true});
-          if(error) throw error;
-          const {data:url}=supabaseClient.storage.from("avatars").getPublicUrl(data.path);
-          await supabaseClient.from("profiles").update({avatar_url:url.publicUrl}).eq("id",currentUser.id);
-          showToast("Profile picture updated!","success");
-          location.reload();
-        }catch(e){showToast(e.message,"error");}
+          // Try avatars bucket, fallback to kyc bucket if avatars doesn't exist (no bucket error)
+          let uploadData, uploadError;
+          try{
+            const res = await supabaseClient.storage.from("avatars").upload(`${currentUser.id}/avatar_${Date.now()}_${file.name}`, file, {upsert:true});
+            uploadData = res.data; uploadError = res.error;
+          }catch(bucketErr){
+            // If avatars bucket doesn't exist, try kyc bucket as fallback
+            if(bucketErr.message?.includes("Bucket not found") || bucketErr.message?.includes("no bucket") || bucketErr.message?.includes("bucket")){
+              showToast("Avatars bucket not found - trying alternative. Please run avatars bucket SQL in Supabase.","warning");
+              const res2 = await supabaseClient.storage.from("kyc").upload(`${currentUser.id}/avatar_${Date.now()}_${file.name}`, file, {upsert:true});
+              uploadData = res2.data; uploadError = res2.error;
+            } else {
+              throw bucketErr;
+            }
+          }
+          if(uploadError){
+            if(uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("bucket")){
+              showToast("No bucket error: Avatars bucket doesn't exist. Run this SQL in Supabase: INSERT INTO storage.buckets (id,name,public) VALUES ('avatars','avatars',true); - Then create policy. Using kyc bucket fallback.","error");
+              // Fallback to kyc bucket
+              const res2 = await supabaseClient.storage.from("kyc").upload(`${currentUser.id}/avatar_${Date.now()}_${file.name}`, file, {upsert:true});
+              if(res2.error) throw res2.error;
+              uploadData = res2.data;
+            } else {
+              throw uploadError;
+            }
+          }
+          // Get public URL from whichever bucket worked
+          let publicUrl;
+          try{
+            const {data:urlData} = supabaseClient.storage.from("avatars").getPublicUrl(uploadData.path);
+            publicUrl = urlData.publicUrl;
+          }catch{
+            const {data:urlData} = supabaseClient.storage.from("kyc").getPublicUrl(uploadData.path);
+            publicUrl = urlData.publicUrl;
+          }
+          await supabaseClient.from("profiles").update({avatar_url:publicUrl}).eq("id",currentUser.id);
+          showToast("Profile picture updated! Visible to admin.","success");
+          setTimeout(()=>location.reload(),1000);
+        }catch(e){
+          if(e.message?.includes("Bucket not found") || e.message?.includes("bucket")){
+            showToast("Pictures upload: No bucket - Avatars bucket missing. Please create avatars bucket in Supabase Storage. SQL: INSERT INTO storage.buckets VALUES ('avatars','avatars',true)","error");
+          } else {
+            showToast(e.message,"error");
+          }
+        }
       });
     },500);
   }
@@ -489,7 +541,7 @@ document.getElementById("submitWithdrawalBtn")?.addEventListener("click",async()
     const ok=await showConfirm(`Account name does NOT match your NIN name (${currentProfile.full_name}). Withdrawal must bear your original names, no third party. Continue?`);
     if(!ok) return;
   }
-  const availableEarnings = window._earnings || 0;
+  const availableEarnings = (window._normalEarnings||0) + (window._referralEarnings||0);
   const totalInvested = window._totalInv || 0;
   const investments = window._investments || [];
   const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
