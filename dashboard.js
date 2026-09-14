@@ -453,7 +453,8 @@ function renderProfile() {
     if (profileUidFull) {
         profileUidFull.textContent = currentUser.id || "—";
     }
-   
+}
+
 /* =========================================
    NAVIGATION
 ========================================= */
