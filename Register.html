@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#B8941F;--black:#070707;--card:#121212;--border:rgba(212,175,55,0.18)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:radial-gradient(100% 100% at 20% 30%, #1a1a1a, #070707);color:#eee;font-family:'Poppins',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.container{width:100%;max-width:480px}
+.logo{font-family:'Cinzel',serif;font-weight:800;letter-spacing:2px;font-size:22px;color:#fff;text-align:center}
+.logo .sub{font-size:10px;letter-spacing:4px;color:var(--gold);font-family:'Poppins';display:block}
+.form-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:28px;margin-top:16px}
+.cinzel{font-family:'Cinzel',serif}
+.form-card h2{font-size:20px;margin-bottom:6px;text-align:center}
+.sub{color:#777;font-size:11px;margin-bottom:18px;text-align:center}
+label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:12px;display:block}
+input{background:#0e0e0e;border:1px solid rgba(255,255,255,0.08);color:#fff;padding:12px 14px;border-radius:10px;width:100%;margin-top:6px;font-size:13px;outline:none}
+input:focus{border-color:var(--gold)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:13px;border-radius:10px;width:100%;font-weight:800;font-size:14px;margin-top:20px;cursor:pointer}
+.link{color:#777;font-size:12px;text-align:center;margin-top:16px;display:block}
+.link a{color:var(--gold);font-weight:600;text-decoration:none}
+.alert{padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:12px}
+.alert.error{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);color:#ff7777}
+.alert.success{background:rgba(0,200,81,0.1);border:1px solid rgba(0,200,81,0.2);color:#6fdc8a}
+
+.cinzel{font-family:'Cinzel',serif}
+.alert{padding:12px;border-radius:8px;margin-bottom:12px;font-size:13px}
+.alert.error{background:rgba(255,68,68,0.15);border:1px solid rgba(255,68,68,0.3);color:#ff8a8a}
+.alert.success{background:rgba(0,200,81,0.15);border:1px solid rgba(0,200,81,0.3);color:#7ee89a}
+</style></head><body>
+<div class="container">
+<div class="form-card">
+<div class="logo">MONARCH CODEX<span class="sub">THE INNER KINGDOM</span></div>
+<h2 class="cinzel">Create Kingdom Account</h2><p class="sub">Register with your NIN names — cannot be changed after KYC</p>
+<div id="alert" class="alert" style="display:none"></div>
+<form id="registerForm">
+<label>Full Name (as in NIN)</label><input type="text" id="fullName" required placeholder="BRIGHT EZEBOLA OKECHUKWU">
+<label>Phone (cannot be changed after KYC)</label><input type="tel" id="phone" required placeholder="09135424851">
+<label>Email</label><input type="email" id="email" required placeholder="your@email.com">
+<label>Password</label><input type="password" id="password" required placeholder="Min 6 characters">
+<label>Referral Code (optional) - leave empty if none</label><input type="text" id="referralCode" placeholder="Leave empty if no referral">
+<label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:11px;text-transform:none;line-height:1.5"><input type="checkbox" id="terms" required style="width:16px;height:16px;margin-top:2px"> <span>I agree to disclaimer: 10% profit target not guaranteed, company not responsible for market losses, I will use NIN names as in my ID.</span></label>
+<button type="submit" id="submitBtn" class="btn-gold">Create Account</button>
+</form>
+<span class="link">Already have account? <a href="login.html">Login</a></span>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+function showAlert(m,t){const el=document.getElementById("alert");el.textContent=m;el.className="alert "+t;el.style.display="block";console.log(t+": "+m);}
+function genUID(){return "MONARCH"+Math.floor(100000+Math.random()*900000);}
+function genRef(){return "MONARCH"+Math.random().toString(36).substring(2,8).toUpperCase();}
+document.getElementById("registerForm").addEventListener("submit",async(e)=>{
+ e.preventDefault();
+ const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Creating...";
+ const fullName=document.getElementById("fullName").value.trim();
+ const phone=document.getElementById("phone").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const referralInput=document.getElementById("referralCode").value.trim();
+ try{
+  console.log("Signing up...");
+  const {data,error}=await supabaseClient.auth.signUp({email,password, options:{data:{full_name:fullName, phone:phone}}});
+  if(error)throw error;
+  const user=data.user || data.session?.user;
+  if(!user){
+    // Email confirmation required - try signIn or tell user to disable confirmation
+    showAlert("Account created but needs email confirmation. Please disable email confirmation in Supabase: Auth -> Settings -> Uncheck Confirm email, or check your email inbox for trademonarchofficial@gmail.com","error");
+    btn.disabled=false;btn.textContent="Create Account";
+    return;
+  }
+  console.log("User created:", user.id);
+  let referredBy=null;
+  if(referralInput){
+    const {data:refProf, error:refErr}=await supabaseClient.from("profiles").select("id").eq("referral_code",referralInput).maybeSingle();
+    if(refProf) referredBy=refProf.id;
+    else console.log("Referral not found, continuing without referral");
+  }
+  const uid=genUID();
+  const refCode=genRef();
+  console.log("Inserting profile:", uid, refCode);
+  const {error:profErr}=await supabaseClient.from("profiles").insert({
+    id:user.id, full_name:fullName, phone:phone, uid:uid, referral_code:refCode,
+    referred_by:referredBy, role:"member", status:"pending_kyc", kyc_status:"pending", display_username:fullName.split(" ")[0], balance:0
+  });
+  if(profErr){
+    console.error("Profile insert error:", profErr);
+    throw new Error("Profile save failed: "+profErr.message+" (Code: "+profErr.code+")");
+  }
+  showAlert("Account created! Now login to complete KYC.","success");
+  setTimeout(()=>window.location.replace("login.html"),1500);
+ }catch(err){
+  console.error("Register error:", err);
+  showAlert(err.message || "Failed to create account - "+JSON.stringify(err),"error");
+  btn.disabled=false;btn.textContent="Create Account";
+ }
+});
+</script>
+</body></html>
