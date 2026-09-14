@@ -633,46 +633,25 @@ function initializeLogout() {
 ========================================= */
 
 async function initializeDashboard() {
-
     try {
-
-        setLoadingMessage(
-            "Checking your account..."
-        );
-
-        currentUser =
-            await getCurrentUser();
-
-        setLoadingMessage(
-            "Loading your member profile..."
-        );
-
+        setLoadingMessage("Checking your account...");
+        currentUser = await getCurrentUser();
+        setLoadingMessage("Loading your member profile...");
         await loadCurrentProfile();
-
         renderProfile();
-
         initializeNavigation();
         initializeMobileMenu();
         initializeLogout();
-
         showDashboard();
-
-        setLoadingMessage(
-            "Loading dashboard..."
-        );
-
+        setLoadingMessage("Loading dashboard...");
         await loadPackages();
-
+        await loadInvestmentHistory();
+        await loadEarnings();
+        await loadWithdrawals();
+        await loadReferrals();
     } catch (error) {
-
-        console.error(
-            "Dashboard initialization error:",
-            error
-        );
-
-        showAuthError(
-            "Unable to load your member dashboard. Please log in again."
-        );
+        console.error("Dashboard initialization error:", error);
+        showAuthError("Unable to load your member dashboard. Please log in again.");
     }
 }
 
