@@ -1,9 +1,19 @@
-MONARCH CODEX V2 FINAL - FRESH START
-Main Admin: trademonarchofficial@gmail.com
-Bank: OPAY 9135424851 BRIGHT EZEBOLA OKECHUKWU
-Crypto: 5 wallets included
-Packages: $30 $50 $100 $300 $500 $1000
-Features: KYC per section, investments, withdrawals min $5, transactions +/-, balance adjust, sub-admins, email templates, referrals 3%+1%
+MONARCH CODEX - SINGLE FILE VERSION (NO FOLDERS NEEDED)
+Just upload 5 HTML files to GitHub - no css/ or js/ folders needed!
+Premium design included inside each file.
 
-Upload: Keep css/ and js/ folders structure.
-Storage buckets to create: receipts (public), kyc (public)
+Files:
+- index.html (homepage)
+- login.html
+- register.html (fix: now premium, not white page)
+- dashboard.html
+- admin.html
+
+Your screenshot issue fixed: CSS now inside HTML, so it will look premium even without folders.
+
+If register still says not creating account, check:
+1. Supabase -> Authentication -> Settings -> Disable email confirmation (or enable auto-confirm)
+2. Ensure you checked the disclaimer checkbox
+3. Password min 6 chars
+
+Main admin: trademonarchofficial@gmail.com
