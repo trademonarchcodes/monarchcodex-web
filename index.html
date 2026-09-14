@@ -125,7 +125,7 @@ footer h5{color:#ccc;font-size:13px;margin-bottom:10px}
 <script>
 const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 async function loadPackages(){const {data}=await supabase.from("packages").select("*").order("amount");if(!data)return;const grid=document.getElementById("packagesGrid");const preview=document.getElementById("pkgPreview");if(grid)grid.innerHTML="";if(preview)preview.innerHTML="";data.forEach((p,i)=>{const div=document.createElement("div");div.className="pkg-card"+(p.amount>=500?" featured":"");div.innerHTML=`<h3>${p.name}</h3><div class="price">$${p.amount}</div><small style="color:#777">${p.profit_percent}% target monthly</small><br><a href="register.html" class="btn-gold" style="margin-top:12px">Join</a>`;if(grid)grid.appendChild(div);if(preview&&i<3){const row=document.createElement("div");row.className="pkg";row.innerHTML=`<span>${p.name}</span><strong>$${p.amount}</strong>`;preview.appendChild(row);}});}loadPackages();
-  footer a{color:#777;text-decoration:none;transition:0.2s;display:inline-block;padding:3px 0}
+footer a{color:#777;text-decoration:none;transition:0.2s;display:inline-block;padding:3px 0}
 footer a:hover{color:#D4AF37;transform:translateX(3px)}
 footer li{margin:6px 0} footer h5{color:#D4AF37;letter-spacing:1px;text-transform:uppercase}
 </script>
