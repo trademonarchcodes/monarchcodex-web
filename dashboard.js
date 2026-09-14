@@ -422,11 +422,10 @@ function renderProfile() {
         profileAccountStatus.textContent = status;
     }
 
-    if (profileCreatedAt) {
+        if (profileCreatedAt) {
         profileCreatedAt.textContent =
             formatDate(currentProfile.created_at);
     }
-
 
     /* ACCOUNT STATUS */
 
@@ -438,8 +437,23 @@ function renderProfile() {
             status.charAt(0).toUpperCase() +
             status.slice(1);
     }
-}
 
+    /* PREMIUM PROFILE DUPLICATE SYNC - ADD ONLY */
+    const profileUidDup = getElement("profileUidDup");
+    if (profileUidDup) {
+        profileUidDup.textContent = currentProfile.uid || "—";
+    }
+
+    const profileRoleDetails2 = getElement("profileRoleDetails2");
+    if (profileRoleDetails2) {
+        profileRoleDetails2.textContent = role;
+    }
+
+    const profileUidFull = getElement("profileUidFull");
+    if (profileUidFull) {
+        profileUidFull.textContent = currentUser.id || "—";
+    }
+   
 /* =========================================
    NAVIGATION
 ========================================= */
