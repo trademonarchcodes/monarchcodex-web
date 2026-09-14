@@ -276,7 +276,7 @@ async function approveKYC(id){
  if(!confirm("Approve KYC? Member will become active and can invest."))return;
  await supabaseClient.from("profiles").update({kyc_status:"approved",status:"active"}).eq("id",id);
  await supabaseClient.from("kyc_verifications").insert({user_id:id,field_name:"all",status:"approved",verified_by:currentAdmin.id});
- alert("KYC Approved!"); loadKYC(); loadMembers();
+ showToast("KYC Approved! Member can now invest.","success"); loadKYC(); loadMembers();
 }
 
 async function rejectKYC(id){
@@ -320,7 +320,7 @@ async function approveInvestment(id,userId,amount){
   await supabaseClient.from("profiles").update({balance:Number(refProf.balance||0)+bonus}).eq("id",profile.referred_by);
   await supabaseClient.from("transactions").insert({user_id:profile.referred_by,type:"referral_bonus",amount:bonus,display_amount:`+$${bonus.toFixed(2)}`,description:`3% referral bonus from ${amount}`,created_by:currentAdmin.id});
  }
- alert("Approved!"); loadInvestments(); loadStats();
+ showToast("Approved! Transaction created once.","success"); loadInvestments(); loadStats();
 }
 
 async function rejectInvestment(id){
@@ -357,7 +357,7 @@ async function approveWithdrawal(id,userId,amount){
  const {data:prof}=await supabaseClient.from("profiles").select("balance").eq("id",userId).single();
  await supabaseClient.from("profiles").update({balance:Number(prof.balance||0)-Number(amount)}).eq("id",userId);
  await supabaseClient.from("transactions").insert({user_id:userId,type:"withdrawal",amount:-Number(amount),display_amount:`-$${amount}`,description:"Withdrawal approved",created_by:currentAdmin.id});
- alert("Withdrawal approved!"); loadWithdrawals();
+ showToast("Withdrawal approved! Deducted from available balance.","success"); loadWithdrawals();
 }
 
 async function rejectWithdrawal(id){
@@ -557,12 +557,12 @@ async function loadPayments(){
 async function updateBank(){
  const payload={bank_name:document.getElementById("p_bank_name").value,account_name:document.getElementById("p_account_name").value,account_number:document.getElementById("p_account_number").value};
  await supabaseClient.from("payment_details").update(payload).eq("id",1);
- alert("Bank updated");
+ showToast("Bank details updated!","success");
 }
 async function updateWallet(id){
  const val=document.getElementById("wallet_"+id).value;
  await supabaseClient.from("payment_details").update({wallet_address:val}).eq("id",id);
- alert("Wallet updated");
+ showToast("Wallet updated!","success");
 }
 
 function switchView(name){
@@ -581,5 +581,19 @@ function switchView(name){
 
 function logout(){supabaseClient.auth.signOut().then(()=>location.href="login.html");}
 checkAdmin();
+</script>
+
+<script>
+function showToast(msg,type="info"){
+  let c=document.getElementById("toastContainer");
+  if(!c){c=document.createElement("div");c.id="toastContainer";c.style="position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px";document.body.appendChild(c);}
+  const t=document.createElement("div");
+  const bg=type==="success"?"linear-gradient(135deg,#00c851,#00a63d)":type==="error"?"linear-gradient(135deg,#ff4444,#cc0000)":type==="warning"?"linear-gradient(135deg,#D4AF37,#B8941F)":"linear-gradient(135deg,#121212,#1a1a1a)";
+  const col=type==="warning"?"#000":"#fff";
+  const icon=type==="success"?"✓":type==="error"?"✕":type==="warning"?"⚠":"ℹ";
+  t.style=`background:${bg};color:${col};padding:14px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);border:1px solid rgba(212,175,55,0.3);font-size:13px;display:flex;gap:10px;align-items:flex-start`;
+  t.innerHTML=`<span>${icon}</span><span style="flex:1">${msg}</span><button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:inherit;cursor:pointer">×</button>`;
+  c.appendChild(t); setTimeout(()=>{if(t.parentElement) t.remove();},5000);
+}
 </script>
 </body></html>
