@@ -2,35 +2,7 @@
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login | Monarch Codex</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
-<style>
-:root{--gold:#D4AF37;--gold2:#B8941F;--black:#070707;--card:#121212;--border:rgba(212,175,55,0.18)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--black);color:#eee;font-family:'Poppins',sans-serif;min-height:100vh;display:flex}
-.left{flex:1;background:radial-gradient(100% 100% at 20% 30%, #1a1a1a, #070707);padding:60px 5%;display:flex;flex-direction:column;justify-content:center}
-.logo{font-family:'Cinzel',serif;font-weight:800;letter-spacing:2px;font-size:24px;color:#fff}
-.logo .sub{font-size:11px;letter-spacing:5px;color:var(--gold);font-family:'Poppins';display:block;margin-top:2px}
-.badge{display:inline-block;background:rgba(212,175,55,0.1);border:1px solid var(--border);color:var(--gold);padding:6px 14px;border-radius:30px;font-size:11px;margin:30px 0 18px}
-.left h1{font-family:'Cinzel',serif;font-size:44px;line-height:1.1}
-.left p{color:#888;font-size:14px;line-height:1.7;margin-top:16px;max-width:440px}
-.trust{margin-top:20px;color:#666;font-size:11px}
-.right{flex:1;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:40px 5%}
-.form-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:28px;width:100%;max-width:400px}
-.form-card h2{font-family:'Cinzel',serif;font-size:22px;margin-bottom:6px}
-.sub{color:#777;font-size:12px;margin-bottom:18px}
-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:14px;display:block}
-input{background:#0e0e0e;border:1px solid rgba(255,255,255,0.08);color:#fff;padding:12px 14px;border-radius:10px;width:100%;margin-top:6px;font-size:13px;outline:none}
-input:focus{border-color:var(--gold)}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:13px;border-radius:10px;width:100%;font-weight:800;font-size:14px;margin-top:20px;cursor:pointer}
-.link{color:#777;font-size:12px;text-align:center;margin-top:16px;display:block;cursor:pointer}
-.link a{color:var(--gold);font-weight:600;text-decoration:none}
-.alert{padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:12px}
-.alert.error{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);color:#ff7777}
-.alert.success{background:rgba(0,200,81,0.1);border:1px solid rgba(0,200,81,0.2);color:#6fdc8a}
-@media(max-width:900px){body{flex-direction:column} .left{padding:40px 6%} .left h1{font-size:32px}}
-.cinzel{font-family:'Cinzel',serif}
-
-.cinzel{font-family:'Cinzel',serif}
-</style></head><body>
+<link rel="stylesheet" href="css/login.css"></head><body>
 <div class="left">
 <div class="logo">MONARCH CODEX<span class="sub">THE INNER KINGDOM</span></div>
 <span class="badge">MEMBER ACCESS</span>
@@ -52,29 +24,5 @@ input:focus{border-color:var(--gold)}
 </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
-const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-function showAlert(msg,type){const el=document.getElementById("alert");el.textContent=msg;el.className="alert "+type;el.style.display="block";}
-document.getElementById("loginForm").addEventListener("submit",async(e)=>{
- e.preventDefault();
- const btn=document.getElementById("submitBtn");const orig=btn.textContent;btn.disabled=true;btn.textContent="Logging in...";
- const email=document.getElementById("email").value.trim();const password=document.getElementById("password").value;
- try{
-  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;
-  showAlert("Login successful! Checking role...","success");
-  // profiles has NO email column - only role
-  const {data:profile}=await supabaseClient.from("profiles").select("role").eq("id",data.user.id).single();
-  const role=profile?.role||"member";
-  const isMainAdmin=email.toLowerCase()==="trademonarchofficial@gmail.com";
-  if(role==="admin"||role==="super_admin"||isMainAdmin||role.includes("admin")){
-    setTimeout(()=>window.location.replace("admin.html"),800);
-  }else{
-    setTimeout(()=>window.location.replace("dashboard.html"),600);
-  }
- }catch(err){showAlert(err.message,"error");btn.disabled=false;btn.textContent=orig;}
-});
-async function resetPass(){const email=prompt("Enter email:");if(!email)return;const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+"/login.html"});if(error)alert(error.message);else alert("Reset link sent");}
-</script>
+<script src="js/login.js"></script>
 </body></html>
