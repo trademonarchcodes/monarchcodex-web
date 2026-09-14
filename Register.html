@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join Kingdom | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#B8941F;--black:#070707;--card:#121212;--border:rgba(212,175,55,0.18)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--black);color:#eee;font-family:'Poppins',sans-serif;min-height:100vh;display:flex}
+.left{flex:1;background:radial-gradient(100% 100% at 20% 30%, #1a1a1a, #070707);padding:60px 5%;display:flex;flex-direction:column;justify-content:center;position:relative}
+.logo{font-family:'Cinzel',serif;font-weight:800;letter-spacing:2px;font-size:24px}
+.logo .sub{font-size:11px;letter-spacing:5px;color:var(--gold);font-family:'Poppins';display:block;margin-top:2px}
+.badge{display:inline-block;background:rgba(212,175,55,0.1);border:1px solid var(--border);color:var(--gold);padding:6px 14px;border-radius:30px;font-size:11px;letter-spacing:1px;margin:30px 0 18px}
+.left h1{font-family:'Cinzel',serif;font-size:44px;line-height:1.1}
+.left h1 span{color:var(--gold);display:block}
+.left p{color:#888;font-size:14px;line-height:1.7;margin-top:16px;max-width:440px}
+.right{flex:1;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:40px 5%}
+.form-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:28px;width:100%;max-width:420px}
+.form-card h2{font-family:'Cinzel',serif;font-size:22px;margin-bottom:6px}
+.form-card .sub{color:#777;font-size:12px;margin-bottom:18px}
+label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:14px;display:block}
+input{background:#0e0e0e;border:1px solid rgba(255,255,255,0.08);color:#fff;padding:12px 14px;border-radius:10px;width:100%;margin-top:6px;font-size:13px;outline:none}
+input:focus{border-color:var(--gold)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:13px;border-radius:10px;width:100%;font-weight:800;font-size:14px;margin-top:20px;cursor:pointer}
+.btn-gold:disabled{opacity:0.6}
+.link{color:#777;font-size:12px;text-align:center;margin-top:16px;display:block}
+.link a{color:var(--gold);font-weight:600;text-decoration:none}
+.alert{padding:12px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.alert.error{background:rgba(255,68,68,0.15);border:1px solid rgba(255,68,68,0.3);color:#ff8a8a;display:block}
+.alert.success{background:rgba(0,200,81,0.15);border:1px solid rgba(0,200,81,0.3);color:#7ee89a;display:block}
+@media(max-width:900px){body{flex-direction:column} .left{padding:40px 6%} .right{padding:20px 6% 40px}}
+</style>
+</head>
+<body>
+
+<div class="left">
+<div class="logo">MONARCH CODEX<span class="sub">THE INNER KINGDOM</span></div>
+<span class="badge">JOIN THE KINGDOM</span>
+<h1>Build Knowledge. <span>Build Your Future.</span></h1>
+<p>Join Monarch Codex — NIN verified community. Real trading, discipline, legacy.</p>
+</div>
+
+<div class="right">
+<div class="form-card">
+<h2>Create Account</h2><p class="sub">Use your NIN names — cannot be changed after KYC</p>
+<div id="alert" style="display:none" class="alert"></div>
+
+<form id="registerForm">
+<label>Full Name (as in NIN)</label><input type="text" id="fullName" required placeholder="John Doe">
+<label>Phone (cannot be changed after KYC)</label><input type="tel" id="phone" required placeholder="+234 123 456 7890">
+<label>Email</label><input type="email" id="email" required placeholder="example@gmail.com">
+<label>Password</label>
+<div style="position:relative">
+<input type="password" id="password" required placeholder="Min 6 characters" style="padding-right:44px">
+<button type="button" id="togglePassword" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#888;cursor:pointer;font-size:16px">👁️</button>
+</div>
+<label>Referral Code (optional - leave empty if none)</label><input type="text" id="referralCode" placeholder="Leave empty if none">
+<label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:11px;text-transform:none;line-height:1.5"><input type="checkbox" id="terms" required style="width:16px;height:16px"> <span>I agree disclaimer: 10% target not guaranteed, company not responsible for market losses.</span></label>
+<button type="submit" id="submitBtn" class="btn-gold">Create Account →</button>
+</form>
+
+<span class="link">Already have account? <a href="data:text/html;base64,PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj48aGVhZD48bWV0YSBjaGFyc2V0PSJVVEYtOCI+PG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+TG9naW4gfCBNb25hcmNoIENvZGV4PC90aXRsZT4KPGxpbmsgaHJlZj0iaHR0cHM6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3MyP2ZhbWlseT1Qb3BwaW5zOndnaHRAMzAwOzQwMDs2MDA7NzAwJmZhbWlseT1DaW56ZWw6d2dodEA2MDA7ODAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4KPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSJjc3MvbG9naW4uY3NzIj48L2hlYWQ+PGJvZHk+CjxkaXYgY2xhc3M9ImxlZnQiPgo8ZGl2IGNsYXNzPSJsb2dvIj5NT05BUkNIIENPREVYPHNwYW4gY2xhc3M9InN1YiI+VEhFIElOTkVSIEtJTkdET008L3NwYW4+PC9kaXY+CjxzcGFuIGNsYXNzPSJiYWRnZSI+TUVNQkVSIEFDQ0VTUzwvc3Bhbj4KPGgxPldlbGNvbWUgQmFjaywgTW9uYXJjaC48L2gxPgo8cD5BY2Nlc3MgeW91ciBraW5nZG9tLiBUcmFkZSB3aXRoIGRpc2NpcGxpbmUuIFlvdXIgS1lDIHZlcmlmaWVkIHBvcnRhbCBhd2FpdHMuPC9wPgo8ZGl2IGNsYXNzPSJ0cnVzdCI+PHNtYWxsPuKckyBOSU4gVmVyaWZpZWQg4oCiIOKckyBTZWN1cmUg4oCiIOKckyBPZmZpY2lhbDogdHJhZGVtb25hcmNob2ZmaWNpYWxAZ21haWwuY29tPC9zbWFsbD48L2Rpdj4KPC9kaXY+CjxkaXYgY2xhc3M9InJpZ2h0Ij4KPGRpdiBjbGFzcz0iZm9ybS1jYXJkIj4KPGgyIGNsYXNzPSJjaW56ZWwiPk1lbWJlciBMb2dpbjwvaDI+PHAgY2xhc3M9InN1YiI+RW50ZXIgeW91ciBjcmVkZW50aWFsczwvcD4KPGRpdiBpZD0iYWxlcnQiIGNsYXNzPSJhbGVydCIgc3R5bGU9ImRpc3BsYXk6bm9uZSI+PC9kaXY+Cjxmb3JtIGlkPSJsb2dpbkZvcm0iPgo8bGFiZWw+RW1haWw8L2xhYmVsPjxpbnB1dCB0eXBlPSJlbWFpbCIgaWQ9ImVtYWlsIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0ieW91ckBlbWFpbC5jb20iPgo8bGFiZWw+UGFzc3dvcmQ8L2xhYmVsPjxpbnB1dCB0eXBlPSJwYXNzd29yZCIgaWQ9InBhc3N3b3JkIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i4oCi4oCi4oCi4oCi4oCi4oCi4oCi4oCiIj4KPGJ1dHRvbiB0eXBlPSJzdWJtaXQiIGlkPSJzdWJtaXRCdG4iIGNsYXNzPSJidG4tZ29sZCI+TG9naW4gdG8gS2luZ2RvbTwvYnV0dG9uPgo8L2Zvcm0+CjxhIGNsYXNzPSJsaW5rIiBvbmNsaWNrPSJyZXNldFBhc3MoKSIgc3R5bGU9ImN1cnNvcjpwb2ludGVyIj5Gb3Jnb3QgcGFzc3dvcmQ/PC9hPgo8c3BhbiBjbGFzcz0ibGluayI+Tm8gYWNjb3VudD8gPGEgaHJlZj0icmVnaXN0ZXIuaHRtbCI+Q3JlYXRlIEFjY291bnQ8L2E+PC9zcGFuPgo8L2Rpdj4KPC9kaXY+CjxzY3JpcHQgc3JjPSJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL0BzdXBhYmFzZS9zdXBhYmFzZS1qc0AyIj48L3NjcmlwdD4KPHNjcmlwdCBzcmM9ImpzL2xvZ2luLmpzIj48L3NjcmlwdD4KPC9ib2R5PjwvaHRtbD4K">Login</a></span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+function showAlert(msg,type){
+ const el=document.getElementById("alert");
+ el.textContent=msg;
+ el.className="alert "+type;
+ el.style.display="block";
+ console.log(type+": "+msg);
+}
+
+function genUID(){return "MONARCH"+Math.floor(100000+Math.random()*900000);}
+function genRef(){return "MONARCH"+Math.random().toString(36).substring(2,6).toUpperCase()+Math.floor(10+Math.random()*90);}
+document.getElementById("togglePassword").addEventListener("click",()=>{
+  const pwd=document.getElementById("password");
+  const btn=document.getElementById("togglePassword");
+  if(pwd.type==="password"){pwd.type="text";btn.textContent="🙈";}
+  else {pwd.type="password";btn.textContent="👁️";}
+});
+
+document.getElementById("registerForm").addEventListener("submit",async(e)=>{
+ e.preventDefault();
+ const btn=document.getElementById("submitBtn");
+ btn.disabled=true; btn.textContent="Creating...";
+ const full_name=document.getElementById("fullName").value.trim();
+ const phone=document.getElementById("phone").value.trim();
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const referral_code_input=document.getElementById("referralCode").value.trim().toUpperCase();
+
+ try{
+  console.log("1. Creating auth user...");
+  const {data,error}=await supabaseClient.auth.signUp({email,password, options:{data:{full_name, phone}}});
+  if(error) throw error;
+  
+  let user=data.user;
+  if(!user && data.session){ user=data.session.user; }
+  
+  if(!user){
+   showAlert("Account created! But email confirmation is ON. Go to Supabase -> Auth -> Settings -> Disable 'Confirm email', then delete this user in Auth -> Users and try again. Or check email inbox.","error");
+   btn.disabled=false; btn.textContent="Create Account →";
+   return;
+  }
+  
+  console.log("2. Auth user created:", user.id);
+  
+  let referred_by=null;
+  if(referral_code_input){
+   console.log("3. Checking referral:", referral_code_input);
+   const {data:refData}=await supabaseClient.from("profiles").select("id").eq("referral_code",referral_code_input).maybeSingle();
+   const {data:refData2}=await supabaseClient.from("profiles").select("id").eq("uid",referral_code_input).maybeSingle();
+   if(refData){ referred_by=refData.id; console.log("Referral found by code:", referred_by); }
+   else if(refData2){ referred_by=refData2.id; console.log("Referral found by UID:", referred_by); }
+   else { console.log("Referral not found, continuing without"); }
+  }
+  
+  const uid=genUID();
+  const myReferralCode=genRef();
+  
+  console.log("4. Inserting profile:", uid, myReferralCode);
+  
+  const profileData={
+   id:user.id,
+   full_name:full_name,
+   phone:phone,
+   uid:uid,
+   referral_code:myReferralCode,
+   referred_by:referred_by,
+   role:"member",
+   status:"pending_kyc",
+   kyc_status:"pending",
+   display_username:full_name.split(" ")[0],
+   balance:0
+  };
+  
+  // Use UPSERT to handle if profile already exists for this auth user
+  const {error:profErr}=await supabaseClient.from("profiles").upsert(profileData, {onConflict: 'id'});
+  
+  if(profErr){
+   console.error("Profile error:", profErr);
+   // If duplicate UID or referral_code (23505), retry with new codes
+   if(profErr.code==="23505"){
+     // Check if it's UID/referral duplicate, not ID
+     if(profErr.message.includes("uid") || profErr.message.includes("referral_code")){
+       profileData.uid=genUID();
+       profileData.referral_code=genRef();
+       const {error:retryErr}=await supabaseClient.from("profiles").upsert(profileData, {onConflict: 'id'});
+       if(retryErr) throw new Error("Profile save failed: "+retryErr.message+" - Please try again with different phone");
+     } else {
+       // If it's ID duplicate, try update instead
+       const {error:updateErr}=await supabaseClient.from("profiles").update({
+         full_name:full_name, phone:phone, uid:profileData.uid, referral_code:profileData.referral_code,
+         referred_by:referred_by, display_username:full_name.split(" ")[0]
+       }).eq("id", user.id);
+       if(updateErr) throw new Error("Profile save failed: "+updateErr.message+" - This email already has a profile. Please login instead.");
+     }
+   } else {
+     throw new Error("Profile save failed: "+profErr.message+" (code "+profErr.code+")");
+   }
+  }
+  
+  showAlert("Account created! UID: "+uid+" - Now login to complete KYC.","success");
+  setTimeout(()=> window.location.href="data:text/html;base64,PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj48aGVhZD48bWV0YSBjaGFyc2V0PSJVVEYtOCI+PG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+TG9naW4gfCBNb25hcmNoIENvZGV4PC90aXRsZT4KPGxpbmsgaHJlZj0iaHR0cHM6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3MyP2ZhbWlseT1Qb3BwaW5zOndnaHRAMzAwOzQwMDs2MDA7NzAwJmZhbWlseT1DaW56ZWw6d2dodEA2MDA7ODAwJmRpc3BsYXk9c3dhcCIgcmVsPSJzdHlsZXNoZWV0Ij4KPGxpbmsgcmVsPSJzdHlsZXNoZWV0IiBocmVmPSJjc3MvbG9naW4uY3NzIj48L2hlYWQ+PGJvZHk+CjxkaXYgY2xhc3M9ImxlZnQiPgo8ZGl2IGNsYXNzPSJsb2dvIj5NT05BUkNIIENPREVYPHNwYW4gY2xhc3M9InN1YiI+VEhFIElOTkVSIEtJTkdET008L3NwYW4+PC9kaXY+CjxzcGFuIGNsYXNzPSJiYWRnZSI+TUVNQkVSIEFDQ0VTUzwvc3Bhbj4KPGgxPldlbGNvbWUgQmFjaywgTW9uYXJjaC48L2gxPgo8cD5BY2Nlc3MgeW91ciBraW5nZG9tLiBUcmFkZSB3aXRoIGRpc2NpcGxpbmUuIFlvdXIgS1lDIHZlcmlmaWVkIHBvcnRhbCBhd2FpdHMuPC9wPgo8ZGl2IGNsYXNzPSJ0cnVzdCI+PHNtYWxsPuKckyBOSU4gVmVyaWZpZWQg4oCiIOKckyBTZWN1cmUg4oCiIOKckyBPZmZpY2lhbDogdHJhZGVtb25hcmNob2ZmaWNpYWxAZ21haWwuY29tPC9zbWFsbD48L2Rpdj4KPC9kaXY+CjxkaXYgY2xhc3M9InJpZ2h0Ij4KPGRpdiBjbGFzcz0iZm9ybS1jYXJkIj4KPGgyIGNsYXNzPSJjaW56ZWwiPk1lbWJlciBMb2dpbjwvaDI+PHAgY2xhc3M9InN1YiI+RW50ZXIgeW91ciBjcmVkZW50aWFsczwvcD4KPGRpdiBpZD0iYWxlcnQiIGNsYXNzPSJhbGVydCIgc3R5bGU9ImRpc3BsYXk6bm9uZSI+PC9kaXY+Cjxmb3JtIGlkPSJsb2dpbkZvcm0iPgo8bGFiZWw+RW1haWw8L2xhYmVsPjxpbnB1dCB0eXBlPSJlbWFpbCIgaWQ9ImVtYWlsIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0ieW91ckBlbWFpbC5jb20iPgo8bGFiZWw+UGFzc3dvcmQ8L2xhYmVsPjxpbnB1dCB0eXBlPSJwYXNzd29yZCIgaWQ9InBhc3N3b3JkIiByZXF1aXJlZCBwbGFjZWhvbGRlcj0i4oCi4oCi4oCi4oCi4oCi4oCi4oCi4oCiIj4KPGJ1dHRvbiB0eXBlPSJzdWJtaXQiIGlkPSJzdWJtaXRCdG4iIGNsYXNzPSJidG4tZ29sZCI+TG9naW4gdG8gS2luZ2RvbTwvYnV0dG9uPgo8L2Zvcm0+CjxhIGNsYXNzPSJsaW5rIiBvbmNsaWNrPSJyZXNldFBhc3MoKSIgc3R5bGU9ImN1cnNvcjpwb2ludGVyIj5Gb3Jnb3QgcGFzc3dvcmQ/PC9hPgo8c3BhbiBjbGFzcz0ibGluayI+Tm8gYWNjb3VudD8gPGEgaHJlZj0icmVnaXN0ZXIuaHRtbCI+Q3JlYXRlIEFjY291bnQ8L2E+PC9zcGFuPgo8L2Rpdj4KPC9kaXY+CjxzY3JpcHQgc3JjPSJodHRwczovL2Nkbi5qc2RlbGl2ci5uZXQvbnBtL0BzdXBhYmFzZS9zdXBhYmFzZS1qc0AyIj48L3NjcmlwdD4KPHNjcmlwdCBzcmM9ImpzL2xvZ2luLmpzIj48L3NjcmlwdD4KPC9ib2R5PjwvaHRtbD4K",2000);
+  
+ } catch(err){
+  console.error("Full error:", err);
+  showAlert(err.message,"error");
+  btn.disabled=false; btn.textContent="Create Account →";
+ }
+});
+</script>
+</body>
+</html>
