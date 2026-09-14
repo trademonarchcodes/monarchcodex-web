@@ -4,60 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Monarch Codex | Build Knowledge. Build Your Future.</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Cinzel:wght@500;700;800&display=swap" rel="stylesheet">
-<style>:root{--gold:#D4AF37;--gold2:#B8941F;--black:#080808;--card:#121212;--border:rgba(212,175,55,0.18);--border2:rgba(255,255,255,0.07);--text:#eee;--muted:#888}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--black);color:var(--text);font-family:'Poppins',sans-serif;overflow-x:hidden}
-.cinzel{font-family:'Cinzel',serif}
-.gold{color:var(--gold)}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:12px 24px;border-radius:10px;font-weight:800;cursor:pointer;transition:0.2s;display:inline-block;text-decoration:none}
-.btn-gold:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(212,175,55,0.3)}
-.btn-outline{border:1px solid var(--gold);color:var(--gold);padding:12px 24px;border-radius:10px;font-weight:600;background:transparent;cursor:pointer;text-decoration:none;display:inline-block}
-.badge{display:inline-block;background:rgba(212,175,55,0.1);border:1px solid var(--border);color:var(--gold);padding:6px 14px;border-radius:30px;font-size:11px;letter-spacing:1px}
-.card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:20px}
-
-nav{position:fixed;top:0;width:100%;z-index:100;background:rgba(8,8,8,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 5%}
-.nav-inner{display:flex;justify-content:space-between;align-items:center;max-width:1400px;margin:0 auto}
-.logo{font-family:'Cinzel',serif;font-weight:800;letter-spacing:2px;font-size:20px;color:#fff}
-.logo .sub{font-size:9px;letter-spacing:4px;color:var(--gold);font-family:'Poppins';display:block}
-.nav-links{display:flex;gap:24px;align-items:center}
-.nav-links a{font-size:13px;color:#aaa;text-decoration:none}
-.nav-links a:hover{color:var(--gold)}
-.hero{min-height:100vh;padding:140px 5% 80px;display:flex;align-items:center;max-width:1400px;margin:0 auto;gap:40px}
-.hero-left{flex:1}
-.hero h1{font-family:'Cinzel',serif;font-size:54px;line-height:1.05}
-.hero h1 span{color:var(--gold);display:block}
-.hero p{color:#888;font-size:14px;line-height:1.7;margin:18px 0 28px;max-width:520px}
-.hero-btns{display:flex;gap:12px}
-.hero-stats{display:flex;gap:28px;margin-top:30px}
-.hero-stats strong{color:var(--gold);font-size:20px;display:block}
-.hero-stats small{color:#666;font-size:10px;text-transform:uppercase;letter-spacing:1px}
-.hero-right{flex:1;display:flex;justify-content:center}
-.king-card{background:radial-gradient(120% 120% at 30% 20%, #1c1c1c, #0a0a0a);border:1px solid var(--border);border-radius:20px;padding:24px;width:380px}
-.king-card h4{color:var(--gold);margin-bottom:12px}
-.pkg{border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin:8px 0;display:flex;justify-content:space-between}
-.pkg strong{color:var(--gold)}
-section{padding:80px 5%;max-width:1400px;margin:0 auto}
-.section-label{color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;display:block;margin-bottom:10px}
-h2.sec-title{font-family:'Cinzel',serif;font-size:36px;margin-bottom:14px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px}
-.card:hover{border-color:var(--border);transform:translateY(-3px);transition:0.2s}
-.icon{width:44px;height:44px;background:rgba(212,175,55,0.1);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.packages-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
-.pkg-card{background:linear-gradient(145deg,#121212,#0d0d0d);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px;text-align:center;transition:0.2s}
-.pkg-card:hover{border-color:var(--gold);transform:translateY(-4px)}
-.pkg-card.featured{border-color:var(--gold);box-shadow:0 0 30px rgba(212,175,55,0.15)}
-.price{font-size:28px;color:var(--gold);font-weight:800;margin:12px 0}
-.legal-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.legal-card{background:#0f0f0f;border:1px solid rgba(255,255,255,0.05);border-radius:14px;padding:20px}
-.legal-card h4{color:var(--gold);margin-bottom:8px;font-size:14px}
-.legal-card p{color:#888;font-size:12px;line-height:1.7}
-footer{border-top:1px solid rgba(255,255,255,0.06);padding:50px 5%;background:#080808}
-.footer-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:24px}
-footer p, footer li{color:#777;font-size:12px;line-height:1.7;list-style:none}
-footer h5{color:#ccc;font-size:13px;margin-bottom:10px}
-.copy{max-width:1400px;margin:30px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;color:#555;font-size:11px;flex-wrap:wrap;gap:10px}
-@media(max-width:900px){.hero{flex-direction:column;padding-top:100px} .hero h1{font-size:38px} .grid-3,.packages-grid,.legal-grid,.footer-grid{grid-template-columns:1fr} .nav-links{display:none}}
-</style>
+<link rel="stylesheet" href="css/index.css">
 </head>
 <body>
 <nav>
@@ -122,12 +69,6 @@ footer h5{color:#ccc;font-size:13px;margin-bottom:10px}
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-async function loadPackages(){const {data}=await supabase.from("packages").select("*").order("amount");if(!data)return;const grid=document.getElementById("packagesGrid");const preview=document.getElementById("pkgPreview");if(grid)grid.innerHTML="";if(preview)preview.innerHTML="";data.forEach((p,i)=>{const div=document.createElement("div");div.className="pkg-card"+(p.amount>=500?" featured":"");div.innerHTML=`<h3>${p.name}</h3><div class="price">$${p.amount}</div><small style="color:#777">${p.profit_percent}% target monthly</small><br><a href="register.html" class="btn-gold" style="margin-top:12px">Join</a>`;if(grid)grid.appendChild(div);if(preview&&i<3){const row=document.createElement("div");row.className="pkg";row.innerHTML=`<span>${p.name}</span><strong>$${p.amount}</strong>`;preview.appendChild(row);}});}loadPackages();
-footer a{color:#777;text-decoration:none;transition:0.2s;display:inline-block;padding:3px 0}
-footer a:hover{color:#D4AF37;transform:translateX(3px)}
-footer li{margin:6px 0} footer h5{color:#D4AF37;letter-spacing:1px;text-transform:uppercase}
-</script>
+<script src="js/index.js"></script>
 </body>
 </html>
