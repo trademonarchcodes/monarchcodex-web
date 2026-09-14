@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Command Center | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#B8941F;--black:#070707;--card:#121212;--border:rgba(212,175,55,0.18);--border2:rgba(255,255,255,0.06)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--black);color:#eee;font-family:'Poppins',sans-serif}
+header{position:sticky;top:0;z-index:50;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 4%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:'Cinzel',serif;font-weight:800;letter-spacing:1px;font-size:16px}
+.logo span{color:var(--gold);font-size:11px;border:1px solid var(--border);padding:3px 8px;border-radius:20px;margin-left:8px}
+.btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border2);background:#111;color:#ccc;font-size:12px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--border);color:var(--gold)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border-color:var(--gold);font-weight:800}
+.wrap{padding:22px 4%;max-width:1400px;margin:0 auto}
+.title{font-family:'Cinzel',serif;font-size:26px;color:var(--gold)}
+.sub{color:#777;font-size:12px;margin-top:4px}
+.h-section{color:var(--gold);font-size:13px;font-weight:700;margin:18px 0 10px}
+.grid-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid-overview2{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+.stat{background:radial-gradient(120% 120% at 20% 0%, #1a1a1a, #0e0e0e);border:1px solid var(--border2);border-top:1px solid rgba(212,175,55,0.25);border-radius:12px;padding:16px}
+.stat small{color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.8px}
+.stat strong{color:var(--gold);font-size:20px;display:block;margin-top:6px}
+.card{background:var(--card);border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin-top:18px}
+.card-head{padding:14px 16px;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.card-head h3{color:var(--gold);font-size:14px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{padding:12px;text-align:left;font-size:10px;color:#777;text-transform:uppercase;letter-spacing:1px;background:#101010;border-bottom:1px solid var(--border2)}
+td{padding:12px;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.04);color:#ccc}
+.badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;display:inline-block}
+.badge-active{background:rgba(0,200,81,0.12);color:#4ee58a;border:1px solid rgba(0,200,81,0.2)}
+.badge-pending{background:rgba(212,175,55,0.12);color:var(--gold);border:1px solid var(--border)}
+.badge-rejected{background:rgba(255,68,68,0.12);color:#ff7a7a;border:1px solid rgba(255,68,68,0.2)}
+.uid{color:var(--gold);font-weight:700;font-size:11px}
+.tabs{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:20px;background:#111;border:1px solid var(--border2);cursor:pointer;font-size:12px;color:#888}
+.tab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-box{background:#111;border:1px solid var(--border);border-radius:14px;padding:20px;max-width:600px;width:100%;max-height:90vh;overflow:auto}
+@media(max-width:900px){.grid-overview,.grid-overview2{grid-template-columns:1fr} .title{font-size:22px}}
+</style></head><body>
+<header><div class="logo">MONARCH CODEX <span>ADMIN</span></div><div style="display:flex;gap:8px"><button class="btn" onclick="loadAll()">↻ Refresh</button><button class="btn btn-gold" onclick="logout()">Logout</button></div></header>
+<div class="wrap">
+<div class="title">Admin Command Center</div><div class="sub">Main Admin: trademonarchofficial@gmail.com oversees all. Sub-admins: KYC checker, payment verifier.</div>
+<div class="h-section">Overview <span id="updatedTime" style="float:right;color:#666;font-size:11px"></span></div>
+<div class="grid-overview">
+<div class="stat"><small>Total Members</small><strong id="totalMembers">—</strong></div>
+<div class="stat"><small>Pending KYC</small><strong id="pendingKYC">—</strong></div>
+<div class="stat"><small>Total Invested</small><strong id="totalInvested">—</strong></div>
+</div>
+<div class="grid-overview2">
+<div class="stat"><small>Confirmed Investments</small><strong id="confirmedInvestments">—</strong></div>
+<div class="stat"><small>Pending Investments</small><strong id="pendingInvestments">—</strong></div>
+<div class="stat"><small>Rejected Investments</small><strong id="rejectedInvestments">—</strong></div>
+<div class="stat"><small>Total Earnings Paid</small><strong id="totalEarnings">—</strong></div>
+</div>
+
+<div class="tabs">
+<div class="tab active" data-tab="members" onclick="switchView('members')">Member Management</div>
+<div class="tab" data-tab="kyc" onclick="switchView('kyc')">KYC Verification</div>
+<div class="tab" data-tab="investments" onclick="switchView('investments')">Investment Requests</div>
+<div class="tab" data-tab="withdrawals" onclick="switchView('withdrawals')">Withdrawals</div>
+<div class="tab" data-tab="transactions" onclick="switchView('transactions')">Transactions (+/-)</div>
+<div class="tab" data-tab="balance" onclick="switchView('balance')">Balance Adjust</div>
+<div class="tab" data-tab="admins" onclick="switchView('admins')">Sub-Admins</div>
+<div class="tab" data-tab="emails" onclick="switchView('emails')">Email Sender</div>
+<div class="tab" data-tab="payments" onclick="switchView('payments')">Bank & Crypto</div>
+</div>
+
+<!-- MEMBERS -->
+<div id="view-members" class="card">
+<div class="card-head"><h3>Member Management</h3><small id="memberCount">Loading...</small><input id="memberSearch" placeholder="Search name, UID, phone" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px" oninput="filterMembers()"></div>
+<div class="table-wrap"><table><thead><tr><th>Member (NIN Name)</th><th>UID</th><th>Phone</th><th>Status</th><th>Investment</th><th>Balance</th><th>Date</th><th>Action</th></tr></thead><tbody id="membersBody"><tr><td colspan=8>Loading...</td></tr></tbody></table></div>
+</div>
+
+<!-- KYC -->
+<div id="view-kyc" class="card" style="display:none">
+<div class="card-head"><h3>KYC Verification — Approve/Reject per Section</h3><small>Check NIN front/back, selfie, name, address, phone</small></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>UID</th><th>NIN Number</th><th>Location</th><th>Documents</th><th>Status</th><th>Action</th></tr></thead><tbody id="kycBody"><tr><td colspan=7>Loading KYC...</td></tr></tbody></table></div>
+</div>
+
+<!-- INVESTMENTS -->
+<div id="view-investments" class="card" style="display:none">
+<div class="card-head"><h3>Investment Requests</h3><small id="investCount"></small></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Package</th><th>Amount</th><th>Payment</th><th>Receipt</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="investmentsBody"></tbody></table></div>
+</div>
+
+<!-- WITHDRAWALS -->
+<div id="view-withdrawals" class="card" style="display:none">
+<div class="card-head"><h3>Withdrawal Requests — Must match NIN names</h3></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Amount</th><th>Account (must match NIN)</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
+</div>
+
+<!-- TRANSACTIONS -->
+<div id="view-transactions" class="card" style="display:none">
+<div class="card-head"><h3>Transaction History (+/-)</h3><small>+ for add/investment, - for remove/withdrawal</small></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Type</th><th>Amount</th><th>Description</th><th>By Admin</th><th>Date</th></tr></thead><tbody id="transactionsBody"></tbody></table></div>
+</div>
+
+<!-- BALANCE ADJUST -->
+<div id="view-balance" class="card" style="display:none">
+<div class="card-head"><h3>Adjust Balance — Admin can change balance for losses/gains</h3></div>
+<div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<input id="balanceUserId" placeholder="User ID or UID (MONARCH...)">
+<input id="balanceAmount" type="number" placeholder="Amount e.g. 100 or -50 (use - for removal)">
+<input id="balanceReason" placeholder="Reason: Monthly profit 10% / Market loss adjustment / Bonus" style="grid-column:1/-1">
+<button class="btn btn-gold" onclick="adjustBalance()" style="grid-column:1/-1">Adjust Balance (+ adds, - removes)</button>
+</div>
+<div id="balanceResult" style="padding:0 16px 16px;color:var(--gold)"></div>
+</div>
+
+<!-- SUB-ADMINS -->
+<div id="view-admins" class="card" style="display:none">
+<div class="card-head"><h3>Sub-Admins — Approve member to be admin with different functions</h3></div>
+<div style="padding:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<input id="newAdminEmail" placeholder="Member email or User ID">
+<select id="newAdminRole" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px"><option value="kyc_admin">KYC Checker</option><option value="payment_admin">Payment Verifier</option><option value="support_admin">Support Admin</option><option value="admin">Full Admin</option></select>
+<button class="btn btn-gold" onclick="makeSubAdmin()">Make Sub-Admin</button>
+</div>
+<div id="adminsList" style="margin-top:16px"></div>
+</div>
+</div>
+
+<!-- EMAILS -->
+<div id="view-emails" class="card" style="display:none">
+<div class="card-head"><h3>Email Sender — Promotional / Informational + Custom Templates</h3></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn" onclick="setEmailTemplate('welcome')">Welcome New Member</button>
+<button class="btn" onclick="setEmailTemplate('investment')">Investment Received</button>
+<button class="btn" onclick="setEmailTemplate('profit')">Profit Paid</button>
+<button class="btn" onclick="setEmailTemplate('no_profit')">No Profit This Month (Professional/Scary)</button>
+<button class="btn" onclick="setEmailTemplate('kyc_approved')">KYC Approved</button>
+<button class="btn" onclick="setEmailTemplate('kyc_rejected')">KYC Rejected</button>
+</div>
+<input id="email_to" placeholder="all or specific email or UID" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px">
+<input id="email_subject" placeholder="Subject" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px">
+<textarea id="email_body" placeholder="Email body - supports HTML" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;min-height:160px"></textarea>
+<button class="btn btn-gold" onclick="sendEmail()">Send Email (One Click)</button>
+<div id="emailStatus" style="color:var(--gold);font-size:12px"></div>
+</div>
+</div>
+
+<!-- PAYMENTS -->
+<div id="view-payments" class="card" style="display:none">
+<div class="card-head"><h3>Bank & Crypto Wallets</h3></div>
+<div style="padding:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div><label>Bank Name</label><input id="p_bank_name" value="OPAY" style="width:100%;background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;margin-top:6px"></div>
+<div><label>Account Name</label><input id="p_account_name" value="BRIGHT EZEBOLA OKECHUKWU" style="width:100%;background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;margin-top:6px"></div>
+<div><label>Account Number</label><input id="p_account_number" value="9135424851" style="width:100%;background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;margin-top:6px"></div>
+</div>
+<button class="btn btn-gold" style="margin-top:12px" onclick="updateBank()">Update Bank</button>
+<div id="cryptoList" style="margin-top:16px"></div>
+</div>
+</div>
+
+</div>
+
+<!-- MODALS -->
+<div id="kycModal" class="modal"><div class="modal-box"><h4 style="color:var(--gold)">KYC Details</h4><div id="kycModalContent"></div><button class="btn" onclick="document.getElementById('kycModal').style.display='none'">Close</button></div></div>
+<div id="receiptModal" class="modal"><div class="modal-box"><h4 style="color:var(--gold)">Receipt</h4><div id="receiptContent"></div><button class="btn" onclick="document.getElementById('receiptModal').style.display='none'">Close</button></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let currentAdmin=null;
+const MAIN_ADMIN="trademonarchofficial@gmail.com";
+
+async function checkAdmin(){
+ const {data:{user}}=await supabaseClient.auth.getUser();
+ if(!user){location.href="login.html";return;}
+ const {data:profile}=await supabaseClient.from("profiles").select("role").eq("id",user.id).single();
+ const isAdmin=profile?.role?.includes("admin")||user.email.toLowerCase()===MAIN_ADMIN;
+ if(!isAdmin){alert("Admin only");location.href="dashboard.html";return;}
+ currentAdmin=user;
+ loadAll();
+}
+async function loadAll(){
+ document.getElementById("updatedTime").textContent="Updated: "+new Date().toLocaleString();
+ await loadStats(); await loadMembers(); await loadKYC(); await loadInvestments(); await loadWithdrawals(); await loadTransactions(); await loadSubAdmins(); await loadPayments();
+}
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+
+async function loadStats(){
+ try{
+  const {count:members}=await supabaseClient.from("profiles").select("id",{count:"exact",head:true});
+  const {count:pendingKYC}=await supabaseClient.from("profiles").select("id",{count:"exact",head:true}).eq("kyc_status","pending");
+  const {data:invs}=await supabaseClient.from("investments").select("amount,status");
+  const pending=invs?.filter(i=>i.status==="pending").length||0;
+  const confirmed=invs?.filter(i=>i.status==="approved").length||0;
+  const rejected=invs?.filter(i=>i.status==="rejected").length||0;
+  const total=invs?.filter(i=>i.status==="approved").reduce((s,i)=>s+Number(i.amount||0),0)||0;
+  setText("totalMembers",members||0); setText("pendingKYC",pendingKYC||0);
+  setText("totalInvested","$"+total.toLocaleString()+".00"); setText("confirmedInvestments",confirmed);
+  setText("pendingInvestments",pending); setText("rejectedInvestments",rejected);
+  setText("totalEarnings","$"+total.toLocaleString()+".00");
+ }catch(e){console.error(e);}
+}
+
+let allProfiles=[];
+async function loadMembers(){
+ const tbody=document.getElementById("membersBody");
+ tbody.innerHTML="<tr><td colspan=8>Loading...</td></tr>";
+ const {data:profiles}=await supabaseClient.from("profiles").select("*").order("created_at",{ascending:false}).limit(200);
+ allProfiles=profiles||[];
+ const {data:invs}=await supabaseClient.from("investments").select("user_id,amount,status");
+ const invMap={}; invs?.forEach(i=>{if(!invMap[i.user_id])invMap[i.user_id]=0; if(i.status==="approved")invMap[i.user_id]+=Number(i.amount);});
+ tbody.innerHTML="";
+ profiles?.forEach(p=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td><strong>${p.full_name}</strong></td><td><span class="uid">${p.uid}</span></td><td>${p.phone}</td><td><span class="badge ${p.status==="active"?"badge-active":"badge-pending"}">${p.status}</span> ${p.kyc_status}</td><td style="color:var(--gold)">$${(invMap[p.id]||0).toFixed(2)}</td><td>$${Number(p.balance||0).toFixed(2)}</td><td><small>${new Date(p.created_at).toLocaleDateString()}</small></td><td><button class="btn" onclick="viewMember('${p.id}')">View</button> <button class="btn" onclick="blockMember('${p.id}','${p.status}')">Block</button></td>`;
+  tbody.appendChild(tr);
+ });
+ document.getElementById("memberCount").textContent=allProfiles.length+" members";
+}
+
+function filterMembers(){
+ const q=document.getElementById("memberSearch").value.toLowerCase();
+ const tbody=document.getElementById("membersBody");
+ tbody.innerHTML="";
+ allProfiles.filter(p=>p.full_name.toLowerCase().includes(q)||p.uid.toLowerCase().includes(q)||p.phone.includes(q)).forEach(p=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td>${p.full_name}</td><td>${p.uid}</td><td>${p.phone}</td><td>${p.status}</td><td>-</td><td>$${p.balance}</td><td>${new Date(p.created_at).toLocaleDateString()}</td><td><button class="btn" onclick="viewMember('${p.id}')">View</button></td>`;
+  tbody.appendChild(tr);
+ });
+}
+
+async function viewMember(id){
+ const {data}=await supabaseClient.from("profiles").select("*").eq("id",id).single();
+ alert(`Name: ${data.full_name}
+UID: ${data.uid}
+Phone: ${data.phone}
+NIN: ${data.nin_number}
+Country: ${data.country} ${data.state} ${data.city}
+Address: ${data.address}
+Balance: $${data.balance}
+KYC: ${data.kyc_status}
+Referral Code: ${data.referral_code}
+Referred By: ${data.referred_by}`);
+}
+
+async function blockMember(id,status){
+ const newStatus=status==="active"?"blocked":"active";
+ if(!confirm(newStatus==="blocked"?"Block member?":"Unblock?"))return;
+ await supabaseClient.from("profiles").update({status:newStatus}).eq("id",id);
+ loadMembers();
+}
+
+async function loadKYC(){
+ const tbody=document.getElementById("kycBody");
+ tbody.innerHTML="<tr><td colspan=7>Loading KYC...</td></tr>";
+ const {data:profiles}=await supabaseClient.from("profiles").select("*").eq("kyc_status","pending").order("created_at",{ascending:false});
+ if(!profiles?.length){tbody.innerHTML="<tr><td colspan=7>No pending KYC</td></tr>";return;}
+ tbody.innerHTML="";
+ profiles.forEach(p=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td>${p.full_name}</td><td>${p.uid}</td><td>${p.nin_number||'—'}</td><td>${p.country||''} ${p.state||''} ${p.city||''}</td><td><button class="btn" onclick="viewKYC('${p.id}')">View Docs</button></td><td>${p.kyc_status}</td><td><button class="btn" style="background:#00c851;color:#fff" onclick="approveKYC('${p.id}')">Approve</button> <button class="btn" style="background:rgba(255,68,68,0.2);color:#ff7777" onclick="rejectKYC('${p.id}')">Reject Section</button></td>`;
+  tbody.appendChild(tr);
+ });
+}
+
+async function viewKYC(id){
+ const {data}=await supabaseClient.from("profiles").select("*").eq("id",id).single();
+ const modal=document.getElementById("kycModal");
+ const content=document.getElementById("kycModalContent");
+ content.innerHTML=`<p><strong>Name:</strong> ${data.full_name}</p><p><strong>NIN:</strong> ${data.nin_number}</p><p><strong>Location:</strong> ${data.country}, ${data.state}, ${data.city}, ${data.address}</p><p><strong>Phone:</strong> ${data.phone}</p><p><strong>NIN Front:</strong><br><img src="${data.nin_front_url}" style="max-width:100%;border-radius:8px"></p><p><strong>NIN Back:</strong><br><img src="${data.nin_back_url}" style="max-width:100%;border-radius:8px"></p><p><strong>Selfie:</strong><br><img src="${data.selfie_url}" style="max-width:100%;border-radius:8px"></p>`;
+ modal.style.display="flex";
+}
+
+async function approveKYC(id){
+ if(!confirm("Approve KYC? Member will become active and can invest."))return;
+ await supabaseClient.from("profiles").update({kyc_status:"approved",status:"active"}).eq("id",id);
+ await supabaseClient.from("kyc_verifications").insert({user_id:id,field_name:"all",status:"approved",verified_by:currentAdmin.id});
+ alert("KYC Approved!"); loadKYC(); loadMembers();
+}
+
+async function rejectKYC(id){
+ const field=prompt("Which section to reject? (full_name, nin_number, nin_front, nin_back, selfie, address, phone)");
+ const reason=prompt("Reason for rejection:");
+ if(!field||!reason)return;
+ await supabaseClient.from("profiles").update({kyc_status:"rejected",kyc_rejection_reason:{[field]:reason}}).eq("id",id);
+ await supabaseClient.from("kyc_verifications").insert({user_id:id,field_name:field,status:"rejected",reason,verified_by:currentAdmin.id});
+ alert("KYC section rejected: "+field); loadKYC();
+}
+
+async function loadInvestments(){
+ const tbody=document.getElementById("investmentsBody");
+ tbody.innerHTML="<tr><td colspan=8>Loading...</td></tr>";
+ const {data:invs}=await supabaseClient.from("investments").select("*").order("created_at",{ascending:false}).limit(100);
+ if(!invs?.length){tbody.innerHTML="<tr><td colspan=8>No investments</td></tr>";return;}
+ const userIds=[...new Set(invs.map(i=>i.user_id))];
+ const {data:profs}=await supabaseClient.from("profiles").select("id,full_name,uid").in("id",userIds);
+ const map={}; profs?.forEach(p=>map[p.id]=p);
+ tbody.innerHTML="";
+ invs.forEach(row=>{
+  const prof=map[row.user_id]||{};
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td>${prof.full_name||row.user_id.substring(0,8)}<br><small>${prof.uid||''}</small></td><td>${row.package_name}</td><td style="color:var(--gold)">$${row.amount}</td><td>${row.payment_method}</td><td>${row.receipt_url?`<a href="#" onclick="showReceipt('${row.receipt_url}');return false" style="color:var(--gold)">View</a>`:'No receipt'}</td><td>${row.status}</td><td>${new Date(row.created_at).toLocaleDateString()}</td><td>${row.status==="pending"?`<button class="btn" style="background:#00c851;color:#fff" onclick="approveInvestment('${row.id}','${row.user_id}',${row.amount})">Approve</button> <button class="btn" style="background:rgba(255,68,68,0.2)" onclick="rejectInvestment('${row.id}')">Reject</button>`:'—'}</td>`;
+  tbody.appendChild(tr);
+ });
+ document.getElementById("investCount").textContent=invs.length+" requests";
+}
+
+async function approveInvestment(id,userId,amount){
+ if(!confirm("Approve $"+amount+" investment?"))return;
+ await supabaseClient.from("investments").update({status:"approved",approved_at:new Date().toISOString()}).eq("id",id);
+ await supabaseClient.from("profiles").update({total_invested: supabaseClient.rpc?"":0}).eq("id",userId); // placeholder
+ // Add transaction
+ await supabaseClient.from("transactions").insert({user_id:userId,type:"investment",amount:Number(amount),display_amount:`+$${amount}`,description:"Investment approved",created_by:currentAdmin.id});
+ // Update balance for referral: 3% to referrer
+ const {data:profile}=await supabaseClient.from("profiles").select("referred_by").eq("id",userId).single();
+ if(profile?.referred_by){
+  const bonus=Number(amount)*0.03;
+  const {data:refProf}=await supabaseClient.from("profiles").select("balance").eq("id",profile.referred_by).single();
+  await supabaseClient.from("profiles").update({balance:Number(refProf.balance||0)+bonus}).eq("id",profile.referred_by);
+  await supabaseClient.from("transactions").insert({user_id:profile.referred_by,type:"referral_bonus",amount:bonus,display_amount:`+$${bonus.toFixed(2)}`,description:`3% referral bonus from ${amount}`,created_by:currentAdmin.id});
+ }
+ alert("Approved!"); loadInvestments(); loadStats();
+}
+
+async function rejectInvestment(id){
+ if(!confirm("Reject?"))return;
+ await supabaseClient.from("investments").update({status:"rejected"}).eq("id",id);
+ loadInvestments();
+}
+
+function showReceipt(url){
+ document.getElementById("receiptContent").innerHTML=`<img src="${url}" style="max-width:100%">`;
+ document.getElementById("receiptModal").style.display="flex";
+}
+
+async function loadWithdrawals(){
+ const tbody=document.getElementById("withdrawalsBody");
+ const {data}=await supabaseClient.from("withdrawals").select("*").order("created_at",{ascending:false}).limit(100);
+ if(!data?.length){tbody.innerHTML="<tr><td colspan=6>No withdrawals</td></tr>";return;}
+ const userIds=[...new Set(data.map(w=>w.user_id))];
+ const {data:profs}=await supabaseClient.from("profiles").select("id,full_name,uid").in("id",userIds);
+ const map={}; profs?.forEach(p=>map[p.id]=p);
+ tbody.innerHTML="";
+ data.forEach(w=>{
+  const prof=map[w.user_id]||{};
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td>${prof.full_name||''}<br><small>${prof.uid||''}</small></td><td style="color:var(--gold)">$${w.amount}</td><td>${w.account_name}<br>${w.account_number} - ${w.bank_name}</td><td>${w.status}</td><td>${new Date(w.created_at).toLocaleDateString()}</td><td>${w.status==="pending"?`<button class="btn" style="background:#00c851;color:#fff" onclick="approveWithdrawal('${w.id}','${w.user_id}',${w.amount})">Approve</button> <button class="btn" onclick="rejectWithdrawal('${w.id}')">Reject</button>`:'—'}</td>`;
+  tbody.appendChild(tr);
+ });
+}
+
+async function approveWithdrawal(id,userId,amount){
+ if(!confirm("Approve withdrawal $"+amount+"? Ensure account name matches NIN."))return;
+ await supabaseClient.from("withdrawals").update({status:"approved"}).eq("id",id);
+ // Deduct from balance
+ const {data:prof}=await supabaseClient.from("profiles").select("balance").eq("id",userId).single();
+ await supabaseClient.from("profiles").update({balance:Number(prof.balance||0)-Number(amount)}).eq("id",userId);
+ await supabaseClient.from("transactions").insert({user_id:userId,type:"withdrawal",amount:-Number(amount),display_amount:`-$${amount}`,description:"Withdrawal approved",created_by:currentAdmin.id});
+ alert("Withdrawal approved!"); loadWithdrawals();
+}
+
+async function rejectWithdrawal(id){
+ await supabaseClient.from("withdrawals").update({status:"rejected"}).eq("id",id);
+ loadWithdrawals();
+}
+
+async function loadTransactions(){
+ const tbody=document.getElementById("transactionsBody");
+ const {data}=await supabaseClient.from("transactions").select("*").order("created_at",{ascending:false}).limit(200);
+ if(!data?.length){tbody.innerHTML="<tr><td colspan=6>No transactions</td></tr>";return;}
+ const userIds=[...new Set(data.map(t=>t.user_id))];
+ const {data:profs}=await supabaseClient.from("profiles").select("id,full_name,uid").in("id",userIds);
+ const map={}; profs?.forEach(p=>map[p.id]=p);
+ tbody.innerHTML="";
+ data.forEach(t=>{
+  const prof=map[t.user_id]||{};
+  const tr=document.createElement("tr");
+  const isPlus=t.amount>0;
+  tr.innerHTML=`<td>${prof.full_name||''}<br><small>${prof.uid||''}</small></td><td>${t.type}</td><td style="color:${isPlus?'#4ee58a':'#ff7777'};font-weight:700">${t.display_amount}</td><td>${t.description}</td><td>${t.created_by||''}</td><td>${new Date(t.created_at).toLocaleDateString()}</td>`;
+  tbody.appendChild(tr);
+ });
+}
+
+async function adjustBalance(){
+ const userIdOrUID=document.getElementById("balanceUserId").value.trim();
+ const amount=Number(document.getElementById("balanceAmount").value);
+ const reason=document.getElementById("balanceReason").value.trim();
+ if(!userIdOrUID||!amount||!reason){alert("Fill all fields");return;}
+ let userId=userIdOrUID;
+ if(userId.startsWith("MONARCH")){
+  const {data}=await supabaseClient.from("profiles").select("id").eq("uid",userId).single();
+  if(!data){alert("UID not found");return;}
+  userId=data.id;
+ }
+ const {data:prof}=await supabaseClient.from("profiles").select("balance,full_name").eq("id",userId).single();
+ if(!prof){alert("User not found");return;}
+ const newBalance=Number(prof.balance||0)+amount;
+ await supabaseClient.from("profiles").update({balance:newBalance}).eq("id",userId);
+ const type=amount>0?"admin_add":"admin_remove";
+ const display=(amount>0?`+$${amount}`:`-$${Math.abs(amount)}`);
+ await supabaseClient.from("transactions").insert({user_id:userId,type,amount,display_amount:display,description:reason,created_by:currentAdmin.id});
+ document.getElementById("balanceResult").textContent=`Adjusted ${prof.full_name} balance: ${prof.balance} -> ${newBalance} (${display}) Reason: ${reason}`;
+ loadMembers(); loadTransactions(); loadStats();
+}
+
+async function loadSubAdmins(){
+ const {data}=await supabaseClient.from("profiles").select("id,full_name,uid,role").ilike("role","%admin%");
+ const list=document.getElementById("adminsList");
+ if(!data?.length){list.innerHTML="No sub-admins";return;}
+ list.innerHTML="";
+ data.forEach(a=>{
+  const div=document.createElement("div");
+  div.style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between";
+  div.innerHTML=`<span>${a.full_name} ${a.uid} - <strong style="color:var(--gold)">${a.role}</strong></span><button class="btn" onclick="removeAdmin('${a.id}')">Remove</button>`;
+  list.appendChild(div);
+ });
+}
+
+async function makeSubAdmin(){
+ const emailOrId=document.getElementById("newAdminEmail").value.trim();
+ const role=document.getElementById("newAdminRole").value;
+ if(!emailOrId){alert("Enter email or UID");return;}
+ let userId=emailOrId;
+ if(emailOrId.startsWith("MONARCH")){
+  const {data}=await supabaseClient.from("profiles").select("id").eq("uid",emailOrId).single();
+  if(!data){alert("UID not found");return;}
+  userId=data.id;
+ }else if(emailOrId.includes("@")){
+  // Find by auth email - need to search via function or use id from auth? For now search profiles by id is UID, so we need to get user id from email via auth admin? Simplify: ask for UID
+  alert("Please use UID (MONARCH...) not email, because profiles has no email column");
+  return;
+ }
+ await supabaseClient.from("profiles").update({role}).eq("id",userId);
+ alert("Sub-admin created: "+role); loadSubAdmins();
+}
+
+async function removeAdmin(id){
+ if(!confirm("Remove admin role? Will become member"))return;
+ await supabaseClient.from("profiles").update({role:"member"}).eq("id",id);
+ loadSubAdmins();
+}
+
+function setEmailTemplate(type){
+ const templates={
+  welcome:{subject:"Welcome to Monarch Codex — Your Kingdom Awaits!",body:"<h2>Welcome Monarch!</h2><p>Your account has been created successfully. Complete your KYC verification to start investing.</p><p>Official contacts only: trademonarchofficial@gmail.com, 09135424851, t.me/Trade_Monarch</p>"},
+  investment:{subject:"Investment Received — Under Verification",body:"<h2>Investment Received</h2><p>We received your investment. Our team is verifying your payment receipt. You will be notified once approved.</p>"},
+  profit:{subject:"Profit Paid — Your Earnings Are Ready!",body:"<h2>Congratulations Monarch!</h2><p>Your monthly profit of 10% has been credited to your dashboard. You can withdraw when balance reaches $5.</p><p>Keep holding for loyalty bonuses: 3 months bonus, 6 months higher bonus!</p>"},
+  no_profit:{subject:"Important Market Update — No Profit This Month",body:"<h2>Market Update — Professional Notice</h2><p>Due to high volatility in financial markets this month, we experienced a challenging trading period. As per our disclaimer, 10% profit is a target, not guaranteed.</p><p><strong>No profit will be distributed this month.</strong> Your capital remains secure. We are implementing risk management strategies to recover.</p><p>This is the reality of trading — not every month is green. Long-term holders are rewarded. Please remain patient and disciplined.</p><p>Official: trademonarchofficial@gmail.com</p>"},
+  kyc_approved:{subject:"KYC Approved — You Can Now Invest",body:"<h2>KYC Approved!</h2><p>Your KYC verification has been approved. You are now an active Monarch and can invest in any package.</p>"},
+  kyc_rejected:{subject:"KYC Rejected — Action Required",body:"<h2>KYC Issue</h2><p>Your KYC verification was rejected. Reason: [Admin will specify section]. Please re-upload correct documents: NIN front/back must be clear, selfie must be clear, names must match NIN.</p>"}
+ };
+ const t=templates[type];
+ if(t){document.getElementById("email_subject").value=t.subject; document.getElementById("email_body").value=t.body;}
+}
+
+async function sendEmail(){
+ const to=document.getElementById("email_to").value.trim();
+ const subject=document.getElementById("email_subject").value.trim();
+ const body=document.getElementById("email_body").value.trim();
+ if(!to||!subject||!body){alert("Please fill all fields - recipient, subject, and message");return;}
+ const statusEl=document.getElementById("emailStatus");
+ statusEl.innerHTML='<span style="color:#D4AF37">⏳ Sending...</span>';
+ statusEl.style.display="block";
+ 
+ // Professional toast helper
+ function showToast(msg,type){
+   const existing=document.getElementById("adminToast");
+   if(existing) existing.remove();
+   const toast=document.createElement("div");
+   toast.id="adminToast";
+   toast.style=`position:fixed;top:20px;right:20px;background:${type==='error'?'#ff4444':'#00c851'};color:#fff;padding:14px 20px;border-radius:10px;z-index:99999;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,0.5)`;
+   toast.textContent=msg;
+   document.body.appendChild(toast);
+   setTimeout(()=>toast.remove(),4000);
+ }
+
+ try{
+  // Try Edge Function first if deployed
+  const {data,error}=await supabaseClient.functions.invoke("send-email",{body:{to,subject,html:body}});
+  if(error) throw error;
+  statusEl.innerHTML='<span style="color:#00c851">✓ Sent successfully!</span> '+JSON.stringify(data).substring(0,100);
+  showToast("Email sent successfully via Resend!", "success");
+  // Log to database
+  await supabaseClient.from("email_logs").insert({recipient:to, subject, body, status:"sent", sent_at:new Date().toISOString()}).then(()=>{},()=>{});
+ }catch(e){
+  console.log("Edge Function not deployed, using fallback:", e.message);
+  // FALLBACK: Save to email_logs table and open Gmail compose
+  try{
+    // Try to save to email_logs table (create if not exists)
+    const {error:logErr}=await supabaseClient.from("email_logs").insert({
+      recipient:to,
+      subject:subject,
+      body:body,
+      status:"pending_manual",
+      error_message:e.message,
+      created_at:new Date().toISOString()
+    });
+    if(logErr) console.log("email_logs table may not exist:", logErr.message);
+  }catch(logE){console.log("Log failed", logE);}
+  
+  // Show professional instructions + open mailto
+  const isAll = to.toLowerCase()==="all";
+  if(isAll){
+    statusEl.innerHTML=`
+      <div style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);padding:12px;border-radius:8px;margin-top:8px">
+        <strong style="color:#D4AF37">📧 Bulk Email - Manual Mode</strong><br>
+        <small style="color:#aaa">Edge Function not deployed yet. To send to all members:</small><br>
+        <ol style="color:#aaa;font-size:12px;margin:8px 0 0 16px;text-align:left">
+          <li>Go to Supabase > SQL Editor > Run: SELECT email FROM auth.users to get all emails</li>
+          <li>Or deploy Edge Function: supabase functions deploy send-email (see guide)</li>
+          <li>For now, copy subject & body below and paste into your Gmail BCC</li>
+        </ol>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button onclick="navigator.clipboard.writeText(document.getElementById('email_subject').value);alert('Subject copied!')" class="btn" style="padding:6px 12px;font-size:11px">Copy Subject</button>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('email_body').value);alert('Body copied!')" class="btn" style="padding:6px 12px;font-size:11px">Copy Body</button>
+          <button onclick="window.open('https://mail.google.com/mail/?view=cm&fs=1&to=&su='+encodeURIComponent(document.getElementById('email_subject').value)+'&body='+encodeURIComponent(document.getElementById('email_body').value.replace(/<[^>]*>/g,'')), '_blank')" class="btn btn-gold" style="padding:6px 12px;font-size:11px">Open Gmail</button>
+        </div>
+        <small style="color:#888;margin-top:8px;display:block">Error: ${e.message}. To auto-send, deploy Edge Function with RESEND_API_KEY (see EMAIL_SETUP_GUIDE.txt in zip)</small>
+      </div>
+    `;
+    showToast("Edge Function not deployed - Using manual mode. Copy content to Gmail.", "error");
+  } else {
+    // Single email - open mailto
+    const mailtoLink = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.replace(/<[^>]*>/g,''))}`;
+    statusEl.innerHTML=`
+      <div style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);padding:12px;border-radius:8px">
+        <strong style="color:#D4AF37">📧 Email Ready - Manual Send Mode</strong><br>
+        <small style="color:#aaa">Edge Function not deployed. Click below to open your email app:</small><br>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <a href="${mailtoLink}" class="btn btn-gold" style="padding:8px 16px;text-decoration:none;display:inline-block">📧 Open in Email App</a>
+          <button onclick="window.open('https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su='+encodeURIComponent(document.getElementById('email_subject').value)+'&body='+encodeURIComponent(document.getElementById('email_body').value.replace(/<[^>]*>/g,'')), '_blank')" class="btn" style="padding:8px 16px">Open Gmail</button>
+        </div>
+        <small style="color:#888;margin-top:8px;display:block">To enable automatic sending, deploy Edge Function: see EMAIL_SETUP_GUIDE.txt. For now emails are logged to database.</small>
+      </div>
+    `;
+    showToast("Opening email app - Edge Function not deployed yet", "info");
+    // Try to open mailto automatically
+    setTimeout(()=>{window.location.href=mailtoLink;}, 500);
+  }
+ }
+}
+
+async function loadPayments(){
+ const {data}=await supabaseClient.from("payment_details").select("*");
+ const list=document.getElementById("cryptoList");
+ if(!data||!list)return;
+ list.innerHTML="<h4 style='color:var(--gold)'>Crypto Wallets</h4>";
+ data.filter(d=>d.payment_type==="crypto").forEach(d=>{
+  const div=document.createElement("div");
+  div.style="background:#0f0f0f;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:8px";
+  div.innerHTML=`<strong>${d.crypto_name} - ${d.crypto_network}</strong><br><small style="word-break:break-all">${d.wallet_address}</small><br><input value="${d.wallet_address}" id="wallet_${d.id}" style="width:100%;background:#0e0e0e;border:1px solid #333;color:#fff;padding:8px;border-radius:8px;margin-top:6px"><button class="btn btn-gold" style="margin-top:6px" onclick="updateWallet('${d.id}')">Update</button>`;
+  list.appendChild(div);
+ });
+}
+
+async function updateBank(){
+ const payload={bank_name:document.getElementById("p_bank_name").value,account_name:document.getElementById("p_account_name").value,account_number:document.getElementById("p_account_number").value};
+ await supabaseClient.from("payment_details").update(payload).eq("id",1);
+ alert("Bank updated");
+}
+async function updateWallet(id){
+ const val=document.getElementById("wallet_"+id).value;
+ await supabaseClient.from("payment_details").update({wallet_address:val}).eq("id",id);
+ alert("Wallet updated");
+}
+
+function switchView(name){
+ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+ document.querySelector(`[data-tab="${name}"]`)?.classList.add("active");
+ ["members","kyc","investments","withdrawals","transactions","balance","admins","emails","payments"].forEach(n=>{
+  const el=document.getElementById("view-"+n);
+  if(el) el.style.display=n===name?"block":"none";
+ });
+ if(name==="members")loadMembers();
+ if(name==="kyc")loadKYC();
+ if(name==="investments")loadInvestments();
+ if(name==="withdrawals")loadWithdrawals();
+ if(name==="transactions")loadTransactions();
+}
+
+function logout(){supabaseClient.auth.signOut().then(()=>location.href="login.html");}
+checkAdmin();
+</script>
+</body></html>
