@@ -1,78 +1,14 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | Monarch Codex</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
-<style>
-:root{--gold:#D4AF37;--gold2:#B8941F;--black:#070707;--card:#121212;--border:rgba(212,175,55,0.18)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--black);color:#eee;font-family:'Poppins',sans-serif;min-height:100vh;display:flex}
-.left{flex:1;background:radial-gradient(100% 100% at 20% 30%, #1a1a1a, #070707);padding:60px 5%;display:flex;flex-direction:column;justify-content:center}
-.logo{font-family:'Cinzel',serif;font-weight:800;letter-spacing:2px;font-size:24px;color:#fff}
-.logo .sub{font-size:11px;letter-spacing:5px;color:var(--gold);font-family:'Poppins';display:block;margin-top:2px}
-.badge{display:inline-block;background:rgba(212,175,55,0.1);border:1px solid var(--border);color:var(--gold);padding:6px 14px;border-radius:30px;font-size:11px;margin:30px 0 18px}
-.left h1{font-family:'Cinzel',serif;font-size:44px;line-height:1.1}
-.left p{color:#888;font-size:14px;line-height:1.7;margin-top:16px;max-width:440px}
-.trust{margin-top:20px;color:#666;font-size:11px}
-.right{flex:1;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:40px 5%}
-.form-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:28px;width:100%;max-width:400px}
-.form-card h2{font-family:'Cinzel',serif;font-size:22px;margin-bottom:6px}
-.sub{color:#777;font-size:12px;margin-bottom:18px}
-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:14px;display:block}
-input{background:#0e0e0e;border:1px solid rgba(255,255,255,0.08);color:#fff;padding:12px 14px;border-radius:10px;width:100%;margin-top:6px;font-size:13px;outline:none}
-input:focus{border-color:var(--gold)}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:13px;border-radius:10px;width:100%;font-weight:800;font-size:14px;margin-top:20px;cursor:pointer}
-.link{color:#777;font-size:12px;text-align:center;margin-top:16px;display:block;cursor:pointer}
-.link a{color:var(--gold);font-weight:600;text-decoration:none}
-.alert{padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:12px}
-.alert.error{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);color:#ff7777}
-.alert.success{background:rgba(0,200,81,0.1);border:1px solid rgba(0,200,81,0.2);color:#6fdc8a}
-@media(max-width:900px){body{flex-direction:column} .left{padding:40px 6%} .left h1{font-size:32px}}
-.cinzel{font-family:'Cinzel',serif}
-</style></head><body>
-<div class="left">
-<div class="logo">MONARCH CODEX<span class="sub">THE INNER KINGDOM</span></div>
-<span class="badge">MEMBER ACCESS</span>
-<h1>Welcome Back, Monarch.</h1>
-<p>Access your kingdom. Trade with discipline. Your KYC verified portal awaits.</p>
-<div class="trust"><small>✓ NIN Verified • ✓ Secure • ✓ Official: trademonarchofficial@gmail.com</small></div>
-</div>
-<div class="right">
-<div class="form-card">
-<h2 class="cinzel">Member Login</h2><p class="sub">Enter your credentials</p>
-<div id="alert" class="alert" style="display:none"></div>
-<form id="loginForm">
-<label>Email</label><input type="email" id="email" required placeholder="your@email.com">
-<label>Password</label><input type="password" id="password" required placeholder="••••••••">
-<button type="submit" id="submitBtn" class="btn-gold">Login to Kingdom</button>
-</form>
-<a class="link" onclick="resetPass()" style="cursor:pointer">Forgot password?</a>
-<span class="link">No account? <a href="register.html">Create Account</a></span>
-</div>
-</div>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Login | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<style>:root{--gold:#D4AF37;--black:#070707;--card:#121212}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--black);color:#eee;font-family:'Poppins',sans-serif;min-height:100vh;display:flex}.left{flex:1;background:radial-gradient(100% 100% at 20% 30%, #1a1a1a, #070707);padding:60px 5%;display:flex;flex-direction:column;justify-content:center}.logo{font-family:'Cinzel',serif;font-weight:800;letter-spacing:2px;font-size:24px}.logo .sub{font-size:11px;letter-spacing:5px;color:var(--gold);display:block;margin-top:2px}.badge{display:inline-block;background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.18);color:var(--gold);padding:6px 14px;border-radius:30px;font-size:11px;margin:30px 0 18px}.left h1{font-family:'Cinzel',serif;font-size:36px;line-height:1.1}.left p{color:#888;font-size:14px;margin-top:16px;max-width:440px}.right{flex:1;background:#0a0a0a;display:flex;align-items:center;justify-content:center;padding:40px 5%}.form-card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:28px;width:100%;max-width:400px}.form-card h2{font-family:'Cinzel',serif;font-size:22px;margin-bottom:6px}.sub{color:#777;font-size:12px;margin-bottom:18px}label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:14px;display:block}input{background:#0e0e0e;border:1px solid rgba(255,255,255,0.08);color:#fff;padding:12px 14px;border-radius:10px;width:100%;margin-top:6px;font-size:13px;outline:none}input:focus{border-color:var(--gold)}.btn-gold{background:linear-gradient(135deg,var(--gold),#B8941F);color:#000;border:none;padding:13px;border-radius:10px;width:100%;font-weight:800;font-size:14px;margin-top:20px;cursor:pointer}.link{color:#777;font-size:12px;text-align:center;margin-top:16px;display:block;cursor:pointer}.link a{color:var(--gold);font-weight:600;text-decoration:none}.alert{padding:12px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}.alert.error{background:rgba(255,68,68,0.15);border:1px solid rgba(255,68,68,0.3);color:#ff8a8a;display:block}.alert.success{background:rgba(0,200,81,0.15);border:1px solid rgba(0,200,81,0.3);color:#7ee89a;display:block}@media(max-width:900px){body{flex-direction:column} .left{padding:40px 6%} .right{padding:20px 6% 40px}}</style></head><body>
+<div class="left"><div class="logo">MONARCH CODEX<span class="sub">THE INNER KINGDOM</span></div><span class="badge">MEMBER ACCESS</span><h1>Welcome Back,<br>Monarch.</h1><p>Access your verified kingdom. Your discipline, your growth, your legacy.</p></div>
+<div class="right"><div class="form-card"><h2>Member Login</h2><p class="sub">Enter your credentials</p><div id="alert" class="alert" style="display:none"></div>
+<form id="loginForm"><label>Email Address</label><input type="email" id="email" required placeholder="example@gmail.com"><label>Password</label><div style="position:relative"><input type="password" id="password" required placeholder="Enter your password" style="padding-right:44px"><button type="button" id="togglePassword" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:#888;cursor:pointer;font-size:16px">👁️</button></div><button type="submit" id="submitBtn" class="btn-gold">Login to Kingdom</button></form>
+<a class="link" onclick="resetPass()" style="cursor:pointer">Forgot password?</a><span class="link">No account? <a href="register.html">Create Account</a></span></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
-const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-function showAlert(msg,type){const el=document.getElementById("alert");el.textContent=msg;el.className="alert "+type;el.style.display="block";}
-document.getElementById("loginForm").addEventListener("submit",async(e)=>{
- e.preventDefault();
- const btn=document.getElementById("submitBtn");const orig=btn.textContent;btn.disabled=true;btn.textContent="Logging in...";
- const email=document.getElementById("email").value.trim();const password=document.getElementById("password").value;
- try{
-  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;
-  showAlert("Login successful! Checking role...","success");
-  // profiles has NO email column - only role
-  const {data:profile}=await supabaseClient.from("profiles").select("role").eq("id",data.user.id).single();
-  const role=profile?.role||"member";
-  const isMainAdmin=email.toLowerCase()==="trademonarchofficial@gmail.com";
-  if(role==="admin"||role==="super_admin"||isMainAdmin||role.includes("admin")){
-    setTimeout(()=>window.location.replace("admin.html"),800);
-  }else{
-    setTimeout(()=>window.location.replace("dashboard.html"),600);
-  }
- }catch(err){showAlert(err.message,"error");btn.disabled=false;btn.textContent=orig;}
-});
-async function resetPass(){const email=prompt("Enter email:");if(!email)return;const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:location.origin+"/login.html"});if(error)alert(error.message);else alert("Reset link sent");}
-</script>
-</body></html>
+const supabaseClient=window.supabase.createClient("https://avaworleivncevaoqeny.supabase.co","sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh");
+document.getElementById("togglePassword").addEventListener("click",()=>{const p=document.getElementById("password");const b=document.getElementById("togglePassword");if(p.type==="password"){p.type="text";b.textContent="🙈";}else{p.type="password";b.textContent="👁️";}});
+document.getElementById("loginForm").addEventListener("submit",async(e)=>{e.preventDefault();const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Logging in...";const email=document.getElementById("email").value.trim();const password=document.getElementById("password").value;const alertEl=document.getElementById("alert");try{const{data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;const user=data.user;const{data:profile}=await supabaseClient.from("profiles").select("role").eq("id",user.id).single();if(profile?.role?.includes("admin")||email.toLowerCase()==="trademonarchofficial@gmail.com"){location.href="admin.html";}else{location.href="dashboard.html";}}catch(err){alertEl.textContent=err.message;alertEl.className="alert error";alertEl.style.display="block";btn.disabled=false;btn.textContent="Login to Kingdom";}});
+async function resetPass(){const email=prompt("Enter your email for password reset:");if(!email)return;const{error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+"/login.html"});if(error)alert(error.message);else alert("Password reset email sent! Check inbox.");}
+</script></body></html>
