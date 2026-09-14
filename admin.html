@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Command Center | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css"></head><body>
+<header><div class="logo">MONARCH CODEX <span>ADMIN</span></div><div style="display:flex;gap:8px"><button class="btn" onclick="loadAll()">↻ Refresh</button><button class="btn btn-gold" onclick="logout()">Logout</button></div></header>
+<div class="wrap">
+<div class="title">Admin Command Center</div><div class="sub">Main Admin: trademonarchofficial@gmail.com oversees all. Sub-admins: KYC checker, payment verifier.</div>
+<div class="h-section">Overview <span id="updatedTime" style="float:right;color:#666;font-size:11px"></span></div>
+<div class="grid-overview">
+<div class="stat"><small>Total Members</small><strong id="totalMembers">—</strong></div>
+<div class="stat"><small>Pending KYC</small><strong id="pendingKYC">—</strong></div>
+<div class="stat"><small>Total Invested</small><strong id="totalInvested">—</strong></div>
+</div>
+<div class="grid-overview2">
+<div class="stat"><small>Confirmed Investments</small><strong id="confirmedInvestments">—</strong></div>
+<div class="stat"><small>Pending Investments</small><strong id="pendingInvestments">—</strong></div>
+<div class="stat"><small>Rejected Investments</small><strong id="rejectedInvestments">—</strong></div>
+<div class="stat"><small>Total Earnings Paid</small><strong id="totalEarnings">—</strong></div>
+</div>
+
+<div class="tabs">
+<div class="tab active" data-tab="members" onclick="switchView('members')">Member Management</div>
+<div class="tab" data-tab="kyc" onclick="switchView('kyc')">KYC Verification</div>
+<div class="tab" data-tab="investments" onclick="switchView('investments')">Investment Requests</div>
+<div class="tab" data-tab="withdrawals" onclick="switchView('withdrawals')">Withdrawals</div>
+<div class="tab" data-tab="transactions" onclick="switchView('transactions')">Transactions (+/-)</div>
+<div class="tab" data-tab="balance" onclick="switchView('balance')">Balance Adjust</div>
+<div class="tab" data-tab="admins" onclick="switchView('admins')">Sub-Admins</div>
+<div class="tab" data-tab="emails" onclick="switchView('emails')">Email Sender</div>
+<div class="tab" data-tab="payments" onclick="switchView('payments')">Bank & Crypto</div>
+</div>
+
+<!-- MEMBERS -->
+<div id="view-members" class="card">
+<div class="card-head"><h3>Member Management</h3><small id="memberCount">Loading...</small><input id="memberSearch" placeholder="Search name, UID, phone" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px" oninput="filterMembers()"></div>
+<div class="table-wrap"><table><thead><tr><th>Member (NIN Name)</th><th>UID</th><th>Phone</th><th>Status</th><th>Investment</th><th>Balance</th><th>Date</th><th>Action</th></tr></thead><tbody id="membersBody"><tr><td colspan=8>Loading...</td></tr></tbody></table></div>
+</div>
+
+<!-- KYC -->
+<div id="view-kyc" class="card" style="display:none">
+<div class="card-head"><h3>KYC Verification — Approve/Reject per Section</h3><small>Check NIN front/back, selfie, name, address, phone</small></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>UID</th><th>NIN Number</th><th>Location</th><th>Documents</th><th>Status</th><th>Action</th></tr></thead><tbody id="kycBody"><tr><td colspan=7>Loading KYC...</td></tr></tbody></table></div>
+</div>
+
+<!-- INVESTMENTS -->
+<div id="view-investments" class="card" style="display:none">
+<div class="card-head"><h3>Investment Requests</h3><small id="investCount"></small></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Package</th><th>Amount</th><th>Payment</th><th>Receipt</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="investmentsBody"></tbody></table></div>
+</div>
+
+<!-- WITHDRAWALS -->
+<div id="view-withdrawals" class="card" style="display:none">
+<div class="card-head"><h3>Withdrawal Requests — Must match NIN names</h3></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Amount</th><th>Account (must match NIN)</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
+</div>
+
+<!-- TRANSACTIONS -->
+<div id="view-transactions" class="card" style="display:none">
+<div class="card-head"><h3>Transaction History (+/-)</h3><small>+ for add/investment, - for remove/withdrawal</small></div>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Type</th><th>Amount</th><th>Description</th><th>By Admin</th><th>Date</th></tr></thead><tbody id="transactionsBody"></tbody></table></div>
+</div>
+
+<!-- BALANCE ADJUST -->
+<div id="view-balance" class="card" style="display:none">
+<div class="card-head"><h3>Adjust Balance — Admin can change balance for losses/gains</h3></div>
+<div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<input id="balanceUserId" placeholder="User ID or UID (MONARCH...)">
+<input id="balanceAmount" type="number" placeholder="Amount e.g. 100 or -50 (use - for removal)">
+<input id="balanceReason" placeholder="Reason: Monthly profit 10% / Market loss adjustment / Bonus" style="grid-column:1/-1">
+<button class="btn btn-gold" onclick="adjustBalance()" style="grid-column:1/-1">Adjust Balance (+ adds, - removes)</button>
+</div>
+<div id="balanceResult" style="padding:0 16px 16px;color:var(--gold)"></div>
+</div>
+
+<!-- SUB-ADMINS -->
+<div id="view-admins" class="card" style="display:none">
+<div class="card-head"><h3>Sub-Admins — Approve member to be admin with different functions</h3></div>
+<div style="padding:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<input id="newAdminEmail" placeholder="Member email or User ID">
+<select id="newAdminRole" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px"><option value="kyc_admin">KYC Checker</option><option value="payment_admin">Payment Verifier</option><option value="support_admin">Support Admin</option><option value="admin">Full Admin</option></select>
+<button class="btn btn-gold" onclick="makeSubAdmin()">Make Sub-Admin</button>
+</div>
+<div id="adminsList" style="margin-top:16px"></div>
+</div>
+</div>
+
+<!-- EMAILS -->
+<div id="view-emails" class="card" style="display:none">
+<div class="card-head"><h3>Email Sender — Promotional / Informational + Custom Templates</h3></div>
+<div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn" onclick="setEmailTemplate('welcome')">Welcome New Member</button>
+<button class="btn" onclick="setEmailTemplate('investment')">Investment Received</button>
+<button class="btn" onclick="setEmailTemplate('profit')">Profit Paid</button>
+<button class="btn" onclick="setEmailTemplate('no_profit')">No Profit This Month (Professional/Scary)</button>
+<button class="btn" onclick="setEmailTemplate('kyc_approved')">KYC Approved</button>
+<button class="btn" onclick="setEmailTemplate('kyc_rejected')">KYC Rejected</button>
+</div>
+<input id="email_to" placeholder="all or specific email or UID" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px">
+<input id="email_subject" placeholder="Subject" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px">
+<textarea id="email_body" placeholder="Email body - supports HTML" style="background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;min-height:160px"></textarea>
+<button class="btn btn-gold" onclick="sendEmail()">Send Email (One Click)</button>
+<div id="emailStatus" style="color:var(--gold);font-size:12px"></div>
+</div>
+</div>
+
+<!-- PAYMENTS -->
+<div id="view-payments" class="card" style="display:none">
+<div class="card-head"><h3>Bank & Crypto Wallets</h3></div>
+<div style="padding:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div><label>Bank Name</label><input id="p_bank_name" value="OPAY" style="width:100%;background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;margin-top:6px"></div>
+<div><label>Account Name</label><input id="p_account_name" value="BRIGHT EZEBOLA OKECHUKWU" style="width:100%;background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;margin-top:6px"></div>
+<div><label>Account Number</label><input id="p_account_number" value="9135424851" style="width:100%;background:#0e0e0e;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;margin-top:6px"></div>
+</div>
+<button class="btn btn-gold" style="margin-top:12px" onclick="updateBank()">Update Bank</button>
+<div id="cryptoList" style="margin-top:16px"></div>
+</div>
+</div>
+
+</div>
+
+<!-- MODALS -->
+<div id="kycModal" class="modal"><div class="modal-box"><h4 style="color:var(--gold)">KYC Details</h4><div id="kycModalContent"></div><button class="btn" onclick="document.getElementById('kycModal').style.display='none'">Close</button></div></div>
+<div id="receiptModal" class="modal"><div class="modal-box"><h4 style="color:var(--gold)">Receipt</h4><div id="receiptContent"></div><button class="btn" onclick="document.getElementById('receiptModal').style.display='none'">Close</button></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/admin.js"></script>
+</body></html>

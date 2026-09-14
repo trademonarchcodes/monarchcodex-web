@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Dashboard | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dashboard.css"></head><body>
+<div id="appLoading" class="app-loading"><div class="loading-spinner"></div><p>Loading your kingdom...</p></div>
+<div id="authError" class="auth-error hidden"><div class="auth-error-card"><h2>Login Required</h2><p>Please login to access dashboard</p><button onclick="location.href='login.html'" class="btn-gold">Go to Login</button></div></div>
+<div id="appShell" class="app-shell hidden">
+<aside class="sidebar">
+<div class="sidebar-logo"><span class="logo-main">MONARCH</span> <span class="logo-sub">CODEX</span></div>
+<div class="sidebar-member"><div id="sidebarMemberInitial" class="member-avatar">M</div><div><strong id="sidebarMemberName">Monarch</strong><small id="sidebarMemberUID">MONARCH...</small></div></div>
+<nav class="sidebar-nav">
+<button class="nav-item active" data-section="overview">🏠 Overview</button>
+<button class="nav-item" data-section="kyc">🪪 KYC Verification</button>
+<button class="nav-item" data-section="invest">💰 Invest</button>
+<button class="nav-item" data-section="earnings">📈 Earnings</button>
+<button class="nav-item" data-section="withdrawals">💸 Withdrawals</button>
+<button class="nav-item" data-section="transactions">📜 Transactions</button>
+<button class="nav-item" data-section="referrals">👥 Referrals</button>
+<button class="nav-item" data-section="profile">⚙️ Profile</button>
+</nav>
+<button id="logoutBtn" class="btn-outline" style="margin:20px">Logout</button>
+</aside>
+<main class="main">
+<header class="topbar"><h1 id="topbarTitle" class="cinzel">Overview</h1><div class="topbar-actions"><span id="displayUsername" class="badge"></span><button id="editUsernameBtn" class="btn-small">Edit Username</button></div></header>
+<div class="content">
+
+<!-- OVERVIEW -->
+<section id="overviewSection" class="dashboard-section">
+<div class="grid-4">
+<div class="stat"><small>Balance</small><strong id="balance">$0.00</strong></div>
+<div class="stat"><small>Total Invested</small><strong id="totalInvested">$0.00</strong></div>
+<div class="stat"><small>Total Earnings</small><strong id="totalEarnings">$0.00</strong></div>
+<div class="stat"><small>Referral Earnings</small><strong id="refEarnings">$0.00</strong></div>
+</div>
+<div class="card" style="margin-top:16px"><h3>Your Kingdom Status</h3><p id="kycStatusText" style="color:#888;font-size:13px">KYC: Pending — Complete KYC to invest</p><div id="kycStatusBadge" style="margin-top:8px"></div></div>
+</section>
+
+<!-- KYC -->
+<section id="kycSection" class="dashboard-section hidden">
+<div class="card"><h3 class="cinzel gold">KYC Verification</h3><p style="color:#888;font-size:12px">Names as in NIN — cannot be changed after approval. Phone, location, NIN immutable.</p>
+<div id="kycForm" style="margin-top:16px;display:grid;gap:12px">
+<label>Country</label><input id="kycCountry" placeholder="Nigeria">
+<label>State</label><input id="kycState" placeholder="Lagos">
+<label>City</label><input id="kycCity" placeholder="Ikeja">
+<label>Address</label><input id="kycAddress" placeholder="Your address">
+<label>NIN Number</label><input id="kycNIN" placeholder="12345678901">
+<label>NIN Front (upload)</label><input type="file" id="kycNINFront" accept="image/*">
+<label>NIN Back (upload)</label><input type="file" id="kycNINBack" accept="image/*">
+<label>Selfie (clear image, appears in admin for verification)</label><input type="file" id="kycSelfie" accept="image/*">
+<button id="submitKYCBtn" class="btn-gold">Submit KYC for Verification</button>
+<div id="kycRejectionReasons" style="margin-top:12px"></div>
+</div>
+</div>
+</section>
+
+<!-- INVEST -->
+<section id="investSection" class="dashboard-section hidden">
+<div class="card"><h3 class="cinzel gold">Invest in Your Future</h3><p style="color:#888;font-size:12px">Choose package, payment method, upload receipt. Admin verifies.</p>
+<div id="packagesList" style="margin-top:16px"></div>
+<div id="paymentMethods" class="payment-methods-grid"></div>
+<div id="paymentDetailPanel" class="payment-detail-panel hidden"></div>
+<div id="receiptArea" class="hidden"><label>Upload Payment Receipt</label><input type="file" id="receiptFile" accept="image/*"><button id="submitInvestmentBtn" class="btn-gold" style="margin-top:12px">Submit Investment</button></div>
+</div>
+<div class="card" style="margin-top:16px"><h4>My Investments</h4><div id="myInvestmentsList"></div></div>
+</section>
+
+<!-- EARNINGS -->
+<section id="earningsSection" class="dashboard-section hidden">
+<div class="card"><h3>Earnings</h3><strong id="earningsTotal">$0.00</strong><div id="earningsList" style="margin-top:12px"></div></div>
+</section>
+
+<!-- WITHDRAWALS -->
+<section id="withdrawalsSection" class="dashboard-section hidden">
+<div class="card"><h3>Withdraw Funds</h3><p style="color:#888;font-size:12px">Min $5. Account must bear your original NIN names — no third party.</p>
+<div style="display:grid;gap:10px;margin-top:12px">
+<label>Amount ($)</label><input type="number" id="withdrawAmount" min="5" placeholder="5">
+<label>Account Name (must match NIN name)</label><input id="withdrawAccountName" placeholder="BRIGHT EZEBOLA OKECHUKWU">
+<label>Account Number</label><input id="withdrawAccountNumber" placeholder="9135424851">
+<label>Bank Name</label><input id="withdrawBankName" placeholder="OPAY">
+<button id="submitWithdrawalBtn" class="btn-gold">Request Withdrawal</button>
+</div>
+</div>
+<div class="card" style="margin-top:16px"><h4>My Withdrawals</h4><div id="withdrawalsList"></div></div>
+</section>
+
+<!-- TRANSACTIONS -->
+<section id="transactionsSection" class="dashboard-section hidden">
+<div class="card"><h3>Transaction History</h3><p style="color:#888;font-size:11px">+ for adding funds/investments, - for removal/withdrawals by admin or you</p><div id="transactionsList" style="margin-top:12px"></div></div>
+</section>
+
+<!-- REFERRALS -->
+<section id="referralsSection" class="dashboard-section hidden">
+<div class="card"><h3>Referral System</h3><p style="color:#888;font-size:12px">Earn 3% of referral investment + 1% of their profit monthly</p>
+<div style="margin-top:12px"><label>Your Referral Code</label><div style="display:flex;gap:8px"><strong id="referralCode" style="font-size:18px">LOADING</strong><button id="copyReferralCodeBtn" class="copy-btn">Copy</button></div>
+<label style="margin-top:12px">Referral Link</label><div style="display:flex;gap:8px"><input id="referralLink" readonly style="flex:1;background:#0e0e0e;border:1px solid #333;color:#fff;padding:8px;border-radius:8px"><button id="copyReferralLinkBtn" class="copy-btn">Copy Link</button></div></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px"><div class="stat"><small>Total Referrals</small><strong id="totalReferrals">0</strong></div><div class="stat"><small>Active</small><strong id="activeReferrals">0</strong></div><div class="stat"><small>Earnings</small><strong id="referralEarnings">$0.00</strong></div></div>
+<div id="referralsList" style="margin-top:16px"></div>
+</div>
+</section>
+
+<!-- PROFILE -->
+<section id="profileSection" class="dashboard-section hidden">
+<div class="card"><h3>Profile</h3><div id="profileInfo"></div>
+<div style="margin-top:16px"><h4>Display Username (editable every 7 days)</h4><p style="color:#888;font-size:11px">This is not your real NIN name, just display name on dashboard</p><input id="newDisplayUsername" placeholder="New username"><button id="saveUsernameBtn" class="btn-gold" style="margin-top:8px">Save Username</button><small id="usernameCooldown" style="color:#888;display:block;margin-top:6px"></small></div>
+</div>
+</section>
+
+</div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/dashboard.js"></script>
+</body></html>

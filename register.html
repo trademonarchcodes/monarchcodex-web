@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/register.css"></head><body>
+<div class="container">
+<div class="form-card">
+<div class="logo">MONARCH CODEX<span class="sub">THE INNER KINGDOM</span></div>
+<h2 class="cinzel">Create Kingdom Account</h2><p class="sub">Register with your NIN names — cannot be changed after KYC</p>
+<div id="alert" class="alert" style="display:none"></div>
+<form id="registerForm">
+<label>Full Name (as in NIN)</label><input type="text" id="fullName" required placeholder="BRIGHT EZEBOLA OKECHUKWU">
+<label>Phone (cannot be changed after KYC)</label><input type="tel" id="phone" required placeholder="09135424851">
+<label>Email</label><input type="email" id="email" required>
+<label>Password</label><input type="password" id="password" required>
+<label>Referral Code (optional)</label><input type="text" id="referralCode" placeholder="MONARCH123">
+<label style="display:flex;gap:8px;align-items:center;margin-top:12px;font-size:11px;text-transform:none"><input type="checkbox" id="terms" required style="width:auto"> I agree to disclaimer: 10% profit target not guaranteed, company not responsible for market losses, I will use NIN names.</label>
+<button type="submit" id="submitBtn" class="btn-gold">Create Account</button>
+</form>
+<span class="link">Already have account? <a href="login.html">Login</a></span>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/register.js"></script>
+</body></html>

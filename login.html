@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/login.css"></head><body>
+<div class="left">
+<div class="logo">MONARCH CODEX<span class="sub">THE INNER KINGDOM</span></div>
+<span class="badge">MEMBER ACCESS</span>
+<h1>Welcome Back, Monarch.</h1>
+<p>Access your kingdom. Trade with discipline. Your KYC verified portal awaits.</p>
+<div class="trust"><small>✓ NIN Verified • ✓ Secure • ✓ Official: trademonarchofficial@gmail.com</small></div>
+</div>
+<div class="right">
+<div class="form-card">
+<h2 class="cinzel">Member Login</h2><p class="sub">Enter your credentials</p>
+<div id="alert" class="alert" style="display:none"></div>
+<form id="loginForm">
+<label>Email</label><input type="email" id="email" required placeholder="your@email.com">
+<label>Password</label><input type="password" id="password" required placeholder="••••••••">
+<button type="submit" id="submitBtn" class="btn-gold">Login to Kingdom</button>
+</form>
+<a class="link" onclick="resetPass()" style="cursor:pointer">Forgot password?</a>
+<span class="link">No account? <a href="register.html">Create Account</a></span>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/login.js"></script>
+</body></html>
