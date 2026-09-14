@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Monarch Codex Member Dashboard"
+    >
+
+    <title>Monarch Codex | Member Dashboard</title>
+
+    <!-- Google Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Dashboard CSS -->
+    <link
+        rel="stylesheet"
+        href="dashboard.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- =========================================
+         APP LOADING
+    ========================================== -->
+
+    <div
+        id="appLoading"
+        class="app-loading"
+    >
+
+        <div class="loading-spinner"></div>
+
+        <p id="loadingMessage">
+            Loading your dashboard...
+        </p>
+
+    </div>
+
+
+    <!-- =========================================
+         AUTH ERROR
+    ========================================== -->
+
+    <div
+        id="authError"
+        class="auth-error hidden"
+    >
+
+        <div class="auth-error-card">
+
+            <div class="auth-error-icon">
+                !
+            </div>
+
+            <h2>
+                Unable to Load Dashboard
+            </h2>
+
+            <p id="authErrorMessage">
+                Please log in to continue.
+            </p>
+
+            <button
+                type="button"
+                id="returnLoginBtn"
+                class="primary-btn"
+            >
+                Return to Login
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================
+         DASHBOARD APP
+    ========================================== -->
+
+    <div
+        id="appShell"
+        class="app-shell hidden"
+    >
+
+
+        <!-- =====================================
+             SIDEBAR
+        ====================================== -->
+
+        <aside
+            id="sidebar"
+            class="sidebar"
+        >
+
+            <div class="sidebar-logo">
+
+                <a href="index.html">
+
+                    <span class="logo-main">
+                        MONARCH
+                    </span>
+
+                    <span class="logo-sub">
+                        CODEX
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- MEMBER MINI PROFILE -->
+
+            <div class="sidebar-member">
+
+                <div
+                    id="sidebarMemberInitial"
+                    class="member-avatar"
+                >
+                    M
+                </div>
+
+                <div class="member-mini-info">
+
+                    <strong id="sidebarMemberName">
+                        Member
+                    </strong>
+
+                    <span>
+                        Monarch Member
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- NAVIGATION -->
+
+            <nav class="sidebar-nav">
+
+                <button
+                    type="button"
+                    class="nav-item active"
+                    data-section="overview"
+                >
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Overview
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="profile"
+                >
+                    <span class="nav-icon">
+                        ◉
+                    </span>
+
+                    <span>
+                        My Profile
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="investment"
+                >
+                    <span class="nav-icon">
+                        ◆
+                    </span>
+
+                    <span>
+                        Investment
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="history"
+                >
+                    <span class="nav-icon">
+                        ◫
+                    </span>
+
+                    <span>
+                        Investment History
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="earnings"
+                >
+                    <span class="nav-icon">
+                        ◇
+                    </span>
+
+                    <span>
+                        Earnings
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="withdrawals"
+                >
+                    <span class="nav-icon">
+                        ⇩
+                    </span>
+
+                    <span>
+                        Withdrawals
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="nav-item"
+                    data-section="referrals"
+                >
+                    <span class="nav-icon">
+                        ♧
+                    </span>
+
+                    <span>
+                        Referrals
+                    </span>
+                </button>
+
+            </nav>
+
+
+            <!-- SIDEBAR BOTTOM -->
+
+            <div class="sidebar-bottom">
+
+                <a
+                    href="index.html"
+                    class="sidebar-home"
+                >
+                    ← Back to Website
+                </a>
+
+                <button
+                    type="button"
+                    id="logoutBtn"
+                    class="logout-btn"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================
+             MAIN AREA
+        ====================================== -->
+
+        <main class="dashboard-main">
+
+
+            <!-- TOP HEADER -->
+
+            <header class="dashboard-header">
+
+                <button
+                    type="button"
+                    id="mobileMenuBtn"
+                    class="mobile-menu-btn"
+                    aria-label="Open menu"
+                >
+                    ☰
+                </button>
+
+
+                <div class="header-title">
+
+                    <span>
+                        MEMBER DASHBOARD
+                    </span>
+
+                    <h1>
+                        Welcome,
+                        <span id="headerMemberName">
+                            Member
+                        </span>
+                    </h1>
+
+                </div>
+
+
+                <div class="header-status">
+
+                    <span class="status-dot"></span>
+
+                    <span>
+                        Member Area
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- CONTENT STARTS HERE -->
+
+            <div class="dashboard-content">
+
+                <!-- =====================================
+                     OVERVIEW SECTION
+                ====================================== -->
+
+                <section
+                    id="overviewSection"
+                    class="dashboard-section active-section"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+                            <span class="section-label">
+                                MEMBER AREA
+                            </span>
+
+                            <h2>
+                                Dashboard Overview
+                            </h2>
+
+                            <p>
+                                Manage your Monarch Codex membership,
+                                investment, earnings and account.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <!-- WELCOME CARD -->
+
+                    <div class="welcome-card">
+
+                        <div class="welcome-avatar">
+                            <span id="overviewInitial">
+                                M
+                            </span>
+                        </div>
+
+                        <div class="welcome-content">
+
+                            <span>
+                                WELCOME TO MONARCH CODEX
+                            </span>
+
+                            <h2>
+                                Hello,
+                                <strong id="overviewName">
+                                    Member
+                                </strong>
+                            </h2>
+
+                            <p>
+                                You are now inside your member
+                                dashboard. This is your central
+                                space for managing your Monarch
+                                Codex account.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACCOUNT SUMMARY -->
+
+                    <div class="stats-grid">
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ◆
+                            </div>
+
+                            <div class="stat-info">
+
+                                <span>
+                                    Membership
+                                </span>
+
+                                <strong id="accountStatus">
+                                    Pending
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ◇
+                            </div>
+
+                            <div class="stat-info">
+
+                                <span>
+                                    Total Earnings
+                                </span>
+
+                                <strong id="overviewEarnings">
+                                    $0.00
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ⇩
+                            </div>
+
+                            <div class="stat-info">
+
+                                <span>
+                                    Total Withdrawn
+                                </span>
+
+                                <strong id="overviewWithdrawn">
+                                    $0.00
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ♧
+                            </div>
+
+                            <div class="stat-info">
+
+                                <span>
+                                    Referrals
+                                </span>
+
+                                <strong id="overviewReferrals">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QUICK ACTIONS -->
+
+                    <div class="dashboard-card">
+
+                        <div class="card-heading">
+
+                            <div>
+
+                                <span class="section-label">
+                                    QUICK ACTIONS
+                                </span>
+
+                                <h3>
+                                    What would you like to do?
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="quick-actions">
+
+                            <button
+                                type="button"
+                                class="quick-action"
+                                data-section-target="investment"
+                            >
+
+                                <span class="quick-action-icon">
+                                    ◆
+                                </span>
+
+                                <span>
+                                    Make Investment
+                                </span>
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="quick-action"
+                                data-section-target="profile"
+                            >
+
+                                <span class="quick-action-icon">
+                                    ◉
+                                </span>
+
+                                <span>
+                                    View Profile
+                                </span>
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="quick-action"
+                                data-section-target="history"
+                            >
+
+                                <span class="quick-action-icon">
+                                    ◫
+                                </span>
+
+                                <span>
+                                    Investment History
+                                </span>
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="quick-action"
+                                data-section-target="referrals"
+                            >
+
+                                <span class="quick-action-icon">
+                                    ♧
+                                </span>
+
+                                <span>
+                                    My Referrals
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACCOUNT INFORMATION -->
+
+                    <div class="dashboard-card">
+
+                        <div class="card-heading">
+
+                            <div>
+
+                                <span class="section-label">
+                                    ACCOUNT
+                                </span>
+
+                                <h3>
+                                    Account Information
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-grid">
+
+                            <div class="info-item">
+
+                                <span>
+                                    Full Name
+                                </span>
+
+                                <strong id="overviewFullName">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <span>
+                                    Email
+                                </span>
+
+                                <strong id="overviewEmail">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <span>
+                                    Phone
+                                </span>
+
+                                <strong id="overviewPhone">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <span>
+                                    Member ID
+                                </span>
+
+                                <strong id="overviewUid">
+                                    —
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =====================================
+                     PROFILE SECTION
+                ====================================== -->
+
+                <section
+                    id="profileSection"
+                    class="dashboard-section"
+                >
+
+                    <div class="section-heading">
+
+                        <div>
+
+                            <span class="section-label">
+                                ACCOUNT
+                            </span>
+
+                            <h2>
+                                My Profile
+                            </h2>
+
+                            <p>
+                                View your Monarch Codex member
+                                information and account status.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="profile-layout">
+
+
+                        <!-- PROFILE CARD -->
+
+                        <div class="dashboard-card profile-card">
+
+                            <div class="profile-avatar-large">
+
+                                <span id="profileInitial">
+                                    M
+                                </span>
+
+                            </div>
+
+
+                            <h3 id="profileName">
+                                Member
+                            </h3>
+
+                            <p class="profile-role">
+                                <span id="profileRole">
+                                    Member
+                                </span>
+                            </p>
+
+
+                            <div class="profile-status-badge">
+
+                                <span class="status-dot"></span>
+
+                                <span id="profileStatus">
+                                    Pending
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PROFILE INFORMATION -->
+
+                        <div class="dashboard-card">
+
+                            <div class="card-heading">
+
+                                <div>
+
+                                    <span class="section-label">
+                                        PERSONAL INFORMATION
+                                    </span>
+
+                                    <h3>
+                                        Account Details
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="profile-details">
+
+                                <div class="detail-row">
+
+                                    <span>
+                                        Full Name
+                                    </span>
+
+                                    <strong id="profileFullName">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span>
+                                        Email Address
+                                    </span>
+
+                                    <strong id="profileEmail">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span>
+                                        Phone Number
+                                    </span>
+
+                                    <strong id="profilePhone">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span>
+                                        Member ID
+                                    </span>
+
+                                    <strong id="profileUid">
+                                        —
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span>
+                                        Account Role
+                                    </span>
+
+                                    <strong id="profileRoleDetails">
+                                        Member
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span>
+                                        Account Status
+                                    </span>
+
+                                    <strong id="profileAccountStatus">
+                                        Pending
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span>
+                                        Member Since
+                                    </span>
+
+                                    <strong id="profileCreatedAt">
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+<section
+    id="investmentSection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                MONARCH INVESTMENT
+            </span>
+
+            <h2>Make an Investment</h2>
+
+            <p>
+                Select an available package to continue.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div class="card-heading">
+
+            <div>
+                <span class="section-label">
+                    STEP 1
+                </span>
+
+                <h3>Select Your Package</h3>
+            </div>
+
+        </div>
+
+
+        <div
+            id="packagesLoading"
+            class="inline-loading"
+        >
+            Loading available packages...
+        </div>
+
+
+        <div
+            id="packagesGrid"
+            class="packages-grid"
+        >
+            <!-- Packages loaded from Supabase -->
+        </div>
+
+
+        <div
+            id="packagesEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Packages Available</h3>
+
+            <p>
+                There are currently no active packages.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div
+        id="selectedPackageCard"
+        class="dashboard-card hidden"
+    >
+
+        <span class="section-label">
+            SELECTED PACKAGE
+        </span>
+
+        <h3 id="selectedPackageName">
+            —
+        </h3>
+
+        <div class="info-grid">
+
+            <div class="info-item">
+                <span>Investment Amount</span>
+
+                <strong id="selectedPackageAmount">
+                    $0.00
+                </strong>
+            </div>
+
+            <div class="info-item">
+                <span>Status</span>
+
+                <strong>Active</strong>
+            </div>
+
+        </div>
+
+        <input
+            type="hidden"
+            id="selectedPackageId"
+        >
+
+        <input
+            type="hidden"
+            id="investmentAmount"
+        >
+
+    </div>
+
+
+    <div
+        id="paymentMethodCard"
+        class="dashboard-card hidden"
+    >
+
+        <span class="section-label">
+            STEP 2
+        </span>
+
+        <h3>Select Payment Method</h3>
+
+        <div
+            id="paymentMethodsLoading"
+            class="inline-loading"
+        >
+            Loading payment methods...
+        </div>
+
+        <div
+            id="paymentMethodsGrid"
+            class="payment-methods-grid"
+        >
+            <!-- Payment methods from Supabase -->
+        </div>
+
+        <input
+            type="hidden"
+            id="selectedPaymentMethod"
+        >
+
+        <input
+            type="hidden"
+            id="selectedPaymentDetailId"
+        >
+
+    </div>
+
+</section>
+
+<div
+    id="paymentDetailsArea"
+    class="dashboard-card hidden"
+>
+
+    <span class="section-label">
+        PAYMENT INFORMATION
+    </span>
+
+    <h3>Payment Details</h3>
+
+    <p id="paymentInstructions">
+        Follow the payment instructions below.
+    </p>
+
+
+        <!-- BANK PAYMENT -->
+
+    <div
+        id="bankPayment"
+        class="payment-detail-panel hidden"
+    >
+
+        <h4>🏦 Bank Transfer - OPAY</h4>
+
+        <p id="bankPaymentInstructions">
+            Transfer the required amount to the account below.
+        </p>
+
+        <div class="payment-details-list">
+
+            <div class="payment-detail-row">
+                <span>Bank Name</span>
+                <strong id="bankName">—</strong>
+            </div>
+
+            <div class="payment-detail-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <div>
+                    <span>Account Name</span>
+                    <strong id="bankAccountName">—</strong>
+                </div>
+            </div>
+
+            <div class="payment-detail-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                <div>
+                    <span>Account Number</span>
+                    <strong id="bankAccountNumber" style="font-size:18px; letter-spacing:1px;">—</strong>
+                </div>
+            </div>
+
+            <div class="payment-detail-row" style="background:rgba(212,175,55,0.1); border:1px solid #D4AF37; border-radius:8px; padding:12px; margin-top:12px;">
+                <span>Amount to Pay</span>
+                <strong id="bankTotalAmount" style="color:#D4AF37; font-size:16px;">—</strong>
+                <small id="bankFeeAmount" style="display:block; color:#aaa; margin-top:4px;">—</small>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CRYPTO PAYMENT -->
+
+
+        <!-- CRYPTO PAYMENT -->
+
+    <div
+        id="cryptoPayment"
+        class="payment-detail-panel hidden"
+    >
+
+        <h4>₿ Cryptocurrency Payment</h4>
+
+        <p>
+            Select the correct network. Amount is calculated per package.
+        </p>
+
+        <label for="cryptoNetwork">
+            Network (Auto-detected from your selection)
+        </label>
+
+        <select id="cryptoNetwork">
+
+            <option value="">
+                Select Network
+            </option>
+
+        </select>
+
+
+        <div
+            id="cryptoWalletArea"
+            class="hidden"
+        >
+
+            <div class="payment-detail-row">
+                <span>Crypto</span>
+                <strong id="selectedCryptoName">—</strong>
+            </div>
+
+            <div class="payment-detail-row">
+                <span>Network</span>
+                <strong id="selectedCryptoNetwork">—</strong>
+            </div>
+
+            <div class="payment-detail-row" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:200px;">
+                    <span>Wallet Address</span>
+                    <strong id="cryptoWalletAddress" style="word-break:break-all; font-size:13px;">—</strong>
+                </div>
+            </div>
+
+            <div class="payment-detail-row" style="background:rgba(212,175,55,0.1); border:1px solid #D4AF37; border-radius:8px; padding:12px; margin-top:12px;">
+                <span>Amount to Send</span>
+                <strong id="cryptoTotalAmount" style="color:#D4AF37; font-size:16px;">—</strong>
+                <small style="display:block; color:#aaa; margin-top:4px;">Includes $1 network fee. Send exact amount.</small>
+            </div>
+
+            <button
+                type="button"
+                id="copyCryptoAddressBtn"
+                class="secondary-btn hidden"
+            >
+                Copy Wallet Address
+            </button>
+
+            <div id="cryptoWalletsGrid" style="margin-top:16px;"></div>
+
+        </div>
+
+  
+
+
+</div>
+
+<div
+    id="receiptArea"
+    class="dashboard-card hidden"
+>
+
+    <span class="section-label">
+        STEP 3
+    </span>
+
+    <h3>Upload Payment Receipt</h3>
+
+    <p>
+        After making your payment, upload your receipt
+        for verification.
+    </p>
+
+
+    <label for="receiptInput">
+        Payment Receipt
+    </label>
+
+    <input
+        type="file"
+        id="receiptInput"
+        accept="image/*,.pdf"
+    >
+
+    <small>
+        Accepted formats: JPG, PNG or PDF.
+    </small>
+
+
+    <div
+        id="receiptPreview"
+        class="receipt-preview hidden"
+    ></div>
+
+
+    <button
+        type="button"
+        id="submitInvestmentBtn"
+        class="primary-btn"
+        disabled
+    >
+        Submit Investment
+    </button>
+
+
+    <div
+        id="investmentMessage"
+        class="form-message hidden"
+    ></div>
+
+</div>
+
+<section
+    id="historySection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                TRANSACTIONS
+            </span>
+
+            <h2>Investment History</h2>
+
+            <p>
+                View your investment transactions and status.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div
+            id="investmentHistoryLoading"
+            class="inline-loading"
+        >
+            Loading investment history...
+        </div>
+
+
+        <div
+            id="investmentHistory"
+            class="investment-history"
+        >
+            <!-- Investment history from Supabase -->
+        </div>
+
+
+        <div
+            id="investmentHistoryEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Investments Yet</h3>
+
+            <p>
+                Your investment history will appear here
+                after your first investment.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section
+    id="earningsSection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                FINANCIAL ACTIVITY
+            </span>
+
+            <h2>Earnings</h2>
+
+            <p>
+                View your confirmed earnings from Monarch Codex.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div class="earnings-summary">
+
+            <span>Total Earnings</span>
+
+            <strong id="totalEarnings">
+                $0.00
+            </strong>
+
+        </div>
+
+
+        <div
+            id="earningsList"
+            class="earnings-list"
+        >
+            <!-- Earnings loaded from Supabase -->
+        </div>
+
+
+        <div
+            id="earningsEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Earnings Yet</h3>
+
+            <p>
+                Your confirmed earnings will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section
+    id="withdrawalsSection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                WITHDRAWALS
+            </span>
+
+            <h2>Withdrawals</h2>
+
+            <p>
+                View your withdrawal requests and their status.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card">
+
+        <div class="withdrawal-summary">
+
+            <span>Total Withdrawn</span>
+
+            <strong id="totalWithdrawn">
+                $0.00
+            </strong>
+
+        </div>
+
+
+        <div
+            id="withdrawalsList"
+            class="withdrawals-list"
+        >
+            <!-- Withdrawals loaded from Supabase -->
+        </div>
+
+
+        <div
+            id="withdrawalsEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Withdrawals Yet</h3>
+
+            <p>
+                Your withdrawal requests will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section
+    id="referralsSection"
+    class="dashboard-section"
+>
+
+    <div class="section-heading">
+
+        <div>
+            <span class="section-label">
+                REFERRAL PROGRAM
+            </span>
+
+            <h2>My Referrals</h2>
+
+            <p>
+                Track members connected to your referral network.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    
+    <div class="dashboard-card">
+        <span class="section-label">YOUR REFERRAL SYSTEM</span>
+        <h3>Invite & Earn</h3>
+        <p>Share your link and earn when members join and invest.</p>
+
+        <div class="info-grid" style="margin-top:16px;">
+            <div class="info-item">
+                <span>Referral Code</span>
+                <div style="display:flex; gap:8px; align-items:center; margin-top:6px;">
+                    <strong id="referralCode" style="font-size:18px; letter-spacing:1px;">LOADING...</strong>
+                    <button id="copyReferralCodeBtn" class="copy-btn" type="button">Copy</button>
+                </div>
+            </div>
+            <div class="info-item" style="grid-column: span 2;">
+                <span>Referral Link</span>
+                <div style="display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap;">
+                    <input id="referralLink" type="text" readonly value="Loading..." style="flex:1; min-width:200px; background:#1a1a1a; border:1px solid #D4AF37; color:#fff; padding:10px 12px; border-radius:8px; font-size:13px;">
+                    <button id="copyReferralLinkBtn" class="copy-btn primary-copy" type="button">Copy Link</button>
+                </div>
+                <small style="color:#888; margin-top:6px; display:block;">Share this link: monarch-codex.pages.dev/register.html?ref=YOURCODE</small>
+            </div>
+        </div>
+
+        <div class="info-grid" style="margin-top:16px;">
+            <div class="info-item">
+                <span>Total Referrals</span>
+                <strong id="totalReferrals">0</strong>
+            </div>
+            <div class="info-item">
+                <span>Active Referrals</span>
+                <strong id="activeReferrals">0</strong>
+            </div>
+            <div class="info-item">
+                <span>Referral Earnings</span>
+                <strong id="referralEarnings">$0.00</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-heading">
+            <div>
+                <span class="section-label">REFERRED MEMBERS</span>
+                <h3>Your Referral Members</h3>
+            </div>
+        </div>
+<div class="dashboard-card">
+
+        <div class="referral-summary">
+
+            <span>Total Referrals</span>
+
+            <strong id="totalReferrals">
+                0
+            </strong>
+
+        </div>
+
+
+        <div
+            id="referralsList"
+            class="referrals-list"
+        >
+            <!-- Referrals loaded from Supabase -->
+        </div>
+
+
+        <div
+            id="referralsEmpty"
+            class="empty-state hidden"
+        >
+
+            <h3>No Referrals Yet</h3>
+
+            <p>
+                Your referral members will appear here.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+            </div>
+            <!-- /.dashboard-content -->
+
+        </main>
+        <!-- /.dashboard-main -->
+
+    </div>
+    <!-- /.app-shell -->
+
+
+    <!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Dashboard JavaScript -->
+<script src="dashboard.js?v=3"></script>
+
+</body>
+</html>
