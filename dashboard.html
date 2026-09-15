@@ -160,6 +160,12 @@ const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let currentUser=null, currentProfile=null, selectedPackage=null, selectedPayment=null;
 
+  // === YOUR NEW REQUIREMENT ===
+const NGN_RATE = 1530; // change to 1321 if you use official CBN rate
+const BANK_FEE = 2; // $2 for OPAY
+const WALLET_FEE = 1; // $1 for USDT/SOL/BTC
+const MIN_DEPOSIT = 30;
+  
 // Professional Toast System - replaces ash alert
 function showToast(message, type="info"){
   let container = document.getElementById("toastContainer");
