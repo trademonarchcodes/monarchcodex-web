@@ -357,10 +357,7 @@ async function init(){
     document.getElementById("sidebarMemberUID").textContent = currentProfile.uid || "MONARCH...";
     document.getElementById("sidebarMemberInitial").textContent = (currentProfile.full_name||"M")[0].toUpperCase();
     document.getElementById("displayUsername").textContent = currentProfile.display_username || currentProfile.full_name?.split(' ')[0] || "Monarch";
-    document.getElementById("sidebarMemberName").textContent=profile.full_name;
-    document.getElementById("sidebarMemberUID").textContent=profile.uid;
-  document.getElementById("sidebarMemberInitial").textContent=profile.full_name[0];
-  document.getElementById("displayUsername").textContent=profile.display_username||profile.full_name.split(" ")[0];
+    // Already set above
   await loadOverview();
   loadPackages();
   loadTransactions();
@@ -379,60 +376,110 @@ function switchSection(name){
 document.querySelectorAll(".nav-item").forEach(btn=>{
   btn.addEventListener("click",()=>switchSection(btn.dataset.section));
 });
-document.getElementById("logoutBtn")?.addEventListener("click",async()=>{await supabaseClient.auth.signOut();location.href="login.html";});
+// Bulletproof logout - clears everything and redirects immediately, doesn't wait for network
+document.getElementById("logoutBtn")?.addEventListener("click",async()=>{
+  try{
+    // Clear immediately
+    localStorage.clear();
+    sessionStorage.clear();
+    // Try signOut but don't wait long
+    const signOutPromise = supabaseClient.auth.signOut();
+    const timeout = new Promise(r=>setTimeout(()=>r(), 1000));
+    await Promise.race([signOutPromise, timeout]);
+  }catch(e){ console.log("Logout error", e); }
+  // Force redirect
+  window.location.replace("login.html");
+});
+
+// Also add logout on double click or long press fallback
+document.getElementById("logoutBtn")?.addEventListener("dblclick",()=>{
+  localStorage.clear(); sessionStorage.clear(); window.location.replace("login.html");
+});
 
 async function loadOverview(){
+  let totalInv = 0, normalEarnings = 0, referralEarnings = 0, totalWithdrawn = 0, allEarnings = 0, investments = [], trans = [];
   try{
-  const {data:investments}=await supabaseClient.from("investments").select("amount,status,created_at").eq("user_id",currentUser.id);
-  const totalInv=investments?.filter(i=>i.status==="approved").reduce((s,i)=>s+Number(i.amount),0)||0;
-  const {data:trans}=await supabaseClient.from("transactions").select("amount,type,description").eq("user_id",currentUser.id);
-  // Separate referral earnings vs normal earnings
-  const referralEarnings=trans?.filter(t=> Number(t.amount)>0 && t.type==="referral_bonus").reduce((s,i)=>s+Number(i.amount),0)||0;
-  const normalEarnings=trans?.filter(t=> Number(t.amount)>0 && (t.type==="earning"||t.type==="profit"||t.type==="bonus"||t.type==="admin_add")).reduce((s,i)=>s+Number(i.amount),0)||0;
-  const totalEarnings = normalEarnings; // Normal earnings only
-  const allEarnings = normalEarnings + referralEarnings; // For balance calc
-  const totalWithdrawn=trans?.filter(t=> Number(t.amount)<0).reduce((s,i)=>s+Math.abs(Number(i.amount)),0)||0;
-  let balance = currentProfile.balance;
-  if(balance===null || balance===undefined) balance = allEarnings - totalWithdrawn;
-  if(balance < 0 && totalInv>0 && allEarnings===0) balance = 0;
-  document.getElementById("balance").textContent="$"+Number(balance).toFixed(2);
-  document.getElementById("totalInvested").textContent="$"+totalInv.toFixed(2);
-  document.getElementById("totalEarnings").textContent="$"+totalEarnings.toFixed(2);
-  document.getElementById("refEarnings").textContent="$"+referralEarnings.toFixed(2);
-  const earnEl=document.getElementById("earningsTotal"); if(earnEl) earnEl.textContent="$"+totalEarnings.toFixed(2);
-  // Also update referral earnings in referral section if exists
-  const refEarnDetail=document.getElementById("referralEarningsDetail");
-  if(refEarnDetail) refEarnDetail.textContent="$"+referralEarnings.toFixed(2);
-  // Store separated values
-  window._referralEarnings = referralEarnings;
-  }catch(e){console.error('loadOverview error', e); showToast('Error loading overview: '+e.message,'error');}
-  const kycBadge=document.getElementById("kycStatusBadge");
-  if(currentProfile.kyc_status==="approved"){
-    kycBadge.innerHTML='<span style="background:#00c851;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Approved - Active</span>';
-    document.getElementById("kycStatusText").textContent="KYC: Approved — You can invest. Profile picture can be updated in Profile.";
-    const kycFormInner=document.getElementById("kycForm");
-    if(kycFormInner) kycFormInner.style.display="none";
-    const approvedMsg=document.getElementById("kycApprovedMsg");
-    if(!approvedMsg){
-      const msg=document.createElement("div");
-      msg.id="kycApprovedMsg";
-      msg.style="background:rgba(0,200,81,0.1);border:1px solid rgba(0,200,81,0.3);padding:16px;border-radius:10px;margin-top:16px;text-align:center";
-      msg.innerHTML="<h4 style='color:#4ee58a'>✓ KYC Approved</h4><p style='color:#aaa;font-size:12px;margin-top:8px'>Your KYC is verified. You can now update your profile picture in Profile section.</p><button class='btn-gold' style='margin-top:12px' onclick=\"switchSection('profile')\">Go to Profile</button>";
-      const card=document.querySelector("#kycSection .card");
-      if(card) card.appendChild(msg);
+    // Fetch investments with timeout
+    try{
+      const invPromise = supabaseClient.from("investments").select("amount,status,created_at").eq("user_id",currentUser.id);
+      const invTimeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error("Invest timeout")), 5000));
+      const invRes = await Promise.race([invPromise, invTimeout]);
+      investments = invRes.data || [];
+      totalInv = investments.filter(i=>i.status==="approved").reduce((s,i)=>s+Number(i.amount||0),0);
+    }catch(ie){ console.log("Invest fetch failed", ie.message); }
+
+    // Fetch transactions with timeout
+    try{
+      const transPromise = supabaseClient.from("transactions").select("amount,type,description").eq("user_id",currentUser.id);
+      const transTimeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error("Trans timeout")), 5000));
+      const transRes = await Promise.race([transPromise, transTimeout]);
+      trans = transRes.data || [];
+      referralEarnings = trans.filter(t=> Number(t.amount)>0 && (t.type==="referral_bonus"||String(t.description||"").toLowerCase().includes("referral"))).reduce((s,i)=>s+Number(i.amount||0),0);
+      normalEarnings = trans.filter(t=> Number(t.amount)>0 && !String(t.description||"").toLowerCase().includes("referral") && t.type!=="referral_bonus").reduce((s,i)=>s+Number(i.amount||0),0);
+      totalWithdrawn = trans.filter(t=> Number(t.amount)<0).reduce((s,i)=>s+Math.abs(Number(i.amount||0)),0);
+      allEarnings = normalEarnings + referralEarnings;
+    }catch(te){ console.log("Trans fetch failed", te.message); }
+
+    // Balance logic: use profile balance if exists and >0, else calculate from earnings - withdrawals, else total invested if no earnings yet
+    let balance = currentProfile?.balance;
+    if(balance===null || balance===undefined || isNaN(balance) || Number(balance)===0){
+      if(allEarnings>0) balance = allEarnings - totalWithdrawn;
+      else if(totalInv>0) balance = 0; // Has investments but no earnings yet
+      else balance = 0;
     }
-  } else if(currentProfile.kyc_status==="rejected"){
-    kycBadge.innerHTML='<span style="background:#ff4444;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Rejected - Please resubmit</span>';
-  } else {
-    kycBadge.innerHTML='<span style="background:#D4AF37;color:#000;padding:4px 10px;border-radius:20px;font-size:11px">KYC Pending</span>';
+    if(balance<0) balance = 0;
+
+    // Update UI safely
+    const setText = (id, val)=>{
+      const el = document.getElementById(id);
+      if(el) el.textContent = val;
+    };
+    setText("balance", "$"+Number(balance).toFixed(2));
+    setText("totalInvested", "$"+Number(totalInv).toFixed(2));
+    setText("totalEarnings", "$"+Number(normalEarnings).toFixed(2));
+    setText("refEarnings", "$"+Number(referralEarnings).toFixed(2));
+    setText("earningsTotal", "$"+Number(normalEarnings).toFixed(2));
+    const refDetail = document.getElementById("referralEarningsDetail");
+    if(refDetail) refDetail.textContent = "$"+Number(referralEarnings).toFixed(2);
+
+    window._earnings = allEarnings;
+    window._normalEarnings = normalEarnings;
+    window._referralEarnings = referralEarnings;
+    window._totalInv = totalInv;
+    window._investments = investments;
+    window._totalWithdrawn = totalWithdrawn;
+
+    // KYC status
+    const kycBadge=document.getElementById("kycStatusBadge");
+    if(kycBadge){
+      if(currentProfile.kyc_status==="approved"){
+        kycBadge.innerHTML='<span style="background:#00c851;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Approved - Active</span>';
+        const statusText = document.getElementById("kycStatusText");
+        if(statusText) statusText.textContent="KYC: Approved — You can invest. Profile picture can be updated in Profile.";
+        const kycFormInner=document.getElementById("kycForm");
+        if(kycFormInner) kycFormInner.style.display="none";
+      } else if(currentProfile.kyc_status==="rejected"){
+        kycBadge.innerHTML='<span style="background:#ff4444;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Rejected - Please resubmit</span>';
+      } else {
+        kycBadge.innerHTML='<span style="background:#D4AF37;color:#000;padding:4px 10px;border-radius:20px;font-size:11px">KYC Pending</span>';
+      }
+    }
+
+    // If balance is 0 and no investments, show helpful message
+    if(balance===0 && totalInv===0){
+      showToast("Balance $0.00 - No active investments yet. Complete KYC and invest to start earning. If you have investments, check if they are approved in Transactions.", "info");
+    }
+
+  }catch(e){
+    console.error('loadOverview error', e);
+    showToast('Error loading overview: '+e.message+' - showing $0.00, retrying...','warning');
+    // Still set $0.00 so UI doesn't stay empty
+    const setText = (id, val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+    setText("balance", "$0.00");
+    setText("totalInvested", "$0.00");
+    setText("totalEarnings", "$0.00");
+    setText("refEarnings", "$0.00");
   }
-  window._earnings = allEarnings;
-  window._normalEarnings = normalEarnings;
-  window._referralEarnings = referralEarnings;
-  }catch(e){console.error('loadOverview error', e); showToast('Error loading overview: '+e.message,'error');}
-  window._totalInv = totalInv;
-  window._investments = investments;
-  window._totalWithdrawn = totalWithdrawn;
 }
 
 async function loadPackages(){
