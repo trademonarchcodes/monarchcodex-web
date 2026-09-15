@@ -33,8 +33,6 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 .spin{width:32px;height:32px;border:3px solid #333;border-top-color:var(--g);border-radius:50%;animation:x 1s linear infinite;margin:auto auto 13px}@keyframes x{to{transform:rotate(360deg)}}
 #toast{display:none;position:fixed;right:16px;bottom:16px;z-index:200;background:#171717;border:1px solid #444;border-radius:9px;padding:11px 14px;font-size:11px;max-width:350px}#toast.show{display:block}
 .toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:#aaa}.toggle input{width:auto}
-
-.member-avatar{width:38px;height:38px;border-radius:50%;border:1px solid var(--g);object-fit:cover;background:#171717;vertical-align:middle;margin-right:8px}.member-cell{display:flex;align-items:center;min-width:190px}.profile-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:5000;align-items:center;justify-content:center;padding:18px}.profile-modal.open{display:flex}.profile-box{width:min(560px,100%);max-height:88vh;overflow:auto;background:#121212;border:1px solid #333;border-radius:16px;padding:20px}.profile-top{display:flex;align-items:center;gap:14px;border-bottom:1px solid #292929;padding-bottom:15px;margin-bottom:15px}.profile-big-avatar{width:78px;height:78px;border-radius:50%;border:2px solid var(--g);object-fit:cover;background:#171717}.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.profile-item{background:#171717;border:1px solid #292929;border-radius:9px;padding:10px}.profile-item span{display:block;color:#777;font-size:9px;text-transform:uppercase;margin-bottom:4px}.profile-item b{font-size:12px;word-break:break-word}@media(max-width:600px){.profile-grid{grid-template-columns:1fr}}
 @media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.packages,.payments-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){aside{transform:translateX(-100%);transition:.2s;width:275px}aside.open{transform:translateX(0)}main{margin-left:0;width:100%}.menu{display:block}.content{padding:17px 13px}.form,.packages,.payments-grid,.grid{grid-template-columns:1fr}.full{grid-column:auto}header{padding:0 13px}.title{font-size:15px}}
 </style>
@@ -125,17 +123,6 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<div id="memberProfileModal" class="profile-modal" aria-hidden="true">
-  <div class="profile-box">
-    <div class="profile-top">
-      <img id="adminProfileAvatar" class="profile-big-avatar" alt="Monarch photo">
-      <div style="min-width:0"><h2 id="adminProfileName" class="section" style="margin:0 0 4px">Monarch Profile</h2><div id="adminProfileEmail" class="muted" style="font-size:11px;word-break:break-all">—</div></div>
-      <button id="closeMemberProfile" class="btn secondary" type="button" style="margin-left:auto">Close</button>
-    </div>
-    <div id="adminProfileGrid" class="profile-grid"></div>
-  </div>
-</div>
-
 <script>
 "use strict";
 
@@ -184,6 +171,22 @@ function showError(id,error){
   if($(id)) $(id).innerHTML=`<div class="empty">${esc(error?.message||error||"Something went wrong.")}</div>`;
 }
 
+async function notifyMember(userId,title,message,type="info"){
+  if(!userId) return;
+  try{
+    const r=await q("notifications",x=>x.insert({
+      user_id:userId,
+      title,
+      message,
+      type,
+      is_read:false
+    }));
+    if(r.error) console.warn("Notification could not be created:",r.error.message);
+  }catch(e){
+    console.warn("Notification error:",e.message||e);
+  }
+}
+
 function view(name){
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
   document.querySelectorAll("nav button[data-v]").forEach(x=>x.classList.remove("active"));
@@ -209,44 +212,18 @@ async function membersLoad(){
   }catch(e){showError("members",e);toast(e.message,"error")}
 }
 
-function avatarSrc(p){
-  const url=p?.avatar_url || p?.avatar || "";
-  return url || "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="62" text-anchor="middle" fill="#D4AF37" font-size="42" font-family="serif">M</text></svg>`);
-}
-
 function memberHTML(){
   const term=String($("memberSearch")?.value||"").toLowerCase();
-  const a=members.filter(p=>[p.full_name,p.email,p.phone,p.uid,p.id].join(" ").toLowerCase().includes(term));
+  const a=members.filter(p=>[p.full_name,p.username,p.email,p.phone,p.uid,p.id].join(" ").toLowerCase().includes(term));
   if(!a.length) return '<div class="empty">No members found.</div>';
   return `<div class="table"><table><tr><th>Member</th><th>Email</th><th>Status</th><th>KYC</th><th>Joined</th><th>Action</th></tr>${
     a.map(p=>{
       const k=String(p.kyc_status||p.kyc||"not_submitted").toLowerCase();
       const kl=k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(k)?"UNDER REVIEW":"KYC NOT SUBMITTED";
       const blocked=String(p.status||"active").toLowerCase()==="blocked";
-      return `<tr><td><div class="member-cell"><img class="member-avatar" src="${esc(avatarSrc(p))}" onerror="this.src='${esc(avatarSrc({}))}'" alt=""><div><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.uid||p.id)}</small></div></div></td><td>${esc(p.email||"—")}</td><td>${badge(p.status||"active")}</td><td>${badge(kl)}</td><td>${dt(p.created_at)}</td><td><div class="actions">${blocked?`<button class="btn success" data-action="member-status" data-id="${esc(p.id)}" data-status="active">Activate</button>`:`<button class="btn danger" data-action="member-status" data-id="${esc(p.id)}" data-status="blocked">Block</button>`}<button class="btn secondary" data-action="view-member" data-id="${esc(p.id)}">View Profile</button></div></td></tr>`;
+      return `<tr><td><b>${esc(p.full_name||p.username||"Monarch")}</b><br><small>${esc(p.uid||p.id)}</small></td><td>${esc(p.email||"—")}</td><td>${badge(p.status||"active")}</td><td>${badge(kl)}</td><td>${dt(p.created_at)}</td><td>${blocked?`<button class="btn success" data-action="member-status" data-id="${esc(p.id)}" data-status="active">Activate</button>`:`<button class="btn danger" data-action="member-status" data-id="${esc(p.id)}" data-status="blocked">Block</button>`}</td></tr>`;
     }).join("")
   }</table></div>`;
-}
-
-function profileField(label,value){return `<div class="profile-item"><span>${esc(label)}</span><b>${esc(value||"—")}</b></div>`}
-
-function openMemberProfile(id){
-  const p=members.find(x=>String(x.id)===String(id));
-  if(!p)return toast("Member profile not found.","error");
-  $("adminProfileAvatar").src=avatarSrc(p);
-  $("adminProfileName").textContent=p.full_name||"Monarch";
-  $("adminProfileEmail").textContent=p.email||"—";
-  const k=String(p.kyc_status||p.kyc||"not_submitted").toLowerCase();
-  const kl=k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(k)?"UNDER REVIEW":"KYC NOT SUBMITTED";
-  $("adminProfileGrid").innerHTML=[
-    profileField("Full Name",p.full_name),profileField("Email",p.email),profileField("Phone",p.phone),profileField("UID",p.uid||p.id),
-    profileField("Status",p.status||"active"),profileField("KYC",kl),profileField("Referral Code",p.referral_code),profileField("Referred By",p.referred_by),profileField("Joined",dt(p.created_at))
-  ].join("");
-  $("memberProfileModal").classList.add("open");$("memberProfileModal").setAttribute("aria-hidden","false");
-}
-
-function closeMemberProfile(){
-  $("memberProfileModal")?.classList.remove("open");$("memberProfileModal")?.setAttribute("aria-hidden","true");
 }
 
 async function memberStatus(id,status){
@@ -254,6 +231,14 @@ async function memberStatus(id,status){
   try{
     const r=await q("profiles",x=>x.update({status}).eq("id",id));
     if(r.error) throw r.error;
+    await notifyMember(
+      id,
+      status==="blocked" ? "Account Restricted" : "Account Activated",
+      status==="blocked"
+        ? "Your MONARCH CODEX account has been blocked by the administrator."
+        : "Your MONARCH CODEX account has been activated. Welcome back, Monarch.",
+      status==="blocked" ? "warning" : "success"
+    );
     toast("Member updated","success"); await membersLoad();
   }catch(e){toast(e.message,"error")}
 }
@@ -287,6 +272,7 @@ async function kycApprove(id){
   try{
     const r=await q("profiles",x=>x.update({kyc_status:"approved"}).eq("id",id));
     if(r.error) throw r.error;
+    await notifyMember(id,"KYC Verified","Your identity verification has been approved. Your MONARCH CODEX KYC status is now verified.","success");
     toast("KYC verified","success"); await kycLoad();
   }catch(e){toast(e.message,"error")}
 }
@@ -300,8 +286,15 @@ async function kycReject(id){
     if(r.error){
       r=await q("profiles",x=>x.update({kyc_status:"rejected"}).eq("id",id));
       if(r.error) throw r.error;
+      await notifyMember(id,"KYC Rejected",`Your KYC submission was rejected. Reason: ${reason.trim()}`,"warning");
       toast("Rejected. Add kyc_rejection_reason column to save the reason.","warning");
-    }else toast("KYC rejected with reason","success");
+    }else{
+      await notifyMember(id,"KYC Rejected",`Your KYC submission was rejected. Reason: ${reason.trim()}`,"warning");
+      toast("KYC rejected with reason","success");
+    }
+    if(r.error===undefined && reason.trim()){
+      // Notification is best-effort and does not block the KYC action.
+    }
     await kycLoad();
   }catch(e){toast(e.message,"error")}
 }
@@ -316,7 +309,7 @@ async function investLoad(){
     $("investments").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>Package</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Action</th></tr>${
       a.map(x=>{
         const p=members.find(m=>m.id===x.user_id),pending=String(x.status||"pending").toLowerCase()==="pending";
-        return `<tr><td>${esc(p?.full_name||x.user_id)}</td><td>${esc(x.package_name||x.package||x.name||"—")}</td><td>${money(x.amount)}</td><td>${esc(x.payment_method||x.method||"—")}</td><td>${badge(x.status)}</td><td>${dt(x.created_at)}</td><td>${pending?`<button class="btn success" data-action="invest-status" data-id="${esc(x.id)}" data-status="approved">Approve</button> <button class="btn danger" data-action="invest-status" data-id="${esc(x.id)}" data-status="rejected">Reject</button>`:"—"}</td></tr>`;
+        return `<tr><td>${esc(p?.full_name||p?.username||x.user_id)}</td><td>${esc(x.package_name||x.package||x.name||"—")}</td><td>${money(x.amount)}</td><td>${esc(x.payment_method||x.method||"—")}</td><td>${badge(x.status)}</td><td>${dt(x.created_at)}</td><td>${pending?`<button class="btn success" data-action="invest-status" data-id="${esc(x.id)}" data-status="approved">Approve</button> <button class="btn danger" data-action="invest-status" data-id="${esc(x.id)}" data-status="rejected">Reject</button>`:"—"}</td></tr>`;
       }).join("")
     }</table></div>`:'<div class="empty">No matching investment requests.</div>';
   }catch(e){showError("investments",e);toast(e.message,"error")}
@@ -327,6 +320,19 @@ async function investSet(id,status){
   try{
     const r=await q("investments",x=>x.update({status}).eq("id",id));
     if(r.error) throw r.error;
+    const inv=await q("investments",x=>x.select("user_id,amount,package_name,package,name").eq("id",id).maybeSingle());
+    const invRow=inv.data||null;
+    if(invRow?.user_id){
+      const packageName=invRow.package_name||invRow.package||invRow.name||"investment";
+      await notifyMember(
+        invRow.user_id,
+        status==="approved" ? "Investment Approved" : "Investment Rejected",
+        status==="approved"
+          ? `Your ${packageName} investment request for ${money(invRow.amount)} has been approved.`
+          : `Your ${packageName} investment request for ${money(invRow.amount)} has been rejected.`,
+        status==="approved" ? "success" : "warning"
+      );
+    }
     toast("Investment "+status,"success"); await investLoad();
   }catch(e){toast(e.message,"error")}
 }
@@ -342,11 +348,10 @@ const DEFAULT_PACKAGES=[
 
 async function packagesLoad(){
   try{
-    const r=await q("packages",x=>x.select("*").order("amount",{ascending:true}));
+    const r=await q("packages",x=>x.select("*").order("min_amount",{ascending:true}));
     if(r.error) throw r.error;
     const a=r.data||[];
-    window._packageRows=a;
-    $("packageList").innerHTML=a.length?a.map(p=>`<div class="pkg"><h3>${esc(p.name||"Package")}</h3><strong>${money(p.amount)}</strong><p class="muted">${esc(p.description||"Monarch investment package")}</p><div class="actions"><button class="btn secondary" data-action="edit-pkg" data-id="${esc(p.id)}">Edit</button><button class="btn danger" data-action="delete-pkg" data-id="${esc(p.id)}">Remove</button></div></div>`).join(""):'<div class="empty">No packages configured. Use the default package button above.</div>';
+    $("packageList").innerHTML=a.length?a.map(p=>`<div class="pkg"><h3>${esc(p.name||"Package")}</h3><strong>${money(p.min_amount)}</strong><p class="muted">${esc(p.description||"Monarch investment package")}</p><div class="actions"><button class="btn secondary" data-action="edit-pkg" data-pkg="${esc(JSON.stringify({id:p.id,n:p.name||"",a:p.min_amount??"",d:p.description||""}))}">Edit</button><button class="btn danger" data-action="delete-pkg" data-id="${esc(p.id)}">Remove</button></div></div>`).join(""):'<div class="empty">No packages configured. Use the default package button above.</div>';
   }catch(e){showError("packageList",e);toast(e.message,"error")}
 }
 
@@ -354,15 +359,15 @@ async function seedPackages(){
   const btn=$("seedPkgs");
   if(btn){btn.disabled=true;btn.textContent="Creating Packages...";}
   try{
-    const r=await q("packages",x=>x.select("id,amount"));
+    const r=await q("packages",x=>x.select("id,min_amount"));
     if(r.error) throw r.error;
-    const existing=new Set((r.data||[]).map(x=>Number(x.amount)));
+    const existing=new Set((r.data||[]).map(x=>Number(x.min_amount)));
     const missing=DEFAULT_PACKAGES.filter(p=>!existing.has(p.amount));
     if(!missing.length){toast("All default packages already exist.","success");return;}
     const created=[],failed=[];
     for(const p of missing){
       try{
-        const ins=await q("packages",x=>x.insert({name:p.name,amount:p.amount,description:p.description}));
+        const ins=await q("packages",x=>x.insert({name:p.name,min_amount:p.amount,description:p.description}));
         if(ins.error) throw ins.error;
         created.push(p.amount);
       }catch(e){failed.push(`${p.name}: ${e.message||"Insert failed"}`);}
@@ -379,13 +384,13 @@ async function savePkg(){
   const id=$("pkgId").value,n=$("pkgName").value.trim(),a=Number($("pkgAmount").value),d=$("pkgDesc").value.trim();
   if(!n||a<=0) return toast("Enter package name and amount","warning");
   try{
-    const r=id?await q("packages",x=>x.update({name:n,amount:a,description:d}).eq("id",id)):await q("packages",x=>x.insert({name:n,amount:a,description:d}));
+    const r=id?await q("packages",x=>x.update({name:n,min_amount:a,description:d}).eq("id",id)):await q("packages",x=>x.insert({name:n,min_amount:a,description:d}));
     if(r.error) throw r.error;
     toast(id?"Package updated":"Package added","success"); clearPkg(); await packagesLoad();
   }catch(e){toast(e.message,"error")}
 }
 
-function editPkg(id){const p=(window._packageRows||[]).find(x=>String(x.id)===String(id));if(!p)return toast("Package not found. Refresh packages and try again.","warning");$("pkgId").value=p.id;$("pkgName").value=p.name||"";$("pkgAmount").value=p.amount??"";$("pkgDesc").value=p.description||"";window.scrollTo({top:0,behavior:"smooth"});}
+function editPkg(p){$("pkgId").value=p.id;$("pkgName").value=p.n;$("pkgAmount").value=p.a;$("pkgDesc").value=p.d}
 function clearPkg(){["pkgId","pkgName","pkgAmount","pkgDesc"].forEach(x=>$(x).value="")}
 
 async function delPkg(id){
@@ -432,8 +437,6 @@ function editPay(p){
 }
 
 async function savePay(){
-  const btn=$("savePay");
-  if(btn?.disabled)return;
   const id=$("payId").value,type=$("payType").value,label=$("payLabel").value.trim(),active=$("payActive").checked;
   if(!label) return toast("Enter a label","warning");
   const data={type,label,is_active:active};
@@ -447,19 +450,10 @@ async function savePay(){
     if(!data.wallet_address||!data.chain) return toast("Enter wallet address and chain/network","warning");
   }
   try{
-    if(btn){btn.disabled=true;btn.textContent=id?"Updating...":"Saving...";}
-    data.updated_at=new Date().toISOString();
-    const r=id?await q("payment_destinations",x=>x.update(data).eq("id",id).select("*").maybeSingle()):await q("payment_destinations",x=>x.insert(data).select("*").single());
+    const r=id?await q("payment_destinations",x=>x.update(data).eq("id",id)):await q("payment_destinations",x=>x.insert(data));
     if(r.error) throw r.error;
-    toast(id?"Payment destination updated":"Payment destination saved","success");
-    clearPay();
-    await paymentsLoad();
-  }catch(e){
-    console.error("Payment destination save:",e);
-    const msg=String(e?.message||e);
-    if(/row-level security|permission denied/i.test(msg)) toast("Database security blocked this save. Run the admin is_admin SQL fix provided with this update.","error");
-    else toast(msg,"error");
-  }finally{if(btn){btn.disabled=false;btn.textContent="Save Destination";}}
+    toast(id?"Payment destination updated":"Payment destination added","success");clearPay();await paymentsLoad();
+  }catch(e){toast(e.message,"error")}
 }
 
 async function togglePay(id,active){
@@ -485,6 +479,12 @@ async function earnAdd(){
   try{
     const r=await q("earnings",x=>x.insert({user_id:uid,amount:a,type,description:d,status:"confirmed"}));
     if(r.error) throw r.error;
+    await notifyMember(
+      uid,
+      type==="bonus" ? "Bonus Added" : type==="referral" ? "Referral Earnings Added" : "Earnings Added",
+      `${type==="bonus" ? "A bonus" : type==="referral" ? "Referral earnings" : "An earning"} of ${money(a)} has been added to your MONARCH CODEX account${d ? ` — ${d}` : "."}`,
+      "success"
+    );
     toast("Earning added","success");$("earningAmount").value="";$("earningDesc").value="";await earnLoad();
   }catch(e){toast(e.message,"error")}
 }
@@ -495,7 +495,7 @@ async function earnLoad(){
     if(r.error) throw r.error;
     const a=r.data||[];
     $("earnings").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>Amount</th><th>Type</th><th>Description</th><th>Date</th></tr>${
-      a.map(x=>{const p=members.find(m=>m.id===x.user_id);return `<tr><td>${esc(p?.full_name||x.user_id)}</td><td>${money(x.amount)}</td><td>${esc(x.type||x.earning_type||"—")}</td><td>${esc(x.description||"—")}</td><td>${dt(x.created_at)}</td></tr>`}).join("")
+      a.map(x=>{const p=members.find(m=>m.id===x.user_id);return `<tr><td>${esc(p?.full_name||p?.username||x.user_id)}</td><td>${money(x.amount)}</td><td>${esc(x.type||x.earning_type||"—")}</td><td>${esc(x.description||"—")}</td><td>${dt(x.created_at)}</td></tr>`}).join("")
     }</table></div>`:'<div class="empty">No earnings.</div>';
   }catch(e){showError("earnings",e);toast(e.message,"error")}
 }
@@ -507,7 +507,7 @@ async function withdrawLoad(){
     const all=r.data||[],f=$("withdrawalFilter").value,a=f==="all"?all:all.filter(x=>String(x.status||"pending").toLowerCase()===f);
     $("statWithdrawals").textContent=all.filter(x=>String(x.status||"pending").toLowerCase()==="pending").length;
     $("withdrawals").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>Amount</th><th>Fee</th><th>Method</th><th>Details</th><th>Status</th><th>Action</th></tr>${
-      a.map(x=>{const p=members.find(m=>m.id===x.user_id),pending=String(x.status||"pending").toLowerCase()==="pending";return `<tr><td>${esc(p?.full_name||x.user_id)}</td><td>${money(x.amount)}</td><td>${money(x.fee)}</td><td>${esc(x.method||"—")}</td><td>${esc(x.details||"—")}</td><td>${badge(x.status)}</td><td>${pending?`<button class="btn success" data-action="withdraw-status" data-id="${esc(x.id)}" data-status="approved">Approve</button> <button class="btn danger" data-action="withdraw-status" data-id="${esc(x.id)}" data-status="rejected">Reject</button>`:"—"}</td></tr>`}).join("")
+      a.map(x=>{const p=members.find(m=>m.id===x.user_id),pending=String(x.status||"pending").toLowerCase()==="pending";return `<tr><td>${esc(p?.full_name||p?.username||x.user_id)}</td><td>${money(x.amount)}</td><td>${money(x.fee)}</td><td>${esc(x.method||"—")}</td><td>${esc(x.details||"—")}</td><td>${badge(x.status)}</td><td>${pending?`<button class="btn success" data-action="withdraw-status" data-id="${esc(x.id)}" data-status="approved">Approve</button> <button class="btn danger" data-action="withdraw-status" data-id="${esc(x.id)}" data-status="rejected">Reject</button>`:"—"}</td></tr>`}).join("")
     }</table></div>`:'<div class="empty">No matching withdrawals.</div>';
   }catch(e){showError("withdrawals",e);toast(e.message,"error")}
 }
@@ -517,16 +517,28 @@ async function withdrawSet(id,status){
   try{
     const r=await q("withdrawals",x=>x.update({status}).eq("id",id));
     if(r.error) throw r.error;
+    const wd=await q("withdrawals",x=>x.select("user_id,amount,fee,method").eq("id",id).maybeSingle());
+    const wdRow=wd.data||null;
+    if(wdRow?.user_id){
+      await notifyMember(
+        wdRow.user_id,
+        status==="approved" ? "Withdrawal Approved" : "Withdrawal Rejected",
+        status==="approved"
+          ? `Your withdrawal request for ${money(wdRow.amount)} has been approved.`
+          : `Your withdrawal request for ${money(wdRow.amount)} has been rejected.`,
+        status==="approved" ? "success" : "warning"
+      );
+    }
     toast("Withdrawal "+status,"success");await withdrawLoad();
   }catch(e){toast(e.message,"error")}
 }
 
 async function refLoad(){
   try{
-    const r=await q("profiles",x=>x.select("id,full_name,email,avatar_url,referred_by,created_at").not("referred_by","is",null).order("created_at",{ascending:false}));
+    const r=await q("profiles",x=>x.select("id,full_name,username,email,referred_by,created_at").not("referred_by","is",null).order("created_at",{ascending:false}));
     if(r.error) throw r.error;
     const a=r.data||[];
-    $("referrals").innerHTML=a.length?`<div class="table"><table><tr><th>Monarch</th><th>Email</th><th>Referral Code Used</th><th>Joined</th><th>Action</th></tr>${a.map(x=>`<tr><td><div class="member-cell"><img class="member-avatar" src="${esc(avatarSrc(x))}" onerror="this.src='${esc(avatarSrc({}))}'" alt=""><b>${esc(x.full_name||"Monarch")}</b></div></td><td>${esc(x.email||"—")}</td><td>${esc(x.referred_by)}</td><td>${dt(x.created_at)}</td><td><button class="btn secondary" data-action="view-member" data-id="${esc(x.id)}">View Profile</button></td></tr>`).join("")}</table></div>`:'<div class="empty">No referral relationships found.</div>';
+    $("referrals").innerHTML=a.length?`<div class="table"><table><tr><th>Monarch</th><th>Email</th><th>Referral Code Used</th><th>Joined</th></tr>${a.map(x=>`<tr><td>${esc(x.full_name||x.username||"Monarch")}</td><td>${esc(x.email||"—")}</td><td>${esc(x.referred_by)}</td><td>${dt(x.created_at)}</td></tr>`).join("")}</table></div>`:'<div class="empty">No referral relationships found.</div>';
   }catch(e){showError("referrals",e);toast(e.message,"error")}
 }
 
@@ -568,22 +580,16 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("addEarning").onclick=earnAdd;
   $("refreshWithdrawals").onclick=withdrawLoad;$("withdrawalFilter").onchange=withdrawLoad;
 
-  $("closeMemberProfile").onclick=closeMemberProfile;
-  $("memberProfileModal").onclick=e=>{if(e.target===$("memberProfileModal"))closeMemberProfile();};
-
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMemberProfile();});
-
   document.addEventListener("click",async e=>{
     const b=e.target.closest("[data-action]"); if(!b)return;
     const a=b.dataset.action;
     try{
       if(a==="member-status") return memberStatus(b.dataset.id,b.dataset.status);
-      if(a==="view-member") return openMemberProfile(b.dataset.id);
       if(a==="kyc-approve") return kycApprove(b.dataset.id);
       if(a==="kyc-reject") return kycReject(b.dataset.id);
       if(a==="invest-status") return investSet(b.dataset.id,b.dataset.status);
       if(a==="withdraw-status") return withdrawSet(b.dataset.id,b.dataset.status);
-      if(a==="edit-pkg") return editPkg(b.dataset.id);
+      if(a==="edit-pkg") return editPkg(JSON.parse(b.dataset.pkg));
       if(a==="delete-pkg") return delPkg(b.dataset.id);
       if(a==="edit-pay") return editPay(JSON.parse(b.dataset.pay));
       if(a==="toggle-pay") return togglePay(b.dataset.id,b.dataset.active==="true");
