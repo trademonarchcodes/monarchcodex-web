@@ -326,7 +326,9 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
             <div class="field"><label>Amount (USD)</label><input id="investAmount" type="number" min="0" step="0.01"></div>
             <div class="field"><label>Payment Method</label><select id="investMethod"><option value="bank">Bank Transfer</option><option value="wallet">Wallet Address</option></select></div>
             <div class="field full"><label>Available Payment Destinations</label><div id="paymentDestinations" class="payment-destinations"><div class="empty">Loading payment destinations...</div></div></div>
-            <div class="field"><label>Amount in NGN</label><input id="investNaira" type="text" readonly></div>
+            <div class="field"><label id="investPayableAmountLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly></div>
+            <div class="field"><label id="investFeeLabel">Investment Fee</label><input id="investFee" type="text" readonly value="₦2,800.00"></div>
+            <div class="field"><label id="investTotalLabel">Total to Pay</label><input id="investTotal" type="text" readonly value="₦0.00"></div>
             <div class="field full"><label>Proof of Payment Receipt <span style="color:#D4AF37">*</span></label><div class="receipt-box"><input id="investReceipt" class="file-input" type="file" accept="image/*,.pdf"><div class="receipt-help">Upload a clear screenshot, photo or PDF of your payment receipt. Maximum 10MB.</div><div id="receiptName" class="receipt-name"></div></div></div><div class="field full"><label>Payment Reference / Note</label><textarea id="investNote" placeholder="Optional reference or payment note"></textarea></div>
           </div>
           <div class="actions"><button id="investBtn" class="btn">Submit Investment</button></div>
@@ -342,11 +344,11 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       <div id="view-withdrawals" class="view">
         <div class="hero"><h1>Withdrawals</h1><p>Request withdrawals from your available balance.</p></div>
         <div class="card">
-          <div class="notice">A $2 bank fee or $1 wallet fee may apply. Requests are subject to account and withdrawal approval rules.</div>
+          <div class="notice">Withdrawal fee: 1% of the requested withdrawal amount.</div>
           <div class="form-grid">
             <div class="field"><label>Amount (USD)</label><input id="withdrawAmount" type="number" min="1" step="0.01"></div>
             <div class="field"><label>Method</label><select id="withdrawMethod"><option value="bank">Bank</option><option value="wallet">Crypto</option></select></div>
-            <div class="field"><label>Fee</label><input id="withdrawFee" type="text" readonly value="$1.00"></div>
+            <div class="field"><label>Fee (1%)</label><input id="withdrawFee" type="text" readonly value="$0.00"></div>
             <div class="field"><label>Net Amount</label><input id="withdrawNet" type="text" readonly value="$0.00"></div>
             <div class="field full"><label id="withdrawDetailsLabel">Your Own Bank Account Details</label><textarea id="withdrawDetails" placeholder="Enter your own bank account name and account number. The account name must match your Monarch/KYC name."></textarea></div>
           </div>
@@ -433,9 +435,10 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
   const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-  const NGN_RATE = 1360;
-  const BANK_FEE_USD = 2;
-  const WALLET_FEE_USD = 1;
+  const NGN_RATE = 1400;
+  const INVEST_BANK_FEE_USD = 2;
+  const INVEST_WALLET_FEE_USD = 1;
+  const WITHDRAWAL_FEE_RATE = 0.01;
 
   let db = null;
   let currentUser = null;
@@ -713,7 +716,27 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   function updateInvestNaira(){
     const amount=num($("investAmount").value);
-    $("investNaira").value=amount ? "₦"+(amount*NGN_RATE).toLocaleString("en-NG",{maximumFractionDigits:2}) : "₦0.00";
+    const method=$("investMethod")?.value || "bank";
+    const isBank=method==="bank";
+    const feeUsd=isBank ? INVEST_BANK_FEE_USD : INVEST_WALLET_FEE_USD;
+    const baseNgn=amount*NGN_RATE;
+    const feeNgn=feeUsd*NGN_RATE;
+    const totalUsd=amount+feeUsd;
+    const totalNgn=baseNgn+feeNgn;
+
+    if($("investPayableAmountLabel"))$("investPayableAmountLabel").textContent=isBank?"Amount to Pay (NGN)":"Amount to Pay (USD)";
+    if($("investFeeLabel"))$("investFeeLabel").textContent=isBank?"Investment Fee (NGN)":"Investment Fee (USD)";
+    if($("investTotalLabel"))$("investTotalLabel").textContent=isBank?"Total to Pay (NGN)":"Total to Pay (USD)";
+
+    $("investNaira").value=isBank
+      ? (amount?"₦"+baseNgn.toLocaleString("en-NG",{maximumFractionDigits:2}):"₦0.00")
+      : (amount?money(amount):"$0.00");
+    $("investFee").value=isBank
+      ? "₦"+feeNgn.toLocaleString("en-NG",{maximumFractionDigits:2})
+      : money(feeUsd);
+    $("investTotal").value=isBank
+      ? (amount?"₦"+totalNgn.toLocaleString("en-NG",{maximumFractionDigits:2}):"₦0.00")
+      : (amount?money(totalUsd):"$0.00");
   }
 
   function updateWithdrawFields(){
@@ -724,7 +747,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   function updateWithdrawCalc(){
     const amount=num($("withdrawAmount").value);
-    const fee=$("withdrawMethod").value==="bank" ? BANK_FEE_USD : WALLET_FEE_USD;
+    const fee=amount*WITHDRAWAL_FEE_RATE;
     $("withdrawFee").value=money(fee);
     $("withdrawNet").value=money(Math.max(0,amount-fee));
   }
@@ -883,12 +906,14 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     if(index===""){toast("Please select an investment package.","warning");return}
     if(!receiptFile){toast("Please upload your proof of payment receipt.","warning");return}
     if(receiptFile.size>10*1024*1024){toast("Receipt must be 10MB or smaller.","warning");return}
-    const selected=packagesCache[Number(index)]||null, btn=$("investBtn"), original=btn?.textContent||"Submit Investment";
+    const selected=packagesCache[Number(index)]||null;
+    const investmentFee=method==="bank" ? INVEST_BANK_FEE_USD : INVEST_WALLET_FEE_USD;
+    const btn=$("investBtn"), original=btn?.textContent||"Submit Investment";
     try{
       if(btn){btn.disabled=true;btn.textContent="Uploading receipt...";}
       const receiptUrl=await uploadFile("receipts",receiptFile,currentUser.id);
       if(btn)btn.textContent="Submitting investment...";
-      const payload={user_id:currentUser.id,package_id:selected?.id??null,package_name:selected?.name??null,amount,method,payment_method:method,note,receipt_url:receiptUrl,status:"pending"};
+      const payload={user_id:currentUser.id,package_id:selected?.id??null,package_name:selected?.name??null,amount,fee:investmentFee,method,payment_method:method,note,receipt_url:receiptUrl,status:"pending"};
       const {error}=await query("investments",q=>q.insert(payload));
       if(error)throw error;
       toast("Investment request and payment receipt submitted successfully.","success");
@@ -902,9 +927,9 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const amount=num($("withdrawAmount").value);
     const method=$("withdrawMethod").value;
     const details=$("withdrawDetails").value.trim();
-    const fee=method==="bank" ? BANK_FEE_USD : WALLET_FEE_USD;
+    const fee=amount*WITHDRAWAL_FEE_RATE;
 
-    if(amount<=fee){toast("Enter an amount greater than the withdrawal fee.","warning");return}
+    if(amount<=0){toast("Enter a valid withdrawal amount.","warning");return}
     if(!details){toast("Enter your destination or account details.","warning");return}
 
     try{
