@@ -306,7 +306,8 @@ async function packagesLoad(){
     const r=await q("packages",x=>x.select("*").order("amount",{ascending:true}));
     if(r.error) throw r.error;
     const a=r.data||[];
-    $("packageList").innerHTML=a.length?a.map(p=>`<div class="pkg"><h3>${esc(p.name||"Package")}</h3><strong>${money(p.amount)}</strong><p class="muted">${esc(p.description||"Monarch investment package")}</p><div class="actions"><button class="btn secondary" data-action="edit-pkg" data-pkg="${esc(JSON.stringify({id:p.id,n:p.name||"",a:p.amount??"",d:p.description||""}))}">Edit</button><button class="btn danger" data-action="delete-pkg" data-id="${esc(p.id)}">Remove</button></div></div>`).join(""):'<div class="empty">No packages configured. Use the default package button above.</div>';
+    window._packageRows=a;
+    $("packageList").innerHTML=a.length?a.map(p=>`<div class="pkg"><h3>${esc(p.name||"Package")}</h3><strong>${money(p.amount)}</strong><p class="muted">${esc(p.description||"Monarch investment package")}</p><div class="actions"><button class="btn secondary" data-action="edit-pkg" data-id="${esc(p.id)}">Edit</button><button class="btn danger" data-action="delete-pkg" data-id="${esc(p.id)}">Remove</button></div></div>`).join(""):'<div class="empty">No packages configured. Use the default package button above.</div>';
   }catch(e){showError("packageList",e);toast(e.message,"error")}
 }
 
@@ -345,7 +346,7 @@ async function savePkg(){
   }catch(e){toast(e.message,"error")}
 }
 
-function editPkg(p){$("pkgId").value=p.id;$("pkgName").value=p.n;$("pkgAmount").value=p.a;$("pkgDesc").value=p.d}
+function editPkg(id){const p=(window._packageRows||[]).find(x=>String(x.id)===String(id));if(!p)return toast("Package not found. Refresh packages and try again.","warning");$("pkgId").value=p.id;$("pkgName").value=p.name||"";$("pkgAmount").value=p.amount??"";$("pkgDesc").value=p.description||"";window.scrollTo({top:0,behavior:"smooth"});}
 function clearPkg(){["pkgId","pkgName","pkgAmount","pkgDesc"].forEach(x=>$(x).value="")}
 
 async function delPkg(id){
@@ -526,7 +527,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(a==="kyc-reject") return kycReject(b.dataset.id);
       if(a==="invest-status") return investSet(b.dataset.id,b.dataset.status);
       if(a==="withdraw-status") return withdrawSet(b.dataset.id,b.dataset.status);
-      if(a==="edit-pkg") return editPkg(JSON.parse(b.dataset.pkg));
+      if(a==="edit-pkg") return editPkg(b.dataset.id);
       if(a==="delete-pkg") return delPkg(b.dataset.id);
       if(a==="edit-pay") return editPay(JSON.parse(b.dataset.pay));
       if(a==="toggle-pay") return togglePay(b.dataset.id,b.dataset.active==="true");

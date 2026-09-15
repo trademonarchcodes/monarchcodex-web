@@ -648,14 +648,14 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   async function loadPackages(){
     try{
-      const r=await query("packages",q=>q.select("*").order("min_amount",{ascending:true}));
+      const r=await query("packages",q=>q.select("*").order("amount",{ascending:true}));
       if(r.error){console.warn("Packages:",r.error);return}
       packagesCache=r.data || [];
 
       $("packages").innerHTML=packagesCache.length ? packagesCache.map((p,i)=>`
         <div class="card">
           <div class="card-title">${esc(p.name || "Package")}</div>
-          <div class="value">${p.min_amount != null ? money(p.min_amount) : "Custom"}</div>
+          <div class="value">${p.amount != null ? money(p.amount) : "Custom"}</div>
           <div class="muted" style="font-size:12px;margin-top:7px">${esc(p.description || "Monarch investment package")}</div>
           <div class="actions"><button class="btn secondary" onclick="selectPackage(${i})">Select</button></div>
         </div>
@@ -670,7 +670,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const p=packagesCache[index];
     if(!p)return;
     $("investPackage").value=String(index);
-    if(p.min_amount != null)$("investAmount").value=p.min_amount;
+    if(p.amount != null)$("investAmount").value=p.amount;
     updateInvestNaira();
     openView("investments");
   };
@@ -998,7 +998,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     $("investAmount").oninput=updateInvestNaira;
     $("investPackage").onchange=()=>{
       const p=packagesCache[Number($("investPackage").value)];
-      if(p?.min_amount != null)$("investAmount").value=p.min_amount;
+      if(p?.amount != null)$("investAmount").value=p.amount;
       updateInvestNaira();
     };
     $("investMethod").onchange=updateInvestNaira;
