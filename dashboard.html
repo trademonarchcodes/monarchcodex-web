@@ -64,7 +64,7 @@ body{overflow-x:hidden}
 .member-card{
   background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:18px
 }
-.member-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.member-identity{display:flex;align-items:center;gap:10px;min-width:0}.side-avatar{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover;background:#171717;flex:0 0 42px}.member-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .member-uid{font-size:11px;color:var(--muted);margin-top:4px;word-break:break-all}
 .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);margin-right:7px}
 .nav{display:grid;gap:6px}
@@ -221,8 +221,8 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     </div>
 
     <div class="member-card">
-      <div id="sideName" class="member-name">Monarch</div>
-      <div id="sideUid" class="member-uid">Loading...</div>
+      <div class="member-identity"><img id="sideAvatar" class="side-avatar" alt="Profile photo"><div><div id="sideName" class="member-name">Monarch</div>
+      <div id="sideUid" class="member-uid">Loading...</div></div></div>
       <div style="font-size:11px;margin-top:10px">
         <span class="status-dot"></span><span id="sideStatus">Checking account</span>
       </div>
@@ -287,14 +287,17 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
         <div class="hero"><h1>KYC Verification</h1><p>Keep your Monarch identity information secure and up to date.</p></div>
         <div class="card">
           <div id="kycNotice" class="notice">Your KYC status is being checked.</div>
-          <div class="form-grid">
-            <div class="field"><label>Full Name</label><input id="kycName" type="text"></div>
-            <div class="field"><label>Phone Number</label><input id="kycPhone" type="tel"></div>
-            <div class="field"><label>Email</label><input id="kycEmail" type="email" disabled></div>
-            <div class="field"><label>NIN</label><input id="kycNin" type="text" inputmode="numeric" maxlength="11"></div>
-            <div class="field full"><label>KYC Document / ID Image</label><input id="kycFile" class="file-input" type="file" accept="image/*,.pdf"></div>
+          <div id="kycVerifiedBox" class="notice" style="display:none;text-align:center;padding:22px;font-size:14px">🛡️ <b>KYC VERIFIED</b><br><span style="display:block;margin-top:8px;color:#aaa">Your identity has been successfully verified. No further KYC submission is required.</span></div>
+          <div id="kycFormArea">
+            <div class="form-grid">
+              <div class="field"><label>Full Name</label><input id="kycName" type="text"></div>
+              <div class="field"><label>Phone Number</label><input id="kycPhone" type="tel"></div>
+              <div class="field"><label>Email</label><input id="kycEmail" type="email" disabled></div>
+              <div class="field"><label>NIN</label><input id="kycNin" type="text" inputmode="numeric" maxlength="11"></div>
+              <div class="field full"><label>KYC Document / ID Image</label><input id="kycFile" class="file-input" type="file" accept="image/*,.pdf"></div>
+            </div>
+            <div class="actions"><button id="saveKyc" class="btn">Submit KYC</button></div>
           </div>
-          <div class="actions"><button id="saveKyc" class="btn">Submit KYC</button></div>
         </div>
       </div>
 
@@ -526,17 +529,22 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       "?ref=" + encodeURIComponent(p.referral_code || p.uid || "");
 
     const avatar=p.avatar_url || p.avatar || "";
-    $("avatar").src=avatar || "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(
+    const avatarFallback="data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(
       `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="61" text-anchor="middle" fill="#D4AF37" font-size="40" font-family="serif">M</text></svg>`
     );
+    $("avatar").src=avatar || avatarFallback;
+    if($("sideAvatar"))$("sideAvatar").src=avatar || avatarFallback;
 
     const kyc=String(p.kyc_status || p.kyc || "not_submitted").toLowerCase();
     const kycLabel=kyc==="approved"?"KYC VERIFIED":kyc==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(kyc)?"UNDER REVIEW":"KYC NOT SUBMITTED";
     const reason=p.kyc_rejection_reason || p.rejection_reason || "";
+    const verified=kyc==="approved";
     $("kycNotice").innerHTML=kycLabel==="KYC REJECTED" ? "KYC status: <b>KYC REJECTED</b>"+(reason?"<br><span style=\"color:#ffaaaa\">Reason: "+esc(reason)+"</span>":"") : "KYC status: "+kycLabel;
     $("accountStatus").innerHTML="Account status: "+statusBadge(p.status || "active")+" &nbsp; KYC: "+statusBadge(kycLabel);
+    if($("kycVerifiedBox"))$("kycVerifiedBox").style.display=verified?"block":"none";
+    if($("kycFormArea"))$("kycFormArea").style.display=verified?"none":"block";
     const kycBtn=$("saveKyc");
-    if(kycBtn){kycBtn.disabled=kyc==="approved";kycBtn.textContent=kyc==="approved"?"KYC VERIFIED":kyc==="rejected"?"Resubmit KYC":"Submit KYC";}
+    if(kycBtn){kycBtn.disabled=verified;kycBtn.textContent=verified?"KYC VERIFIED":kyc==="rejected"?"Resubmit KYC":"Submit KYC";}
   }
 
   async function getSession(){
