@@ -116,12 +116,19 @@ input:focus{border-color:var(--gold);outline:none}
 
 <!-- WITHDRAWALS -->
 <section id="withdrawalsSection" class="dashboard-section hidden">
-<div class="card"><h3>Withdraw Funds</h3><p style="color:#888;font-size:12px">Min $5. Account must bear your original NIN names — no third party.</p>
+<div class="card"><h3>Withdraw Funds</h3><p style="color:#888;font-size:12px">Min $30. Account must bear your original NIN names — no third party. Bank fee $2 in Naira, Wallet fee $1.</p>
 <div style="display:grid;gap:10px;margin-top:12px">
-<label>Amount ($)</label><input type="number" id="withdrawAmount" min="5" placeholder="5">
+<label>Withdrawal Method</label><select id="withdrawMethod" onchange="updateWithdrawNaira()"><option value="bank">Bank Transfer (Naira, fee $2 in Naira, rounded)</option><option value="wallet">Wallet Address (fee $1)</option></select>
+<label>Amount ($) - Min $30</label><input type="number" id="withdrawAmount" min="30" placeholder="30" oninput="updateWithdrawNaira()">
+<div id="withdrawNairaDisplay" style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);border-radius:8px;padding:10px;display:none">
+  <small style="color:#aaa">Naira Equivalent (approx, nearest whole number):</small><br>
+  <strong id="withdrawNairaAmount" style="color:#4ee58a;font-size:18px">₦0</strong><br>
+  <small id="withdrawFeeDisplay" style="color:#888">Fee: $2 (~₦2,720)</small><br>
+  <small>Net you receive:</small> <strong id="withdrawNetNaira" style="color:var(--gold)">₦0</strong>
+</div>
 <label>Account Name (must match NIN name)</label><input id="withdrawAccountName" placeholder="BRIGHT EZEBOLA OKECHUKWU">
-<label>Account Number</label><input id="withdrawAccountNumber" placeholder="9135424851">
-<label>Bank Name</label><input id="withdrawBankName" placeholder="OPAY">
+<label>Account Number / Wallet Address</label><input id="withdrawAccountNumber" placeholder="9135424851 or wallet address">
+<label>Bank Name / Network</label><input id="withdrawBankName" placeholder="OPAY or USDT BEP20">
 <button id="submitWithdrawalBtn" class="btn-gold">Request Withdrawal</button>
 </div>
 </div>
@@ -160,12 +167,6 @@ const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 let currentUser=null, currentProfile=null, selectedPackage=null, selectedPayment=null;
 
-  // === YOUR NEW REQUIREMENT ===
-const NGN_RATE = 1530; // change to 1321 if you use official CBN rate
-const BANK_FEE = 2; // $2 for OPAY
-const WALLET_FEE = 1; // $1 for USDT/SOL/BTC
-const MIN_DEPOSIT = 30;
-  
 // Professional Toast System - replaces ash alert
 function showToast(message, type="info"){
   let container = document.getElementById("toastContainer");
@@ -324,61 +325,59 @@ async function loadPaymentMethods(){
   });
 }
 
-const NGN_RATE = 1530; // use 1321 for official, 1530 for parallel - change anytime
-const BANK_FEE = 2;
-const WALLET_FEE = 1;
-const MIN_DEPOSIT = 30;
+const NGN_RATE = 1360; // 1 USD = ~1360 NGN (from XE/Coinbase 1352-1367 range)
+
+function formatNaira(amount){
+  return "₦" + Math.round(amount).toLocaleString();
+}
 
 function showPaymentDetail(m){
   const panel=document.getElementById("paymentDetailPanel");
   panel.classList.remove("hidden");
+  const usdAmount = selectedPackage?.amount||0;
+  const nairaAmount = Math.round(usdAmount * NGN_RATE);
+  const bankFeeUSD = 2;
+  const bankFeeNaira = Math.round(bankFeeUSD * NGN_RATE);
+  const totalNairaWithFee = Math.round((usdAmount + bankFeeUSD) * NGN_RATE); // Approximated to nearest whole number including fees $2 in Naira
+  const walletFeeUSD = 1;
   
-  // Minimum check
-  if(!selectedPackage || selectedPackage.amount < MIN_DEPOSIT){
-    showToast(`Minimum transfer is $${MIN_DEPOSIT}`, 'error');
-    panel.innerHTML = `<p style="color:#ff7a7a;">Minimum is $${MIN_DEPOSIT}</p>`;
-    return;
-  }
-
-  const pkgAmount = Number(selectedPackage.amount);
-
   if(m.payment_type==="bank"){
-    const totalUSD = pkgAmount + BANK_FEE;
-    const totalNGN = Math.round(totalUSD * NGN_RATE); // nearest whole number
-    panel.innerHTML = `
-      <h4 style="color:var(--gold)">Bank Transfer Details</h4>
-      <div style="margin-top:10px;line-height:1.8;font-size:13px;">
-        Bank: <b>${m.bank_name}</b><br>
-        Account Name: <b>${m.account_name}</b><br>
-        Account Number: <b>${m.account_number}</b> 
-        <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.account_number}')">Copy</button>
-        <div style="margin-top:12px;background:#0e0e0e;border:1px solid rgba(212,175,55,0.3);padding:12px;border-radius:8px;">
-          <div>Amount to Pay:</div>
-          <div style="color:#D4AF37;font-size:24px;font-weight:800;">₦${totalNGN.toLocaleString()}</div>
-          <div style="font-size:11px;color:#888;">$${pkgAmount} + $${BANK_FEE} fee = $${totalUSD} | Rate: ₦${NGN_RATE}/$</div>
-          <div style="font-size:12px;margin-top:6px;">Pay exact Naira amount and upload receipt</div>
-          <div style="font-size:10px;margin-top:6px;color:#D4AF37;">Bank Fee: $2 included | Wallet Fee: $1 | Min: $30</div>
+    panel.innerHTML=`<h4 style="color:var(--gold)">Bank Transfer Details</h4>
+      <div style="margin-top:10px">
+        <p><small>Bank:</small> <strong>${m.bank_name}</strong></p>
+        <p><small>Account Name:</small> <strong>${m.account_name}</strong></p>
+        <p><small>Account Number:</small> <strong>${m.account_number}</strong> <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.account_number}');showToast('Account number copied!','success')">Copy</button></p>
+        <div style="margin-top:12px;background:rgba(212,175,55,0.1);border:1px solid var(--border);padding:12px;border-radius:8px">
+          <small>Amount to Pay (USD):</small><br><strong style="color:var(--gold);font-size:18px">$${usdAmount}</strong><br>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.2)">
+            <small style="color:#aaa">Naira Equivalent (approx, nearest whole number):</small><br>
+            <strong style="color:#4ee58a;font-size:20px">${formatNaira(nairaAmount)}</strong><br>
+            <small style="color:#888">Rate: $1 ≈ ${formatNaira(NGN_RATE)} (approx)</small><br>
+            <div style="margin-top:6px;background:rgba(0,0,0,0.3);padding:8px;border-radius:6px">
+              <small>Bank Fee: $${bankFeeUSD} (${formatNaira(bankFeeNaira)} in Naira) - included</small><br>
+              <small>Total in Naira (including fees, rounded):</small><br>
+              <strong style="color:var(--gold);font-size:18px">${formatNaira(totalNairaWithFee)}</strong>
+            </div>
+          </div>
+          <small style="display:block;margin-top:8px;color:#aaa">Pay exact Naira amount above (rounded to nearest whole number) and upload receipt</small>
         </div>
       </div>`;
   }else{
-    const totalUSD = pkgAmount + WALLET_FEE;
-    panel.innerHTML = `
-      <h4 style="color:var(--gold)">${m.crypto_name} - ${m.crypto_network}</h4>
-      <p style="color:#888;font-size:12px;word-break:break-all;margin-top:8px;">${m.wallet_address}</p>
-      <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.wallet_address}')">Copy Address</button>
-      <div style="margin-top:12px;background:#0e0e0e;border:1px solid rgba(212,175,55,0.3);padding:12px;border-radius:8px;">
-        <div>Amount to Pay:</div>
-        <div style="color:#D4AF37;font-size:24px;font-weight:800;">$${totalUSD}</div>
-        <div style="font-size:11px;color:#888;">$${pkgAmount} + $${WALLET_FEE} fee (network)</div>
-        <div style="font-size:12px;margin-top:6px;">Pay exact amount and upload receipt</div>
+    const totalWithFee = usdAmount + walletFeeUSD;
+    panel.innerHTML=`<h4 style="color:var(--gold)">${m.crypto_name} - ${m.crypto_network}</h4>
+      <p style="word-break:break-all;color:#fff;margin-top:8px">${m.wallet_address} <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.wallet_address}');showToast('Wallet address copied!','success')">Copy</button></p>
+      <div style="margin-top:12px;background:rgba(212,175,55,0.1);border:1px solid var(--border);padding:12px;border-radius:8px">
+        <small>Amount:</small><br><strong style="color:var(--gold);font-size:18px">$${usdAmount} in ${m.crypto_name}</strong><br>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.2)">
+          <small>Wallet Fee: $${walletFeeUSD}</small><br>
+          <small>Total to send:</small> <strong style="color:var(--gold)">$${totalWithFee}</strong><br>
+          <small style="color:#888">Min transfer: $30</small>
+        </div>
       </div>`;
   }
   document.getElementById("receiptArea").classList.remove("hidden");
 }
-  if(selectedPackage.amount < 30){
-  showToast("Minimum transfer is $30", "error"); return;
-  }
-  
+
 document.getElementById("submitInvestmentBtn")?.addEventListener("click",async()=>{
   if(!selectedPackage){showToast("Select a package first","warning");return;}
   if(!selectedPayment){showToast("Select payment method","warning");return;}
@@ -617,6 +616,27 @@ document.getElementById("submitWithdrawalBtn")?.addEventListener("click",async()
   }
 });
 
-init();
+
+function updateWithdrawNaira(){
+  const amount = Number(document.getElementById("withdrawAmount")?.value||0);
+  const method = document.getElementById("withdrawMethod")?.value||"bank";
+  const display = document.getElementById("withdrawNairaDisplay");
+  if(!amount || amount<1){display.style.display="none"; return;}
+  display.style.display="block";
+  const bankFeeUSD = 2, walletFeeUSD = 1;
+  const feeUSD = method==="bank"?bankFeeUSD:walletFeeUSD;
+  const feeNaira = Math.round(feeUSD * NGN_RATE);
+  const nairaAmount = Math.round(amount * NGN_RATE);
+  const netUSD = amount - feeUSD;
+  const netNaira = Math.round(netUSD * NGN_RATE);
+  document.getElementById("withdrawNairaAmount").textContent = "₦" + nairaAmount.toLocaleString() + " (approx $" + amount + ")";
+  document.getElementById("withdrawFeeDisplay").textContent = method==="bank" 
+    ? `Fee: $${bankFeeUSD} (${"₦" + feeNaira.toLocaleString()} in Naira value, rounded)`
+    : `Fee: $${walletFeeUSD} (wallet)`;
+  document.getElementById("withdrawNetNaira").textContent = method==="bank"
+    ? "₦" + netNaira.toLocaleString() + " (approx $" + netUSD + ", rounded to nearest whole number)"
+    : "$" + netUSD + " (after $" + feeUSD + " fee)";
+}
+\ninit();
 </script>
 </body></html>
