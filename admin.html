@@ -323,7 +323,7 @@ async function seedPackages(){
     const created=[],failed=[];
     for(const p of missing){
       try{
-        const ins=await q("packages",x=>x.insert({name:p.name,amount:p.amount}));
+        const ins=await q("packages",x=>x.insert({name:p.name,amount:p.amount,description:p.description}));
         if(ins.error) throw ins.error;
         created.push(p.amount);
       }catch(e){failed.push(`${p.name}: ${e.message||"Insert failed"}`);}
@@ -340,7 +340,7 @@ async function savePkg(){
   const id=$("pkgId").value,n=$("pkgName").value.trim(),a=Number($("pkgAmount").value),d=$("pkgDesc").value.trim();
   if(!n||a<=0) return toast("Enter package name and amount","warning");
   try{
-    const r=id?await q("packages",x=>x.update({name:n,amount:a}).eq("id",id)):await q("packages",x=>x.insert({name:n,amount:a}));
+    const r=id?await q("packages",x=>x.update({name:n,amount:a,description:d}).eq("id",id)):await q("packages",x=>x.insert({name:n,amount:a,description:d}));
     if(r.error) throw r.error;
     toast(id?"Package updated":"Package added","success"); clearPkg(); await packagesLoad();
   }catch(e){toast(e.message,"error")}
