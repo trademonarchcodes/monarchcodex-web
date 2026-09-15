@@ -93,7 +93,7 @@
 
       <div class="terms">
         <input id="terms" type="checkbox" required>
-        <div>I agree to the <button type="button" class="policy-link" data-modal="termsModal">Terms</button>, <button type="button" class="policy-link" data-modal="rulesModal">Rules</button>, and <button type="button" class="policy-link" data-modal="privacyModal">Privacy Policy</button>.</div>
+        <div>I agree to the <button type="button" class="policy-link" onclick="openPolicy('termsModal'); return false;">Terms</button>, <button type="button" class="policy-link" onclick="openPolicy('rulesModal'); return false;">Rules</button>, and <button type="button" class="policy-link" onclick="openPolicy('privacyModal'); return false;">Privacy Policy</button>.</div>
       </div>
 
       <button id="registerBtn" type="submit">CREATE MONARCH ACCOUNT</button>
@@ -106,7 +106,7 @@
 
 <div id="termsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
   <div class="modal-card">
-    <div class="modal-head"><h3 id="termsTitle">Terms & Conditions</h3><button type="button" class="modal-x close" aria-label="Close">×</button></div>
+    <div class="modal-head"><h3 id="termsTitle">Terms & Conditions</h3><button type="button" class="modal-x close" aria-label="Close" onclick="closePolicy(this.closest('.modal')); return false;">×</button></div>
     <p>These Terms & Conditions govern your use of MONARCH CODEX. By creating an account, you confirm that the information you provide is accurate, complete and belongs to you.</p>
     <h4>1. Account & Identity</h4>
     <p>You must register using your own identity information and keep your login credentials secure. Your account may be subject to identity verification before access to restricted features is enabled.</p>
@@ -119,13 +119,13 @@
     <h4>5. Changes & Suspension</h4>
     <p>MONARCH CODEX may update platform procedures, security requirements or these terms. Accounts may be restricted or suspended where there is suspected fraud, misuse, security risk or violation of the rules.</p>
     <div class="notice">By checking the agreement box during registration, you confirm that you have read and accepted these terms.</div>
-    <button type="button" class="btn close" style="margin-top:16px">Close</button>
+    <button type="button" class="btn close" style="margin-top:16px" onclick="closePolicy(this.closest('.modal')); return false;">Close</button>
   </div>
 </div>
 
 <div id="rulesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
   <div class="modal-card">
-    <div class="modal-head"><h3 id="rulesTitle">Community Rules</h3><button type="button" class="modal-x close" aria-label="Close">×</button></div>
+    <div class="modal-head"><h3 id="rulesTitle">Community Rules</h3><button type="button" class="modal-x close" aria-label="Close" onclick="closePolicy(this.closest('.modal')); return false;">×</button></div>
     <p>MONARCH CODEX is built around identity, discipline, transparency and respectful participation.</p>
     <ul>
       <li>Use your real identity information and keep your account details accurate.</li>
@@ -138,13 +138,13 @@
       <li>Do not use referrals, messages or platform features for scams, harassment or deceptive activity.</li>
     </ul>
     <div class="notice">Violation of these rules may result in review, restricted access or account suspension.</div>
-    <button type="button" class="btn close" style="margin-top:16px">Close</button>
+    <button type="button" class="btn close" style="margin-top:16px" onclick="closePolicy(this.closest('.modal')); return false;">Close</button>
   </div>
 </div>
 
 <div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
   <div class="modal-card">
-    <div class="modal-head"><h3 id="privacyTitle">Privacy Policy</h3><button type="button" class="modal-x close" aria-label="Close">×</button></div>
+    <div class="modal-head"><h3 id="privacyTitle">Privacy Policy</h3><button type="button" class="modal-x close" aria-label="Close" onclick="closePolicy(this.closest('.modal')); return false;">×</button></div>
     <p>This Privacy Policy explains how information submitted through MONARCH CODEX may be used to operate and secure your account.</p>
     <h4>Information We Use</h4>
     <p>This may include your name, email address, phone number, referral information, KYC details, profile information and transaction-related records that you provide through the platform.</p>
@@ -157,7 +157,7 @@
     <h4>Updates</h4>
     <p>This policy may be updated as the platform, security practices or applicable requirements change. The current version shown on the registration page applies when you create an account.</p>
     <div class="notice">For your protection, submit KYC documents only through the official MONARCH CODEX platform.</div>
-    <button type="button" class="btn close" style="margin-top:16px">Close</button>
+    <button type="button" class="btn close" style="margin-top:16px" onclick="closePolicy(this.closest('.modal')); return false;">Close</button>
   </div>
 </div>
 
@@ -295,6 +295,19 @@ async function register(){
   }
 }
 
+function openPolicy(id){
+  const modal=document.getElementById(id);
+  if(!modal)return;
+  document.querySelectorAll(".modal").forEach(m=>m.classList.remove("open"));
+  modal.classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closePolicy(modal){
+  if(!modal)return;
+  modal.classList.remove("open");
+  if(!document.querySelector(".modal.open"))document.body.style.overflow="";
+}
+
 document.addEventListener("DOMContentLoaded",()=>{
   try{
     if(window.supabase && typeof window.supabase.createClient==="function"){
@@ -316,19 +329,6 @@ document.addEventListener("DOMContentLoaded",()=>{
     e.preventDefault();
     register();
   });
-
-  function openPolicy(id){
-    const modal=document.getElementById(id);
-    if(!modal)return;
-    document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"));
-    modal.classList.add("open");
-    document.body.style.overflow="hidden";
-  }
-  function closePolicy(modal){
-    if(!modal)return;
-    modal.classList.remove("open");
-    if(!document.querySelector(".modal.open"))document.body.style.overflow="";
-  }
 
   document.querySelectorAll(".policy-link").forEach(trigger=>{
     trigger.addEventListener("click",e=>{
