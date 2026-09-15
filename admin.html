@@ -32,7 +32,6 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 .empty{text-align:center;color:#777;padding:25px}.overlay{position:fixed;inset:0;background:#070707;display:flex;align-items:center;justify-content:center;z-index:100}
 .spin{width:32px;height:32px;border:3px solid #333;border-top-color:var(--g);border-radius:50%;animation:x 1s linear infinite;margin:auto auto 13px}@keyframes x{to{transform:rotate(360deg)}}
 #toast{display:none;position:fixed;right:16px;bottom:16px;z-index:200;background:#171717;border:1px solid #444;border-radius:9px;padding:11px 14px;font-size:11px;max-width:350px}#toast.show{display:block}
-.profile-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:300;padding:18px}.profile-modal.show{display:flex}.profile-box{width:min(620px,100%);max-height:90vh;overflow:auto;background:#111;border:1px solid #333;border-radius:16px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.55)}.profile-head{display:flex;align-items:center;gap:15px;padding-bottom:16px;border-bottom:1px solid #292929;margin-bottom:16px}.profile-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--g);background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:var(--g);font:700 24px Cinzel}.profile-avatar-fallback{width:72px;height:72px;border-radius:50%;border:2px solid var(--g);background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:var(--g);font:700 24px Cinzel}.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.profile-item{background:#171717;border:1px solid #292929;border-radius:10px;padding:11px}.profile-item small{display:block;color:#777;font-size:9px;text-transform:uppercase;margin-bottom:4px}.profile-item b{font-size:12px;word-break:break-word}@media(max-width:600px){.profile-grid{grid-template-columns:1fr}}
 .toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:#aaa}.toggle input{width:auto}
 @media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.packages,.payments-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){aside{transform:translateX(-100%);transition:.2s;width:275px}aside.open{transform:translateX(0)}main{margin-left:0;width:100%}.menu{display:block}.content{padding:17px 13px}.form,.packages,.payments-grid,.grid{grid-template-columns:1fr}.full{grid-column:auto}header{padding:0 13px}.title{font-size:15px}}
@@ -41,17 +40,6 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 <body>
 <div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING THE ADMIN KINGDOM</div><div id="bootText" class="muted" style="font-size:11px;margin-top:6px">Checking your session...</div></div></div>
 <div id="toast"></div>
-
-<div id="profileModal" class="profile-modal" role="dialog" aria-modal="true" aria-label="Monarch Profile">
-  <div class="profile-box">
-    <div class="profile-head">
-      <div id="modalAvatar"></div>
-      <div style="flex:1"><h2 id="modalName" class="section" style="margin:0 0 4px">Monarch Profile</h2><div id="modalUid" class="muted" style="font-size:11px">—</div></div>
-      <button id="closeProfile" class="btn secondary" type="button">Close</button>
-    </div>
-    <div id="modalProfileGrid" class="profile-grid"></div>
-  </div>
-</div>
 
 <div class="app">
 <aside id="side">
@@ -208,20 +196,6 @@ async function membersLoad(){
   }catch(e){showError("members",e);toast(e.message,"error")}
 }
 
-function initials(name){
-  const parts=String(name||"Monarch").trim().split(/\s+/).filter(Boolean);
-  return (parts.slice(0,2).map(x=>x[0]).join("")||"M").toUpperCase();
-}
-
-function avatarMarkup(p,size="36"){
-  const name=p?.full_name||p?.username||"Monarch";
-  const url=p?.avatar_url||"";
-  const style=`width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;border:1px solid var(--g);background:#1a1a1a;display:block`;
-  return url
-    ? `<img src="${esc(url)}" alt="${esc(name)}" style="${style}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="profile-avatar-fallback" style="width:${size}px;height:${size}px;font-size:${Math.max(11,Math.round(size*.35))}px;display:none">${esc(initials(name))}</span>`
-    : `<span class="profile-avatar-fallback" style="width:${size}px;height:${size}px;font-size:${Math.max(11,Math.round(size*.35))}px">${esc(initials(name))}</span>`;
-}
-
 function memberHTML(){
   const term=String($("memberSearch")?.value||"").toLowerCase();
   const a=members.filter(p=>[p.full_name,p.username,p.email,p.phone,p.uid,p.id].join(" ").toLowerCase().includes(term));
@@ -231,7 +205,7 @@ function memberHTML(){
       const k=String(p.kyc_status||p.kyc||"not_submitted").toLowerCase();
       const kl=k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(k)?"UNDER REVIEW":"KYC NOT SUBMITTED";
       const blocked=String(p.status||"active").toLowerCase()==="blocked";
-      return `<tr><td><div style="display:flex;align-items:center;gap:9px">${avatarMarkup(p,38)}<div><b>${esc(p.full_name||p.username||"Monarch")}</b><br><small>${esc(p.uid||p.id)}</small></div></div></td><td>${esc(p.email||"—")}</td><td>${badge(p.status||"active")}</td><td>${badge(kl)}</td><td>${dt(p.created_at)}</td><td><button class="btn secondary" data-action="view-profile" data-id="${esc(p.id)}">View Profile</button> ${blocked?`<button class="btn success" data-action="member-status" data-id="${esc(p.id)}" data-status="active">Activate</button>`:`<button class="btn danger" data-action="member-status" data-id="${esc(p.id)}" data-status="blocked">Block</button>`}</td></tr>`;
+      return `<tr><td><b>${esc(p.full_name||p.username||"Monarch")}</b><br><small>${esc(p.uid||p.id)}</small></td><td>${esc(p.email||"—")}</td><td>${badge(p.status||"active")}</td><td>${badge(kl)}</td><td>${dt(p.created_at)}</td><td>${blocked?`<button class="btn success" data-action="member-status" data-id="${esc(p.id)}" data-status="active">Activate</button>`:`<button class="btn danger" data-action="member-status" data-id="${esc(p.id)}" data-status="blocked">Block</button>`}</td></tr>`;
     }).join("")
   }</table></div>`;
 }
@@ -499,36 +473,12 @@ async function withdrawSet(id,status){
 
 async function refLoad(){
   try{
-    const r=await q("profiles",x=>x.select("id,full_name,username,email,referred_by,referral_code,uid,avatar_url,created_at").not("referred_by","is",null).order("created_at",{ascending:false}));
+    const r=await q("profiles",x=>x.select("id,full_name,username,email,referred_by,created_at").not("referred_by","is",null).order("created_at",{ascending:false}));
     if(r.error) throw r.error;
     const a=r.data||[];
-    const refMap=new Map(members.map(m=>[String(m.referral_code||m.uid||m.id),m]));
-    $("referrals").innerHTML=a.length?`<div class="table"><table><tr><th>Monarch</th><th>Referred By</th><th>Email</th><th>Joined</th><th>Action</th></tr>${a.map(x=>{
-      const parent=refMap.get(String(x.referred_by||""));
-      return `<tr><td><div style="display:flex;align-items:center;gap:8px">${avatarMarkup(x,34)}<span>${esc(x.full_name||x.username||"Monarch")}</span></div></td><td>${parent?`<div style="display:flex;align-items:center;gap:8px">${avatarMarkup(parent,30)}<span>${esc(parent.full_name||parent.username||"Monarch")}</span></div>`:esc(x.referred_by||"—")}</td><td>${esc(x.email||"—")}</td><td>${dt(x.created_at)}</td><td><button class="btn secondary" data-action="view-profile" data-id="${esc(x.id)}">View Profile</button></td></tr>`;
-    }).join("")}</table></div>`:'<div class="empty">No referral relationships found.</div>';
+    $("referrals").innerHTML=a.length?`<div class="table"><table><tr><th>Monarch</th><th>Email</th><th>Referral Code Used</th><th>Joined</th></tr>${a.map(x=>`<tr><td>${esc(x.full_name||x.username||"Monarch")}</td><td>${esc(x.email||"—")}</td><td>${esc(x.referred_by)}</td><td>${dt(x.created_at)}</td></tr>`).join("")}</table></div>`:'<div class="empty">No referral relationships found.</div>';
   }catch(e){showError("referrals",e);toast(e.message,"error")}
 }
-
-function profileItem(label,value){return `<div class="profile-item"><small>${esc(label)}</small><b>${esc(value||"—")}</b></div>`}
-
-function openProfile(id){
-  const p=members.find(x=>String(x.id)===String(id));
-  if(!p) return toast("Member profile not found. Refresh members and try again.","warning");
-  const name=p.full_name||p.username||"Monarch";
-  const k=String(p.kyc_status||p.kyc||"not_submitted").toLowerCase();
-  const kl=k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(k)?"UNDER REVIEW":"KYC NOT SUBMITTED";
-  $("modalAvatar").innerHTML=avatarMarkup(p,72);
-  $("modalName").textContent=name;
-  $("modalUid").textContent=p.uid||p.id||"—";
-  $("modalProfileGrid").innerHTML=[
-    profileItem("Username",p.username),profileItem("Email",p.email),profileItem("Phone",p.phone),profileItem("Status",p.status||"active"),
-    profileItem("KYC Status",kl),profileItem("Referral Code",p.referral_code||p.uid),profileItem("Referred By",p.referred_by),profileItem("Joined",dt(p.created_at))
-  ].join("");
-  $("profileModal").classList.add("show");
-}
-
-function closeProfile(){$("profileModal").classList.remove("show")}
 
 async function boot(){
   try{
@@ -567,14 +517,12 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("payType").onchange=paymentFormToggle;$("savePay").onclick=savePay;$("clearPay").onclick=clearPay;$("refreshPay").onclick=paymentsLoad;
   $("addEarning").onclick=earnAdd;
   $("refreshWithdrawals").onclick=withdrawLoad;$("withdrawalFilter").onchange=withdrawLoad;
-  $("closeProfile").onclick=closeProfile;$("profileModal").addEventListener("click",e=>{if(e.target===$("profileModal"))closeProfile()});document.addEventListener("keydown",e=>{if(e.key==="Escape")closeProfile()});
 
   document.addEventListener("click",async e=>{
     const b=e.target.closest("[data-action]"); if(!b)return;
     const a=b.dataset.action;
     try{
       if(a==="member-status") return memberStatus(b.dataset.id,b.dataset.status);
-      if(a==="view-profile") return openProfile(b.dataset.id);
       if(a==="kyc-approve") return kycApprove(b.dataset.id);
       if(a==="kyc-reject") return kycReject(b.dataset.id);
       if(a==="invest-status") return investSet(b.dataset.id,b.dataset.status);

@@ -46,6 +46,7 @@
     .modal-card ul{padding-left:20px}
     .modal-card .notice{background:#19170d;border:1px solid #3b3214;border-radius:10px;padding:12px;color:#c9c09a;font-size:12px;line-height:1.6}
     .modal-card h3{font-family:Cinzel,serif;color:#d4af37}
+    .policy-link{width:auto;display:inline-block;padding:0;background:transparent;color:#d4af37;border:0;border-radius:0;font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
     .close{background:#242424;color:#fff;margin-top:15px}
     .links{margin-top:12px;text-align:center;font-size:11px;color:#777}
     @media(max-width:600px){.wrap{padding:14px}.card{padding:22px 18px}.row{grid-template-columns:1fr}.brand h1{font-size:23px}}
@@ -316,21 +317,37 @@ document.addEventListener("DOMContentLoaded",()=>{
     register();
   });
 
-  document.querySelectorAll("[data-modal]").forEach(a=>{
-    a.addEventListener("click",e=>{
-      e.preventDefault();
-      document.getElementById(a.dataset.modal).classList.add("open");
-    });
-  });
+  function openPolicy(id){
+    const modal=document.getElementById(id);
+    if(modal) modal.classList.add("open");
+  }
+  function closePolicy(modal){
+    if(modal) modal.classList.remove("open");
+  }
 
-  document.querySelectorAll(".close").forEach(b=>{
-    b.addEventListener("click",()=>b.closest(".modal").classList.remove("open"));
+  document.addEventListener("click",e=>{
+    const trigger=e.target.closest("[data-modal]");
+    if(trigger){
+      e.preventDefault();
+      e.stopPropagation();
+      openPolicy(trigger.getAttribute("data-modal"));
+      return;
+    }
+    const close=e.target.closest(".close");
+    if(close){
+      e.preventDefault();
+      closePolicy(close.closest(".modal"));
+    }
   });
 
   document.querySelectorAll(".modal").forEach(m=>{
     m.addEventListener("click",e=>{
-      if(e.target===m)m.classList.remove("open");
+      if(e.target===m) closePolicy(m);
     });
+  });
+
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape") document.querySelectorAll(".modal.open").forEach(closePolicy);
   });
 });
 </script>
