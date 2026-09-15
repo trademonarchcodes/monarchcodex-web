@@ -716,27 +716,28 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   function updateInvestNaira(){
     const amount=num($("investAmount").value);
-    const method=$("investMethod")?.value || "bank";
-    const isBank=method==="bank";
-    const feeUsd=isBank ? INVEST_BANK_FEE_USD : INVEST_WALLET_FEE_USD;
-    const baseNgn=amount*NGN_RATE;
+    const wallet=$("investMethod").value==="wallet";
+    const feeUsd=wallet ? INVEST_WALLET_FEE_USD : INVEST_BANK_FEE_USD;
     const feeNgn=feeUsd*NGN_RATE;
+    const amountNgn=amount*NGN_RATE;
     const totalUsd=amount+feeUsd;
-    const totalNgn=baseNgn+feeNgn;
+    const totalNgn=amountNgn+feeNgn;
 
-    if($("investPayableAmountLabel"))$("investPayableAmountLabel").textContent=isBank?"Amount to Pay (NGN)":"Amount to Pay (USD)";
-    if($("investFeeLabel"))$("investFeeLabel").textContent=isBank?"Investment Fee (NGN)":"Investment Fee (USD)";
-    if($("investTotalLabel"))$("investTotalLabel").textContent=isBank?"Total to Pay (NGN)":"Total to Pay (USD)";
-
-    $("investNaira").value=isBank
-      ? (amount?"₦"+baseNgn.toLocaleString("en-NG",{maximumFractionDigits:2}):"₦0.00")
-      : (amount?money(amount):"$0.00");
-    $("investFee").value=isBank
-      ? "₦"+feeNgn.toLocaleString("en-NG",{maximumFractionDigits:2})
-      : money(feeUsd);
-    $("investTotal").value=isBank
-      ? (amount?"₦"+totalNgn.toLocaleString("en-NG",{maximumFractionDigits:2}):"₦0.00")
-      : (amount?money(totalUsd):"$0.00");
+    if(wallet){
+      $("investAmountPayLabel").textContent="Amount to Pay (USD)";
+      $("investNaira").value=amount ? money(amount) : "$0.00";
+      $("investFeeLabel").textContent="Investment Fee (USD)";
+      $("investFee").value=money(feeUsd);
+      $("investTotalLabel").textContent="Total to Pay (USD)";
+      $("investTotal").value=amount ? money(totalUsd) : "$0.00";
+    }else{
+      $("investAmountPayLabel").textContent="Amount to Pay (NGN)";
+      $("investNaira").value=amount ? "₦"+amountNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) : "₦0.00";
+      $("investFeeLabel").textContent="Investment Fee (NGN)";
+      $("investFee").value="₦"+feeNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
+      $("investTotalLabel").textContent="Total to Pay (NGN)";
+      $("investTotal").value=amount ? "₦"+totalNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) : "₦0.00";
+    }
   }
 
   function updateWithdrawFields(){
@@ -847,23 +848,22 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   async function uploadFile(bucket,file,path){
     if(!file)throw new Error("Please choose a file.");
     const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-    const finalPath=path+"/"+Date.now()+"_"+safe;
+    const finalPath=path+"/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"_"+safe;
+    const timeoutMs=bucket==="receipts" ? 60000 : 30000;
 
-    const buckets=bucket==="kyc" ? ["kyc","avatars"] :
-      bucket==="receipts" ? ["receipts","kyc"] : ["avatars","kyc"];
-
-    let lastError=null;
-    for(const b of buckets){
-      try{
-        const r=await withTimeout(db.storage.from(b).upload(finalPath,file,{upsert:false}),15000);
-        if(!r.error){
-          const pub=db.storage.from(b).getPublicUrl(finalPath);
-          return pub.data.publicUrl;
-        }
-        lastError=r.error;
-      }catch(e){lastError=e}
+    try{
+      const r=await withTimeout(
+        db.storage.from(bucket).upload(finalPath,file,{upsert:false,contentType:file.type||undefined}),
+        timeoutMs
+      );
+      if(r.error)throw r.error;
+      const pub=db.storage.from(bucket).getPublicUrl(finalPath);
+      if(!pub?.data?.publicUrl)throw new Error("Receipt uploaded, but its file URL could not be created.");
+      return pub.data.publicUrl;
+    }catch(e){
+      const msg=e?.message || e?.error_description || e?.details || "Upload failed.";
+      throw new Error(bucket==="receipts" ? "Receipt upload failed: "+msg : msg);
     }
-    throw lastError || new Error("Upload failed.");
   }
 
   async function saveKyc(){
@@ -906,20 +906,44 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     if(index===""){toast("Please select an investment package.","warning");return}
     if(!receiptFile){toast("Please upload your proof of payment receipt.","warning");return}
     if(receiptFile.size>10*1024*1024){toast("Receipt must be 10MB or smaller.","warning");return}
+
     const selected=packagesCache[Number(index)]||null;
-    const investmentFee=method==="bank" ? INVEST_BANK_FEE_USD : INVEST_WALLET_FEE_USD;
+    const feeUsd=method==="wallet" ? INVEST_WALLET_FEE_USD : INVEST_BANK_FEE_USD;
     const btn=$("investBtn"), original=btn?.textContent||"Submit Investment";
+
     try{
       if(btn){btn.disabled=true;btn.textContent="Uploading receipt...";}
       const receiptUrl=await uploadFile("receipts",receiptFile,currentUser.id);
+
       if(btn)btn.textContent="Submitting investment...";
-      const payload={user_id:currentUser.id,package_id:selected?.id??null,package_name:selected?.name??null,amount,fee:investmentFee,method,payment_method:method,note,receipt_url:receiptUrl,status:"pending"};
+      const payload={
+        user_id:currentUser.id,
+        package_name:selected?.name??null,
+        amount,
+        fee:feeUsd,
+        method,
+        payment_method:method,
+        note,
+        receipt_url:receiptUrl,
+        status:"pending"
+      };
+
       const {error}=await query("investments",q=>q.insert(payload));
       if(error)throw error;
+
       toast("Investment request and payment receipt submitted successfully.","success");
-      $("investAmount").value="";$("investNote").value="";$("investReceipt").value="";setText("receiptName","");updateInvestNaira();await loadOverview();
-    }catch(e){console.error(e);toast(e.message||"Could not submit investment request.","error");}
-    finally{if(btn){btn.disabled=false;btn.textContent=original;}}
+      $("investAmount").value="";
+      $("investNote").value="";
+      $("investReceipt").value="";
+      setText("receiptName","");
+      updateInvestNaira();
+      await loadOverview();
+    }catch(e){
+      console.error(e);
+      toast(e.message||"Could not submit investment request.","error");
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent=original;}
+    }
   }
 
   async function submitWithdrawal(){
@@ -1136,6 +1160,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   document.addEventListener("DOMContentLoaded",()=>{
     bindEvents();
+    updateInvestNaira();
     updateWithdrawCalc();
     updateWithdrawFields();
     updateInvestNaira();
