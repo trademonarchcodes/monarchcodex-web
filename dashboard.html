@@ -47,7 +47,48 @@ input:focus{border-color:var(--gold);outline:none}
 .copy-btn{background:#1a1a1a;border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
 @media(max-width:900px){.app-shell{flex-direction:column} .sidebar{width:100%} .grid-4{grid-template-columns:1fr 1fr} .content{padding:12px}}
 </style></head><body>
-<div id="appLoading" class="app-loading"><div class="loading-spinner"></div><p>Loading your kingdom...</p><small style="color:#666;margin-top:8px">If stuck >8s, will show retry</small></div>
+<div id="appLoading" class="app-loading">
+  <div class="loading-spinner"></div>
+  <p id="loadingText">Loading your kingdom...</p>
+  <small id="loadingSub" style="color:#666;margin-top:8px">Checking session...</small>
+  <div id="loadingRetry" style="display:none;margin-top:16px;text-align:center">
+    <p style="color:#ff7777;font-size:12px">Taking longer than expected</p>
+    <button onclick="location.reload()" class="btn-gold" style="margin-top:10px;padding:10px 20px">🔄 Retry</button>
+    <br>
+    <button onclick="localStorage.clear(); sessionStorage.clear(); location.href='login.html'" class="btn-outline" style="margin-top:8px">Go to Login (Clear Session)</button>
+    <p style="color:#555;font-size:10px;margin-top:10px">If this keeps happening, clear cache or try Chrome</p>
+  </div>
+</div>
+<script>
+// Independent failsafe - runs immediately, doesn't depend on Supabase
+(function(){
+  let seconds = 0;
+  const subEl = document.getElementById('loadingSub');
+  const retryEl = document.getElementById('loadingRetry');
+  const interval = setInterval(()=>{
+    seconds++;
+    if(subEl){
+      if(seconds==2) subEl.textContent = "Connecting to database...";
+      if(seconds==4) subEl.textContent = "Fetching profile...";
+      if(seconds==6) subEl.textContent = "Still loading... will show retry at 8s";
+    }
+    if(seconds>=8){
+      clearInterval(interval);
+      if(retryEl) retryEl.style.display = "block";
+      if(subEl) subEl.textContent = "Stuck? Click Retry or Go to Login";
+    }
+    // If appShell became visible, stop timer
+    const shell = document.getElementById('appShell');
+    const loading = document.getElementById('appLoading');
+    if(shell && !shell.classList.contains('hidden')){
+      clearInterval(interval);
+    }
+    if(loading && loading.classList.contains('hidden')){
+      clearInterval(interval);
+    }
+  }, 1000);
+})();
+</script>
 <div id="authError" class="auth-error hidden"><div class="auth-error-card"><h2>Login Required</h2><p>Please login to access dashboard</p><button onclick="location.href='login.html'" class="btn-gold">Go to Login</button></div></div>
 <div id="appShell" class="app-shell hidden">
 <aside class="sidebar">
@@ -208,11 +249,17 @@ if(!document.getElementById("toastStyle")){
 }
 
 async function init(){
+  // Check if supabase loaded
+  if(typeof window.supabase === 'undefined' || !window.supabase.createClient){
+    document.getElementById("appLoading").innerHTML = `<div style="text-align:center"><p style="color:#ff7777">Supabase failed to load (ad-blocker?)</p><p style="color:#888;font-size:12px;margin-top:8px">Disable ad-blocker or try Chrome</p><button onclick="location.reload()" class="btn-gold" style="margin-top:12px">Retry</button><button onclick="location.href='login.html'" class="btn-outline" style="margin-top:8px">Go to Login</button></div>`;
+    return;
+  }
   // Timeout failsafe - prevent infinite Loading your kingdom...
   const loadingTimeout = setTimeout(()=>{
     const loading = document.getElementById("appLoading");
     if(loading && !loading.classList.contains("hidden")){
-      loading.innerHTML = `<div style="text-align:center"><div class="loading-spinner"></div><p style="margin-top:12px">Taking longer than expected...</p><button onclick="location.reload()" class="btn-gold" style="margin-top:12px">Retry</button><br><button onclick="localStorage.clear();location.href='login.html'" class="btn-outline" style="margin-top:8px">Go to Login</button></div>`;
+      const retryEl = document.getElementById("loadingRetry");
+      if(retryEl) retryEl.style.display = "block";
     }
   }, 8000);
 
