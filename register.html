@@ -50,11 +50,14 @@
     .policy-link{width:auto;display:inline-block;padding:0;background:transparent;color:#d4af37;border:0;border-radius:0;font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
     .close{background:#242424;color:#fff;margin-top:15px}
     .links{margin-top:12px;text-align:center;font-size:11px;color:#777}
+    .diag{display:none;margin:14px 0 0;padding:12px;border:1px solid #5a1d1d;background:#160b0b;border-radius:11px;color:#f0b0b0;font-size:12px;line-height:1.6;word-break:break-word}
+    .diag.show{display:block}
     @media(max-width:600px){.wrap{padding:14px}.card{padding:22px 18px}.row{grid-template-columns:1fr}.brand h1{font-size:23px}}
   </style>
 </head>
 <body>
 <div id="toastWrap" class="toast-wrap"></div>
+<div id="diag" class="diag"></div>
 
 <div class="wrap">
   <main class="card">
@@ -201,30 +204,51 @@ async function withTimeout(promise, ms=12000){
 
 async function findReferrer(code){
   if(!code) return null;
-  let {data,error}=await withTimeout(
-    supabase.from("profiles").select("id").or("referral_code.eq."+code+",uid.eq."+code).limit(1),
-    8000
+  const clean=code.trim().toUpperCase();
+  const {data,error}=await withTimeout(
+    supabase.from("profiles").select("id,referral_code,uid").or("referral_code.eq."+clean+",uid.eq."+clean).limit(1),
+    10000
   );
   if(error) throw error;
   return data && data.length ? data[0].id : null;
 }
 
-async function createProfileWithRetry(user, base){
-  let lastError=null;
-  for(let attempt=0;attempt<4;attempt++){
-    const uid=genUID();
-    const payload={...base,id:user.id,uid};
-    const {error}=await withTimeout(supabase.from("profiles").upsert(payload,{onConflict:"id"}),10000);
-    if(!error) return;
-    lastError=error;
-    if(error.code!=="23505") break;
+async function checkSupabaseConnection(){
+  try{
+    const response=await fetch(SUPABASE_URL+"/auth/v1/settings",{
+      method:"GET",
+      headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY},
+      cache:"no-store"
+    });
+    const text=await response.text();
+    if(!response.ok){
+      throw new Error("Supabase Auth returned HTTP "+response.status+(text?": "+text:""));
+    }
+    return true;
+  }catch(e){
+    console.error("Supabase connectivity check failed:",e);
+    showDiagnostic("Supabase connection check failed: "+(e.message||e));
+    return false;
   }
-  throw lastError || new Error("Could not create your profile.");
+}
+
+function showDiagnostic(message){
+  const box=document.getElementById("diag");
+  if(!box) return;
+  box.textContent="Registration detail: "+message;
+  box.classList.add("show");
+}
+
+function clearDiagnostic(){
+  const box=document.getElementById("diag");
+  if(box){box.textContent="";box.classList.remove("show");}
 }
 
 async function register(){
+  clearDiagnostic();
   if(!supabase){
-    showToast("Supabase failed to load. Disable an ad-blocker/content blocker and try again.","error");
+    showToast("Secure connection is not ready. Please refresh and try again.","error");
+    showDiagnostic("Supabase JavaScript client did not load.");
     return;
   }
 
@@ -243,38 +267,63 @@ async function register(){
   btn.textContent="CREATING ACCOUNT...";
 
   try{
+    // Validate the referral before creating the Auth account so an invalid code
+    // never leaves an orphaned Auth user behind.
     let referred_by=null;
     if(referral){
-      referred_by=await findReferrer(referral);
-      if(!referred_by) throw new Error("Referral code was not found. Check the code and try again.");
+      try{
+        referred_by=await findReferrer(referral);
+      }catch(refError){
+        console.error("Referral lookup error:",refError);
+        showDiagnostic("Referral lookup failed: "+(refError?.message||refError));
+        throw new Error("We could not verify that referral code right now. Please check your connection and try again.");
+      }
+      if(!referred_by){
+        showDiagnostic("Referral code entered: "+referral+". No matching Monarch referral code was found.");
+        throw new Error("Referral code was not found. Check the code and try again.");
+      }
     }
+
+    showToast("Connecting securely to MONARCH CODEX...","info");
 
     const {data,error}=await withTimeout(
       supabase.auth.signUp({
         email,
         password,
-        options:{data:{full_name,phone}}
+        options:{
+          data:{full_name,phone,referral_code_used:referral||null}
+        }
       }),
-      12000
+      20000
     );
-    if(error) throw error;
-    if(!data || !data.user) throw new Error("Supabase did not create an account. Please try again.");
+
+    if(error){
+      console.error("Supabase signUp error:",error);
+      showDiagnostic("Auth signup failed — message: "+(error.message||"unknown")+" | status: "+(error.status||"unknown")+" | code: "+(error.code||"none"));
+      throw error;
+    }
+
+    if(!data || !data.user){
+      showDiagnostic("Supabase returned no user object after signup.");
+      throw new Error("Supabase did not create an account. Please try again.");
+    }
 
     const user=data.user;
-    if(!user.id) throw new Error("Supabase did not return a valid account ID. Please try again.");
+    if(!user.id){
+      showDiagnostic("Supabase returned a user without an account ID.");
+      throw new Error("Supabase did not return a valid account ID. Please try again.");
+    }
 
-    /*
-      Supabase can return a user-shaped response when an email already exists
-      without exposing the existing account. In that case identities is empty.
-      Do not create a profile or tell the member registration succeeded.
-    */
     if(Array.isArray(user.identities) && user.identities.length===0){
-      throw new Error("This email is already registered in the authentication system. Please use the original email/password or use Forgot password on the login page.");
+      showDiagnostic("Supabase returned an empty identity list. The email may already exist or signup may have been filtered by Auth.");
+      throw new Error("This email is already registered or cannot be registered. Please use another email address.");
     }
 
     if(normalizeEmail(user.email||"")!==email){
+      showDiagnostic("Supabase returned a different email address than the one submitted.");
       throw new Error("Supabase returned an account with a different email address. Please try again.");
     }
+
     const profile={
       full_name,
       phone,
@@ -292,18 +341,18 @@ async function register(){
     }catch(profileError){
       console.error("Profile creation error:",profileError);
       const detail=profileError?.message||"Unknown profile error";
-      throw new Error("Your login account was created, but your Monarch profile could not be completed. Please contact support before trying to register again. Details: "+detail);
+      showDiagnostic("Auth account was created, but profile creation failed: "+detail);
+      throw new Error("Your login account was created, but your Monarch profile could not be completed. Do not register again. Please send this message to support.");
     }
 
     localStorage.setItem("monarch_last_email",email);
 
     if(data.session){
       showToast("Account created successfully. Welcome, Monarch.","success");
-      setTimeout(()=>window.location.replace("dashboard.html"),900);
+      setTimeout(()=>window.location.replace("dashboard.html"),1200);
     }else{
-      /* Email confirmation is enabled: Auth user exists, but there is no session yet. */
       showToast("Account created successfully. Check your email to confirm your account, then log in.","success");
-      setTimeout(()=>window.location.replace("login.html"),1800);
+      setTimeout(()=>window.location.replace("login.html"),2500);
     }
   }catch(err){
     console.error("Registration error:",err);
@@ -320,7 +369,7 @@ async function register(){
   }
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded",async()=>{
   try{
     if(window.supabase && typeof window.supabase.createClient==="function"){
       supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
@@ -328,10 +377,12 @@ document.addEventListener("DOMContentLoaded",()=>{
       });
     }else{
       showToast("Supabase failed to load. Please check your connection or content blocker.","error");
+      showDiagnostic("The Supabase JavaScript library did not load from the CDN.");
     }
   }catch(e){
     console.error(e);
     showToast("Could not initialize the secure connection.","error");
+    showDiagnostic(e?.message||String(e));
   }
 
   const ref=getReferralFromURL();
@@ -341,6 +392,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     e.preventDefault();
     register();
   });
+
+  if(supabase) await checkSupabaseConnection();
 });
 </script>
 </body>
