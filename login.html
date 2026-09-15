@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070707">
+  <title>MONARCH CODEX — Login</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --gold:#D4AF37;
+      --gold-light:#f2d675;
+      --black:#070707;
+      --card:#121212;
+      --text:#f6f3ea;
+      --muted:#969188;
+      --line:rgba(212,175,55,.20);
+      --green:#4ee58a;
+      --red:#ff7777;
+      --warning:#e5c65a;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;
+      font-family:Poppins,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% 0%,rgba(212,175,55,.12),transparent 38%),
+        var(--black);
+      display:flex;
+      flex-direction:column;
+    }
+    a{text-decoration:none;color:inherit}
+    .top{
+      width:min(1120px,92%);
+      margin:auto;
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .brand{display:flex;align-items:center;gap:11px}
+    .mark{
+      width:40px;height:40px;border:1px solid var(--gold);
+      border-radius:50%;display:grid;place-items:center;
+      font-family:Cinzel,serif;color:var(--gold);font-weight:800;
+    }
+    .brand-name{font:800 15px Cinzel,serif;letter-spacing:1.4px}
+    .brand-sub{display:block;color:var(--gold);font-size:8px;letter-spacing:2px}
+    .back{font-size:12px;color:#aaa59b}
+    .back:hover{color:var(--gold)}
+    main{
+      flex:1;
+      display:grid;
+      place-items:center;
+      padding:35px 20px 70px;
+    }
+    .layout{
+      width:min(940px,100%);
+      display:grid;
+      grid-template-columns:.9fr 1.1fr;
+      gap:22px;
+      align-items:stretch;
+    }
+    .intro,.card{
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:rgba(18,18,18,.88);
+      box-shadow:0 25px 80px rgba(0,0,0,.3);
+    }
+    .intro{
+      padding:42px 34px;
+      background:
+        radial-gradient(circle at 70% 20%,rgba(212,175,55,.12),transparent 42%),
+        #0e0e0e;
+    }
+    .kicker{
+      color:var(--gold);
+      font-size:10px;
+      letter-spacing:2.5px;
+      font-weight:700;
+      text-transform:uppercase;
+      margin-bottom:16px;
+    }
+    h1{
+      font:800 clamp(34px,5vw,52px)/1.08 Cinzel,serif;
+      margin-bottom:17px;
+    }
+    h1 span{color:var(--gold)}
+    .intro p{color:var(--muted);font-size:13px;line-height:1.8}
+    .security{
+      margin-top:30px;
+      display:grid;
+      gap:12px;
+    }
+    .security-item{
+      display:flex;gap:11px;align-items:flex-start;
+      color:#aaa69d;font-size:11px;
+    }
+    .check{
+      flex:0 0 auto;
+      width:22px;height:22px;border:1px solid rgba(212,175,55,.35);
+      border-radius:6px;display:grid;place-items:center;color:var(--gold);
+    }
+    .card{padding:38px 34px}
+    .card h2{font:700 28px Cinzel,serif;margin-bottom:7px}
+    .card-sub{color:#817d74;font-size:11px;margin-bottom:25px}
+    label{
+      display:block;color:#bbb6ac;font-size:11px;font-weight:600;
+      margin:0 0 7px;
+    }
+    .field{margin-bottom:16px}
+    .input-wrap{position:relative}
+    input{
+      width:100%;
+      border:1px solid #2a2927;
+      border-radius:8px;
+      background:#0b0b0b;
+      color:var(--text);
+      outline:none;
+      padding:13px 14px;
+      font:13px Poppins,Arial,sans-serif;
+      transition:.2s;
+    }
+    input:focus{
+      border-color:rgba(212,175,55,.65);
+      box-shadow:0 0 0 3px rgba(212,175,55,.07);
+    }
+    input::placeholder{color:#55514b}
+    .password-toggle{
+      position:absolute;right:10px;top:50%;transform:translateY(-50%);
+      border:0;background:transparent;color:#77736a;
+      cursor:pointer;font-size:11px;padding:6px;
+    }
+    .password-toggle:hover{color:var(--gold)}
+    .row{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:10px;margin:3px 0 20px;
+    }
+    .remember{
+      display:flex;align-items:center;gap:7px;color:#77736a;font-size:10px;
+    }
+    .remember input{width:14px;height:14px;accent-color:var(--gold)}
+    .forgot{color:var(--gold);font-size:10px;cursor:pointer}
+    .submit{
+      width:100%;
+      border:1px solid var(--gold);
+      border-radius:8px;
+      background:linear-gradient(135deg,var(--gold-light),var(--gold));
+      color:#080808;
+      padding:13px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s;
+    }
+    .submit:hover{transform:translateY(-1px)}
+    .submit:disabled{opacity:.65;cursor:not-allowed;transform:none}
+    .status{
+      display:none;
+      margin-bottom:16px;
+      padding:11px 12px;
+      border-radius:8px;
+      font-size:11px;
+      line-height:1.5;
+      border:1px solid transparent;
+    }
+    .status.show{display:block}
+    .status.error{background:rgba(255,119,119,.08);border-color:rgba(255,119,119,.25);color:#ffaaaA}
+    .status.success{background:rgba(78,229,138,.07);border-color:rgba(78,229,138,.22);color:#8bf0b2}
+    .status.warning{background:rgba(212,175,55,.07);border-color:rgba(212,175,55,.25);color:var(--gold-light)}
+    .divider{
+      display:flex;align-items:center;gap:10px;
+      color:#55514b;font-size:9px;margin:22px 0;
+    }
+    .divider:before,.divider:after{content:"";height:1px;background:#242321;flex:1}
+    .register{text-align:center;color:#77736a;font-size:11px}
+    .register a{color:var(--gold)}
+    .register a:hover{text-decoration:underline}
+    .connection{
+      margin-top:18px;
+      text-align:center;
+      color:#57534d;
+      font-size:9px;
+    }
+    .connection span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#777;margin-right:5px}
+    .connection.online span{background:var(--green);box-shadow:0 0 7px rgba(78,229,138,.6)}
+    footer{
+      text-align:center;padding:20px;color:#4e4b45;font-size:9px;
+    }
+
+    /* Toasts */
+    #toastContainer{
+      position:fixed;top:18px;right:18px;z-index:9999;
+      width:min(360px,calc(100% - 36px));
+      display:grid;gap:9px;
+    }
+    .toast{
+      display:flex;align-items:flex-start;gap:10px;
+      padding:12px 13px;border-radius:9px;
+      border:1px solid rgba(255,255,255,.08);
+      background:#111;
+      box-shadow:0 15px 40px rgba(0,0,0,.35);
+      font-size:11px;
+      animation:toastIn .2s ease;
+    }
+    .toast.success{border-color:rgba(78,229,138,.3)}
+    .toast.error{border-color:rgba(255,119,119,.3)}
+    .toast.warning{border-color:rgba(212,175,55,.35)}
+    .toast.info{border-color:rgba(255,255,255,.12)}
+    .toast-icon{font-size:14px;line-height:1}
+    .toast.success .toast-icon{color:var(--green)}
+    .toast.error .toast-icon{color:var(--red)}
+    .toast.warning .toast-icon{color:var(--gold)}
+    .toast.info .toast-icon{color:#aaa}
+    @keyframes toastIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+    @media(max-width:760px){
+      .layout{grid-template-columns:1fr}
+      .intro{display:none}
+      main{padding-top:25px}
+      .card{padding:30px 22px}
+      .top{min-height:68px}
+    }
+  </style>
+</head>
+
+<body>
+  <div id="toastContainer"></div>
+
+  <header class="top">
+    <a class="brand" href="index.html">
+      <div class="mark">M</div>
+      <div>
+        <div class="brand-name">MONARCH CODEX</div>
+        <span class="brand-sub">THE INNER KINGDOM</span>
+      </div>
+    </a>
+    <a class="back" href="index.html">← Back to home</a>
+  </header>
+
+  <main>
+    <div class="layout">
+      <section class="intro">
+        <div class="kicker">Member Access</div>
+        <h1>Welcome<br>Back, <span>Monarch.</span></h1>
+        <p>
+          Enter your credentials to access your private Monarch dashboard,
+          account activity, investments, earnings, referrals and profile.
+        </p>
+
+        <div class="security">
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div><strong>Secure authentication</strong><br>Powered by Supabase Auth.</div>
+          </div>
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div><strong>Private member area</strong><br>Your dashboard is protected by your account session.</div>
+          </div>
+          <div class="security-item">
+            <div class="check">✓</div>
+            <div><strong>Transparent records</strong><br>Account activity is organized inside your ledger.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Member Login</h2>
+        <p class="card-sub">Sign in to enter the Inner Kingdom.</p>
+
+        <div id="statusBox" class="status"></div>
+
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="email">EMAIL ADDRESS</label>
+            <input
+              id="email"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="password">PASSWORD</label>
+            <div class="input-wrap">
+              <input
+                id="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                required
+              >
+              <button type="button" class="password-toggle" id="togglePassword">Show</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="remember">
+              <input type="checkbox" id="remember">
+              Remember email
+            </label>
+            <span class="forgot" id="forgotPassword">Forgot password?</span>
+          </div>
+
+          <button class="submit" id="loginButton" type="submit">
+            <span id="loginButtonText">Login to Codex</span>
+          </button>
+        </form>
+
+        <div class="connection" id="connectionStatus">
+          <span></span> Checking secure connection...
+        </div>
+
+        <div class="divider">OR</div>
+
+        <div class="register">
+          New to MONARCH CODEX?
+          <a href="register.html">Create your account</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    © <span id="year"></span> MONARCH CODEX — The Inner Kingdom
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    "use strict";
+
+    /*
+      MONARCH CODEX LOGIN
+      Supabase project:
+      https://avaworleivncevaoqeny.supabase.co
+    */
+
+    const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+    const ADMIN_EMAIL = "trademonarchofficial@gmail.com";
+
+    let monarchSupabase = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function showToast(message, type = "info") {
+      const container = $("toastContainer");
+      if (!container) return;
+
+      const icons = {
+        success: "✓",
+        error: "✕",
+        warning: "⚠",
+        info: "ℹ"
+      };
+
+      const toast = document.createElement("div");
+      toast.className = "toast " + type;
+
+      const icon = document.createElement("span");
+      icon.className = "toast-icon";
+      icon.textContent = icons[type] || icons.info;
+
+      const text = document.createElement("span");
+      text.textContent = message;
+
+      toast.appendChild(icon);
+      toast.appendChild(text);
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-5px)";
+        toast.style.transition = ".2s ease";
+        setTimeout(() => toast.remove(), 220);
+      }, 5000);
+    }
+
+    function setStatus(message, type = "error") {
+      const box = $("statusBox");
+      if (!box) return;
+      box.textContent = message;
+      box.className = "status show " + type;
+    }
+
+    function clearStatus() {
+      const box = $("statusBox");
+      if (!box) return;
+      box.textContent = "";
+      box.className = "status";
+    }
+
+    function withTimeout(promise, ms, label = "Request") {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(label + " timed out.")), ms)
+        )
+      ]);
+    }
+
+    function friendlyAuthError(error) {
+      const raw = String(error?.message || error || "").trim();
+      const lower = raw.toLowerCase();
+
+      if (
+        lower.includes("failed to fetch") ||
+        lower.includes("networkerror") ||
+        lower.includes("network request failed")
+      ) {
+        return "Could not connect to MONARCH CODEX. Check your internet connection, then try again. If the problem continues, the Supabase connection may be unavailable.";
+      }
+
+      if (lower.includes("invalid login credentials")) {
+        return "Invalid email or password.";
+      }
+
+      if (lower.includes("email not confirmed")) {
+        return "Your email has not been confirmed yet. Check your inbox for the confirmation email.";
+      }
+
+      if (lower.includes("too many requests")) {
+        return "Too many login attempts. Please wait a little and try again.";
+      }
+
+      if (lower.includes("user not found")) {
+        return "No account was found with this email address.";
+      }
+
+      return raw || "Login failed. Please try again.";
+    }
+
+    async function directSupabaseCheck() {
+      const connection = $("connectionStatus");
+
+      if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        if (connection) {
+          connection.classList.remove("online");
+          connection.innerHTML = "<span></span> Supabase failed to load. Check your browser/ad-blocker.";
+        }
+        setStatus(
+          "Supabase could not load. If you use an ad-blocker or privacy browser, allow cdn.jsdelivr.net and reload this page.",
+          "warning"
+        );
+        return false;
+      }
+
+      try {
+        const response = await withTimeout(
+          fetch(SUPABASE_URL + "/rest/v1/", {
+            method: "GET",
+            headers: {
+              "apikey": SUPABASE_KEY,
+              "Authorization": "Bearer " + SUPABASE_KEY
+            },
+            cache: "no-store"
+          }),
+          5000,
+          "Supabase connection check"
+        );
+
+        /*
+          A REST response proves the browser can reach the Supabase project.
+          We do not require a particular status code here because /rest/v1/
+          can respond differently depending on project configuration.
+        */
+        if (connection) {
+          connection.classList.add("online");
+          connection.innerHTML = "<span></span> Secure connection available";
+        }
+
+        return true;
+      } catch (error) {
+        if (connection) {
+          connection.classList.remove("online");
+          connection.innerHTML = "<span></span> Connection check failed";
+        }
+
+        console.warn("Supabase connectivity check:", error);
+        return false;
+      }
+    }
+
+    async function initSupabase() {
+      if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        return null;
+      }
+
+      try {
+        monarchSupabase = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY,
+          {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: true
+            }
+          }
+        );
+
+        return monarchSupabase;
+      } catch (error) {
+        console.error("Supabase initialization failed:", error);
+        return null;
+      }
+    }
+
+    async function getProfileRole(user) {
+      if (!monarchSupabase || !user) return null;
+
+      try {
+        const result = await withTimeout(
+          monarchSupabase
+            .from("profiles")
+            .select("role,status")
+            .eq("id", user.id)
+            .maybeSingle(),
+          2000,
+          "Role check"
+        );
+
+        if (result.error) {
+          console.warn("Role check:", result.error);
+          return null;
+        }
+
+        return result.data || null;
+      } catch (error) {
+        console.warn("Role check timeout/error:", error);
+        return null;
+      }
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+      clearStatus();
+
+      const email = $("email").value.trim().toLowerCase();
+      const password = $("password").value;
+
+      if (!email) {
+        setStatus("Please enter your email address.", "error");
+        $("email").focus();
+        return;
+      }
+
+      if (!password) {
+        setStatus("Please enter your password.", "error");
+        $("password").focus();
+        return;
+      }
+
+      if (!monarchSupabase) {
+        setStatus(
+          "The secure login system is not available. Please reload the page. If it still fails, check whether your browser is blocking cdn.jsdelivr.net.",
+          "error"
+        );
+        showToast("Supabase is not available.", "error");
+        return;
+      }
+
+      const button = $("loginButton");
+      const buttonText = $("loginButtonText");
+
+      button.disabled = true;
+      buttonText.textContent = "Logging in...";
+
+      try {
+        /*
+          This is the actual Supabase password login.
+          It is intentionally wrapped in a timeout so the page never appears
+          frozen forever if the network is unavailable.
+        */
+        const result = await withTimeout(
+          monarchSupabase.auth.signInWithPassword({
+            email,
+            password
+          }),
+          12000,
+          "Login request"
+        );
+
+        if (result.error) {
+          throw result.error;
+        }
+
+        const user = result.data?.user;
+        const session = result.data?.session;
+
+        if (!user || !session) {
+          throw new Error("Login succeeded but no active session was returned.");
+        }
+
+        localStorage.setItem("monarch_last_email", email);
+
+        if ($("remember").checked) {
+          localStorage.setItem("monarch_remember_email", email);
+        } else {
+          localStorage.removeItem("monarch_remember_email");
+        }
+
+        /*
+          Role check has a maximum of 2 seconds.
+          Failure to read the role must NOT block normal members from entering.
+        */
+        const profile = await getProfileRole(user);
+        const role = String(profile?.role || "").toLowerCase();
+
+        const isAdmin =
+          role.includes("admin") ||
+          email === ADMIN_EMAIL;
+
+        localStorage.setItem("monarch_is_admin", isAdmin ? "true" : "false");
+
+        setStatus(
+          isAdmin
+            ? "Login successful. Admin access detected. Entering the Codex..."
+            : "Login successful. Entering your Monarch dashboard...",
+          "success"
+        );
+
+        showToast("Login successful. Welcome back, Monarch.", "success");
+
+        /*
+          IMPORTANT:
+          Use replace(), not href.
+          This prevents the browser back button from returning to the login
+          page and causing a login/dashboard loop.
+        */
+        setTimeout(() => {
+          window.location.replace("dashboard.html");
+        }, 800);
+
+      } catch (error) {
+        console.error("Login error:", error);
+
+        const message = friendlyAuthError(error);
+        setStatus(message, "error");
+
+        if (String(error?.message || "").toLowerCase().includes("failed to fetch")) {
+          showToast("Connection to Supabase failed.", "error");
+        } else {
+          showToast(message, "error");
+        }
+
+        button.disabled = false;
+        buttonText.textContent = "Login to Codex";
+      }
+    }
+
+    async function handleForgotPassword() {
+      const email = $("email").value.trim().toLowerCase();
+
+      if (!email) {
+        setStatus("Enter your email address first, then tap Forgot password.", "warning");
+        $("email").focus();
+        return;
+      }
+
+      if (!monarchSupabase) {
+        setStatus("Supabase is not available. Please reload the page and try again.", "error");
+        return;
+      }
+
+      try {
+        await withTimeout(
+          monarchSupabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + "/login.html"
+          }),
+          10000,
+          "Password reset"
+        );
+
+        setStatus(
+          "If an account exists for this email, a password reset email has been requested. Check your inbox.",
+          "success"
+        );
+        showToast("Password reset request sent.", "success");
+      } catch (error) {
+        console.error("Password reset:", error);
+        setStatus(friendlyAuthError(error), "error");
+      }
+    }
+
+    function setupUI() {
+      $("year").textContent = new Date().getFullYear();
+
+      const savedEmail = localStorage.getItem("monarch_remember_email");
+      const lastEmail = localStorage.getItem("monarch_last_email");
+
+      if (savedEmail || lastEmail) {
+        $("email").value = savedEmail || lastEmail;
+        $("remember").checked = !!savedEmail;
+      }
+
+      $("togglePassword").addEventListener("click", () => {
+        const input = $("password");
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        $("togglePassword").textContent = isPassword ? "Hide" : "Show";
+      });
+
+      $("forgotPassword").addEventListener("click", handleForgotPassword);
+      $("loginForm").addEventListener("submit", handleLogin);
+    }
+
+    async function init() {
+      setupUI();
+
+      /*
+        Start both tasks without making the login form wait for the
+        connectivity check.
+      */
+      const supabaseReady = await initSupabase();
+
+      if (!supabaseReady) {
+        setStatus(
+          "Supabase failed to load. Please reload the page. If you use an ad-blocker/privacy browser, allow cdn.jsdelivr.net.",
+          "warning"
+        );
+        return;
+      }
+
+      directSupabaseCheck();
+
+      /*
+        If an existing session is already present, do not automatically
+        redirect. The user can intentionally press Login or navigate normally.
+        This prevents confusing redirect loops.
+      */
+      try {
+        const sessionResult = await withTimeout(
+          monarchSupabase.auth.getSession(),
+          4000,
+          "Session check"
+        );
+
+        if (sessionResult?.data?.session) {
+          setStatus(
+            "An active session was found. You can continue to your dashboard.",
+            "success"
+          );
+        }
+      } catch (error) {
+        console.warn("Existing session check:", error);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
