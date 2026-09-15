@@ -375,6 +375,9 @@ function showPaymentDetail(m){
   }
   document.getElementById("receiptArea").classList.remove("hidden");
 }
+  if(selectedPackage.amount < 30){
+  showToast("Minimum transfer is $30", "error"); return;
+  }
   
 document.getElementById("submitInvestmentBtn")?.addEventListener("click",async()=>{
   if(!selectedPackage){showToast("Select a package first","warning");return;}
