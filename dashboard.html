@@ -326,7 +326,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
             <div class="field"><label>Amount (USD)</label><input id="investAmount" type="number" min="0" step="0.01"></div>
             <div class="field"><label>Payment Method</label><select id="investMethod"><option value="bank">Bank Transfer</option><option value="wallet">Wallet Address</option></select></div>
             <div class="field full"><label>Available Payment Destinations</label><div id="paymentDestinations" class="payment-destinations"><div class="empty">Loading payment destinations...</div></div></div>
-            <div class="field"><label id="investPayableAmountLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly></div>
+            <div class="field"><label id="investPayableAmountLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly value="₦0.00"></div>
             <div class="field"><label id="investFeeLabel">Investment Fee</label><input id="investFee" type="text" readonly value="₦2,800.00"></div>
             <div class="field"><label id="investTotalLabel">Total to Pay</label><input id="investTotal" type="text" readonly value="₦0.00"></div>
             <div class="field full"><label>Proof of Payment Receipt <span style="color:#D4AF37">*</span></label><div class="receipt-box"><input id="investReceipt" class="file-input" type="file" accept="image/*,.pdf"><div class="receipt-help">Upload a clear screenshot, photo or PDF of your payment receipt. Maximum 10MB.</div><div id="receiptName" class="receipt-name"></div></div></div><div class="field full"><label>Payment Reference / Note</label><textarea id="investNote" placeholder="Optional reference or payment note"></textarea></div>
@@ -681,17 +681,25 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     try{
       const r=await query("payment_destinations",q=>q.select("*").eq("is_active",true).order("created_at",{ascending:false}));
       if(r.error)throw r.error;
-      const rows=r.data||[];
-      wrap.innerHTML=rows.length?rows.map(p=>{
-        if(p.type==="wallet"){
-          const address=String(p.wallet_address||"");
-          return `<div class="payment-option"><b>${esc(p.label||"Wallet Address")}</b><div class="muted">Chain: ${esc(p.chain||"—")}</div><div class="payment-row"><div class="payment-value">${esc(address||"—")}</div>${address?`<button type="button" class="copy-payment" data-copy-payment="${esc(address)}">Copy</button>`:""}</div></div>`;
-        }
-        const account=String(p.account_number||"");
-        return `<div class="payment-option"><b>${esc(p.label||"Bank Transfer")}</b><div class="muted">Bank: ${esc(p.bank_name||"—")}</div><div class="muted">Account Name: ${esc(p.account_name||"—")}</div><div class="payment-row"><div class="payment-value">Account Number: ${esc(account||"—")}</div>${account?`<button type="button" class="copy-payment" data-copy-payment="${esc(account)}">Copy</button>`:""}</div></div>`;
-      }).join(""):'<div class="empty">No active payment destinations are configured yet.</div>';
-      wrap.querySelectorAll(".copy-payment").forEach(btn=>{btn.onclick=()=>copyText(btn.dataset.copyPayment||"");});
+      renderPaymentDestinations(r.data||[]);
     }catch(e){wrap.innerHTML=`<div class="empty">${esc(e.message||"Unable to load payment destinations.")}</div>`}
+  }
+
+  function renderPaymentDestinations(rows){
+    const wrap=$("paymentDestinations");
+    if(!wrap)return;
+    const method=$("investMethod")?.value||"bank";
+    const wanted=method==="wallet"?"wallet":"bank";
+    const filtered=(rows||[]).filter(p=>String(p.type||"").toLowerCase()===wanted);
+    wrap.innerHTML=filtered.length?filtered.map(p=>{
+      if(wanted==="wallet"){
+        const address=String(p.wallet_address||"");
+        return `<div class="payment-option"><b>${esc(p.label||"Wallet Address")}</b><div class="muted">Chain: ${esc(p.chain||"—")}</div><div class="payment-row"><div class="payment-value">${esc(address||"—")}</div>${address?`<button type="button" class="copy-payment" data-copy-payment="${esc(address)}">Copy</button>`:""}</div></div>`;
+      }
+      const account=String(p.account_number||"");
+      return `<div class="payment-option"><b>${esc(p.label||"Bank Transfer")}</b><div class="muted">Bank: ${esc(p.bank_name||"—")}</div><div class="muted">Account Name: ${esc(p.account_name||"—")}</div><div class="payment-row"><div class="payment-value">Account Number: ${esc(account||"—")}</div>${account?`<button type="button" class="copy-payment" data-copy-payment="${esc(account)}">Copy</button>`:""}</div></div>`;
+    }).join(""):`<div class="empty">No active ${wanted==="wallet"?"wallet addresses":"bank accounts"} are configured yet.</div>`;
+    wrap.querySelectorAll(".copy-payment").forEach(btn=>{btn.onclick=()=>copyText(btn.dataset.copyPayment||"");});
   }
 
   async function loadPackages(){
@@ -727,20 +735,20 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const amount=num($("investAmount").value);
     const wallet=$("investMethod").value==="wallet";
     const feeUsd=wallet ? INVEST_WALLET_FEE_USD : INVEST_BANK_FEE_USD;
-    const feeNgn=feeUsd*NGN_RATE;
     const amountNgn=amount*NGN_RATE;
+    const feeNgn=feeUsd*NGN_RATE;
     const totalUsd=amount+feeUsd;
     const totalNgn=amountNgn+feeNgn;
 
     if(wallet){
-      $("investAmountPayLabel").textContent="Amount to Pay (USD)";
+      $("investPayableAmountLabel").textContent="Amount to Pay (USD)";
       $("investNaira").value=amount ? money(amount) : "$0.00";
       $("investFeeLabel").textContent="Investment Fee (USD)";
       $("investFee").value=money(feeUsd);
       $("investTotalLabel").textContent="Total to Pay (USD)";
       $("investTotal").value=amount ? money(totalUsd) : "$0.00";
     }else{
-      $("investAmountPayLabel").textContent="Amount to Pay (NGN)";
+      $("investPayableAmountLabel").textContent="Amount to Pay (NGN)";
       $("investNaira").value=amount ? "₦"+amountNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) : "₦0.00";
       $("investFeeLabel").textContent="Investment Fee (NGN)";
       $("investFee").value="₦"+feeNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1148,7 +1156,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       if(p?.amount != null && $("investAmount")) $("investAmount").value=p.amount;
       updateInvestNaira();
     });
-    on("investMethod","change",updateInvestNaira);
+    on("investMethod","change",()=>{updateInvestNaira();loadPaymentDestinations();});
     on("investReceipt","change",()=>{const file=$("investReceipt")?.files?.[0];setText("receiptName",file?"Selected: "+file.name:"");});
     on("withdrawAmount","input",updateWithdrawCalc);
     on("withdrawMethod","change",()=>{updateWithdrawCalc();updateWithdrawFields();});
