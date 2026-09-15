@@ -319,30 +319,36 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   function openPolicy(id){
     const modal=document.getElementById(id);
-    if(modal) modal.classList.add("open");
+    if(!modal)return;
+    document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"));
+    modal.classList.add("open");
+    document.body.style.overflow="hidden";
   }
   function closePolicy(modal){
-    if(modal) modal.classList.remove("open");
+    if(!modal)return;
+    modal.classList.remove("open");
+    if(!document.querySelector(".modal.open"))document.body.style.overflow="";
   }
 
-  document.addEventListener("click",e=>{
-    const trigger=e.target.closest("[data-modal]");
-    if(trigger){
+  document.querySelectorAll(".policy-link").forEach(trigger=>{
+    trigger.addEventListener("click",e=>{
       e.preventDefault();
       e.stopPropagation();
       openPolicy(trigger.getAttribute("data-modal"));
-      return;
-    }
-    const close=e.target.closest(".close");
-    if(close){
+    });
+  });
+
+  document.querySelectorAll(".modal .close").forEach(close=>{
+    close.addEventListener("click",e=>{
       e.preventDefault();
+      e.stopPropagation();
       closePolicy(close.closest(".modal"));
-    }
+    });
   });
 
   document.querySelectorAll(".modal").forEach(m=>{
     m.addEventListener("click",e=>{
-      if(e.target===m) closePolicy(m);
+      if(e.target===m)closePolicy(m);
     });
   });
 

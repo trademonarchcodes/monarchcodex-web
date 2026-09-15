@@ -61,9 +61,7 @@ body{overflow-x:hidden}
 .brand{font-family:Cinzel,serif;text-align:center;margin-bottom:28px}
 .brand .name{font-size:21px;letter-spacing:2px;color:var(--gold);font-weight:700}
 .brand .sub{font-size:9px;letter-spacing:3px;color:#aaa;margin-top:4px}
-.member-card{
-  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:18px
-}
+.member-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:18px}.side-identity{display:flex;align-items:center;gap:10px;min-width:0}.side-avatar{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover;background:#171717;flex:0 0 44px}
 .member-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .member-uid{font-size:11px;color:var(--muted);margin-top:4px;word-break:break-all}
 .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);margin-right:7px}
@@ -143,7 +141,7 @@ textarea{min-height:100px;resize:vertical}
   width:74px;height:74px;border-radius:50%;border:2px solid var(--gold);
   object-fit:cover;background:#171717
 }
-.ref-box{display:flex;gap:8px}
+.ref-box{display:flex;gap:8px}.ref-member{display:flex;align-items:center;gap:9px}.ref-member img{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);object-fit:cover;background:#171717}.ref-member span{font-weight:600}
 .ref-box input{flex:1}
 .notice{padding:13px;border:1px solid #3c351e;background:#18150b;border-radius:10px;color:#d9c77d;font-size:12px;margin-bottom:15px}
 .file-input{padding:10px}
@@ -221,8 +219,8 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     </div>
 
     <div class="member-card">
-      <div id="sideName" class="member-name">Monarch</div>
-      <div id="sideUid" class="member-uid">Loading...</div>
+      <div class="side-identity"><img id="sideAvatar" class="side-avatar" alt="Monarch photo"><div style="min-width:0"><div id="sideName" class="member-name">Monarch</div>
+      <div id="sideUid" class="member-uid">Loading...</div></div></div>
       <div style="font-size:11px;margin-top:10px">
         <span class="status-dot"></span><span id="sideStatus">Checking account</span>
       </div>
@@ -387,7 +385,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
             </div>
           </div>
           <div class="form-grid">
-            <div class="field"><label>Username / Display Name</label><input id="username" type="text"></div>
+            <div class="field"><label>Official Name</label><input id="username" type="text" readonly></div>
             <div class="field"><label>Email</label><input id="profileEmail" type="email" disabled></div>
             <div class="field"><label>Phone</label><input id="profilePhone" type="tel"></div>
             <div class="field"><label>Referral Code</label><input id="profileRefCode" type="text" readonly></div>
@@ -506,6 +504,9 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
     setText("sideName",name);
     setText("sideUid",uid);
+    const sideAvatarUrl=p.avatar_url || p.avatar || "";
+    const fallback="data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="62" text-anchor="middle" fill="#D4AF37" font-size="42" font-family="serif">M</text></svg>`);
+    if($("sideAvatar")){ $("sideAvatar").src=sideAvatarUrl||fallback; $("sideAvatar").onerror=()=>{$("sideAvatar").src=fallback;}; }
     setText("welcomeName","Welcome, "+name);
     setText("profileName",name);
     setText("profileUid",currentUser.id);
@@ -513,7 +514,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     setText("sideStatus",p.status || "active");
 
     $("profileEmail").value=currentUser.email || "";
-    $("username").value=p.username || name || "";
+    $("username").value=p.full_name || name || "";
     $("profilePhone").value=p.phone || "";
     $("profileRefCode").value=p.referral_code || p.uid || "";
     $("kycEmail").value=currentUser.email || "";
@@ -698,11 +699,11 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const code=currentProfile?.referral_code || currentProfile?.uid || "";
 
     try{
-      const r=await query("profiles",q=>q.select("id,full_name,username,created_at").eq("referred_by",code));
+      const r=await query("profiles",q=>q.select("id,full_name,avatar_url,created_at").eq("referred_by",code));
       if(!r.error){
         setText("refCount",(r.data||[]).length);
         $("referralTable").innerHTML=r.data?.length ? `<div class="table-wrap"><table><thead><tr><th>Monarch</th><th>Joined</th></tr></thead><tbody>${
-          r.data.map(x=>`<tr><td>${esc(x.full_name || x.username || "Monarch")}</td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
+          r.data.map(x=>`<tr><td><div class="ref-member"><img src="${esc(x.avatar_url||"")}" onerror="this.style.display='none'" alt=""><span>${esc(x.full_name || "Monarch")}</span></div></td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
         }</tbody></table></div>` : '<div class="empty">No referrals yet.</div>';
       }
     }catch(e){console.warn("Referrals:",e)}
@@ -835,11 +836,10 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   async function saveUsername(){
     if(!currentUser)return;
     try{
-      const username=$("username").value.trim();
       const phone=$("profilePhone").value.trim();
-      const {data,error}=await query("profiles",q=>q.update({username,phone}).eq("id",currentUser.id).select("*").maybeSingle());
+      const {data,error}=await query("profiles",q=>q.update({phone}).eq("id",currentUser.id).select("*").maybeSingle());
       if(error)throw error;
-      currentProfile=data || {...currentProfile,username,phone};
+      currentProfile=data || {...currentProfile,phone};
       renderProfile();
       toast("Profile saved.","success");
     }catch(e){toast(e.message || "Could not save profile.","error")}
@@ -885,7 +885,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
     if(name==="transactions")loadOverview();
     if(name==="referrals")loadReferralData();
-    if(name==="investments")loadPackages();
+    if(name==="investments"){loadPackages();loadPaymentDestinations();}
   }
 
   function toggleMenu(){
