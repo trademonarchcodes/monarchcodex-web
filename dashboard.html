@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Dashboard | Monarch Codex</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#B8941F;--black:#070707;--card:#121212;--card2:#0e0e0e;--border:rgba(212,175,55,0.18);--border2:rgba(255,255,255,0.07);--text:#eee}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--black);color:var(--text);font-family:'Poppins',sans-serif}
+.cinzel{font-family:'Cinzel',serif}
+.gold{color:var(--gold)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:10px 18px;border-radius:8px;font-weight:800;cursor:pointer}
+.btn-outline{background:transparent;border:1px solid var(--border);color:#ccc;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px}
+.btn-small{background:#1a1a1a;border:1px solid #333;color:#ccc;padding:6px 10px;border-radius:6px;font-size:11px;cursor:pointer}
+.badge{background:rgba(212,175,55,0.1);border:1px solid var(--border);color:var(--gold);padding:4px 10px;border-radius:20px;font-size:11px}
+.app-loading{position:fixed;inset:0;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100}
+.loading-spinner{width:40px;height:40px;border:3px solid rgba(212,175,55,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.auth-error{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;z-index:100}
+.auth-error-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px;text-align:center;max-width:360px}
+.hidden{display:none !important}
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:260px;background:#0a0a0a;border-right:1px solid var(--border2);padding:20px;display:flex;flex-direction:column}
+.sidebar-logo{font-family:'Cinzel',serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:20px}
+.logo-sub{color:var(--gold)}
+.sidebar-member{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:10px;margin-bottom:16px}
+.member-avatar{width:36px;height:36px;background:var(--gold);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800}
+.sidebar-nav{display:flex;flex-direction:column;gap:6px;flex:1}
+.nav-item{background:transparent;border:none;color:#888;padding:10px 12px;border-radius:8px;text-align:left;cursor:pointer;font-size:13px}
+.nav-item.active,.nav-item:hover{background:rgba(212,175,55,0.1);color:var(--gold);border:1px solid var(--border)}
+.main{flex:1;background:var(--black)}
+.topbar{padding:16px 24px;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,10,0.9);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10}
+.content{padding:20px;max-width:1000px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:radial-gradient(120% 120% at 20% 0%, #1a1a1a, #0e0e0e);border:1px solid var(--border2);border-top:1px solid rgba(212,175,55,0.25);border-radius:12px;padding:16px}
+.stat small{color:#777;font-size:10px;text-transform:uppercase;letter-spacing:1px}
+.stat strong{color:var(--gold);font-size:20px;display:block;margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:20px;margin-top:16px}
+.dashboard-section{margin-top:0}
+label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:10px;display:block}
+input,select{background:#0e0e0e;border:1px solid rgba(255,255,255,0.08);color:#fff;padding:10px 12px;border-radius:8px;width:100%;margin-top:6px;font-size:13px}
+input:focus{border-color:var(--gold);outline:none}
+.payment-methods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:12px}
+.payment-method-card{background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;cursor:pointer;transition:0.2s}
+.payment-method-card:hover{border-color:rgba(212,175,55,0.5)}
+.payment-method-card.selected{border-color:var(--gold);background:rgba(212,175,55,0.08)}
+.payment-detail-panel{background:linear-gradient(145deg,#111,#0a0a0a);border:1px solid rgba(212,175,55,0.25);border-radius:14px;padding:16px;margin-top:16px}
+.copy-btn{background:#1a1a1a;border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
+@media(max-width:900px){.app-shell{flex-direction:column} .sidebar{width:100%} .grid-4{grid-template-columns:1fr 1fr} .content{padding:12px}}
+</style></head><body>
+<div id="appLoading" class="app-loading"><div class="loading-spinner"></div><p>Loading your kingdom...</p><small style="color:#666;margin-top:8px">If stuck >8s, will show retry</small></div>
+<div id="authError" class="auth-error hidden"><div class="auth-error-card"><h2>Login Required</h2><p>Please login to access dashboard</p><button onclick="location.href='login.html'" class="btn-gold">Go to Login</button></div></div>
+<div id="appShell" class="app-shell hidden">
+<aside class="sidebar">
+<div class="sidebar-logo"><span class="logo-main">MONARCH</span> <span class="logo-sub">CODEX</span></div>
+<div class="sidebar-member"><div id="sidebarMemberInitial" class="member-avatar">M</div><div><strong id="sidebarMemberName">Monarch</strong><small id="sidebarMemberUID">MONARCH...</small></div></div>
+<nav class="sidebar-nav">
+<button class="nav-item active" data-section="overview">🏠 Overview</button>
+<button class="nav-item" data-section="kyc">🪪 KYC Verification</button>
+<button class="nav-item" data-section="invest">💰 Invest</button>
+<button class="nav-item" data-section="earnings">📈 Earnings</button>
+<button class="nav-item" data-section="withdrawals">💸 Withdrawals</button>
+<button class="nav-item" data-section="transactions">📜 Transactions</button>
+<button class="nav-item" data-section="referrals">👥 Referrals</button>
+<button class="nav-item" data-section="profile">⚙️ Profile</button>
+</nav>
+<button id="logoutBtn" class="btn-outline" style="margin:20px">Logout</button>
+</aside>
+<main class="main">
+<header class="topbar"><h1 id="topbarTitle" class="cinzel">Overview</h1><div class="topbar-actions"><span id="displayUsername" class="badge"></span><button id="editUsernameBtn" class="btn-small">Edit Username</button></div></header>
+<div class="content">
+
+<!-- OVERVIEW -->
+<section id="overviewSection" class="dashboard-section">
+<div class="grid-4">
+<div class="stat"><small>Balance</small><strong id="balance">$0.00</strong></div>
+<div class="stat"><small>Total Invested</small><strong id="totalInvested">$0.00</strong></div>
+<div class="stat"><small>Total Earnings</small><strong id="totalEarnings">$0.00</strong></div>
+<div class="stat"><small>Referral Earnings</small><strong id="refEarnings">$0.00</strong></div>
+</div>
+<div class="card" style="margin-top:16px"><h3>Your Kingdom Status</h3><p id="kycStatusText" style="color:#888;font-size:13px">KYC: Pending — Complete KYC to invest</p><div id="kycStatusBadge" style="margin-top:8px"></div></div>
+</section>
+
+<!-- KYC -->
+<section id="kycSection" class="dashboard-section hidden">
+<div class="card"><h3 class="cinzel gold">KYC Verification</h3><p style="color:#888;font-size:12px">Names as in NIN — cannot be changed after approval. Phone, location, NIN immutable.</p>
+<div id="kycForm" style="margin-top:16px;display:grid;gap:12px">
+<label>Country</label><input id="kycCountry" placeholder="Nigeria">
+<label>State</label><input id="kycState" placeholder="Lagos">
+<label>City</label><input id="kycCity" placeholder="Ikeja">
+<label>Address</label><input id="kycAddress" placeholder="Your address">
+<label>NIN Number</label><input id="kycNIN" placeholder="12345678901">
+<label>NIN Front (upload)</label><input type="file" id="kycNINFront" accept="image/*">
+<label>NIN Back (upload)</label><input type="file" id="kycNINBack" accept="image/*">
+<label>Selfie (clear image, appears in admin for verification)</label><input type="file" id="kycSelfie" accept="image/*">
+<button id="submitKYCBtn" class="btn-gold">Submit KYC for Verification</button>
+<div id="kycRejectionReasons" style="margin-top:12px"></div>
+</div>
+</div>
+</section>
+
+<!-- INVEST -->
+<section id="investSection" class="dashboard-section hidden">
+<div class="card"><h3 class="cinzel gold">Invest in Your Future</h3><p style="color:#888;font-size:12px">Choose package, payment method, upload receipt. Admin verifies.</p>
+<div id="packagesList" style="margin-top:16px"></div>
+<div id="paymentMethods" class="payment-methods-grid"></div>
+<div id="paymentDetailPanel" class="payment-detail-panel hidden"></div>
+<div id="receiptArea" class="hidden"><label>Upload Payment Receipt</label><input type="file" id="receiptFile" accept="image/*"><button id="submitInvestmentBtn" class="btn-gold" style="margin-top:12px">Submit Investment</button></div>
+</div>
+<div class="card" style="margin-top:16px"><h4>My Investments</h4><div id="myInvestmentsList"></div></div>
+</section>
+
+<!-- EARNINGS -->
+<section id="earningsSection" class="dashboard-section hidden">
+<div class="card"><h3>Earnings</h3><strong id="earningsTotal">$0.00</strong><div id="earningsList" style="margin-top:12px"></div></div>
+</section>
+
+<!-- WITHDRAWALS -->
+<section id="withdrawalsSection" class="dashboard-section hidden">
+<div class="card"><h3>Withdraw Funds</h3><p style="color:#888;font-size:12px">Min $30. Account must bear your original NIN names — no third party. Bank fee $2 in Naira, Wallet fee $1.</p>
+<div style="display:grid;gap:10px;margin-top:12px">
+<label>Withdrawal Method</label><select id="withdrawMethod" onchange="updateWithdrawNaira()"><option value="bank">Bank Transfer (Naira, fee $2 in Naira, rounded)</option><option value="wallet">Wallet Address (fee $1)</option></select>
+<label>Amount ($) - Min $30</label><input type="number" id="withdrawAmount" min="30" placeholder="30" oninput="updateWithdrawNaira()">
+<div id="withdrawNairaDisplay" style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2);border-radius:8px;padding:10px;display:none">
+  <small style="color:#aaa">Naira Equivalent (approx, nearest whole number):</small><br>
+  <strong id="withdrawNairaAmount" style="color:#4ee58a;font-size:18px">₦0</strong><br>
+  <small id="withdrawFeeDisplay" style="color:#888">Fee: $2 (~₦2,720)</small><br>
+  <small>Net you receive:</small> <strong id="withdrawNetNaira" style="color:var(--gold)">₦0</strong>
+</div>
+<label>Account Name (must match NIN name)</label><input id="withdrawAccountName" placeholder="BRIGHT EZEBOLA OKECHUKWU">
+<label>Account Number / Wallet Address</label><input id="withdrawAccountNumber" placeholder="9135424851 or wallet address">
+<label>Bank Name / Network</label><input id="withdrawBankName" placeholder="OPAY or USDT BEP20">
+<button id="submitWithdrawalBtn" class="btn-gold">Request Withdrawal</button>
+</div>
+</div>
+<div class="card" style="margin-top:16px"><h4>My Withdrawals</h4><div id="withdrawalsList"></div></div>
+</section>
+
+<!-- TRANSACTIONS -->
+<section id="transactionsSection" class="dashboard-section hidden">
+<div class="card"><h3>Transaction History</h3><p style="color:#888;font-size:11px">+ for adding funds/investments, - for removal/withdrawals by admin or you</p><div id="transactionsList" style="margin-top:12px"></div></div>
+</section>
+
+<!-- REFERRALS -->
+<section id="referralsSection" class="dashboard-section hidden">
+<div class="card"><h3>Referral System</h3><p style="color:#888;font-size:12px">Earn 3% of referral investment + 1% of their profit monthly</p>
+<div style="margin-top:12px"><label>Your Referral Code</label><div style="display:flex;gap:8px"><strong id="referralCode" style="font-size:18px">LOADING</strong><button id="copyReferralCodeBtn" class="copy-btn">Copy</button></div>
+<label style="margin-top:12px">Referral Link</label><div style="display:flex;gap:8px"><input id="referralLink" readonly style="flex:1;background:#0e0e0e;border:1px solid #333;color:#fff;padding:8px;border-radius:8px"><button id="copyReferralLinkBtn" class="copy-btn">Copy Link</button></div></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px"><div class="stat"><small>Total Referrals</small><strong id="totalReferrals">0</strong></div><div class="stat"><small>Active</small><strong id="activeReferrals">0</strong></div><div class="stat"><small>Earnings</small><strong id="referralEarnings">$0.00</strong></div></div>
+<div id="referralsList" style="margin-top:16px"></div>
+</div>
+</section>
+
+<!-- PROFILE -->
+<section id="profileSection" class="dashboard-section hidden">
+<div class="card"><h3>Profile</h3><div id="profileInfo"></div>
+<div style="margin-top:16px"><h4>Display Username (editable every 7 days)</h4><p style="color:#888;font-size:11px">This is not your real NIN name, just display name on dashboard</p><input id="newDisplayUsername" placeholder="New username"><button id="saveUsernameBtn" class="btn-gold" style="margin-top:8px">Save Username</button><small id="usernameCooldown" style="color:#888;display:block;margin-top:6px"></small></div>
+</div>
+</section>
+
+</div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let currentUser=null, currentProfile=null, selectedPackage=null, selectedPayment=null;
+
+// Professional Toast System - replaces ash alert
+function showToast(message, type="info"){
+  let container = document.getElementById("toastContainer");
+  if(!container){
+    container = document.createElement("div");
+    container.id = "toastContainer";
+    container.style = "position:fixed;top:20px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;max-width:380px";
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  const bg = type==="success" ? "linear-gradient(135deg,#00c851,#00a63d)" : type==="error" ? "linear-gradient(135deg,#ff4444,#cc0000)" : type==="warning" ? "linear-gradient(135deg,#D4AF37,#B8941F)" : "linear-gradient(135deg,#121212,#1a1a1a)";
+  const color = type==="warning" ? "#000" : "#fff";
+  const icon = type==="success" ? "✓" : type==="error" ? "✕" : type==="warning" ? "⚠" : "ℹ";
+  toast.style = `background:${bg};color:${color};padding:14px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);border:1px solid rgba(212,175,55,0.3);font-size:13px;line-height:1.5;animation:slideIn 0.3s ease;display:flex;gap:10px;align-items:flex-start`;
+  toast.innerHTML = `<span style="font-size:16px;font-weight:800">${icon}</span><span style="flex:1">${message}</span><button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:inherit;cursor:pointer;font-size:16px;opacity:0.7">×</button>`;
+  container.appendChild(toast);
+  setTimeout(()=>{ if(toast.parentElement) toast.remove(); }, 5000);
+}
+
+function showConfirm(message){
+  return new Promise(resolve=>{
+    let container = document.getElementById("confirmContainer");
+    if(container) container.remove();
+    container = document.createElement("div");
+    container.id="confirmContainer";
+    container.style="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px";
+    container.innerHTML=`<div style="background:#121212;border:1px solid rgba(212,175,55,0.3);border-radius:16px;padding:24px;max-width:400px;width:100%"><h3 style="color:#D4AF37;margin-bottom:12px;font-family:Cinzel">Confirm Action</h3><p style="color:#aaa;font-size:13px;line-height:1.6">${message}</p><div style="display:flex;gap:12px;margin-top:20px"><button id="confirmYes" style="flex:1;background:linear-gradient(135deg,#D4AF37,#B8941F);color:#000;border:none;padding:12px;border-radius:8px;font-weight:800;cursor:pointer">Yes, Continue</button><button id="confirmNo" style="flex:1;background:#1a1a1a;border:1px solid #333;color:#ccc;padding:12px;border-radius:8px;cursor:pointer">Cancel</button></div></div>`;
+    document.body.appendChild(container);
+    document.getElementById("confirmYes").onclick=()=>{container.remove(); resolve(true);};
+    document.getElementById("confirmNo").onclick=()=>{container.remove(); resolve(false);};
+  });
+}
+
+// Add slideIn animation
+if(!document.getElementById("toastStyle")){
+  const style=document.createElement("style");
+  style.id="toastStyle";
+  style.textContent="@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}";
+  document.head.appendChild(style);
+}
+
+async function init(){
+  // Timeout failsafe - prevent infinite Loading your kingdom...
+  const loadingTimeout = setTimeout(()=>{
+    const loading = document.getElementById("appLoading");
+    if(loading && !loading.classList.contains("hidden")){
+      loading.innerHTML = `<div style="text-align:center"><div class="loading-spinner"></div><p style="margin-top:12px">Taking longer than expected...</p><button onclick="location.reload()" class="btn-gold" style="margin-top:12px">Retry</button><br><button onclick="localStorage.clear();location.href='login.html'" class="btn-outline" style="margin-top:8px">Go to Login</button></div>`;
+    }
+  }, 8000);
+
+  try{
+    // Add timeout to supabase calls
+    const userPromise = supabaseClient.auth.getUser();
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error("Auth timeout")), 6000));
+    let userResult;
+    try{
+      userResult = await Promise.race([userPromise, timeoutPromise]);
+    }catch(e){
+      console.error("Auth timeout/error", e);
+      document.getElementById("appLoading").classList.add("hidden");
+      document.getElementById("authError").classList.remove("hidden");
+      clearTimeout(loadingTimeout);
+      return;
+    }
+    
+    const {data:{user}, error:authErr} = userResult;
+    if(authErr || !user){
+      console.log("No user", authErr);
+      document.getElementById("appLoading").classList.add("hidden");
+      document.getElementById("authError").classList.remove("hidden");
+      clearTimeout(loadingTimeout);
+      return;
+    }
+    currentUser=user;
+    
+    // Fetch profile with timeout
+    const profilePromise = supabaseClient.from("profiles").select("*").eq("id",user.id).single();
+    const profileTimeout = new Promise((_,reject)=>setTimeout(()=>reject(new Error("Profile timeout")), 6000));
+    let profileRes;
+    try{
+      profileRes = await Promise.race([profilePromise, profileTimeout]);
+    }catch(pe){
+      console.error("Profile fetch timeout", pe);
+      // Try to continue with minimal profile
+      const {data:profileFallback} = await supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle();
+      if(!profileFallback){
+        document.getElementById("appLoading").innerHTML = `<div style="text-align:center;color:#fff"><p>Profile not found. Please contact admin.</p><p style="color:#888;font-size:12px;margin-top:8px">UID: ${user.id.substring(0,8)}...</p><button onclick="location.href='login.html'" class="btn-gold" style="margin-top:12px">Go to Login</button></div>`;
+        return;
+      }
+      profileRes = {data: profileFallback};
+    }
+    
+    const {data:profile, error:profErr} = profileRes;
+    if(profErr || !profile){
+      console.error("Profile error", profErr);
+      document.getElementById("appLoading").classList.add("hidden");
+      document.getElementById("authError").innerHTML = `<div class="auth-error-card"><h2>Profile Error</h2><p>${profErr?.message||"Profile not found"}</p><button onclick="location.href='login.html'" class="btn-gold">Go to Login</button></div>`;
+      document.getElementById("authError").classList.remove("hidden");
+      clearTimeout(loadingTimeout);
+      return;
+    }
+    currentProfile=profile;
+    clearTimeout(loadingTimeout);
+    document.getElementById("appLoading").classList.add("hidden");
+    document.getElementById("appShell").classList.remove("hidden");
+    document.getElementById("sidebarMemberName").textContent=profile.full_name;
+    document.getElementById("sidebarMemberUID").textContent=profile.uid;
+  document.getElementById("sidebarMemberInitial").textContent=profile.full_name[0];
+  document.getElementById("displayUsername").textContent=profile.display_username||profile.full_name.split(" ")[0];
+  await loadOverview();
+  loadPackages();
+  loadTransactions();
+  loadReferrals();
+  loadProfile();
+}
+
+function switchSection(name){
+  document.querySelectorAll(".dashboard-section").forEach(s=>s.classList.add("hidden"));
+  document.getElementById(name+"Section")?.classList.remove("hidden");
+  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
+  document.querySelector(`[data-section="${name}"]`)?.classList.add("active");
+  document.getElementById("topbarTitle").textContent=name.charAt(0).toUpperCase()+name.slice(1);
+}
+
+document.querySelectorAll(".nav-item").forEach(btn=>{
+  btn.addEventListener("click",()=>switchSection(btn.dataset.section));
+});
+document.getElementById("logoutBtn")?.addEventListener("click",async()=>{await supabaseClient.auth.signOut();location.href="login.html";});
+
+async function loadOverview(){
+  try{
+  const {data:investments}=await supabaseClient.from("investments").select("amount,status,created_at").eq("user_id",currentUser.id);
+  const totalInv=investments?.filter(i=>i.status==="approved").reduce((s,i)=>s+Number(i.amount),0)||0;
+  const {data:trans}=await supabaseClient.from("transactions").select("amount,type,description").eq("user_id",currentUser.id);
+  // Separate referral earnings vs normal earnings
+  const referralEarnings=trans?.filter(t=> Number(t.amount)>0 && t.type==="referral_bonus").reduce((s,i)=>s+Number(i.amount),0)||0;
+  const normalEarnings=trans?.filter(t=> Number(t.amount)>0 && (t.type==="earning"||t.type==="profit"||t.type==="bonus"||t.type==="admin_add")).reduce((s,i)=>s+Number(i.amount),0)||0;
+  const totalEarnings = normalEarnings; // Normal earnings only
+  const allEarnings = normalEarnings + referralEarnings; // For balance calc
+  const totalWithdrawn=trans?.filter(t=> Number(t.amount)<0).reduce((s,i)=>s+Math.abs(Number(i.amount)),0)||0;
+  let balance = currentProfile.balance;
+  if(balance===null || balance===undefined) balance = allEarnings - totalWithdrawn;
+  if(balance < 0 && totalInv>0 && allEarnings===0) balance = 0;
+  document.getElementById("balance").textContent="$"+Number(balance).toFixed(2);
+  document.getElementById("totalInvested").textContent="$"+totalInv.toFixed(2);
+  document.getElementById("totalEarnings").textContent="$"+totalEarnings.toFixed(2);
+  document.getElementById("refEarnings").textContent="$"+referralEarnings.toFixed(2);
+  const earnEl=document.getElementById("earningsTotal"); if(earnEl) earnEl.textContent="$"+totalEarnings.toFixed(2);
+  // Also update referral earnings in referral section if exists
+  const refEarnDetail=document.getElementById("referralEarningsDetail");
+  if(refEarnDetail) refEarnDetail.textContent="$"+referralEarnings.toFixed(2);
+  // Store separated values
+  window._referralEarnings = referralEarnings;
+  }catch(e){console.error('loadOverview error', e); showToast('Error loading overview: '+e.message,'error');}
+  const kycBadge=document.getElementById("kycStatusBadge");
+  if(currentProfile.kyc_status==="approved"){
+    kycBadge.innerHTML='<span style="background:#00c851;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Approved - Active</span>';
+    document.getElementById("kycStatusText").textContent="KYC: Approved — You can invest. Profile picture can be updated in Profile.";
+    const kycFormInner=document.getElementById("kycForm");
+    if(kycFormInner) kycFormInner.style.display="none";
+    const approvedMsg=document.getElementById("kycApprovedMsg");
+    if(!approvedMsg){
+      const msg=document.createElement("div");
+      msg.id="kycApprovedMsg";
+      msg.style="background:rgba(0,200,81,0.1);border:1px solid rgba(0,200,81,0.3);padding:16px;border-radius:10px;margin-top:16px;text-align:center";
+      msg.innerHTML="<h4 style='color:#4ee58a'>✓ KYC Approved</h4><p style='color:#aaa;font-size:12px;margin-top:8px'>Your KYC is verified. You can now update your profile picture in Profile section.</p><button class='btn-gold' style='margin-top:12px' onclick=\"switchSection('profile')\">Go to Profile</button>";
+      const card=document.querySelector("#kycSection .card");
+      if(card) card.appendChild(msg);
+    }
+  } else if(currentProfile.kyc_status==="rejected"){
+    kycBadge.innerHTML='<span style="background:#ff4444;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Rejected - Please resubmit</span>';
+  } else {
+    kycBadge.innerHTML='<span style="background:#D4AF37;color:#000;padding:4px 10px;border-radius:20px;font-size:11px">KYC Pending</span>';
+  }
+  window._earnings = allEarnings;
+  window._normalEarnings = normalEarnings;
+  window._referralEarnings = referralEarnings;
+  }catch(e){console.error('loadOverview error', e); showToast('Error loading overview: '+e.message,'error');}
+  window._totalInv = totalInv;
+  window._investments = investments;
+  window._totalWithdrawn = totalWithdrawn;
+}
+
+async function loadPackages(){
+  const {data:pkgs}=await supabaseClient.from("packages").select("*").order("amount");
+  const list=document.getElementById("packagesList");
+  if(!pkgs||!list)return;
+  list.innerHTML="";
+  pkgs.forEach(p=>{
+    const div=document.createElement("div");
+    div.className="payment-method-card";
+    div.innerHTML=`<strong>${p.name}</strong><br><span style="color:var(--gold)">$${p.amount}</span><br><small style="color:#888">${p.profit_percent}% target</small>`;
+    div.onclick=()=>{selectedPackage=p;document.querySelectorAll("#packagesList .payment-method-card").forEach(c=>c.classList.remove("selected"));div.classList.add("selected");loadPaymentMethods();};
+    list.appendChild(div);
+  });
+}
+
+async function loadPaymentMethods(){
+  const {data:methods}=await supabaseClient.from("payment_details").select("*").eq("active",true);
+  const grid=document.getElementById("paymentMethods");
+  if(!methods||!grid)return;
+  grid.innerHTML="<h4 style='color:var(--gold);grid-column:1/-1'>Select Payment Method</h4>";
+  methods.forEach(m=>{
+    const div=document.createElement("div");
+    div.className="payment-method-card";
+    const name=m.payment_type==="bank"?`${m.bank_name} - ${m.account_name}`:`${m.crypto_name} ${m.crypto_network}`;
+    div.innerHTML=`<strong style="font-size:12px">${name}</strong><br><small style="color:#777;word-break:break-all">${(m.wallet_address||m.account_number||'').substring(0,20)}...</small>`;
+    div.onclick=()=>{
+      selectedPayment=m;
+      document.querySelectorAll("#paymentMethods .payment-method-card").forEach(c=>c.classList.remove("selected"));
+      div.classList.add("selected");
+      showPaymentDetail(m);
+    };
+    grid.appendChild(div);
+  });
+}
+
+const NGN_RATE = 1360; // 1 USD = ~1360 NGN (from XE/Coinbase 1352-1367 range)
+
+function formatNaira(amount){
+  return "₦" + Math.round(amount).toLocaleString();
+}
+
+function showPaymentDetail(m){
+  const panel=document.getElementById("paymentDetailPanel");
+  panel.classList.remove("hidden");
+  const usdAmount = selectedPackage?.amount||0;
+  const nairaAmount = Math.round(usdAmount * NGN_RATE);
+  const bankFeeUSD = 2;
+  const bankFeeNaira = Math.round(bankFeeUSD * NGN_RATE);
+  const totalNairaWithFee = Math.round((usdAmount + bankFeeUSD) * NGN_RATE); // Approximated to nearest whole number including fees $2 in Naira
+  const walletFeeUSD = 1;
+  
+  if(m.payment_type==="bank"){
+    panel.innerHTML=`<h4 style="color:var(--gold)">Bank Transfer Details</h4>
+      <div style="margin-top:10px">
+        <p><small>Bank:</small> <strong>${m.bank_name}</strong></p>
+        <p><small>Account Name:</small> <strong>${m.account_name}</strong></p>
+        <p><small>Account Number:</small> <strong>${m.account_number}</strong> <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.account_number}');showToast('Account number copied!','success')">Copy</button></p>
+        <div style="margin-top:12px;background:rgba(212,175,55,0.1);border:1px solid var(--border);padding:12px;border-radius:8px">
+          <small>Amount to Pay (USD):</small><br><strong style="color:var(--gold);font-size:18px">$${usdAmount}</strong><br>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.2)">
+            <small style="color:#aaa">Naira Equivalent (approx, nearest whole number):</small><br>
+            <strong style="color:#4ee58a;font-size:20px">${formatNaira(nairaAmount)}</strong><br>
+            <small style="color:#888">Rate: $1 ≈ ${formatNaira(NGN_RATE)} (approx)</small><br>
+            <div style="margin-top:6px;background:rgba(0,0,0,0.3);padding:8px;border-radius:6px">
+              <small>Bank Fee: $${bankFeeUSD} (${formatNaira(bankFeeNaira)} in Naira) - included</small><br>
+              <small>Total in Naira (including fees, rounded):</small><br>
+              <strong style="color:var(--gold);font-size:18px">${formatNaira(totalNairaWithFee)}</strong>
+            </div>
+          </div>
+          <small style="display:block;margin-top:8px;color:#aaa">Pay exact Naira amount above (rounded to nearest whole number) and upload receipt</small>
+        </div>
+      </div>`;
+  }else{
+    const totalWithFee = usdAmount + walletFeeUSD;
+    panel.innerHTML=`<h4 style="color:var(--gold)">${m.crypto_name} - ${m.crypto_network}</h4>
+      <p style="word-break:break-all;color:#fff;margin-top:8px">${m.wallet_address} <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.wallet_address}');showToast('Wallet address copied!','success')">Copy</button></p>
+      <div style="margin-top:12px;background:rgba(212,175,55,0.1);border:1px solid var(--border);padding:12px;border-radius:8px">
+        <small>Amount:</small><br><strong style="color:var(--gold);font-size:18px">$${usdAmount} in ${m.crypto_name}</strong><br>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(212,175,55,0.2)">
+          <small>Wallet Fee: $${walletFeeUSD}</small><br>
+          <small>Total to send:</small> <strong style="color:var(--gold)">$${totalWithFee}</strong><br>
+          <small style="color:#888">Min transfer: $30</small>
+        </div>
+      </div>`;
+  }
+  document.getElementById("receiptArea").classList.remove("hidden");
+}
+
+document.getElementById("submitInvestmentBtn")?.addEventListener("click",async()=>{
+  if(!selectedPackage){showToast("Select a package first","warning");return;}
+  if(!selectedPayment){showToast("Select payment method","warning");return;}
+  const receipt=document.getElementById("receiptFile")?.files[0];
+  if(!receipt){showToast("Upload payment receipt","warning");return;}
+  const btn=document.getElementById("submitInvestmentBtn");
+  btn.disabled=true; btn.textContent="Uploading...";
+  try{
+    const {data,error}=await supabaseClient.storage.from("receipts").upload(`${currentUser.id}/${Date.now()}_${receipt.name}`, receipt);
+    if(error) throw error;
+    const {data:url}=supabaseClient.storage.from("receipts").getPublicUrl(data.path);
+    const {error:invErr}=await supabaseClient.from("investments").insert({user_id:currentUser.id,package_name:selectedPackage.name,amount:selectedPackage.amount,payment_method:selectedPayment.payment_type==="bank"?selectedPayment.bank_name:selectedPayment.crypto_name,receipt_url:url.publicUrl,status:"pending"});
+    if(invErr) throw invErr;
+    showToast(`Investment $${selectedPackage.amount} submitted! Admin will verify receipt within 24 hours.`,"success");
+    btn.disabled=false; btn.textContent="Submit Investment";
+    loadTransactions();
+  }catch(e){
+    showToast(e.message,"error");
+    btn.disabled=false; btn.textContent="Submit Investment";
+  }
+});
+
+async function loadTransactions(){
+  const {data:trans}=await supabaseClient.from("transactions").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(100);
+  const list=document.getElementById("transactionsList");
+  if(!trans||!list)return;
+  list.innerHTML="";
+  if(!trans.length){list.innerHTML="<p style='color:#777'>No transactions yet</p>";return;}
+  const seen=new Set(); const deduped=[];
+  trans.forEach(t=>{
+    const key=`${t.description||t.type}-${t.amount}-${new Date(t.created_at).toDateString()}`;
+    if(!seen.has(key)){seen.add(key); deduped.push(t);}
+  });
+  deduped.slice(0,50).forEach(t=>{
+    const div=document.createElement("div");
+    const isPlus=Number(t.amount)>0||String(t.display_amount||'').startsWith("+");
+    div.style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px";
+    div.innerHTML=`<span>${t.description||t.type} <small style="color:#777">${new Date(t.created_at).toLocaleDateString()}</small></span><strong style="color:${isPlus?'#4ee58a':'#ff7777'}">${t.display_amount||(isPlus?'+':'-')+'$'+Math.abs(Number(t.amount))}</strong>`;
+    list.appendChild(div);
+  });
+  loadMyInvestments(); loadMyWithdrawals();
+}
+
+async function loadMyInvestments(){
+  const {data:invs}=await supabaseClient.from("investments").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false});
+  const list=document.getElementById("myInvestmentsList");
+  if(!list) return;
+  if(!invs||!invs.length){list.innerHTML="<p style='color:#777;font-size:12px'>No investments yet</p>";return;}
+  list.innerHTML="";
+  invs.forEach(inv=>{
+    const div=document.createElement("div");
+    div.style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px";
+    const statusColor=inv.status==="approved"?"#4ee58a":inv.status==="rejected"?"#ff7777":"#D4AF37";
+    div.innerHTML=`<span>${inv.package_name||'Package'} $${inv.amount} <small style="color:#777">${new Date(inv.created_at).toLocaleDateString()}</small></span><strong style="color:${statusColor}">${inv.status}</strong>`;
+    list.appendChild(div);
+  });
+}
+
+async function loadMyWithdrawals(){
+  const {data:wds}=await supabaseClient.from("withdrawals").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false});
+  const list=document.getElementById("withdrawalsList");
+  if(!list) return;
+  if(!wds||!wds.length){list.innerHTML="<p style='color:#777;font-size:12px'>No withdrawals yet</p>";return;}
+  list.innerHTML="";
+  wds.forEach(w=>{
+    const div=document.createElement("div");
+    div.style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px";
+    const statusColor=w.status==="approved"?"#4ee58a":w.status==="rejected"?"#ff7777":"#D4AF37";
+    div.innerHTML=`<span>$${w.amount} to ${w.bank_name} <small style="color:#777">${new Date(w.created_at).toLocaleDateString()}</small></span><strong style="color:${statusColor}">${w.status}</strong>`;
+    list.appendChild(div);
+  });
+}
+
+async function loadReferrals(){
+  const {data:refs}=await supabaseClient.from("profiles").select("full_name,uid,created_at,status").eq("referred_by",currentUser.id);
+  document.getElementById("totalReferrals").textContent=refs?.length||0;
+  document.getElementById("activeReferrals").textContent=refs?.filter(r=>r.status==="active").length||0;
+  document.getElementById("referralCode").textContent=currentProfile.referral_code||"";
+  document.getElementById("referralLink").value=location.origin+"/register.html?ref="+(currentProfile.referral_code||"");
+  const list=document.getElementById("referralsList");
+  if(list){list.innerHTML="";refs?.forEach(r=>{const d=document.createElement("div");d.style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between";d.innerHTML=`<span>${r.full_name} <small>${r.uid}</small></span><span style="color:#4ee58a">${r.status}</span>`;list.appendChild(d);});}
+}
+
+async function loadProfile(){
+  const info=document.getElementById("profileInfo");
+  if(!info)return;
+  let html=`<p><strong>Name (NIN):</strong> ${currentProfile.full_name} (cannot be changed)</p><p><strong>Phone:</strong> ${currentProfile.phone} (cannot be changed)</p><p><strong>UID:</strong> ${currentProfile.uid}</p><p><strong>Referral Code:</strong> ${currentProfile.referral_code}</p><p><strong>Status:</strong> ${currentProfile.status} | KYC: ${currentProfile.kyc_status}</p>`;
+  if(currentProfile.avatar_url){
+    html+=`<p style="margin-top:10px"><strong>Profile Picture:</strong><br><img src="${currentProfile.avatar_url}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin-top:8px"></p>`;
+  }
+  info.innerHTML=html;
+  const avatarSection=document.getElementById("avatarUploadSection");
+  if(currentProfile.kyc_status==="approved" && !avatarSection){
+    const section=document.createElement("div");
+    section.id="avatarUploadSection";
+    section.style="margin-top:16px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;padding:12px";
+    section.innerHTML=`<h4 style="color:var(--gold);font-size:13px">Profile Picture (KYC Approved - You can now add picture)</h4><input type="file" id="avatarFile" accept="image/*" style="margin-top:8px"><button id="uploadAvatarBtn" class="btn-gold" style="margin-top:8px;padding:8px 16px;font-size:12px">Upload Picture</button><small style="color:#888;display:block;margin-top:6px">Visible to admin and community</small>`;
+    info.parentElement.appendChild(section);
+    setTimeout(()=>{
+      document.getElementById("uploadAvatarBtn")?.addEventListener("click", async()=>{
+        const file=document.getElementById("avatarFile")?.files[0];
+        if(!file){showToast("Choose picture first","warning");return;}
+        // Validate file
+        if(file.size > 2*1024*1024){showToast("Image too large - max 2MB","warning");return;}
+        if(!file.type.startsWith("image/")){showToast("Only image files allowed","warning");return;}
+        try{
+          // Try avatars bucket, fallback to kyc bucket if avatars doesn't exist (no bucket error)
+          let uploadData, uploadError;
+          try{
+            const res = await supabaseClient.storage.from("avatars").upload(`${currentUser.id}/avatar_${Date.now()}_${file.name}`, file, {upsert:true});
+            uploadData = res.data; uploadError = res.error;
+          }catch(bucketErr){
+            // If avatars bucket doesn't exist, try kyc bucket as fallback
+            if(bucketErr.message?.includes("Bucket not found") || bucketErr.message?.includes("no bucket") || bucketErr.message?.includes("bucket")){
+              showToast("Avatars bucket not found - trying alternative. Please run avatars bucket SQL in Supabase.","warning");
+              const res2 = await supabaseClient.storage.from("kyc").upload(`${currentUser.id}/avatar_${Date.now()}_${file.name}`, file, {upsert:true});
+              uploadData = res2.data; uploadError = res2.error;
+            } else {
+              throw bucketErr;
+            }
+          }
+          if(uploadError){
+            if(uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("bucket")){
+              showToast("No bucket error: Avatars bucket doesn't exist. Run this SQL in Supabase: INSERT INTO storage.buckets (id,name,public) VALUES ('avatars','avatars',true); - Then create policy. Using kyc bucket fallback.","error");
+              // Fallback to kyc bucket
+              const res2 = await supabaseClient.storage.from("kyc").upload(`${currentUser.id}/avatar_${Date.now()}_${file.name}`, file, {upsert:true});
+              if(res2.error) throw res2.error;
+              uploadData = res2.data;
+            } else {
+              throw uploadError;
+            }
+          }
+          // Get public URL from whichever bucket worked
+          let publicUrl;
+          try{
+            const {data:urlData} = supabaseClient.storage.from("avatars").getPublicUrl(uploadData.path);
+            publicUrl = urlData.publicUrl;
+          }catch{
+            const {data:urlData} = supabaseClient.storage.from("kyc").getPublicUrl(uploadData.path);
+            publicUrl = urlData.publicUrl;
+          }
+          await supabaseClient.from("profiles").update({avatar_url:publicUrl}).eq("id",currentUser.id);
+          showToast("Profile picture updated! Visible to admin.","success");
+          setTimeout(()=>location.reload(),1000);
+        }catch(e){
+          if(e.message?.includes("Bucket not found") || e.message?.includes("bucket")){
+            showToast("Pictures upload: No bucket - Avatars bucket missing. Please create avatars bucket in Supabase Storage. SQL: INSERT INTO storage.buckets VALUES ('avatars','avatars',true)","error");
+          } else {
+            showToast(e.message,"error");
+          }
+        }
+      });
+    },500);
+  }
+  const lastChanged=currentProfile.username_last_changed?new Date(currentProfile.username_last_changed):null;
+  const now=new Date();
+  const diff=lastChanged? (now-lastChanged)/(1000*60*60*24):10;
+  const cd=document.getElementById("usernameCooldown");
+  if(cd){
+    if(diff<7){cd.textContent=`You can change username again in ${(7-diff).toFixed(1)} days`;document.getElementById("saveUsernameBtn").disabled=true;}
+    else{cd.textContent="You can change username now";document.getElementById("saveUsernameBtn").disabled=false;}
+  }
+}
+
+document.getElementById("saveUsernameBtn")?.addEventListener("click",async()=>{
+  const newName=document.getElementById("newDisplayUsername").value.trim();
+  if(!newName){showToast("Enter username","warning");return;}
+  const lastChanged=currentProfile.username_last_changed?new Date(currentProfile.username_last_changed):null;
+  const now=new Date();
+  if(lastChanged && (now-lastChanged)/(1000*60*60*24)<7){showToast("You can only change username every 7 days","warning");return;}
+  const {error}=await supabaseClient.from("profiles").update({display_username:newName,username_last_changed:now.toISOString()}).eq("id",currentUser.id);
+  if(error){showToast(error.message,"error");return;}
+  showToast("Username updated!","success");location.reload();
+});
+
+document.getElementById("copyReferralCodeBtn")?.addEventListener("click",()=>{navigator.clipboard.writeText(document.getElementById("referralCode").textContent);showToast("Referral code copied!","success");});
+document.getElementById("copyReferralLinkBtn")?.addEventListener("click",()=>{navigator.clipboard.writeText(document.getElementById("referralLink").value);showToast("Referral link copied!","success");});
+
+document.getElementById("submitKYCBtn")?.addEventListener("click",async()=>{
+  const country=document.getElementById("kycCountry").value.trim();
+  const state=document.getElementById("kycState").value.trim();
+  const city=document.getElementById("kycCity").value.trim();
+  const address=document.getElementById("kycAddress").value.trim();
+  const nin=document.getElementById("kycNIN").value.trim();
+  const front=document.getElementById("kycNINFront").files[0];
+  const back=document.getElementById("kycNINBack").files[0];
+  const selfie=document.getElementById("kycSelfie").files[0];
+  if(!country||!state||!city||!address||!nin||!front||!back||!selfie){showToast("Fill all KYC fields and upload NIN front/back + selfie","warning");return;}
+  const btn=document.getElementById("submitKYCBtn"); btn.disabled=true; btn.textContent="Uploading...";
+  async function uploadFile(file,path){const {data,error}=await supabaseClient.storage.from("kyc").upload(`${currentUser.id}/${path}_${Date.now()}_${file.name}`,file);if(error)throw error;const {data:url}=supabaseClient.storage.from("kyc").getPublicUrl(data.path);return url.publicUrl;}
+  try{
+    const frontUrl=await uploadFile(front,"front");
+    const backUrl=await uploadFile(back,"back");
+    const selfieUrl=await uploadFile(selfie,"selfie");
+    const {error}=await supabaseClient.from("profiles").update({country,state,city,address,nin_number:nin,nin_front_url:frontUrl,nin_back_url:backUrl,selfie_url:selfieUrl,kyc_status:"pending",status:"kyc_under_review"}).eq("id",currentUser.id);
+    if(error)throw error;
+    showToast("KYC submitted! Admin will verify each section (name, NIN card, selfie).","success");
+    setTimeout(()=>location.reload(),1500);
+  }catch(e){showToast(e.message,"error"); btn.disabled=false; btn.textContent="Submit KYC for Verification";}
+});
+
+document.getElementById("submitWithdrawalBtn")?.addEventListener("click",async()=>{
+  const amount=Number(document.getElementById("withdrawAmount").value);
+  const accName=document.getElementById("withdrawAccountName").value.trim();
+  const accNum=document.getElementById("withdrawAccountNumber").value.trim();
+  const bank=document.getElementById("withdrawBankName").value.trim();
+  if(!amount||amount<5){showToast("Minimum withdrawal is $5 and above (earnings only)","warning");return;}
+  if(!accName||!accNum||!bank){showToast("Fill account details - must match NIN name exactly, no third party","warning");return;}
+  if(accName.toLowerCase()!==currentProfile.full_name.toLowerCase()){
+    const ok=await showConfirm(`Account name does NOT match your NIN name (${currentProfile.full_name}). Withdrawal must bear your original names, no third party. Continue?`);
+    if(!ok) return;
+  }
+  const availableEarnings = (window._normalEarnings||0) + (window._referralEarnings||0);
+  const totalInvested = window._totalInv || 0;
+  const investments = window._investments || [];
+  const threeMonthsAgo = new Date(); threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
+  const hasMaturedInvestment = investments.some(inv=> inv.status==="approved" && new Date(inv.created_at) < threeMonthsAgo);
+  if(amount > availableEarnings && !hasMaturedInvestment){
+    showToast(`You can only withdraw your earnings ($${availableEarnings.toFixed(2)} available). Investment capital cannot be withdrawn until after 3 months holding. You have $${totalInvested} invested. Earnings withdrawal minimum $5.`,"error");
+    return;
+  }
+  if(amount > (currentProfile.balance||0) && (currentProfile.balance||0)>0 && amount > availableEarnings){
+    showToast(`Insufficient available balance. Available: $${Number(currentProfile.balance).toFixed(2)}`,"error");
+    return;
+  }
+  const btn=document.getElementById("submitWithdrawalBtn"); btn.disabled=true; btn.textContent="Processing...";
+  try{
+    const {error}=await supabaseClient.from("withdrawals").insert({user_id:currentUser.id,amount,account_name:accName,account_number:accNum,bank_name:bank,status:"pending"});
+    if(error) throw error;
+    showToast("Withdrawal requested! Minimum $5 earnings. Investment capital locked for 3 months. Admin will process.","success");
+    btn.disabled=false; btn.textContent="Request Withdrawal";
+    loadTransactions();
+  }catch(e){
+    showToast(e.message,"error");
+    btn.disabled=false; btn.textContent="Request Withdrawal";
+  }
+});
+
+
+function updateWithdrawNaira(){
+  const amount = Number(document.getElementById("withdrawAmount")?.value||0);
+  const method = document.getElementById("withdrawMethod")?.value||"bank";
+  const display = document.getElementById("withdrawNairaDisplay");
+  if(!amount || amount<1){display.style.display="none"; return;}
+  display.style.display="block";
+  const bankFeeUSD = 2, walletFeeUSD = 1;
+  const feeUSD = method==="bank"?bankFeeUSD:walletFeeUSD;
+  const feeNaira = Math.round(feeUSD * NGN_RATE);
+  const nairaAmount = Math.round(amount * NGN_RATE);
+  const netUSD = amount - feeUSD;
+  const netNaira = Math.round(netUSD * NGN_RATE);
+  document.getElementById("withdrawNairaAmount").textContent = "₦" + nairaAmount.toLocaleString() + " (approx $" + amount + ")";
+  document.getElementById("withdrawFeeDisplay").textContent = method==="bank" 
+    ? `Fee: $${bankFeeUSD} (${"₦" + feeNaira.toLocaleString()} in Naira value, rounded)`
+    : `Fee: $${walletFeeUSD} (wallet)`;
+  document.getElementById("withdrawNetNaira").textContent = method==="bank"
+    ? "₦" + netNaira.toLocaleString() + " (approx $" + netUSD + ", rounded to nearest whole number)"
+    : "$" + netUSD + " (after $" + feeUSD + " fee)";
+}
+\ninit();
+</script>
+</body></html>
