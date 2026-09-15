@@ -37,9 +37,15 @@
     @keyframes in{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:5000;padding:20px;align-items:center;justify-content:center}
     .modal.open{display:flex}
-    .modal-card{max-width:650px;width:100%;max-height:82vh;overflow:auto;background:#121212;border:1px solid #333;border-radius:18px;padding:25px}
-    .modal-card h3{font-family:Cinzel,serif;color:#d4af37;margin-top:0}
-    .modal-card p,.modal-card li{color:#aaa;font-size:13px;line-height:1.7}
+    .modal-card{max-width:680px;width:100%;max-height:82vh;overflow:auto;background:#121212;border:1px solid #333;border-radius:18px;padding:25px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #252525;padding-bottom:12px;margin-bottom:15px}
+    .modal-head h3{margin:0}
+    .modal-x{border:1px solid #333;background:#0b0b0b;color:#aaa;border-radius:10px;width:36px;height:36px;font-size:20px;cursor:pointer}
+    .modal-card h4{color:#d4af37;font-size:13px;margin:18px 0 7px}
+    .modal-card p,.modal-card li{color:#aaa;font-size:13px;line-height:1.75}
+    .modal-card ul{padding-left:20px}
+    .modal-card .notice{background:#19170d;border:1px solid #3b3214;border-radius:10px;padding:12px;color:#c9c09a;font-size:12px;line-height:1.6}
+    .modal-card h3{font-family:Cinzel,serif;color:#d4af37}
     .close{background:#242424;color:#fff;margin-top:15px}
     .links{margin-top:12px;text-align:center;font-size:11px;color:#777}
     @media(max-width:600px){.wrap{padding:14px}.card{padding:22px 18px}.row{grid-template-columns:1fr}.brand h1{font-size:23px}}
@@ -86,7 +92,7 @@
 
       <div class="terms">
         <input id="terms" type="checkbox" required>
-        <div>I agree to the <a href="#" data-modal="termsModal">Terms</a>, <a href="#" data-modal="rulesModal">Rules</a>, and <a href="#" data-modal="privacyModal">Privacy Policy</a>.</div>
+        <div>I agree to the <button type="button" class="policy-link" data-modal="termsModal">Terms</button>, <button type="button" class="policy-link" data-modal="rulesModal">Rules</button>, and <button type="button" class="policy-link" data-modal="privacyModal">Privacy Policy</button>.</div>
       </div>
 
       <button id="registerBtn" type="submit">CREATE MONARCH ACCOUNT</button>
@@ -97,9 +103,62 @@
   </main>
 </div>
 
-<div id="termsModal" class="modal"><div class="modal-card"><h3>Terms</h3><p>By creating an account, you confirm that the information you provide is accurate and belongs to you. You agree to follow platform procedures, verification requirements and applicable laws. Financial participation involves risk; no return is guaranteed.</p><button class="close">Close</button></div></div>
-<div id="rulesModal" class="modal"><div class="modal-card"><h3>Community Rules</h3><ul><li>Use your real identity information.</li><li>Do not impersonate another person or use another person's payment details.</li><li>Do not submit altered, fraudulent or misleading verification documents.</li><li>Keep your login credentials private.</li><li>Respect other Monarchs and platform administrators.</li></ul><button class="close">Close</button></div></div>
-<div id="privacyModal" class="modal"><div class="modal-card"><h3>Privacy Policy</h3><p>MONARCH CODEX uses account, identity and transaction information to provide verification, account management, support and platform services. Sensitive information should only be submitted through the official platform. Access is limited according to platform permissions and security controls.</p><button class="close">Close</button></div></div>
+<div id="termsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="termsTitle">Terms & Conditions</h3><button type="button" class="modal-x close" aria-label="Close">×</button></div>
+    <p>These Terms & Conditions govern your use of MONARCH CODEX. By creating an account, you confirm that the information you provide is accurate, complete and belongs to you.</p>
+    <h4>1. Account & Identity</h4>
+    <p>You must register using your own identity information and keep your login credentials secure. Your account may be subject to identity verification before access to restricted features is enabled.</p>
+    <h4>2. Platform Use</h4>
+    <p>You agree to use MONARCH CODEX lawfully and only for permitted platform activities. Do not impersonate another person, submit false information, abuse platform systems or attempt to bypass security controls.</p>
+    <h4>3. Financial Risk</h4>
+    <p>Any investment or financial activity available through the platform involves risk. Past performance is not a guarantee of future results, and no return should be understood as guaranteed.</p>
+    <h4>4. Verification & Compliance</h4>
+    <p>We may request KYC information and supporting documents to verify identity, protect members and meet applicable compliance requirements. Approval is subject to review.</p>
+    <h4>5. Changes & Suspension</h4>
+    <p>MONARCH CODEX may update platform procedures, security requirements or these terms. Accounts may be restricted or suspended where there is suspected fraud, misuse, security risk or violation of the rules.</p>
+    <div class="notice">By checking the agreement box during registration, you confirm that you have read and accepted these terms.</div>
+    <button type="button" class="btn close" style="margin-top:16px">Close</button>
+  </div>
+</div>
+
+<div id="rulesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="rulesTitle">Community Rules</h3><button type="button" class="modal-x close" aria-label="Close">×</button></div>
+    <p>MONARCH CODEX is built around identity, discipline, transparency and respectful participation.</p>
+    <ul>
+      <li>Use your real identity information and keep your account details accurate.</li>
+      <li>Never impersonate another person or use another member's identity.</li>
+      <li>Do not submit altered, fraudulent or misleading KYC documents.</li>
+      <li>Do not use another person's bank account or payment details for your own transactions.</li>
+      <li>Keep your password, verification codes and account access private.</li>
+      <li>Do not attempt to exploit bugs, bypass permissions or interfere with platform security.</li>
+      <li>Respect other Monarchs, administrators and support personnel.</li>
+      <li>Do not use referrals, messages or platform features for scams, harassment or deceptive activity.</li>
+    </ul>
+    <div class="notice">Violation of these rules may result in review, restricted access or account suspension.</div>
+    <button type="button" class="btn close" style="margin-top:16px">Close</button>
+  </div>
+</div>
+
+<div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="privacyTitle">Privacy Policy</h3><button type="button" class="modal-x close" aria-label="Close">×</button></div>
+    <p>This Privacy Policy explains how information submitted through MONARCH CODEX may be used to operate and secure your account.</p>
+    <h4>Information We Use</h4>
+    <p>This may include your name, email address, phone number, referral information, KYC details, profile information and transaction-related records that you provide through the platform.</p>
+    <h4>Why We Use It</h4>
+    <p>Information may be used for account creation, identity verification, member support, transaction processing, referrals, security, fraud prevention and platform administration.</p>
+    <h4>Security</h4>
+    <p>Access to sensitive information should be limited to authorized platform functions and personnel. Never send passwords, one-time codes or sensitive documents through unofficial channels.</p>
+    <h4>Data Accuracy</h4>
+    <p>You are responsible for providing accurate information and notifying the platform when important account information needs to be corrected.</p>
+    <h4>Updates</h4>
+    <p>This policy may be updated as the platform, security practices or applicable requirements change. The current version shown on the registration page applies when you create an account.</p>
+    <div class="notice">For your protection, submit KYC documents only through the official MONARCH CODEX platform.</div>
+    <button type="button" class="btn close" style="margin-top:16px">Close</button>
+  </div>
+</div>
 
 <script>
 const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
