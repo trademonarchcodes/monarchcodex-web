@@ -783,4 +783,23 @@ function updateWithdrawNaira(){
 }
 \ninit();
 </script>
+
+<script>
+// EMERGENCY FIX - Force hide loading after 2.5 seconds no matter what
+setTimeout(()=>{
+  const loading = document.getElementById('appLoading');
+  const shell = document.getElementById('appShell');
+  const authErr = document.getElementById('authError');
+  if(loading && !loading.classList.contains('hidden')){
+    const hasSession = localStorage.getItem('sb-avaworleivncevaoqeny-auth-token') || localStorage.getItem('monarch_last_email');
+    if(hasSession){
+      loading.classList.add('hidden');
+      if(shell) shell.classList.remove('hidden');
+    } else {
+      loading.classList.add('hidden');
+      if(authErr) authErr.classList.remove('hidden');
+    }
+  }
+}, 2500);
+</script>
 </body></html>

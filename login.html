@@ -7,8 +7,76 @@
 <a class="link" onclick="resetPass()" style="cursor:pointer">Forgot password?</a><span class="link">No account? <a href="register.html">Create Account</a></span></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabaseClient=window.supabase.createClient("https://avaworleivncevaoqeny.supabase.co","sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh");
-document.getElementById("togglePassword").addEventListener("click",()=>{const p=document.getElementById("password");const b=document.getElementById("togglePassword");if(p.type==="password"){p.type="text";b.textContent="🙈";}else{p.type="password";b.textContent="👁️";}});
-document.getElementById("loginForm").addEventListener("submit",async(e)=>{e.preventDefault();const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Logging in...";const email=document.getElementById("email").value.trim();const password=document.getElementById("password").value;const alertEl=document.getElementById("alert");try{const{data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;const user=data.user;const{data:profile}=await supabaseClient.from("profiles").select("role").eq("id",user.id).single();if(profile?.role?.includes("admin")||email.toLowerCase()==="trademonarchofficial@gmail.com"){location.href="admin.html";}else{location.href="dashboard.html";}}catch(err){alertEl.textContent=err.message;alertEl.className="alert error";alertEl.style.display="block";btn.disabled=false;btn.textContent="Login to Kingdom";}});
-async function resetPass(){const email=prompt("Enter your email for password reset:");if(!email)return;const{error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+"/login.html"});if(error)alert(error.message);else alert("Password reset email sent! Check inbox.");}
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+document.getElementById("togglePassword").addEventListener("click",()=>{
+  const p=document.getElementById("password");
+  const b=document.getElementById("togglePassword");
+  if(p.type==="password"){p.type="text";b.textContent="🙈";}else{p.type="password";b.textContent="👁️";}
+});
+
+document.getElementById("loginForm").addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  const btn=document.getElementById("submitBtn");
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const alertEl=document.getElementById("alert");
+  
+  if(!email||!password){ alertEl.textContent="Fill email and password"; alertEl.className="alert error"; alertEl.style.display="block"; return; }
+  
+  btn.disabled=true; btn.textContent="Logging in...";
+  alertEl.style.display="none";
+  
+  try{
+    const {data, error} = await supabaseClient.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    
+    if(!data.session){
+      throw new Error("No session created - check email confirmation in Supabase");
+    }
+    
+    // Save session token explicitly for dashboard failsafe
+    localStorage.setItem('monarch_last_email', email);
+    
+    // Quick role check with timeout - don't block redirect if fails
+    let isAdmin = false;
+    try{
+      const profilePromise = supabaseClient.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
+      const timeout = new Promise((_,r)=>setTimeout(()=>r(null), 2000));
+      const res = await Promise.race([profilePromise, timeout]);
+      const profile = res?.data;
+      if(profile?.role?.includes("admin") || email.toLowerCase()==="trademonarchofficial@gmail.com"){
+        isAdmin = true;
+      }
+    }catch(pe){ console.log("Role check failed, default to member", pe); }
+    
+    alertEl.textContent="Login successful! Redirecting...";
+    alertEl.className="alert success";
+    alertEl.style.display="block";
+    
+    // Force redirect with replace (no back button loop)
+    setTimeout(()=>{
+      if(isAdmin) window.location.replace("admin.html");
+      else window.location.replace("dashboard.html");
+    }, 800);
+    
+  }catch(err){
+    console.error(err);
+    alertEl.textContent=err.message;
+    alertEl.className="alert error";
+    alertEl.style.display="block";
+    btn.disabled=false;
+    btn.textContent="Login to Kingdom";
+  }
+});
+
+async function resetPass(){
+  const email=prompt("Enter your email for password reset:");
+  if(!email) return;
+  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin+"/login.html"});
+  if(error) alert(error.message);
+  else alert("Password reset email sent! Check inbox.");
+}
 </script></body></html>
