@@ -103,7 +103,20 @@ MONARCH CODEX TEST — NEW DASHBOARD FILE
 </main></div>
 
 <div id="confirmModal" class="modal"><div class="modalbox"><h3>Confirm Action</h3><p id="confirmText"></p><div class="actions"><button id="confirmYes" class="btn">Confirm</button><button id="confirmNo" class="btn dark">Cancel</button></div></div></div>
+<script>
+(function(){
+  const test=document.createElement("div");
+  test.textContent="MONARCH CODEX ENGINE ACTIVE";
+  test.style.cssText="position:fixed;top:55px;left:0;right:0;z-index:999999;background:#111;color:#D4AF37;padding:12px;text-align:center;font-weight:bold;font-size:13px";
+  document.documentElement.appendChild(test);
 
+  setTimeout(function(){
+    const loading=document.getElementById("loading");
+    if(loading) loading.style.display="none";
+  },3000);
+})();
+</script>
+  
 <script>
 const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
