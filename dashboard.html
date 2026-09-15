@@ -430,6 +430,15 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 <div id="mobileShade" class="modal" style="background:#0008"></div>
 
 <script>
+(function(){
+  setTimeout(function(){
+    var el=document.getElementById("loading");
+    if(el) el.style.display="none";
+  },6000);
+})();
+</script>
+
+<script>
 (() => {
   "use strict";
 
@@ -1043,7 +1052,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
         hideLoading();
         toast("Dashboard opened, but the session check is taking longer than expected. Please refresh if your account does not appear.","warning");
       }
-    },8000);
+    },5000);
   }
 
   async function boot(){
@@ -1114,59 +1123,50 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   }
 
   function bindEvents(){
-    $("notificationBtn").onclick=toggleNotifications;
-    $("markNotificationsRead").onclick=markAllNotificationsRead;
+    const on=(id,event,fn)=>{const el=$(id); if(el) el.addEventListener(event,fn);};
+    on("notificationBtn","click",toggleNotifications);
+    on("markNotificationsRead","click",markAllNotificationsRead);
     document.addEventListener("click",e=>{
       const panel=$("notificationPanel");
-      if(panel && panel.classList.contains("show") && !panel.contains(e.target) && e.target!==$("notificationBtn")) panel.classList.remove("show");
+      const bell=$("notificationBtn");
+      if(panel && panel.classList.contains("show") && !panel.contains(e.target) && e.target!==bell) panel.classList.remove("show");
     });
-
-    $("menuBtn").onclick=toggleMenu;
-    $("mobileShade").onclick=toggleMenu;
-
-    document.querySelectorAll(".nav button[data-view]").forEach(btn=>{
-      btn.addEventListener("click",()=>openView(btn.dataset.view));
-    });
-
-    document.querySelectorAll("[data-go]").forEach(btn=>{
-      btn.addEventListener("click",()=>openView(btn.dataset.go));
-    });
-
-    $("logoutBtn").onclick=logout;
-    $("logoutBtn").ondblclick=logout;
-
-    $("saveKyc").onclick=saveKyc;
-    $("investBtn").onclick=submitInvestment;
-    $("withdrawBtn").onclick=submitWithdrawal;
-    $("saveUsername").onclick=saveUsername;
-
-    $("investAmount").oninput=updateInvestNaira;
-    $("investPackage").onchange=()=>{
-      const p=packagesCache[Number($("investPackage").value)];
-      if(p?.amount != null)$("investAmount").value=p.amount;
+    on("menuBtn","click",toggleMenu);
+    on("mobileShade","click",toggleMenu);
+    document.querySelectorAll(".nav button[data-view]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
+    document.querySelectorAll("[data-go]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.go)));
+    on("logoutBtn","click",logout);
+    on("logoutBtn","dblclick",logout);
+    on("saveKyc","click",saveKyc);
+    on("investBtn","click",submitInvestment);
+    on("withdrawBtn","click",submitWithdrawal);
+    on("saveUsername","click",saveUsername);
+    on("investAmount","input",updateInvestNaira);
+    on("investPackage","change",()=>{
+      const el=$("investPackage");
+      const p=packagesCache[Number(el?.value)];
+      if(p?.amount != null && $("investAmount")) $("investAmount").value=p.amount;
       updateInvestNaira();
-    };
-    $("investMethod").onchange=updateInvestNaira;
-    $("investReceipt").onchange=()=>{const file=$("investReceipt").files[0];setText("receiptName",file?"Selected: "+file.name:"");};
-
-    $("withdrawAmount").oninput=updateWithdrawCalc;
-    $("withdrawMethod").onchange=()=>{updateWithdrawCalc();updateWithdrawFields();};
-
-    $("copyRefLink").onclick=()=>copyText($("refLink").value);
-    $("copyRefCode").onclick=()=>copyText(currentProfile?.referral_code || currentProfile?.uid || "");
-
-    $("avatarFile").onchange=updateAvatar;
+    });
+    on("investMethod","change",updateInvestNaira);
+    on("investReceipt","change",()=>{const file=$("investReceipt")?.files?.[0];setText("receiptName",file?"Selected: "+file.name:"");});
+    on("withdrawAmount","input",updateWithdrawCalc);
+    on("withdrawMethod","change",()=>{updateWithdrawCalc();updateWithdrawFields();});
+    on("copyRefLink","click",()=>copyText($("refLink")?.value||""));
+    on("copyRefCode","click",()=>copyText(currentProfile?.referral_code || currentProfile?.uid || ""));
+    on("avatarFile","change",updateAvatar);
   }
 
-  document.addEventListener("DOMContentLoaded",()=>{
-    bindEvents();
-    updateInvestNaira();
-    updateWithdrawCalc();
-    updateWithdrawFields();
-    updateInvestNaira();
-    boot();
+  function startDashboard(){
+    try{ bindEvents(); }catch(e){ console.error("Dashboard event setup error:",e); }
+    try{ updateInvestNaira(); updateWithdrawCalc(); updateWithdrawFields(); }catch(e){ console.warn("Dashboard initial calculation:",e); }
+    try{ boot(); }catch(e){ console.error("Dashboard startup error:",e); hideLoading(); toast(e.message||"Could not start the dashboard.","error"); }
     setInterval(()=>{ if(currentUser) loadNotifications(); },30000);
-  });
+  }
+
+  document.addEventListener("DOMContentLoaded",startDashboard);
+  if(document.readyState !== "loading") setTimeout(startDashboard,0);
+
 })();
 </script>
 </body>
