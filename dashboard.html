@@ -249,75 +249,114 @@ if(!document.getElementById("toastStyle")){
 }
 
 async function init(){
-  // Check if supabase loaded
+  // Immediate check - if supabase not loaded in 3s, show error
   if(typeof window.supabase === 'undefined' || !window.supabase.createClient){
-    document.getElementById("appLoading").innerHTML = `<div style="text-align:center"><p style="color:#ff7777">Supabase failed to load (ad-blocker?)</p><p style="color:#888;font-size:12px;margin-top:8px">Disable ad-blocker or try Chrome</p><button onclick="location.reload()" class="btn-gold" style="margin-top:12px">Retry</button><button onclick="location.href='login.html'" class="btn-outline" style="margin-top:8px">Go to Login</button></div>`;
-    return;
-  }
-  // Timeout failsafe - prevent infinite Loading your kingdom...
-  const loadingTimeout = setTimeout(()=>{
-    const loading = document.getElementById("appLoading");
-    if(loading && !loading.classList.contains("hidden")){
-      const retryEl = document.getElementById("loadingRetry");
-      if(retryEl) retryEl.style.display = "block";
-    }
-  }, 8000);
-
-  try{
-    // Add timeout to supabase calls
-    const userPromise = supabaseClient.auth.getUser();
-    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error("Auth timeout")), 6000));
-    let userResult;
-    try{
-      userResult = await Promise.race([userPromise, timeoutPromise]);
-    }catch(e){
-      console.error("Auth timeout/error", e);
-      document.getElementById("appLoading").classList.add("hidden");
-      document.getElementById("authError").classList.remove("hidden");
-      clearTimeout(loadingTimeout);
+    // Wait a bit for CDN to load
+    await new Promise(r=>setTimeout(r, 2000));
+    if(typeof window.supabase === 'undefined'){
+      document.getElementById("appLoading").innerHTML = `<div style="text-align:center"><p style="color:#ff7777">Supabase failed to load</p><p style="color:#888;font-size:12px;margin-top:8px">Ad-blocker blocking cdn.jsdelivr.net? Disable it or use Chrome</p><button onclick="location.reload()" class="btn-gold" style="margin-top:12px">Retry</button><button onclick="localStorage.clear(); location.href='login.html'" class="btn-outline" style="margin-top:8px">Clear & Go to Login</button></div>`;
       return;
     }
+  }
+
+  // Show dashboard shell IMMEDIATELY to prevent infinite loader - don't wait for profile
+  const quickSession = localStorage.getItem('sb-avaworleivncevaoqeny-auth-token');
+  if(!quickSession){
+    // No session at all, go to login after 1s
+    setTimeout(()=>{
+      const loading = document.getElementById("appLoading");
+      if(loading && !loading.classList.contains("hidden")){
+        document.getElementById("appLoading").classList.add("hidden");
+        document.getElementById("authError").classList.remove("hidden");
+      }
+    }, 1000);
+  }
+
+  try{
+    // Use getSession which is faster and local, not getUser which hits network
+    let session = null;
+    try{
+      const {data:{session: sess}} = await supabaseClient.auth.getSession();
+      session = sess;
+    }catch(e){ console.log("getSession error", e); }
+    
+    // If no session, try getUser as fallback with timeout
+    let user = session?.user || null;
+    if(!user){
+      const userPromise = supabaseClient.auth.getUser();
+      const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error("Auth timeout")), 4000));
+      try{
+        const res = await Promise.race([userPromise, timeoutPromise]);
+        user = res.data?.user || null;
+      }catch(e){
+        console.error("Auth timeout", e);
+        document.getElementById("appLoading").classList.add("hidden");
+        document.getElementById("authError").classList.remove("hidden");
+        return;
+      }
+    }
+    
+    if(!user){
+      document.getElementById("appLoading").classList.add("hidden");
+      document.getElementById("authError").classList.remove("hidden");
+      return;
+    }
+    
     
     const {data:{user}, error:authErr} = userResult;
     if(authErr || !user){
       console.log("No user", authErr);
       document.getElementById("appLoading").classList.add("hidden");
       document.getElementById("authError").classList.remove("hidden");
-      clearTimeout(loadingTimeout);
       return;
     }
     currentUser=user;
     
-    // Fetch profile with timeout
-    const profilePromise = supabaseClient.from("profiles").select("*").eq("id",user.id).single();
-    const profileTimeout = new Promise((_,reject)=>setTimeout(()=>reject(new Error("Profile timeout")), 6000));
-    let profileRes;
-    try{
-      profileRes = await Promise.race([profilePromise, profileTimeout]);
-    }catch(pe){
-      console.error("Profile fetch timeout", pe);
-      // Try to continue with minimal profile
-      const {data:profileFallback} = await supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle();
-      if(!profileFallback){
-        document.getElementById("appLoading").innerHTML = `<div style="text-align:center;color:#fff"><p>Profile not found. Please contact admin.</p><p style="color:#888;font-size:12px;margin-top:8px">UID: ${user.id.substring(0,8)}...</p><button onclick="location.href='login.html'" class="btn-gold" style="margin-top:12px">Go to Login</button></div>`;
-        return;
-      }
-      profileRes = {data: profileFallback};
-    }
-    
-    const {data:profile, error:profErr} = profileRes;
-    if(profErr || !profile){
-      console.error("Profile error", profErr);
-      document.getElementById("appLoading").classList.add("hidden");
-      document.getElementById("authError").innerHTML = `<div class="auth-error-card"><h2>Profile Error</h2><p>${profErr?.message||"Profile not found"}</p><button onclick="location.href='login.html'" class="btn-gold">Go to Login</button></div>`;
-      document.getElementById("authError").classList.remove("hidden");
-      clearTimeout(loadingTimeout);
-      return;
-    }
-    currentProfile=profile;
-    clearTimeout(loadingTimeout);
+    // SHOW SHELL IMMEDIATELY - don't wait for profile
     document.getElementById("appLoading").classList.add("hidden");
     document.getElementById("appShell").classList.remove("hidden");
+    // Set minimal info immediately
+    document.getElementById("sidebarMemberName").textContent = user.user_metadata?.full_name || user.email?.split('@')[0] || "Monarch";
+    document.getElementById("sidebarMemberUID").textContent = "Loading...";
+    document.getElementById("sidebarMemberInitial").textContent = (user.user_metadata?.full_name||user.email||"M")[0].toUpperCase();
+    document.getElementById("displayUsername").textContent = user.user_metadata?.full_name?.split(' ')[0] || "Monarch";
+    
+    // Now fetch profile in background with retries
+    let profile = null;
+    for(let attempt=0; attempt<3; attempt++){
+      try{
+        const {data, error} = await supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle();
+        if(data){ profile = data; break; }
+        if(error) console.log("Profile fetch attempt", attempt, error.message);
+      }catch(e){ console.log("Profile exception attempt", attempt, e.message); }
+      await new Promise(r=>setTimeout(r, 1000*attempt));
+    }
+    
+    if(!profile){
+      // Create fallback profile display, but allow dashboard to work
+      console.error("Profile not found after 3 attempts");
+      showToast("Profile not found - showing limited view. Contact admin if new account.", "warning");
+      currentProfile = {
+        id: user.id,
+        full_name: user.user_metadata?.full_name || "New Monarch",
+        uid: "MONARCH... (loading)",
+        phone: "",
+        referral_code: "",
+        status: "pending",
+        kyc_status: "pending",
+        balance: 0,
+        display_username: "Monarch"
+      };
+      // Still show shell
+      document.getElementById("sidebarMemberName").textContent = currentProfile.full_name;
+    } else {
+      currentProfile=profile;
+    }
+    // Update UI with real profile
+    document.getElementById("sidebarMemberName").textContent = currentProfile.full_name || currentProfile.display_username || "Monarch";
+    document.getElementById("sidebarMemberUID").textContent = currentProfile.uid || "MONARCH...";
+    document.getElementById("sidebarMemberInitial").textContent = (currentProfile.full_name||"M")[0].toUpperCase();
+    document.getElementById("displayUsername").textContent = currentProfile.display_username || currentProfile.full_name?.split(' ')[0] || "Monarch";
     document.getElementById("sidebarMemberName").textContent=profile.full_name;
     document.getElementById("sidebarMemberUID").textContent=profile.uid;
   document.getElementById("sidebarMemberInitial").textContent=profile.full_name[0];
