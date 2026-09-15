@@ -261,6 +261,7 @@ async function register(){
     if(!data || !data.user) throw new Error("Registration did not return a user. Please try again.");
 
     const user=data.user;
+    if(!user.id) throw new Error("Supabase did not return a valid account ID. Please try again.");
     const profile={
       full_name,
       phone,
@@ -273,7 +274,13 @@ async function register(){
       balance:0
     };
 
-    await createProfileWithRetry(user,profile);
+    try{
+      await createProfileWithRetry(user,profile);
+    }catch(profileError){
+      console.error("Profile creation error:",profileError);
+      const detail=profileError?.message||"Unknown profile error";
+      throw new Error("Your login account was created, but your Monarch profile could not be completed. Please contact support before trying to register again. Details: "+detail);
+    }
 
     localStorage.setItem("monarch_last_email",email);
 
@@ -287,6 +294,9 @@ async function register(){
   }catch(err){
     console.error("Registration error:",err);
     let msg=err?.message||"Registration failed. Please try again.";
+    if(err?.status===429) msg="Too many registration attempts. Please wait a few minutes and try again.";
+    if(/email.*invalid|invalid.*email/i.test(msg)) msg="Please enter a valid email address.";
+    if(/password.*(weak|short)|password.*6/i.test(msg)) msg="Password must be at least 6 characters.";
     if(err?.code==="23505") msg="That account identity is already in use. Please try again.";
     if(/already registered|user already registered/i.test(msg)) msg="This email is already registered. Please log in instead.";
     showToast(msg,"error");
