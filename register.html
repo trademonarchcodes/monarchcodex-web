@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MONARCH CODEX — Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#070707;color:#fff;font-family:Poppins,sans-serif;min-height:100vh}
+    a{color:#d4af37;text-decoration:none}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{width:100%;max-width:560px;background:#121212;border:1px solid #292929;border-radius:22px;padding:30px;box-shadow:0 20px 70px rgba(0,0,0,.45)}
+    .brand{text-align:center;margin-bottom:24px}
+    .brand h1{font-family:Cinzel,serif;color:#d4af37;letter-spacing:2px;margin:0;font-size:27px}
+    .brand p{color:#999;margin:7px 0 0;font-size:13px}
+    h2{margin:0 0 6px;font-size:23px}
+    .intro{color:#aaa;font-size:13px;margin:0 0 22px}
+    label{display:block;font-size:12px;color:#ddd;font-weight:600;margin:15px 0 7px}
+    input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid #333;background:#090909;color:#fff;outline:none;font-family:inherit}
+    input:focus{border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.08)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .refbox{border:1px solid #282828;background:#0d0d0d;padding:14px;border-radius:13px;margin-top:17px}
+    .refbox strong{display:block;font-size:12px;color:#d4af37;margin-bottom:4px}
+    .refbox span{font-size:12px;color:#999}
+    .terms{display:flex;gap:10px;align-items:flex-start;margin:18px 0;font-size:12px;color:#999}
+    .terms input{width:17px;height:17px;margin-top:1px;accent-color:#d4af37}
+    button{width:100%;border:0;border-radius:12px;padding:14px;background:#d4af37;color:#080808;font-family:inherit;font-weight:800;cursor:pointer}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .bottom{text-align:center;color:#999;font-size:13px;margin-top:20px}
+    .toast-wrap{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 36px))}
+    .toast{padding:13px 15px;border-radius:12px;color:#fff;font-size:13px;box-shadow:0 12px 30px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);animation:in .2s ease}
+    .success{background:#164d31}.error{background:#5a1d1d}.warning{background:#614a10}.info{background:#171717}
+    @keyframes in{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:5000;padding:20px;align-items:center;justify-content:center}
+    .modal.open{display:flex}
+    .modal-card{max-width:650px;width:100%;max-height:82vh;overflow:auto;background:#121212;border:1px solid #333;border-radius:18px;padding:25px}
+    .modal-card h3{font-family:Cinzel,serif;color:#d4af37;margin-top:0}
+    .modal-card p,.modal-card li{color:#aaa;font-size:13px;line-height:1.7}
+    .close{background:#242424;color:#fff;margin-top:15px}
+    .links{margin-top:12px;text-align:center;font-size:11px;color:#777}
+    @media(max-width:600px){.wrap{padding:14px}.card{padding:22px 18px}.row{grid-template-columns:1fr}.brand h1{font-size:23px}}
+  </style>
+</head>
+<body>
+<div id="toastWrap" class="toast-wrap"></div>
+
+<div class="wrap">
+  <main class="card">
+    <div class="brand">
+      <h1>MONARCH CODEX</h1>
+      <p>The Inner Kingdom</p>
+    </div>
+
+    <h2>Create Your Monarch Account</h2>
+    <p class="intro">Register with your real details. Your full name must match your NIN identity information.</p>
+
+    <form id="registerForm">
+      <label for="fullName">Full Name — as shown on NIN</label>
+      <input id="fullName" type="text" autocomplete="name" required placeholder="Enter your full name">
+
+      <div class="row">
+        <div>
+          <label for="phone">Phone Number</label>
+          <input id="phone" type="tel" autocomplete="tel" required placeholder="08012345678">
+        </div>
+        <div>
+          <label for="email">Email Address</label>
+          <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+        </div>
+      </div>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Minimum 6 characters">
+
+      <label for="referral">Referral Code <span style="color:#777">(optional)</span></label>
+      <input id="referral" type="text" placeholder="MONARCH••••••">
+
+      <div class="refbox">
+        <strong>Important</strong>
+        <span>Your NIN name is used as your official identity. Complete KYC after registration to activate your Monarch account.</span>
+      </div>
+
+      <div class="terms">
+        <input id="terms" type="checkbox" required>
+        <div>I agree to the <a href="#" data-modal="termsModal">Terms</a>, <a href="#" data-modal="rulesModal">Rules</a>, and <a href="#" data-modal="privacyModal">Privacy Policy</a>.</div>
+      </div>
+
+      <button id="registerBtn" type="submit">CREATE MONARCH ACCOUNT</button>
+    </form>
+
+    <div class="bottom">Already have an account? <a href="login.html">Log in</a></div>
+    <div class="links">MONARCH CODEX • Identity • Discipline • Transparency</div>
+  </main>
+</div>
+
+<div id="termsModal" class="modal"><div class="modal-card"><h3>Terms</h3><p>By creating an account, you confirm that the information you provide is accurate and belongs to you. You agree to follow platform procedures, verification requirements and applicable laws. Financial participation involves risk; no return is guaranteed.</p><button class="close">Close</button></div></div>
+<div id="rulesModal" class="modal"><div class="modal-card"><h3>Community Rules</h3><ul><li>Use your real identity information.</li><li>Do not impersonate another person or use another person's payment details.</li><li>Do not submit altered, fraudulent or misleading verification documents.</li><li>Keep your login credentials private.</li><li>Respect other Monarchs and platform administrators.</li></ul><button class="close">Close</button></div></div>
+<div id="privacyModal" class="modal"><div class="modal-card"><h3>Privacy Policy</h3><p>MONARCH CODEX uses account, identity and transaction information to provide verification, account management, support and platform services. Sensitive information should only be submitted through the official platform. Access is limited according to platform permissions and security controls.</p><button class="close">Close</button></div></div>
+
+<script>
+const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+let supabase = null;
+
+function showToast(message, type="info"){
+  const wrap=document.getElementById("toastWrap");
+  const el=document.createElement("div");
+  el.className="toast "+type;
+  const icon=type==="success"?"✓":type==="error"?"✕":type==="warning"?"⚠":"ℹ";
+  el.textContent=icon+" "+message;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),5000);
+}
+
+function genUID(){
+  return "MONARCH"+String(Math.floor(100000+Math.random()*900000));
+}
+function genRef(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s="";
+  for(let i=0;i<4;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return "MONARCH"+s+String(Math.floor(10+Math.random()*90));
+}
+function getReferralFromURL(){
+  const p=new URLSearchParams(location.search);
+  return (p.get("ref")||"").trim().toUpperCase();
+}
+function normalizeEmail(v){return v.trim().toLowerCase()}
+
+async function withTimeout(promise, ms=12000){
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error("Request timed out. Please check your internet connection.")),ms))
+  ]);
+}
+
+async function findReferrer(code){
+  if(!code) return null;
+  let {data,error}=await withTimeout(
+    supabase.from("profiles").select("id").or("referral_code.eq."+code+",uid.eq."+code).limit(1),
+    8000
+  );
+  if(error) throw error;
+  return data && data.length ? data[0].id : null;
+}
+
+async function createProfileWithRetry(user, base){
+  let lastError=null;
+  for(let attempt=0;attempt<4;attempt++){
+    const uid=genUID();
+    const payload={...base,id:user.id,uid};
+    const {error}=await withTimeout(supabase.from("profiles").upsert(payload,{onConflict:"id"}),10000);
+    if(!error) return;
+    lastError=error;
+    if(error.code!=="23505") break;
+  }
+  throw lastError || new Error("Could not create your profile.");
+}
+
+async function register(){
+  if(!supabase){
+    showToast("Supabase failed to load. Disable an ad-blocker/content blocker and try again.","error");
+    return;
+  }
+
+  const full_name=document.getElementById("fullName").value.trim().replace(/\s+/g," ");
+  const phone=document.getElementById("phone").value.trim();
+  const email=normalizeEmail(document.getElementById("email").value);
+  const password=document.getElementById("password").value;
+  const referral=document.getElementById("referral").value.trim().toUpperCase();
+  const btn=document.getElementById("registerBtn");
+
+  if(full_name.length<3){showToast("Enter your full NIN name.","warning");return}
+  if(phone.length<7){showToast("Enter a valid phone number.","warning");return}
+  if(password.length<6){showToast("Password must be at least 6 characters.","warning");return}
+
+  btn.disabled=true;
+  btn.textContent="CREATING ACCOUNT...";
+
+  try{
+    let referred_by=null;
+    if(referral){
+      referred_by=await findReferrer(referral);
+      if(!referred_by) throw new Error("Referral code was not found. Check the code and try again.");
+    }
+
+    const {data,error}=await withTimeout(
+      supabase.auth.signUp({
+        email,
+        password,
+        options:{data:{full_name,phone}}
+      }),
+      12000
+    );
+    if(error) throw error;
+    if(!data || !data.user) throw new Error("Registration did not return a user. Please try again.");
+
+    const user=data.user;
+    const profile={
+      full_name,
+      phone,
+      referral_code:genRef(),
+      referred_by,
+      role:"member",
+      status:"pending_kyc",
+      kyc_status:"pending",
+      display_username:full_name.split(/\s+/)[0],
+      balance:0
+    };
+
+    await createProfileWithRetry(user,profile);
+
+    localStorage.setItem("monarch_last_email",email);
+
+    if(data.session){
+      showToast("Account created successfully. Welcome, Monarch.","success");
+      setTimeout(()=>window.location.replace("dashboard.html"),900);
+    }else{
+      showToast("Account created. Check your email to confirm your account, then log in.","success");
+      setTimeout(()=>window.location.replace("login.html"),1800);
+    }
+  }catch(err){
+    console.error("Registration error:",err);
+    let msg=err?.message||"Registration failed. Please try again.";
+    if(err?.code==="23505") msg="That account identity is already in use. Please try again.";
+    if(/already registered|user already registered/i.test(msg)) msg="This email is already registered. Please log in instead.";
+    showToast(msg,"error");
+  }finally{
+    btn.disabled=false;
+    btn.textContent="CREATE MONARCH ACCOUNT";
+  }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  try{
+    if(window.supabase && typeof window.supabase.createClient==="function"){
+      supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+      });
+    }else{
+      showToast("Supabase failed to load. Please check your connection or content blocker.","error");
+    }
+  }catch(e){
+    console.error(e);
+    showToast("Could not initialize the secure connection.","error");
+  }
+
+  const ref=getReferralFromURL();
+  if(ref) document.getElementById("referral").value=ref;
+
+  document.getElementById("registerForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    register();
+  });
+
+  document.querySelectorAll("[data-modal]").forEach(a=>{
+    a.addEventListener("click",e=>{
+      e.preventDefault();
+      document.getElementById(a.dataset.modal).classList.add("open");
+    });
+  });
+
+  document.querySelectorAll(".close").forEach(b=>{
+    b.addEventListener("click",()=>b.closest(".modal").classList.remove("open"));
+  });
+
+  document.querySelectorAll(".modal").forEach(m=>{
+    m.addEventListener("click",e=>{
+      if(e.target===m)m.classList.remove("open");
+    });
+  });
+});
+</script>
+</body>
+</html>
