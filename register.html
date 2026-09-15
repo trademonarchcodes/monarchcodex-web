@@ -37,6 +37,7 @@
     @keyframes in{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:5000;padding:20px;align-items:center;justify-content:center}
     .modal.open{display:flex}
+    .modal:target{display:flex}
     .modal-card{max-width:680px;width:100%;max-height:82vh;overflow:auto;background:#121212;border:1px solid #333;border-radius:18px;padding:25px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
     .modal-head{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #252525;padding-bottom:12px;margin-bottom:15px}
     .modal-head h3{margin:0}
@@ -93,7 +94,7 @@
 
       <div class="terms">
         <input id="terms" type="checkbox" required>
-        <div>I agree to the <button type="button" class="policy-link" onclick="openPolicy('termsModal'); return false;">Terms</button>, <button type="button" class="policy-link" onclick="openPolicy('rulesModal'); return false;">Rules</button>, and <button type="button" class="policy-link" onclick="openPolicy('privacyModal'); return false;">Privacy Policy</button>.</div>
+        <div>I agree to the <a class="policy-link" href="#termsModal">Terms</a>, <a class="policy-link" href="#rulesModal">Rules</a>, and <a class="policy-link" href="#privacyModal">Privacy Policy</a>.</div>
       </div>
 
       <button id="registerBtn" type="submit">CREATE MONARCH ACCOUNT</button>
@@ -106,7 +107,7 @@
 
 <div id="termsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
   <div class="modal-card">
-    <div class="modal-head"><h3 id="termsTitle">Terms & Conditions</h3><button type="button" class="modal-x close" aria-label="Close" onclick="closePolicy(this.closest('.modal')); return false;">×</button></div>
+    <div class="modal-head"><h3 id="termsTitle">Terms & Conditions</h3><a href="#" class="modal-x close" aria-label="Close">×</a></div>
     <p>These Terms & Conditions govern your use of MONARCH CODEX. By creating an account, you confirm that the information you provide is accurate, complete and belongs to you.</p>
     <h4>1. Account & Identity</h4>
     <p>You must register using your own identity information and keep your login credentials secure. Your account may be subject to identity verification before access to restricted features is enabled.</p>
@@ -119,13 +120,13 @@
     <h4>5. Changes & Suspension</h4>
     <p>MONARCH CODEX may update platform procedures, security requirements or these terms. Accounts may be restricted or suspended where there is suspected fraud, misuse, security risk or violation of the rules.</p>
     <div class="notice">By checking the agreement box during registration, you confirm that you have read and accepted these terms.</div>
-    <button type="button" class="btn close" style="margin-top:16px" onclick="closePolicy(this.closest('.modal')); return false;">Close</button>
+    <a href="#" class="btn close" style="display:block;text-align:center;text-decoration:none;margin-top:16px">Close</a>
   </div>
 </div>
 
 <div id="rulesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
   <div class="modal-card">
-    <div class="modal-head"><h3 id="rulesTitle">Community Rules</h3><button type="button" class="modal-x close" aria-label="Close" onclick="closePolicy(this.closest('.modal')); return false;">×</button></div>
+    <div class="modal-head"><h3 id="rulesTitle">Community Rules</h3><a href="#" class="modal-x close" aria-label="Close">×</a></div>
     <p>MONARCH CODEX is built around identity, discipline, transparency and respectful participation.</p>
     <ul>
       <li>Use your real identity information and keep your account details accurate.</li>
@@ -138,13 +139,13 @@
       <li>Do not use referrals, messages or platform features for scams, harassment or deceptive activity.</li>
     </ul>
     <div class="notice">Violation of these rules may result in review, restricted access or account suspension.</div>
-    <button type="button" class="btn close" style="margin-top:16px" onclick="closePolicy(this.closest('.modal')); return false;">Close</button>
+    <a href="#" class="btn close" style="display:block;text-align:center;text-decoration:none;margin-top:16px">Close</a>
   </div>
 </div>
 
 <div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
   <div class="modal-card">
-    <div class="modal-head"><h3 id="privacyTitle">Privacy Policy</h3><button type="button" class="modal-x close" aria-label="Close" onclick="closePolicy(this.closest('.modal')); return false;">×</button></div>
+    <div class="modal-head"><h3 id="privacyTitle">Privacy Policy</h3><a href="#" class="modal-x close" aria-label="Close">×</a></div>
     <p>This Privacy Policy explains how information submitted through MONARCH CODEX may be used to operate and secure your account.</p>
     <h4>Information We Use</h4>
     <p>This may include your name, email address, phone number, referral information, KYC details, profile information and transaction-related records that you provide through the platform.</p>
@@ -157,7 +158,7 @@
     <h4>Updates</h4>
     <p>This policy may be updated as the platform, security practices or applicable requirements change. The current version shown on the registration page applies when you create an account.</p>
     <div class="notice">For your protection, submit KYC documents only through the official MONARCH CODEX platform.</div>
-    <button type="button" class="btn close" style="margin-top:16px" onclick="closePolicy(this.closest('.modal')); return false;">Close</button>
+    <a href="#" class="btn close" style="display:block;text-align:center;text-decoration:none;margin-top:16px">Close</a>
   </div>
 </div>
 
@@ -295,19 +296,6 @@ async function register(){
   }
 }
 
-function openPolicy(id){
-  const modal=document.getElementById(id);
-  if(!modal)return;
-  document.querySelectorAll(".modal").forEach(m=>m.classList.remove("open"));
-  modal.classList.add("open");
-  document.body.style.overflow="hidden";
-}
-function closePolicy(modal){
-  if(!modal)return;
-  modal.classList.remove("open");
-  if(!document.querySelector(".modal.open"))document.body.style.overflow="";
-}
-
 document.addEventListener("DOMContentLoaded",()=>{
   try{
     if(window.supabase && typeof window.supabase.createClient==="function"){
@@ -328,32 +316,6 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("registerForm").addEventListener("submit",e=>{
     e.preventDefault();
     register();
-  });
-
-  document.querySelectorAll(".policy-link").forEach(trigger=>{
-    trigger.addEventListener("click",e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      openPolicy(trigger.getAttribute("data-modal"));
-    });
-  });
-
-  document.querySelectorAll(".modal .close").forEach(close=>{
-    close.addEventListener("click",e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      closePolicy(close.closest(".modal"));
-    });
-  });
-
-  document.querySelectorAll(".modal").forEach(m=>{
-    m.addEventListener("click",e=>{
-      if(e.target===m)closePolicy(m);
-    });
-  });
-
-  document.addEventListener("keydown",e=>{
-    if(e.key==="Escape") document.querySelectorAll(".modal.open").forEach(closePolicy);
   });
 });
 </script>
