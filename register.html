@@ -258,10 +258,23 @@ async function register(){
       12000
     );
     if(error) throw error;
-    if(!data || !data.user) throw new Error("Registration did not return a user. Please try again.");
+    if(!data || !data.user) throw new Error("Supabase did not create an account. Please try again.");
 
     const user=data.user;
     if(!user.id) throw new Error("Supabase did not return a valid account ID. Please try again.");
+
+    /*
+      Supabase can return a user-shaped response when an email already exists
+      without exposing the existing account. In that case identities is empty.
+      Do not create a profile or tell the member registration succeeded.
+    */
+    if(Array.isArray(user.identities) && user.identities.length===0){
+      throw new Error("This email is already registered in the authentication system. Please use the original email/password or use Forgot password on the login page.");
+    }
+
+    if(normalizeEmail(user.email||"")!==email){
+      throw new Error("Supabase returned an account with a different email address. Please try again.");
+    }
     const profile={
       full_name,
       phone,
@@ -288,7 +301,8 @@ async function register(){
       showToast("Account created successfully. Welcome, Monarch.","success");
       setTimeout(()=>window.location.replace("dashboard.html"),900);
     }else{
-      showToast("Account created. Check your email to confirm your account, then log in.","success");
+      /* Email confirmation is enabled: Auth user exists, but there is no session yet. */
+      showToast("Account created successfully. Check your email to confirm your account, then log in.","success");
       setTimeout(()=>window.location.replace("login.html"),1800);
     }
   }catch(err){
