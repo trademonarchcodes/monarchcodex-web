@@ -324,17 +324,58 @@ async function loadPaymentMethods(){
   });
 }
 
+const NGN_RATE = 1530; // use 1321 for official, 1530 for parallel - change anytime
+const BANK_FEE = 2;
+const WALLET_FEE = 1;
+const MIN_DEPOSIT = 30;
+
 function showPaymentDetail(m){
   const panel=document.getElementById("paymentDetailPanel");
   panel.classList.remove("hidden");
+  
+  // Minimum check
+  if(!selectedPackage || selectedPackage.amount < MIN_DEPOSIT){
+    showToast(`Minimum transfer is $${MIN_DEPOSIT}`, 'error');
+    panel.innerHTML = `<p style="color:#ff7a7a;">Minimum is $${MIN_DEPOSIT}</p>`;
+    return;
+  }
+
+  const pkgAmount = Number(selectedPackage.amount);
+
   if(m.payment_type==="bank"){
-    panel.innerHTML=`<h4 style="color:var(--gold)">Bank Transfer Details</h4><div style="margin-top:10px"><p><small>Bank:</small> <strong>${m.bank_name}</strong></p><p><small>Account Name:</small> <strong>${m.account_name}</strong></p><p><small>Account Number:</small> <strong>${m.account_number}</strong> <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.account_number}');showToast('Account number copied!','success')">Copy</button></p><div style="margin-top:12px;background:rgba(212,175,55,0.1);border:1px solid var(--border);padding:10px;border-radius:8px"><small>Amount to Pay:</small><br><strong style="color:var(--gold);font-size:18px">$${selectedPackage?.amount||0}</strong><br><small>Pay exact amount and upload receipt</small></div></div>`;
+    const totalUSD = pkgAmount + BANK_FEE;
+    const totalNGN = Math.round(totalUSD * NGN_RATE); // nearest whole number
+    panel.innerHTML = `
+      <h4 style="color:var(--gold)">Bank Transfer Details</h4>
+      <div style="margin-top:10px;line-height:1.8;font-size:13px;">
+        Bank: <b>${m.bank_name}</b><br>
+        Account Name: <b>${m.account_name}</b><br>
+        Account Number: <b>${m.account_number}</b> 
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.account_number}')">Copy</button>
+        <div style="margin-top:12px;background:#0e0e0e;border:1px solid rgba(212,175,55,0.3);padding:12px;border-radius:8px;">
+          <div>Amount to Pay:</div>
+          <div style="color:#D4AF37;font-size:24px;font-weight:800;">₦${totalNGN.toLocaleString()}</div>
+          <div style="font-size:11px;color:#888;">$${pkgAmount} + $${BANK_FEE} fee = $${totalUSD} | Rate: ₦${NGN_RATE}/$</div>
+          <div style="font-size:12px;margin-top:6px;">Pay exact Naira amount and upload receipt</div>
+          <div style="font-size:10px;margin-top:6px;color:#D4AF37;">Bank Fee: $2 included | Wallet Fee: $1 | Min: $30</div>
+        </div>
+      </div>`;
   }else{
-    panel.innerHTML=`<h4 style="color:var(--gold)">${m.crypto_name} - ${m.crypto_network}</h4><p style="word-break:break-all;color:#fff;margin-top:8px">${m.wallet_address} <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.wallet_address}');showToast('Wallet address copied!','success')">Copy</button></p><div style="margin-top:12px;background:rgba(212,175,55,0.1);border:1px solid var(--border);padding:10px;border-radius:8px"><small>Amount:</small><br><strong style="color:var(--gold);font-size:18px">$${selectedPackage?.amount||0} in ${m.crypto_name}</strong></div>`;
+    const totalUSD = pkgAmount + WALLET_FEE;
+    panel.innerHTML = `
+      <h4 style="color:var(--gold)">${m.crypto_name} - ${m.crypto_network}</h4>
+      <p style="color:#888;font-size:12px;word-break:break-all;margin-top:8px;">${m.wallet_address}</p>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('${m.wallet_address}')">Copy Address</button>
+      <div style="margin-top:12px;background:#0e0e0e;border:1px solid rgba(212,175,55,0.3);padding:12px;border-radius:8px;">
+        <div>Amount to Pay:</div>
+        <div style="color:#D4AF37;font-size:24px;font-weight:800;">$${totalUSD}</div>
+        <div style="font-size:11px;color:#888;">$${pkgAmount} + $${WALLET_FEE} fee (network)</div>
+        <div style="font-size:12px;margin-top:6px;">Pay exact amount and upload receipt</div>
+      </div>`;
   }
   document.getElementById("receiptArea").classList.remove("hidden");
 }
-
+  
 document.getElementById("submitInvestmentBtn")?.addEventListener("click",async()=>{
   if(!selectedPackage){showToast("Select a package first","warning");return;}
   if(!selectedPayment){showToast("Select payment method","warning");return;}
