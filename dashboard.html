@@ -47,7 +47,7 @@ input:focus{border-color:var(--gold);outline:none}
 .copy-btn{background:#1a1a1a;border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
 @media(max-width:900px){.app-shell{flex-direction:column} .sidebar{width:100%} .grid-4{grid-template-columns:1fr 1fr} .content{padding:12px}}
 </style></head><body>
-<div id="appLoading" class="app-loading"><div class="loading-spinner"></div><p>Loading your kingdom...</p></div>
+<div id="appLoading" class="app-loading"><div class="loading-spinner"></div><p>Loading your kingdom...</p><small style="color:#666;margin-top:8px">If stuck >8s, will show retry</small></div>
 <div id="authError" class="auth-error hidden"><div class="auth-error-card"><h2>Login Required</h2><p>Please login to access dashboard</p><button onclick="location.href='login.html'" class="btn-gold">Go to Login</button></div></div>
 <div id="appShell" class="app-shell hidden">
 <aside class="sidebar">
@@ -160,7 +160,6 @@ input:focus{border-color:var(--gold);outline:none}
 </div>
 </main>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
@@ -209,15 +208,71 @@ if(!document.getElementById("toastStyle")){
 }
 
 async function init(){
-  const {data:{user}}=await supabaseClient.auth.getUser();
-  if(!user){document.getElementById("appLoading").classList.add("hidden");document.getElementById("authError").classList.remove("hidden");return;}
-  currentUser=user;
-  const {data:profile}=await supabaseClient.from("profiles").select("*").eq("id",user.id).single();
-  currentProfile=profile;
-  document.getElementById("appLoading").classList.add("hidden");
-  document.getElementById("appShell").classList.remove("hidden");
-  document.getElementById("sidebarMemberName").textContent=profile.full_name;
-  document.getElementById("sidebarMemberUID").textContent=profile.uid;
+  // Timeout failsafe - prevent infinite Loading your kingdom...
+  const loadingTimeout = setTimeout(()=>{
+    const loading = document.getElementById("appLoading");
+    if(loading && !loading.classList.contains("hidden")){
+      loading.innerHTML = `<div style="text-align:center"><div class="loading-spinner"></div><p style="margin-top:12px">Taking longer than expected...</p><button onclick="location.reload()" class="btn-gold" style="margin-top:12px">Retry</button><br><button onclick="localStorage.clear();location.href='login.html'" class="btn-outline" style="margin-top:8px">Go to Login</button></div>`;
+    }
+  }, 8000);
+
+  try{
+    // Add timeout to supabase calls
+    const userPromise = supabaseClient.auth.getUser();
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error("Auth timeout")), 6000));
+    let userResult;
+    try{
+      userResult = await Promise.race([userPromise, timeoutPromise]);
+    }catch(e){
+      console.error("Auth timeout/error", e);
+      document.getElementById("appLoading").classList.add("hidden");
+      document.getElementById("authError").classList.remove("hidden");
+      clearTimeout(loadingTimeout);
+      return;
+    }
+    
+    const {data:{user}, error:authErr} = userResult;
+    if(authErr || !user){
+      console.log("No user", authErr);
+      document.getElementById("appLoading").classList.add("hidden");
+      document.getElementById("authError").classList.remove("hidden");
+      clearTimeout(loadingTimeout);
+      return;
+    }
+    currentUser=user;
+    
+    // Fetch profile with timeout
+    const profilePromise = supabaseClient.from("profiles").select("*").eq("id",user.id).single();
+    const profileTimeout = new Promise((_,reject)=>setTimeout(()=>reject(new Error("Profile timeout")), 6000));
+    let profileRes;
+    try{
+      profileRes = await Promise.race([profilePromise, profileTimeout]);
+    }catch(pe){
+      console.error("Profile fetch timeout", pe);
+      // Try to continue with minimal profile
+      const {data:profileFallback} = await supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle();
+      if(!profileFallback){
+        document.getElementById("appLoading").innerHTML = `<div style="text-align:center;color:#fff"><p>Profile not found. Please contact admin.</p><p style="color:#888;font-size:12px;margin-top:8px">UID: ${user.id.substring(0,8)}...</p><button onclick="location.href='login.html'" class="btn-gold" style="margin-top:12px">Go to Login</button></div>`;
+        return;
+      }
+      profileRes = {data: profileFallback};
+    }
+    
+    const {data:profile, error:profErr} = profileRes;
+    if(profErr || !profile){
+      console.error("Profile error", profErr);
+      document.getElementById("appLoading").classList.add("hidden");
+      document.getElementById("authError").innerHTML = `<div class="auth-error-card"><h2>Profile Error</h2><p>${profErr?.message||"Profile not found"}</p><button onclick="location.href='login.html'" class="btn-gold">Go to Login</button></div>`;
+      document.getElementById("authError").classList.remove("hidden");
+      clearTimeout(loadingTimeout);
+      return;
+    }
+    currentProfile=profile;
+    clearTimeout(loadingTimeout);
+    document.getElementById("appLoading").classList.add("hidden");
+    document.getElementById("appShell").classList.remove("hidden");
+    document.getElementById("sidebarMemberName").textContent=profile.full_name;
+    document.getElementById("sidebarMemberUID").textContent=profile.uid;
   document.getElementById("sidebarMemberInitial").textContent=profile.full_name[0];
   document.getElementById("displayUsername").textContent=profile.display_username||profile.full_name.split(" ")[0];
   await loadOverview();
@@ -241,6 +296,7 @@ document.querySelectorAll(".nav-item").forEach(btn=>{
 document.getElementById("logoutBtn")?.addEventListener("click",async()=>{await supabaseClient.auth.signOut();location.href="login.html";});
 
 async function loadOverview(){
+  try{
   const {data:investments}=await supabaseClient.from("investments").select("amount,status,created_at").eq("user_id",currentUser.id);
   const totalInv=investments?.filter(i=>i.status==="approved").reduce((s,i)=>s+Number(i.amount),0)||0;
   const {data:trans}=await supabaseClient.from("transactions").select("amount,type,description").eq("user_id",currentUser.id);
@@ -263,6 +319,7 @@ async function loadOverview(){
   if(refEarnDetail) refEarnDetail.textContent="$"+referralEarnings.toFixed(2);
   // Store separated values
   window._referralEarnings = referralEarnings;
+  }catch(e){console.error('loadOverview error', e); showToast('Error loading overview: '+e.message,'error');}
   const kycBadge=document.getElementById("kycStatusBadge");
   if(currentProfile.kyc_status==="approved"){
     kycBadge.innerHTML='<span style="background:#00c851;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px">KYC Approved - Active</span>';
@@ -286,6 +343,7 @@ async function loadOverview(){
   window._earnings = allEarnings;
   window._normalEarnings = normalEarnings;
   window._referralEarnings = referralEarnings;
+  }catch(e){console.error('loadOverview error', e); showToast('Error loading overview: '+e.message,'error');}
   window._totalInv = totalInv;
   window._investments = investments;
   window._totalWithdrawn = totalWithdrawn;
