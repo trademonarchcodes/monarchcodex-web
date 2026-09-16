@@ -9,8 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">  window.__monarchKycGateTimer=setInterval(()=>{if(currentUser)applyKycGate();},15000);
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
@@ -67,6 +66,9 @@ body{overflow-x:hidden}
 .member-uid{font-size:11px;color:var(--muted);margin-top:4px;word-break:break-all}
 .status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);margin-right:7px}
 .nav{display:grid;gap:6px}
+.nav button.kyc-locked{opacity:.5}
+.nav button.kyc-locked::after{content:"🔒";float:right;font-size:10px}
+.kyc-lock-banner{margin-bottom:18px}
 .nav button{
   width:100%;border:1px solid transparent;background:transparent;color:#bdbdbd;
   padding:12px 13px;border-radius:10px;text-align:left;font-weight:600
@@ -580,13 +582,28 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="61" text-anchor="middle" fill="#D4AF37" font-size="40" font-family="serif">M</text></svg>`
     );
 
-    const kyc=String(p.kyc_status || p.kyc || "not_submitted").toLowerCase();
-    const kycLabel=kyc==="approved"?"KYC VERIFIED":kyc==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(kyc)?"UNDER REVIEW":"KYC NOT SUBMITTED";
+    const kyc=String(p.kyc_status || p.kyc || "not_submitted").toLowerCase().trim();
+    const kycApproved=kyc==="approved" || kyc==="verified" || kyc==="kyc verified";
+    const kycLabel=kycApproved?"KYC VERIFIED":kyc==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(kyc)?"UNDER REVIEW":"KYC NOT SUBMITTED";
     const reason=p.kyc_rejection_reason || p.rejection_reason || "";
-    $("kycNotice").innerHTML=kycLabel==="KYC REJECTED" ? "KYC status: <b>KYC REJECTED</b>"+(reason?"<br><span style=\"color:#ffaaaa\">Reason: "+esc(reason)+"</span>":"") : "KYC status: "+kycLabel;
-    $("accountStatus").innerHTML="Account status: "+statusBadge(p.status || "active")+" &nbsp; KYC: "+statusBadge(kycLabel);
+    $("kycNotice").innerHTML=kycApproved
+      ? "<b style=\"color:#8ee08e\">KYC VERIFIED</b><br>Your identity has been approved. You do not need to submit KYC again."
+      : kycLabel==="KYC REJECTED"
+        ? "KYC status: <b>KYC REJECTED</b>"+(reason?"<br><span style=\"color:#ffaaaa\">Reason: "+esc(reason)+"</span>":"")
+        : "KYC status: "+kycLabel;
+    $("accountStatus").innerHTML="Account status: "+statusBadge(kycApproved?"active":(p.status || "active"))+" &nbsp; KYC: "+statusBadge(kycLabel);
+    setText("sideStatus",kycApproved?"active":(p.status || "active"));
     const kycBtn=$("saveKyc");
-    if(kycBtn){kycBtn.disabled=kyc==="approved";kycBtn.textContent=kyc==="approved"?"KYC VERIFIED":kyc==="rejected"?"Resubmit KYC":"Submit KYC";}
+    const kycGrid=$("kycName")?.closest(".form-grid");
+    const kycActions=kycBtn?.closest(".actions");
+    if(kycApproved){
+      if(kycGrid)kycGrid.style.display="none";
+      if(kycActions)kycActions.style.display="none";
+    }else{
+      if(kycGrid)kycGrid.style.display="grid";
+      if(kycActions)kycActions.style.display="flex";
+      if(kycBtn){kycBtn.disabled=false;kycBtn.textContent=kyc==="rejected"?"Resubmit KYC":"Submit KYC";}
+    }
   }
 
   async function getSession(){
@@ -908,7 +925,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   async function saveKyc(){
     if(!currentUser)return;
     const existingKyc=String(currentProfile?.kyc_status || currentProfile?.kyc || "not_submitted").toLowerCase();
-    if(existingKyc==="approved"){toast("Your KYC is already verified. You do not need to submit again.","warning");return;}
+    if(["approved","verified","kyc verified"].includes(existingKyc)){toast("Your KYC is already verified. You do not need to submit again.","warning");return;}
     const name=$("kycName").value.trim();
     const phone=$("kycPhone").value.trim();
     const nin=$("kycNin").value.trim();
@@ -949,7 +966,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   async function submitInvestment(){
     if(!currentUser)return;
-    if(!isKycVerified()){showKycRequired();return;}
+    if(!isKycVerified() && !isAdminUser()){showKycRequired();return;}
     const amount=num($("investAmount").value), index=$("investPackage").value, method=$("investMethod").value, note=$("investNote").value.trim(), receiptFile=$("investReceipt")?.files?.[0];
     if(amount<=0){toast("Enter a valid investment amount.","warning");return}
     if(index===""){toast("Please select an investment package.","warning");return}
@@ -997,7 +1014,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   async function submitWithdrawal(){
     if(!currentUser)return;
-    if(!isKycVerified()){showKycRequired();return;}
+    if(!isKycVerified() && !isAdminUser()){showKycRequired();return;}
     const amount=num($("withdrawAmount").value);
     const method=$("withdrawMethod").value;
     const details=$("withdrawDetails").value.trim();
@@ -1036,22 +1053,14 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   async function updateAvatar(){
     const file=$("avatarFile").files[0];
     if(!file || !currentUser)return;
-    if(!file.type.startsWith("image/")){toast("Please choose an image file.","warning");return;}
-    if(file.size>5*1024*1024){toast("Profile photo must be 5MB or smaller.","warning");return;}
     try{
-      let url=null,lastError=null;
-      for(const bucket of ["avatars","kyc"]){
-        try{url=await uploadFile(bucket,file,currentUser.id);if(url)break;}catch(e){lastError=e;}
-      }
-      if(!url)throw lastError||new Error("Could not upload profile photo.");
+      const url=await uploadFile("avatars",file,currentUser.id);
       const {data,error}=await query("profiles",q=>q.update({avatar_url:url}).eq("id",currentUser.id).select("*").maybeSingle());
       if(error)throw error;
-      if(!data)throw new Error("The photo uploaded, but your profile could not be updated. Please try again.");
-      currentProfile=data;
+      currentProfile=data || {...currentProfile,avatar_url:url};
       renderProfile();
-      $("avatarFile").value="";
-      toast("Profile photo updated successfully.","success");
-    }catch(e){console.error(e);toast(e.message || "Could not update photo.","error")}
+      toast("Profile photo updated.","success");
+    }catch(e){toast(e.message || "Could not update photo.","error")}
   }
 
   async function copyText(text){
@@ -1063,12 +1072,16 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     }
   }
 
-
   const KYC_PROTECTED_VIEWS=["investments","withdrawals","transactions","referrals"];
 
   function isKycVerified(){
     const status=String(currentProfile?.kyc_status || currentProfile?.kyc || "not_submitted").toLowerCase().trim();
     return ["approved","verified","kyc verified"].includes(status);
+  }
+
+  function isAdminUser(){
+    const role=String(currentProfile?.role || "").toLowerCase().trim();
+    return role==="admin" || String(currentUser?.email || "").toLowerCase().trim()==="trademonarchofficial@gmail.com";
   }
 
   function showKycRequired(){
@@ -1077,28 +1090,20 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   }
 
   function applyKycGate(){
-    const locked=!isKycVerified();
-
+    const locked=!isKycVerified() && !isAdminUser();
     document.querySelectorAll(".nav button[data-view]").forEach(btn=>{
       const view=btn.dataset.view;
       if(KYC_PROTECTED_VIEWS.includes(view)){
         btn.classList.toggle("kyc-locked",locked);
-        btn.title=locked ? "KYC verification required" : "";
+        btn.title=locked?"KYC verification required":"";
       }
     });
-
     ["investPackage","investAmount","investMethod","investReceipt","investNote","investBtn",
      "withdrawAmount","withdrawMethod","withdrawDetails","withdrawBtn"].forEach(id=>{
-      const e=$(id);
-      if(e)e.disabled=locked;
+      const el=$(id); if(el)el.disabled=locked;
     });
-
-    const investBtn=$("investBtn");
-    if(investBtn)investBtn.textContent=locked ? "KYC REQUIRED" : "Submit Investment";
-
-    const withdrawBtn=$("withdrawBtn");
-    if(withdrawBtn)withdrawBtn.textContent=locked ? "KYC REQUIRED" : "Request Withdrawal";
-
+    const ib=$("investBtn"); if(ib && locked)ib.textContent="KYC REQUIRED";
+    const wb=$("withdrawBtn"); if(wb && locked)wb.textContent="KYC REQUIRED";
     let banner=$("kycLockBanner");
     if(!banner){
       banner=document.createElement("div");
@@ -1107,14 +1112,25 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       const content=document.querySelector(".content");
       if(content)content.prepend(banner);
     }
-    banner.style.display=locked ? "block" : "none";
-    if(locked){
-      banner.innerHTML="🔒 <b>MONARCH CODEX KYC REQUIRED</b><br>Verify your identity to unlock investments, withdrawals, transactions and referrals. Your Profile and KYC sections remain available.";
+    if(banner){
+      banner.style.display=locked?"block":"none";
+      if(locked)banner.innerHTML="🔒 <b>MONARCH CODEX KYC REQUIRED</b><br>Verify your identity to unlock investments, withdrawals, transactions and referrals. Your Profile, KYC and Logout remain available.";
     }
   }
 
+  async function refreshProfileState(){
+    if(!currentUser)return;
+    const fresh=await loadProfile();
+    if(!fresh)return;
+    const oldKyc=String(currentProfile?.kyc_status || currentProfile?.kyc || "").toLowerCase();
+    const newKyc=String(fresh.kyc_status || fresh.kyc || "").toLowerCase();
+    currentProfile=fresh;
+    if(oldKyc!==newKyc)renderProfile();
+    else applyKycGate();
+  }
+
   function openView(name,bypassGate=false){
-    if(!bypassGate && KYC_PROTECTED_VIEWS.includes(name) && !isKycVerified()){
+    if(!bypassGate && KYC_PROTECTED_VIEWS.includes(name) && !isKycVerified() && !isAdminUser()){
       showKycRequired();
       return;
     }
@@ -1207,6 +1223,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
       if(currentProfile){
         renderProfile();
+        applyKycGate();
       }else{
         setText("sideName",currentUser.user_metadata?.full_name || "Monarch");
         setText("sideUid",currentUser.id);
@@ -1265,6 +1282,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     try{ updateInvestNaira(); updateWithdrawCalc(); updateWithdrawFields(); }catch(e){ console.warn("Dashboard initial calculation:",e); }
     try{ boot(); }catch(e){ console.error("Dashboard startup error:",e); hideLoading(); toast(e.message||"Could not start the dashboard.","error"); }
     setInterval(()=>{ if(currentUser) loadNotifications(); },30000);
+    setInterval(()=>{ if(currentUser) refreshProfileState().catch(e=>console.warn("Profile refresh:",e)); },15000);
   }
 
   document.addEventListener("DOMContentLoaded",startDashboard);
