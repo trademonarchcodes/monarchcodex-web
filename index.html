@@ -136,8 +136,8 @@
     .btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 35px rgba(212,175,55,.23)}
 
     .hero{
-      min-height:100vh;
-      padding:150px 0 90px;
+      min-height:calc(100vh - 20px);
+      padding:108px 0 72px;
       display:flex;
       align-items:center;
       position:relative;
@@ -275,6 +275,27 @@
       letter-spacing:3px;
       text-transform:uppercase;
     }
+
+    .partnership-banner{
+      margin:0 auto 70px;
+      max-width:1160px;
+      width:92%;
+      border:1px solid rgba(212,175,55,.32);
+      border-radius:18px;
+      background:linear-gradient(135deg,rgba(212,175,55,.10),rgba(18,18,18,.92));
+      padding:34px 32px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:28px;
+      align-items:center;
+      box-shadow:0 20px 60px rgba(0,0,0,.28);
+    }
+    .partnership-label{color:var(--gold);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+    .partnership-banner h3{font-family:Cinzel,serif;font-size:clamp(22px,3vw,34px);margin-bottom:8px}
+    .partnership-banner p{color:#aaa59a;font-size:13px;line-height:1.75;max-width:760px}
+    .coming-soon{border:1px solid rgba(212,175,55,.45);color:var(--gold-light);padding:11px 16px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:1.5px;white-space:nowrap;background:rgba(212,175,55,.06)}
+    .hero-trust{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+    .trust-pill{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.025);padding:9px 12px;border-radius:999px;color:#a8a49b;font-size:10px}
 
     .section{
       padding:95px 0;
@@ -465,6 +486,13 @@
       .crest-sub{bottom:42px}
       .footer-inner{flex-direction:column;text-align:center}
     }
+
+    @media(max-width:760px){
+      .partnership-banner{grid-template-columns:1fr;padding:26px 22px;margin-bottom:45px}
+      .coming-soon{justify-self:start}
+      .hero{padding:94px 0 55px}
+      .hero-grid{gap:38px}
+    }
   </style>
 </head>
 
@@ -583,6 +611,15 @@
         </div>
       </div>
     </section>
+
+    <div class="partnership-banner">
+      <div>
+        <div class="partnership-label">Strategic Partnership — Coming Soon</div>
+        <h3>MONARCH CODEX × SOVEREIGN DESK</h3>
+        <p>We are preparing a partnership with <strong>SOVEREIGN DESK</strong> focused on trading signals and market guidance for Monarchs who trade or want more structured support in their trading journey. No launch date has been announced yet.</p>
+      </div>
+      <div class="coming-soon">COMING SOON</div>
+    </div>
 
     <section class="section">
       <div class="container">
