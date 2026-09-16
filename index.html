@@ -541,11 +541,11 @@
     .company-card p{color:#929087;font-size:13px;line-height:1.9;margin-bottom:14px}
     .company-card p:last-child{margin-bottom:0}
     .support-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .support-card{border:1px solid rgba(212,175,55,.14);border-radius:14px;background:linear-gradient(145deg,#121212,#0b0b0b);padding:24px}
+    .support-card{display:block;text-decoration:none;border:1px solid rgba(212,175,55,.14);border-radius:14px;background:linear-gradient(145deg,#121212,#0b0b0b);padding:24px;transition:transform .2s ease,border-color .2s ease,background .2s ease}
     .support-card .support-icon{font-size:23px;color:var(--gold);margin-bottom:13px}
     .support-card h3{font-family:Cinzel,serif;font-size:16px;margin-bottom:7px}
     .support-card a,.support-card span{font-size:12px;color:#aaa59a;word-break:break-word}
-    .support-card a:hover{color:var(--gold-light)}
+    .support-card span{display:block}.support-card:hover{transform:translateY(-3px);border-color:rgba(212,175,55,.45);background:linear-gradient(145deg,#161616,#0b0b0b)}.support-card:hover span{color:var(--gold-light)}
     .faq-grid{grid-template-columns:1fr}
     .faq{padding:0;overflow:hidden}
     .faq details{width:100%}
@@ -576,6 +576,7 @@
         <a href="#founder">Founder</a>
         <a href="#company">Company</a>
         <a href="#how">How It Works</a>
+        <a href="#support">Support</a>
       </nav>
 
       <div class="nav-actions">
@@ -807,9 +808,9 @@
           <p>Reach MONARCH CODEX through the support channels below.</p>
         </div>
         <div class="support-grid">
-          <article class="support-card"><div class="support-icon">✈</div><h3>Telegram</h3><a href="https://t.me/Trade_Monarch" target="_blank" rel="noopener noreferrer">@Trade_Monarch</a></article>
-          <article class="support-card"><div class="support-icon">◉</div><h3>WhatsApp / Calls</h3><a href="tel:09135424851">09135424851</a></article>
-          <article class="support-card"><div class="support-icon">✉</div><h3>Email</h3><a href="mailto:trademonarchofficial@gmail.com">trademonarchofficial@gmail.com</a></article>
+          <a class="support-card" href="https://t.me/Trade_Monarch" target="_blank" rel="noopener noreferrer"><div class="support-icon">✈</div><h3>Telegram</h3><span>@Trade_Monarch</span></a>
+          <a class="support-card" href="https://wa.me/2349135424851" target="_blank" rel="noopener noreferrer"><div class="support-icon">◉</div><h3>WhatsApp / Calls</h3><span>09135424851</span></a>
+          <a class="support-card" href="mailto:trademonarchofficial@gmail.com"><div class="support-icon">✉</div><h3>Email</h3><span>trademonarchofficial@gmail.com</span></a>
         </div>
       </div>
     </section>
