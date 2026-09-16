@@ -530,9 +530,11 @@
     @media(max-width:900px){.story-grid,.partnership-feature{grid-template-columns:1fr}.market-grid{grid-template-columns:1fr 1fr}.faq-grid{grid-template-columns:1fr}}
     @media(max-width:600px){.story-card{padding:24px}.market-grid{grid-template-columns:1fr}.partner-copy{padding:10px 4px}.visual-caption{padding:15px}.quote{font-size:16px}}
 
-    .about-feature{display:grid;grid-template-columns:.78fr 1.22fr;gap:34px;align-items:center}
-    .founder-photo{border:1px solid rgba(212,175,55,.28);border-radius:20px;overflow:hidden;background:#0d0d0d;box-shadow:0 24px 70px rgba(0,0,0,.34)}
-    .founder-photo img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;object-position:center top}
+    .about-feature{display:grid;grid-template-columns:.82fr 1.18fr;gap:42px;align-items:center}
+    .founder-photo{position:relative;border:1px solid rgba(212,175,55,.34);border-radius:24px;padding:8px;overflow:hidden;background:linear-gradient(145deg,#171717,#090909);box-shadow:0 28px 80px rgba(0,0,0,.42),0 0 0 1px rgba(212,175,55,.05);isolation:isolate}
+    .founder-photo:before{content:'';position:absolute;inset:7px;border:1px solid rgba(212,175,55,.16);border-radius:18px;pointer-events:none;z-index:2}
+    .founder-photo:after{content:'TRADE MONARCH  •  FOUNDER';position:absolute;left:22px;bottom:22px;padding:9px 13px;border:1px solid rgba(212,175,55,.35);border-radius:999px;background:rgba(7,7,7,.84);backdrop-filter:blur(8px);color:#e5c95f;font-size:9px;letter-spacing:1.35px;font-weight:600;z-index:3}
+    .founder-photo img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;object-position:center top;border-radius:17px}
     .founder-copy h2{margin-bottom:8px}
     .founder-name{color:var(--gold-light);font-size:13px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:18px}
     .founder-copy p{color:#969188;font-size:13px;line-height:1.9;margin-bottom:15px}
@@ -558,8 +560,8 @@
     .faq summary:after{content:'+';font-family:Poppins,Arial,sans-serif;color:var(--gold);font-size:22px;font-weight:400;line-height:1;flex:0 0 auto}
     .faq details[open] summary:after{content:'−'}
     .faq-answer{padding:0 23px 22px;color:#858178;font-size:12px;line-height:1.8}
-    @media(max-width:900px){.about-feature,.company-grid{grid-template-columns:1fr}.support-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:600px){.founder-photo{max-width:430px;margin:auto}.company-card{padding:24px}.support-grid{grid-template-columns:1fr}.founder-quote{font-size:16px}}
+    @media(max-width:900px){.about-feature,.company-grid{grid-template-columns:1fr}.support-grid{grid-template-columns:1fr 1fr}.founder-copy{max-width:760px;margin:auto}}
+    @media(max-width:600px){.founder-photo{max-width:430px;margin:auto;padding:6px;border-radius:20px}.founder-photo:before{inset:5px;border-radius:15px}.founder-photo:after{left:16px;bottom:16px;font-size:8px;padding:8px 10px}.company-card{padding:24px}.support-grid{grid-template-columns:1fr}.founder-quote{font-size:16px}}
   </style>
 </head>
 
