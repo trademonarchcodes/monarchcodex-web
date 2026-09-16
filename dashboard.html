@@ -326,7 +326,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
             <div class="field"><label>Amount (USD)</label><input id="investAmount" type="number" min="0" step="0.01"></div>
             <div class="field"><label>Payment Method</label><select id="investMethod"><option value="bank">Bank Transfer</option><option value="wallet">Wallet Address</option></select></div>
             <div class="field full"><label>Available Payment Destinations</label><div id="paymentDestinations" class="payment-destinations"><div class="empty">Loading payment destinations...</div></div></div>
-            <div class="field"><label id="investPayableAmountLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly></div>
+            <div class="field"><label id="investAmountPayLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly></div>
             <div class="field"><label id="investFeeLabel">Investment Fee</label><input id="investFee" type="text" readonly value="₦2,800.00"></div>
             <div class="field"><label id="investTotalLabel">Total to Pay</label><input id="investTotal" type="text" readonly value="₦0.00"></div>
             <div class="field full"><label>Proof of Payment Receipt <span style="color:#D4AF37">*</span></label><div class="receipt-box"><input id="investReceipt" class="file-input" type="file" accept="image/*,.pdf"><div class="receipt-help">Upload a clear screenshot, photo or PDF of your payment receipt. Maximum 10MB.</div><div id="receiptName" class="receipt-name"></div></div></div><div class="field full"><label>Payment Reference / Note</label><textarea id="investNote" placeholder="Optional reference or payment note"></textarea></div>
@@ -344,9 +344,18 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       <div id="view-withdrawals" class="view">
         <div class="hero"><h1>Withdrawals</h1><p>Request withdrawals from your available balance.</p></div>
         <div class="card">
-          <div class="notice">Withdrawal fee: 1% of the requested withdrawal amount.</div>
+          <div class="notice">
+  Withdrawal fee: 1% of the requested withdrawal amount.<br>
+  Earnings withdrawals require at least <b>$10</b> in available earnings.
+  Investment capital becomes withdrawable <b>3 months after approval</b>.
+  The final eligibility check is enforced securely by MONARCH CODEX.
+</div>
           <div class="form-grid">
-            <div class="field"><label>Amount (USD)</label><input id="withdrawAmount" type="number" min="1" step="0.01"></div>
+            <div class="field">
+  <label>Amount (USD)</label>
+  <input id="withdrawAmount" type="number" min="1" step="0.01">
+  <div id="withdrawRuleHint" class="receipt-help">Enter an amount to calculate the 1% withdrawal fee and net amount.</div>
+</div>
             <div class="field"><label>Method</label><select id="withdrawMethod"><option value="bank">Bank</option><option value="wallet">Crypto</option></select></div>
             <div class="field"><label>Fee (1%)</label><input id="withdrawFee" type="text" readonly value="$0.00"></div>
             <div class="field"><label>Net Amount</label><input id="withdrawNet" type="text" readonly value="$0.00"></div>
@@ -760,19 +769,24 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const fee=amount*WITHDRAWAL_FEE_RATE;
     $("withdrawFee").value=money(fee);
     $("withdrawNet").value=money(Math.max(0,amount-fee));
+
+    const hint=$("withdrawRuleHint");
+    if(hint){
+      hint.textContent=amount>0
+        ? `A 1% fee of ${money(fee)} will be deducted. You will receive ${money(Math.max(0,amount-fee))} if the withdrawal is approved.`
+        : "Enter an amount to calculate the 1% withdrawal fee and net amount.";
+    }
   }
 
   async function loadReferralData(){
     if(!currentUser)return;
 
     try{
-      /*
-       * Referral relationships are stored by UUID in profiles.referred_by.
-       * The member's referral_code/uid are display identifiers only.
-       */
       const r=await query(
         "profiles",
-        q=>q.select("id,full_name,avatar_url,created_at").eq("referred_by",currentUser.id).order("created_at",{ascending:false})
+        q=>q.select("id,full_name,avatar_url,created_at")
+          .eq("referred_by",currentUser.id)
+          .order("created_at",{ascending:false})
       );
 
       if(r.error)throw r.error;
