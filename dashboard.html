@@ -197,12 +197,20 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   .top-title{font-size:15px}
 }
 
-.notification-bell{position:relative;border:1px solid #303030;background:#111;color:#fff;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:19px;transition:.2s}.notification-bell:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px)}
-.notification-count{position:absolute;top:-5px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#c9a227;color:#070707;font-size:10px;font-weight:800;display:none;place-items:center;border:2px solid var(--black)}
-.notification-panel{position:fixed;top:78px;right:22px;width:min(410px,calc(100vw - 24px));max-height:72vh;overflow:hidden;background:#101010;border:1px solid #353535;border-radius:18px;box-shadow:0 22px 70px #000c;z-index:80000;display:none}
+.notification-bell{position:relative;border:1px solid #303030;background:#111;color:#fff;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:19px}
+.notification-bell:hover{border-color:var(--gold);color:var(--gold)}
+.notification-count{position:absolute;top:-5px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#d33;color:#fff;font-size:10px;font-weight:700;display:none;place-items:center;border:2px solid var(--black)}
+.notification-panel{position:fixed;top:80px;right:24px;width:min(390px,calc(100vw - 28px));max-height:70vh;overflow:auto;background:#111;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 60px #000b;z-index:80000;display:none}
 .notification-panel.show{display:block}
-.notification-head{position:sticky;top:0;background:#111;border-bottom:1px solid #292929;padding:17px 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:2}.notification-head h3{margin:0;font-family:Cinzel,serif;color:var(--gold);font-size:17px;letter-spacing:.4px}.notification-head small{display:block;color:#777;font-size:10px;margin-top:3px;font-family:Poppins,sans-serif}.notification-head button{border:1px solid #3a3a3a;background:#181818;color:#bbb;border-radius:8px;padding:7px 9px;font-size:10px;font-weight:700}.notification-head button:hover{border-color:var(--gold);color:var(--gold)}
-.notification-list{max-height:calc(72vh - 70px);overflow:auto}.notification-item{position:relative;padding:15px 17px 15px 48px;border-bottom:1px solid #242424;cursor:pointer;transition:.15s}.notification-item:hover{background:#171717}.notification-item.unread{background:linear-gradient(90deg,#17140b,#111);border-left:3px solid var(--gold);padding-left:45px}.notification-item.unread:before{content:'●';position:absolute;left:17px;top:17px;color:var(--gold);font-size:11px}.notification-item:not(.unread):before{content:'✓';position:absolute;left:17px;top:17px;color:#555;font-size:11px}.notification-title{font-weight:700;font-size:13px;color:#eee;letter-spacing:.1px}.notification-message{font-size:12px;color:#aaa;margin-top:5px;line-height:1.55}.notification-time{font-size:10px;color:#666;margin-top:8px}.notification-empty{padding:42px 20px;text-align:center;color:var(--muted)}.notification-empty strong{display:block;color:#ccc;margin-bottom:5px;font-size:13px}.notification-empty span{font-size:11px}
+.notification-head{position:sticky;top:0;background:#111;border-bottom:1px solid var(--line);padding:15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.notification-head h3{margin:0;font-family:Cinzel,serif;color:var(--gold)}
+.notification-item{padding:14px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+.notification-item:hover{background:#171717}
+.notification-item.unread{background:#15130b;border-left:3px solid var(--gold)}
+.notification-title{font-weight:700;font-size:13px}
+.notification-message{font-size:12px;color:#bbb;margin-top:5px;line-height:1.5}
+.notification-time{font-size:10px;color:#777;margin-top:7px}
+.notification-empty{padding:30px 15px;text-align:center;color:var(--muted)}
 .payment-destinations{display:grid;gap:10px}.payment-option{background:#171717;border:1px solid #333;border-radius:10px;padding:13px;font-size:11px}.payment-option b{color:#D4AF37;font-family:Cinzel,serif}.payment-value{margin-top:7px;word-break:break-all;color:#eee;line-height:1.5}.payment-row{display:flex;align-items:center;gap:8px;margin-top:7px}.payment-row .payment-value{margin-top:0;flex:1;min-width:0}.copy-payment{border:1px solid #555;background:#0d0d0d;color:#D4AF37;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;white-space:nowrap}.copy-payment:hover{border-color:#D4AF37;background:#18150b}.receipt-box{border:1px dashed #4a4a4a;background:#101010;border-radius:12px;padding:14px}.receipt-help{font-size:11px;color:#888;margin-top:6px;line-height:1.5}.receipt-name{font-size:11px;color:#D4AF37;margin-top:8px;word-break:break-all}</style>
 </head>
 
@@ -249,7 +257,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     <header class="topbar">
       <div style="display:flex;align-items:center;gap:12px">
         <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
-        <div id="topTitle" class="top-title">Kingdom Overview</div>
+        <div id="topTitle" class="top-title">MONARCH CODEX</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <div id="topEmail" class="muted" style="font-size:12px"></div>
@@ -263,7 +271,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       <div id="view-overview" class="view active">
         <div class="hero">
           <h1 id="welcomeName">Welcome, Monarch</h1>
-          <p>Your kingdom overview</p>
+          <p>Your MONARCH CODEX account overview.</p>
         </div>
 
         <div class="cards">
@@ -318,7 +326,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
             <div class="field"><label>Amount (USD)</label><input id="investAmount" type="number" min="0" step="0.01"></div>
             <div class="field"><label>Payment Method</label><select id="investMethod"><option value="bank">Bank Transfer</option><option value="wallet">Wallet Address</option></select></div>
             <div class="field full"><label>Available Payment Destinations</label><div id="paymentDestinations" class="payment-destinations"><div class="empty">Loading payment destinations...</div></div></div>
-            <div class="field"><label id="investPayableAmountLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly value="₦0.00"></div>
+            <div class="field"><label id="investPayableAmountLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly></div>
             <div class="field"><label id="investFeeLabel">Investment Fee</label><input id="investFee" type="text" readonly value="₦2,800.00"></div>
             <div class="field"><label id="investTotalLabel">Total to Pay</label><input id="investTotal" type="text" readonly value="₦0.00"></div>
             <div class="field full"><label>Proof of Payment Receipt <span style="color:#D4AF37">*</span></label><div class="receipt-box"><input id="investReceipt" class="file-input" type="file" accept="image/*,.pdf"><div class="receipt-help">Upload a clear screenshot, photo or PDF of your payment receipt. Maximum 10MB.</div><div id="receiptName" class="receipt-name"></div></div></div><div class="field full"><label>Payment Reference / Note</label><textarea id="investNote" placeholder="Optional reference or payment note"></textarea></div>
@@ -334,22 +342,16 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
       <!-- WITHDRAWALS -->
       <div id="view-withdrawals" class="view">
-        <div class="hero"><h1>Withdrawals</h1><p>Withdraw eligible earnings or investment capital according to the MONARCH CODEX withdrawal rules.</p></div>
+        <div class="hero"><h1>Withdrawals</h1><p>Request withdrawals from your available balance.</p></div>
         <div class="card">
-          <div class="cards" style="margin-bottom:18px">
-            <div class="card"><div class="card-title">Available Earnings</div><div id="withdrawAvailableEarnings" class="value">$0.00</div></div>
-            <div class="card"><div class="card-title">Eligible Investment Capital</div><div id="withdrawEligibleCapital" class="value">$0.00</div></div>
-          </div>
-          <div class="notice">Earnings can be withdrawn when your available earnings are <b>$10 or more</b>. Each approved investment's capital becomes eligible <b>3 months after the investment was approved</b>. Withdrawal fee is <b>1%</b> of the requested amount.</div>
+          <div class="notice">Withdrawal fee: 1% of the requested withdrawal amount.</div>
           <div class="form-grid">
-            <div class="field"><label>Withdraw From</label><select id="withdrawSource"><option value="earnings">Earnings</option><option value="capital">Investment Capital</option></select></div>
-            <div class="field"><label>Amount (USD)</label><input id="withdrawAmount" type="number" min="0.01" step="0.01"></div>
+            <div class="field"><label>Amount (USD)</label><input id="withdrawAmount" type="number" min="1" step="0.01"></div>
+            <div class="field"><label>Method</label><select id="withdrawMethod"><option value="bank">Bank</option><option value="wallet">Crypto</option></select></div>
             <div class="field"><label>Fee (1%)</label><input id="withdrawFee" type="text" readonly value="$0.00"></div>
             <div class="field"><label>Net Amount</label><input id="withdrawNet" type="text" readonly value="$0.00"></div>
-            <div class="field"><label>Method</label><select id="withdrawMethod"><option value="bank">Bank</option><option value="wallet">Crypto</option></select></div>
             <div class="field full"><label id="withdrawDetailsLabel">Your Own Bank Account Details</label><textarea id="withdrawDetails" placeholder="Enter your own bank account name and account number. The account name must match your Monarch/KYC name."></textarea></div>
           </div>
-          <div id="withdrawRuleNotice" class="notice">Select a withdrawal source to see the applicable rule.</div>
           <div class="actions"><button id="withdrawBtn" class="btn">Request Withdrawal</button></div>
         </div>
 
@@ -361,7 +363,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
       <!-- TRANSACTIONS -->
       <div id="view-transactions" class="view">
-        <div class="hero"><h1>Transactions</h1><p>Your kingdom financial ledger.</p></div>
+        <div class="hero"><h1>Transactions</h1><p>Your MONARCH CODEX financial ledger.</p></div>
         <div class="card"><div id="transactionTable" class="empty">Loading ledger...</div></div>
       </div>
 
@@ -419,10 +421,10 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
 <div id="notificationPanel" class="notification-panel">
   <div class="notification-head">
-    <div><h3>Notifications</h3><small>Updates from your Monarch Codex account</small></div>
+    <h3>Notifications</h3>
     <button id="markNotificationsRead" class="btn secondary" type="button" style="padding:7px 10px;font-size:11px">Mark all read</button>
   </div>
-  <div id="notificationList" class="notification-list"><div class="notification-empty">Loading notifications...</div></div>
+  <div id="notificationList" class="notification-empty">Loading notifications...</div>
 </div>
 
 <div id="mobileShade" class="modal" style="background:#0008"></div>
@@ -583,31 +585,10 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     return data?.session || null;
   }
 
-  async function loadCapitalAdjustments(){
-    if(!currentUser)return [];
-    try{
-      const r=await query("capital_adjustments",q=>q.select("amount,created_at").eq("user_id",currentUser.id));
-      if(r.error)throw r.error;
-      return r.data||[];
-    }catch(e){
-      console.warn("Capital adjustments:",e);
-      return [];
-    }
-  }
-
-  function isApprovedStatus(value){
-    return ["approved","active","confirmed","completed"].includes(String(value||"").toLowerCase());
-  }
-
-  function isNonRejectedStatus(value){
-    return !["rejected","cancelled","failed"].includes(String(value||"").toLowerCase());
-  }
-
   async function loadOverview(){
     if(!currentUser) return;
 
     let investments=[], earnings=[], withdrawals=[], transactions=[];
-    const capitalAdjustments=await loadCapitalAdjustments();
 
     try{
       const r=await query("investments",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}));
@@ -629,21 +610,11 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       if(!r.error) transactions=r.data || [];
     }catch(e){console.warn("Transactions:",e)}
 
-    const approvedInvestments=investments.filter(x=>isApprovedStatus(x.status));
-    const originalCapital=approvedInvestments.reduce((s,x)=>s+num(x.amount),0);
-    const capitalReduced=capitalAdjustments.reduce((s,x)=>s+num(x.amount),0);
-    const totalInvestment=Math.max(0,originalCapital-capitalReduced);
-
-    const threeMonthsAgo=new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
-    const eligibleOriginalCapital=approvedInvestments
-      .filter(x=>x.created_at && new Date(x.created_at)<=threeMonthsAgo)
-      .reduce((s,x)=>s+num(x.amount),0);
-    const eligibleCapital=Math.max(0,eligibleOriginalCapital-capitalReduced);
+    const approvedInvestments=investments.filter(x=>["approved","active","confirmed","completed"].includes(String(x.status||"").toLowerCase()));
+    const totalInvestment=approvedInvestments.reduce((s,x)=>s+num(x.amount),0);
 
     const referralTypes=["referral","referral_earning","referral_bonus"];
     const normalTypes=["earning","profit","bonus","admin_add"];
-    const allEarnings=earnings.reduce((s,x)=>s+num(x.amount),0);
 
     const referralEarnings=earnings
       .filter(x=>referralTypes.includes(String(x.type||x.earning_type||"").toLowerCase()))
@@ -653,27 +624,19 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       .filter(x=>normalTypes.includes(String(x.type||x.earning_type||"").toLowerCase()))
       .reduce((s,x)=>s+num(x.amount),0);
 
-    const earningsWithdrawn=withdrawals
-      .filter(x=>isNonRejectedStatus(x.status) && String(x.source_type||"earnings").toLowerCase()==="earnings")
+    const withdrawalTotal=withdrawals
+      .filter(x=>!["rejected","cancelled","failed"].includes(String(x.status||"").toLowerCase()))
       .reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
 
-    const capitalWithdrawn=withdrawals
-      .filter(x=>isNonRejectedStatus(x.status) && String(x.source_type||"earnings").toLowerCase()==="capital")
-      .reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
-
-    const availableEarnings=Math.max(0,allEarnings-earningsWithdrawn);
-    const availableCapital=Math.max(0,totalInvestment-capitalWithdrawn);
-    const computed=Math.max(0,availableEarnings+availableCapital);
+    const computed=Math.max(0,totalInvestment+normalEarnings+referralEarnings-withdrawalTotal);
     const profileBalance=num(currentProfile?.balance);
-    const balance=profileBalance>0 ? Math.min(profileBalance,computed) : computed;
+    const balance=profileBalance>0 ? profileBalance : computed;
 
     setText("balance",money(balance));
     setText("totalInvestment",money(totalInvestment));
     setText("totalEarnings",money(normalEarnings));
     setText("referralEarnings",money(referralEarnings));
     setText("refEarn",money(referralEarnings));
-    setText("withdrawAvailableEarnings",money(availableEarnings));
-    setText("withdrawEligibleCapital",money(eligibleCapital));
 
     renderRecentTransactions(transactions);
     renderInvestmentTable(investments);
@@ -718,25 +681,17 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     try{
       const r=await query("payment_destinations",q=>q.select("*").eq("is_active",true).order("created_at",{ascending:false}));
       if(r.error)throw r.error;
-      renderPaymentDestinations(r.data||[]);
+      const rows=r.data||[];
+      wrap.innerHTML=rows.length?rows.map(p=>{
+        if(p.type==="wallet"){
+          const address=String(p.wallet_address||"");
+          return `<div class="payment-option"><b>${esc(p.label||"Wallet Address")}</b><div class="muted">Chain: ${esc(p.chain||"—")}</div><div class="payment-row"><div class="payment-value">${esc(address||"—")}</div>${address?`<button type="button" class="copy-payment" data-copy-payment="${esc(address)}">Copy</button>`:""}</div></div>`;
+        }
+        const account=String(p.account_number||"");
+        return `<div class="payment-option"><b>${esc(p.label||"Bank Transfer")}</b><div class="muted">Bank: ${esc(p.bank_name||"—")}</div><div class="muted">Account Name: ${esc(p.account_name||"—")}</div><div class="payment-row"><div class="payment-value">Account Number: ${esc(account||"—")}</div>${account?`<button type="button" class="copy-payment" data-copy-payment="${esc(account)}">Copy</button>`:""}</div></div>`;
+      }).join(""):'<div class="empty">No active payment destinations are configured yet.</div>';
+      wrap.querySelectorAll(".copy-payment").forEach(btn=>{btn.onclick=()=>copyText(btn.dataset.copyPayment||"");});
     }catch(e){wrap.innerHTML=`<div class="empty">${esc(e.message||"Unable to load payment destinations.")}</div>`}
-  }
-
-  function renderPaymentDestinations(rows){
-    const wrap=$("paymentDestinations");
-    if(!wrap)return;
-    const method=$("investMethod")?.value||"bank";
-    const wanted=method==="wallet"?"wallet":"bank";
-    const filtered=(rows||[]).filter(p=>String(p.type||"").toLowerCase()===wanted);
-    wrap.innerHTML=filtered.length?filtered.map(p=>{
-      if(wanted==="wallet"){
-        const address=String(p.wallet_address||"");
-        return `<div class="payment-option"><b>${esc(p.label||"Wallet Address")}</b><div class="muted">Chain: ${esc(p.chain||"—")}</div><div class="payment-row"><div class="payment-value">${esc(address||"—")}</div>${address?`<button type="button" class="copy-payment" data-copy-payment="${esc(address)}">Copy</button>`:""}</div></div>`;
-      }
-      const account=String(p.account_number||"");
-      return `<div class="payment-option"><b>${esc(p.label||"Bank Transfer")}</b><div class="muted">Bank: ${esc(p.bank_name||"—")}</div><div class="muted">Account Name: ${esc(p.account_name||"—")}</div><div class="payment-row"><div class="payment-value">Account Number: ${esc(account||"—")}</div>${account?`<button type="button" class="copy-payment" data-copy-payment="${esc(account)}">Copy</button>`:""}</div></div>`;
-    }).join(""):`<div class="empty">No active ${wanted==="wallet"?"wallet addresses":"bank accounts"} are configured yet.</div>`;
-    wrap.querySelectorAll(".copy-payment").forEach(btn=>{btn.onclick=()=>copyText(btn.dataset.copyPayment||"");});
   }
 
   async function loadPackages(){
@@ -772,20 +727,20 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const amount=num($("investAmount").value);
     const wallet=$("investMethod").value==="wallet";
     const feeUsd=wallet ? INVEST_WALLET_FEE_USD : INVEST_BANK_FEE_USD;
-    const amountNgn=amount*NGN_RATE;
     const feeNgn=feeUsd*NGN_RATE;
+    const amountNgn=amount*NGN_RATE;
     const totalUsd=amount+feeUsd;
     const totalNgn=amountNgn+feeNgn;
 
     if(wallet){
-      $("investPayableAmountLabel").textContent="Amount to Pay (USD)";
+      $("investAmountPayLabel").textContent="Amount to Pay (USD)";
       $("investNaira").value=amount ? money(amount) : "$0.00";
       $("investFeeLabel").textContent="Investment Fee (USD)";
       $("investFee").value=money(feeUsd);
       $("investTotalLabel").textContent="Total to Pay (USD)";
       $("investTotal").value=amount ? money(totalUsd) : "$0.00";
     }else{
-      $("investPayableAmountLabel").textContent="Amount to Pay (NGN)";
+      $("investAmountPayLabel").textContent="Amount to Pay (NGN)";
       $("investNaira").value=amount ? "₦"+amountNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) : "₦0.00";
       $("investFeeLabel").textContent="Investment Fee (NGN)";
       $("investFee").value="₦"+feeNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -807,19 +762,6 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     $("withdrawNet").value=money(Math.max(0,amount-fee));
   }
 
-  function updateWithdrawSourceUI(){
-    const source=$("withdrawSource")?.value||"earnings";
-    const amount=$("withdrawAmount");
-    if(source==="capital"){
-      if(amount)amount.min="0.01";
-      setText("withdrawRuleNotice","Investment capital is withdrawable only after 3 months from the approval date of the relevant investment.");
-    }else{
-      if(amount)amount.min="10";
-      setText("withdrawRuleNotice","Earnings withdrawals require at least $10 of available earnings.");
-    }
-    updateWithdrawCalc();
-  }
-
   async function loadReferralData(){
     if(!currentUser)return;
     const code=currentProfile?.referral_code || currentProfile?.uid || "";
@@ -833,17 +775,6 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
         }</tbody></table></div>` : '<div class="empty">No referrals yet.</div>';
       }
     }catch(e){console.warn("Referrals:",e)}
-  }
-
-  function professionalNotificationCopy(n){
-    const title=String(n.title||"Account Update");
-    const raw=String(n.message||"You have a new update from Monarch Codex.");
-    const lower=title.toLowerCase();
-    if(lower.includes("investment approved")) return "Your investment request has been approved and your account has been updated accordingly.";
-    if(lower.includes("investment rejected")) return "Your investment request was not approved. Please review your request details or contact support if you need assistance.";
-    if(lower.includes("kyc") && lower.includes("approved")) return "Your identity verification has been approved. Your account is now KYC verified.";
-    if(lower.includes("kyc") && lower.includes("rejected")) return "Your identity verification requires attention. Please review the information provided and resubmit your documents.";
-    return raw;
   }
 
   async function loadNotifications(){
@@ -860,21 +791,16 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
         count.style.display=unread?"grid":"none";
       }
       if(!notificationsCache.length){
-        list.innerHTML='<div class="notification-empty"><strong>You’re all caught up.</strong><span>No new notifications at the moment.</span></div>';
+        list.innerHTML='<div class="notification-empty">No notifications yet.</div>';
         return;
       }
-      list.innerHTML=notificationsCache.map(n=>{
-        const title=String(n.title||"Account Update");
-        const message=professionalNotificationCopy(n);
-        const type=String(n.type||"info").toLowerCase();
-        const label=type==="success"?"Confirmed":type==="warning"?"Action Required":type==="error"?"Attention":"Account Update";
-        return `
-        <div class="notification-item ${n.is_read?"":"unread"}" data-notification-id="${esc(n.id)}" aria-label="${esc(title)}">
-          <div class="notification-title">${esc(title)}</div>
-          <div class="notification-message">${esc(message)}</div>
-          <div class="notification-time">${esc(label)} · ${esc(formatDateTime(n.created_at))}</div>
-        </div>`;
-      }).join("");
+      list.innerHTML=notificationsCache.map(n=>`
+        <div class="notification-item ${n.is_read?"":"unread"}" data-notification-id="${esc(n.id)}">
+          <div class="notification-title">${esc(n.title||"Notification")}</div>
+          <div class="notification-message">${esc(n.message||"")}</div>
+          <div class="notification-time">${esc(formatDateTime(n.created_at))}</div>
+        </div>
+      `).join("");
       list.querySelectorAll(".notification-item").forEach(item=>{
         item.onclick=()=>markNotificationRead(item.dataset.notificationId);
       });
@@ -1029,53 +955,18 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     }
   }
 
-  async function getWithdrawalEligibility(){
-    if(!currentUser)return {earnings:0,capital:0};
-    const [er,ir,wr,ar]=await Promise.all([
-      query("earnings",q=>q.select("amount")),
-      query("investments",q=>q.select("amount,status,created_at").eq("user_id",currentUser.id)),
-      query("withdrawals",q=>q.select("amount,fee,status,source_type").eq("user_id",currentUser.id)),
-      query("capital_adjustments",q=>q.select("amount").eq("user_id",currentUser.id))
-    ]);
-    if(er.error)throw er.error;if(ir.error)throw ir.error;if(wr.error)throw wr.error;if(ar.error)throw ar.error;
-    const earnings=(er.data||[]).reduce((s,x)=>s+num(x.amount),0);
-    const capitalOriginal=(ir.data||[]).filter(x=>isApprovedStatus(x.status)).reduce((s,x)=>s+num(x.amount),0);
-    const reductions=(ar.data||[]).reduce((s,x)=>s+num(x.amount),0);
-    const capital=Math.max(0,capitalOriginal-reductions);
-    const withdrawnEarnings=(wr.data||[]).filter(x=>isNonRejectedStatus(x.status)&&String(x.source_type||"earnings").toLowerCase()==="earnings").reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
-    const withdrawnCapital=(wr.data||[]).filter(x=>isNonRejectedStatus(x.status)&&String(x.source_type||"earnings").toLowerCase()==="capital").reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
-    const threeMonthsAgo=new Date();threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
-    const eligibleOriginal=(ir.data||[]).filter(x=>isApprovedStatus(x.status)&&x.created_at&&new Date(x.created_at)<=threeMonthsAgo).reduce((s,x)=>s+num(x.amount),0);
-    return {earnings:Math.max(0,earnings-withdrawnEarnings),capital:Math.max(0,Math.min(capital,eligibleOriginal-reductions))};
-  }
-
-  async function refreshWithdrawalEligibility(){
-    try{
-      const e=await getWithdrawalEligibility();
-      setText("withdrawAvailableEarnings",money(e.earnings));
-      setText("withdrawEligibleCapital",money(e.capital));
-      return e;
-    }catch(err){console.warn("Withdrawal eligibility:",err);return {earnings:0,capital:0};}
-  }
-
   async function submitWithdrawal(){
     if(!currentUser)return;
     const amount=num($("withdrawAmount").value);
-    const sourceType=$("withdrawSource").value;
     const method=$("withdrawMethod").value;
     const details=$("withdrawDetails").value.trim();
     const fee=amount*WITHDRAWAL_FEE_RATE;
 
     if(amount<=0){toast("Enter a valid withdrawal amount.","warning");return}
-    if(sourceType==="earnings" && amount<10){toast("Earnings withdrawals require at least $10.","warning");return}
     if(!details){toast("Enter your destination or account details.","warning");return}
 
     try{
-      const eligible=await getWithdrawalEligibility();
-      const available=sourceType==="capital"?eligible.capital:eligible.earnings;
-      if(sourceType==="earnings" && available<10){toast("You need at least $10 in available earnings before you can withdraw earnings.","warning");return}
-      if(amount>available+0.000001){toast(`Withdrawal exceeds your ${sourceType==="capital"?"eligible capital":"available earnings"} of ${money(available)}.`,"warning");return}
-      const payload={user_id:currentUser.id,amount,fee,method,status:"pending",details,source_type:sourceType};
+      const payload={user_id:currentUser.id,amount,fee,method,status:"pending",details};
       const {error}=await query("withdrawals",q=>q.insert(payload));
       if(error)throw error;
       toast("Withdrawal request submitted.","success");
@@ -1132,7 +1023,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     if(btn)btn.classList.add("active");
 
     const titles={
-      overview:"Kingdom Overview",kyc:"KYC Verification",investments:"Investments",
+      overview:"MONARCH CODEX",kyc:"KYC Verification",investments:"Investments",
       withdrawals:"Withdrawals",transactions:"Transactions",referrals:"Referrals",profile:"My Profile"
     };
     setText("topTitle",titles[name] || "MONARCH CODEX");
@@ -1140,7 +1031,6 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     $("mobileShade").classList.remove("show");
 
     if(name==="transactions")loadOverview();
-    if(name==="withdrawals"){loadOverview();refreshWithdrawalEligibility();updateWithdrawSourceUI();}
     if(name==="referrals")loadReferralData();
     if(name==="investments"){loadPackages();loadPaymentDestinations();}
   }
@@ -1258,10 +1148,9 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       if(p?.amount != null && $("investAmount")) $("investAmount").value=p.amount;
       updateInvestNaira();
     });
-    on("investMethod","change",()=>{updateInvestNaira();loadPaymentDestinations();});
+    on("investMethod","change",updateInvestNaira);
     on("investReceipt","change",()=>{const file=$("investReceipt")?.files?.[0];setText("receiptName",file?"Selected: "+file.name:"");});
     on("withdrawAmount","input",updateWithdrawCalc);
-    on("withdrawSource","change",updateWithdrawSourceUI);
     on("withdrawMethod","change",()=>{updateWithdrawCalc();updateWithdrawFields();});
     on("copyRefLink","click",()=>copyText($("refLink")?.value||""));
     on("copyRefCode","click",()=>copyText(currentProfile?.referral_code || currentProfile?.uid || ""));
