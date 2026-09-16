@@ -325,7 +325,7 @@ async function investSet(id,status){
   try{
     const r=await q("investments",x=>x.update({status}).eq("id",id));
     if(r.error) throw r.error;
-    const inv=await q("investments",x=>x.select("user_id,amount,package_name,package,name").eq("id",id).maybeSingle());
+    const inv=await q("investments",x=>x.select("user_id,amount,package_name").eq("id",id).maybeSingle());
     const invRow=inv.data||null;
     if(invRow?.user_id){
       const packageName=invRow.package_name||invRow.package||invRow.name||"investment";
