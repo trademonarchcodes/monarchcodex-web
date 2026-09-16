@@ -493,6 +493,38 @@
       .hero{padding:94px 0 55px}
       .hero-grid{gap:38px}
     }
+
+    .visual-panel{border:1px solid rgba(212,175,55,.18);border-radius:18px;background:linear-gradient(145deg,#151515,#090909);overflow:hidden;position:relative;box-shadow:0 24px 70px rgba(0,0,0,.30)}
+    .visual-panel svg{display:block;width:100%;height:auto}
+    .visual-caption{padding:18px 20px;border-top:1px solid rgba(255,255,255,.06)}
+    .visual-caption strong{font-family:Cinzel,serif;font-size:16px;display:block;margin-bottom:5px}
+    .visual-caption span{font-size:11px;color:#858178;line-height:1.7}
+    .story-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+    .story-card{border:1px solid rgba(255,255,255,.07);background:#0d0d0d;border-radius:16px;padding:32px}
+    .story-card h3{font-family:Cinzel,serif;font-size:22px;margin-bottom:12px}
+    .story-card p{color:#929087;font-size:13px;line-height:1.9;margin-bottom:14px}
+    .story-card p:last-child{margin-bottom:0}
+    .quote{border-left:2px solid var(--gold);padding:4px 0 4px 18px;color:#d8d3c7;font-family:Cinzel,serif;font-size:18px;line-height:1.65;margin-top:20px}
+    .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+    .mini-pill{padding:8px 11px;border-radius:999px;border:1px solid rgba(212,175,55,.18);color:#a9a49a;background:rgba(212,175,55,.04);font-size:10px}
+    .market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .market-card{border:1px solid rgba(255,255,255,.07);border-radius:14px;background:linear-gradient(145deg,#121212,#0b0b0b);padding:24px}
+    .market-card .icon{font-size:25px;color:var(--gold);margin-bottom:16px}
+    .market-card h3{font-family:Cinzel,serif;font-size:17px;margin-bottom:8px}
+    .market-card p{font-size:12px;color:#89857d;line-height:1.8}
+    .partnership-feature{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center;border:1px solid rgba(212,175,55,.24);border-radius:20px;padding:22px;background:linear-gradient(145deg,rgba(212,175,55,.08),#0c0c0c)}
+    .partner-art{border-radius:14px;overflow:hidden;border:1px solid rgba(212,175,55,.15);background:#080808}
+    .partner-art svg{display:block;width:100%}
+    .partner-copy{padding:12px 14px 12px 6px}
+    .partner-copy h2{font-size:clamp(27px,4vw,43px)}
+    .partner-copy p{color:#98948a;font-size:13px;line-height:1.85;margin-bottom:15px}
+    .faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .faq{border:1px solid rgba(255,255,255,.07);border-radius:13px;background:#0d0d0d;padding:23px}
+    .faq h3{font-family:Cinzel,serif;font-size:16px;margin-bottom:8px}
+    .faq p{color:#858178;font-size:12px;line-height:1.8}
+    .disclaimer{margin-top:20px;color:#6f6b64;font-size:10px;line-height:1.7;text-align:center}
+    @media(max-width:900px){.story-grid,.partnership-feature{grid-template-columns:1fr}.market-grid{grid-template-columns:1fr 1fr}.faq-grid{grid-template-columns:1fr}}
+    @media(max-width:600px){.story-card{padding:24px}.market-grid{grid-template-columns:1fr}.partner-copy{padding:10px 4px}.visual-caption{padding:15px}.quote{font-size:16px}}
   </style>
 </head>
 
@@ -525,122 +557,128 @@
 
     <section class="hero" id="about">
       <div class="container hero-grid">
-
         <div>
-          <div class="eyebrow">
-            <span class="dot"></span>
-            NIN-VERIFIED TRADING COMMUNITY
-          </div>
-
+          <div class="eyebrow"><span class="dot"></span>NIN-VERIFIED TRADING COMMUNITY</div>
           <h1>ENTER THE<br><span>INNER KINGDOM.</span></h1>
-
-          <p class="hero-copy">
-            MONARCH CODEX is a structured digital trading community built around
-            transparency, disciplined execution, professional risk management,
-            and a clear member ledger.
-          </p>
-
+          <p class="hero-copy">MONARCH CODEX is a structured digital community where verified members can manage investment activity, track earnings, view their financial ledger, participate in referrals and prepare for a more disciplined approach to trading.</p>
           <div class="hero-buttons">
             <a class="btn btn-gold" href="register.html">Become a Monarch</a>
-            <a class="btn btn-outline" href="#features">Explore the Codex</a>
+            <a class="btn btn-outline" href="#codex">Explore the Codex</a>
           </div>
-
-          <p class="hero-note">
-            Membership is subject to verification and platform rules.
-          </p>
+          <div class="hero-trust">
+            <span class="trust-pill">NIN identity verification</span>
+            <span class="trust-pill">Member financial ledger</span>
+            <span class="trust-pill">Structured account dashboard</span>
+          </div>
+          <p class="hero-note">Membership is subject to verification, platform rules and applicable requirements.</p>
         </div>
 
-        <div class="crest-wrap">
-          <div class="crest" aria-label="Monarch Codex emblem">
-            <div class="crown">♛</div>
-            <div class="crest-title">MONARCH</div>
-            <div class="crest-sub">DISCIPLINE • STRUCTURE • LEDGER</div>
-          </div>
+        <div class="visual-panel">
+          <svg viewBox="0 0 560 560" role="img" aria-label="Monarch Codex digital kingdom illustration">
+            <defs>
+              <radialGradient id="g1"><stop offset="0" stop-color="#d4af37" stop-opacity=".22"/><stop offset="1" stop-color="#d4af37" stop-opacity="0"/></radialGradient>
+              <linearGradient id="g2" x1="0" x2="1"><stop stop-color="#d4af37"/><stop offset="1" stop-color="#f2d675"/></linearGradient>
+            </defs>
+            <rect width="560" height="560" fill="#080808"/>
+            <circle cx="280" cy="270" r="220" fill="url(#g1)"/>
+            <g fill="none" stroke="#d4af37" stroke-opacity=".20">
+              <circle cx="280" cy="270" r="205"/><circle cx="280" cy="270" r="165"/><circle cx="280" cy="270" r="125"/>
+            </g>
+            <path d="M70 410 L170 350 L230 385 L310 295 L370 330 L490 215" fill="none" stroke="url(#g2)" stroke-width="5"/>
+            <path d="M70 410 L170 350 L230 385 L310 295 L370 330 L490 215" fill="none" stroke="#d4af37" stroke-opacity=".16" stroke-width="20"/>
+            <g fill="#f2d675"><circle cx="170" cy="350" r="5"/><circle cx="230" cy="385" r="5"/><circle cx="310" cy="295" r="5"/><circle cx="370" cy="330" r="5"/><circle cx="490" cy="215" r="6"/></g>
+            <text x="280" y="245" text-anchor="middle" fill="#d4af37" font-size="94">♛</text>
+            <text x="280" y="330" text-anchor="middle" fill="#f2d675" font-family="Cinzel,serif" font-size="24" letter-spacing="7">MONARCH</text>
+            <text x="280" y="358" text-anchor="middle" fill="#817d73" font-family="Poppins,Arial" font-size="11" letter-spacing="4">DISCIPLINE • STRUCTURE • LEDGER</text>
+            <text x="280" y="510" text-anchor="middle" fill="#5f5b54" font-family="Poppins,Arial" font-size="10" letter-spacing="3">THE INNER KINGDOM</text>
+          </svg>
+          <div class="visual-caption"><strong>A platform built around visibility.</strong><span>Members can follow their account journey through verification, investment activity, earnings, withdrawals and referrals from one dashboard.</span></div>
         </div>
-
       </div>
     </section>
 
-    <section class="section" id="features">
+    <section class="section" id="codex">
       <div class="container">
         <div class="section-heading center">
-          <div class="kicker">Inside the Codex</div>
-          <h2>Built for Members Who Value Structure.</h2>
-          <p>
-            Every part of the platform is designed to make participation,
-            records and account activity easier to understand.
-          </p>
+          <div class="kicker">What Is The Codex?</div>
+          <h2>A Digital Kingdom With A Clearer View.</h2>
+          <p>MONARCH CODEX brings several member experiences into one structured environment rather than scattering account information across different places.</p>
         </div>
-
-        <div class="features">
-          <article class="feature">
-            <div class="feature-icon">✓</div>
-            <h3>NIN Verified</h3>
-            <p>
-              Member identity verification is built into the onboarding process
-              before full account activation.
-            </p>
+        <div class="story-grid">
+          <article class="story-card">
+            <h3>Built Around The Member</h3>
+            <p>Your account begins with identity verification and continues into a member dashboard where important activity can be reviewed in one place.</p>
+            <p>Investment requests, earnings, withdrawals and referral activity are presented as distinct parts of the account experience, helping members understand what each figure represents.</p>
+            <div class="pill-row"><span class="mini-pill">Identity</span><span class="mini-pill">Investments</span><span class="mini-pill">Earnings</span><span class="mini-pill">Withdrawals</span><span class="mini-pill">Referrals</span></div>
           </article>
-
-          <article class="feature">
-            <div class="feature-icon">◈</div>
-            <h3>Transparent Ledger</h3>
-            <p>
-              Account activity is organized through balances, investments,
-              earnings, withdrawals and transaction records.
-            </p>
-          </article>
-
-          <article class="feature">
-            <div class="feature-icon">↗</div>
-            <h3>Target-Based Plans</h3>
-            <p>
-              Investment packages can display their configured target return
-              clearly instead of hiding important numbers.
-            </p>
-          </article>
-
-          <article class="feature">
-            <div class="feature-icon">♙</div>
-            <h3>Referral System</h3>
-            <p>
-              Members receive a dedicated referral identity and can track
-              referrals and eligible referral earnings separately.
-            </p>
+          <article class="story-card">
+            <h3>The Monarch Mindset</h3>
+            <p>The Codex is designed around the idea that participation should come with structure: know your account, understand the numbers and keep a record of activity.</p>
+            <div class="quote">“The goal is not to make the numbers look complicated. The goal is to make the journey easier to understand.”</div>
           </article>
         </div>
       </div>
     </section>
-
-    <div class="partnership-banner">
-      <div>
-        <div class="partnership-label">Strategic Partnership — Coming Soon</div>
-        <h3>MONARCH CODEX × SOVEREIGN DESK</h3>
-        <p>We are preparing a partnership with <strong>SOVEREIGN DESK</strong> focused on trading signals and market guidance for Monarchs who trade or want more structured support in their trading journey. No launch date has been announced yet.</p>
-      </div>
-      <div class="coming-soon">COMING SOON</div>
-    </div>
 
     <section class="section">
       <div class="container">
-        <div class="numbers">
-          <div class="number">
-            <strong>10%</strong>
-            <span>Monthly Target</span>
+        <div class="section-heading">
+          <div class="kicker">Inside Your Account</div>
+          <h2>More Than A Balance On A Screen.</h2>
+          <p>Explore the different parts of the member experience and what each one is designed to help you follow.</p>
+        </div>
+        <div class="market-grid">
+          <article class="market-card"><div class="icon">◈</div><h3>Investment Activity</h3><p>Submit investment requests, select available packages, follow approval status and keep your activity connected to your member account.</p></article>
+          <article class="market-card"><div class="icon">↗</div><h3>Earnings</h3><p>When earnings are recorded, the member dashboard separates them from investment capital and referral earnings for clearer visibility.</p></article>
+          <article class="market-card"><div class="icon">▤</div><h3>Financial Ledger</h3><p>Investment, profit and withdrawal events can appear in a chronological ledger so members can follow how account figures were formed.</p></article>
+          <article class="market-card"><div class="icon">♔</div><h3>Referral Network</h3><p>Every Monarch can have a dedicated referral identity and track eligible members and referral earnings through the platform.</p></article>
+          <article class="market-card"><div class="icon">✓</div><h3>Verification First</h3><p>KYC verification is part of the onboarding journey, helping establish a verified member identity before access to protected features.</p></article>
+          <article class="market-card"><div class="icon">↗</div><h3>Trading Support</h3><p>The upcoming SOVEREIGN DESK partnership is intended to introduce a separate trading-signals and market-guidance experience.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="partnership-feature">
+          <div class="partner-copy">
+            <div class="kicker">Strategic Partnership</div>
+            <h2>MONARCH CODEX × SOVEREIGN DESK</h2>
+            <p>We are preparing a partnership with <strong>SOVEREIGN DESK</strong> focused on trading signals and market guidance for Monarchs who trade or want more structured support in their trading journey.</p>
+            <p>Whether you already trade or are still learning the market, the planned service is intended to add another layer of information and structure. <strong>No launch date has been announced yet.</strong></p>
+            <span class="coming-soon">COMING SOON</span>
           </div>
-          <div class="number">
-            <strong>3%</strong>
-            <span>Referral Target</span>
-          </div>
-          <div class="number">
-            <strong>1%</strong>
-            <span>Additional Referral</span>
-          </div>
-          <div class="number">
-            <strong>NIN</strong>
-            <span>Identity Verification</span>
+          <div class="partner-art">
+            <svg viewBox="0 0 620 390" role="img" aria-label="Sovereign Desk partnership illustration">
+              <defs><linearGradient id="p1" x1="0" x2="1"><stop stop-color="#d4af37"/><stop offset="1" stop-color="#f2d675"/></linearGradient></defs>
+              <rect width="620" height="390" fill="#090909"/>
+              <circle cx="310" cy="190" r="145" fill="#d4af37" fill-opacity=".045"/>
+              <g fill="none" stroke="#d4af37" stroke-opacity=".14"><circle cx="310" cy="190" r="145"/><circle cx="310" cy="190" r="105"/><circle cx="310" cy="190" r="65"/></g>
+              <path d="M65 300 L140 255 L205 275 L280 190 L345 225 L420 130 L555 160" fill="none" stroke="url(#p1)" stroke-width="5"/>
+              <path d="M65 300 L140 255 L205 275 L280 190 L345 225 L420 130 L555 160" fill="none" stroke="#d4af37" stroke-opacity=".13" stroke-width="22"/>
+              <text x="310" y="184" text-anchor="middle" fill="#f2d675" font-family="Cinzel,serif" font-size="27" letter-spacing="5">SOVEREIGN</text>
+              <text x="310" y="216" text-anchor="middle" fill="#d4af37" font-family="Poppins,Arial" font-size="14" letter-spacing="6">DESK</text>
+              <text x="310" y="350" text-anchor="middle" fill="#716d65" font-family="Poppins,Arial" font-size="10" letter-spacing="3">SIGNALS • MARKET GUIDANCE • COMING SOON</text>
+            </svg>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading center">
+          <div class="kicker">The Numbers</div>
+          <h2>Understand The Rules Before You Participate.</h2>
+          <p>Key platform figures are displayed clearly so members can understand what each percentage refers to.</p>
+        </div>
+        <div class="numbers">
+          <div class="number"><strong>10%</strong><span>Monthly Target</span></div>
+          <div class="number"><strong>3%</strong><span>Initial Referral</span></div>
+          <div class="number"><strong>1%</strong><span>Monthly Referral</span></div>
+          <div class="number"><strong>1%</strong><span>Withdrawal Fee</span></div>
+        </div>
+        <p class="disclaimer">Figures shown here describe configured platform rules and targets; they are not guarantees of future returns. Digital-asset and trading activity can involve significant risk.</p>
       </div>
     </section>
 
@@ -649,39 +687,28 @@
         <div class="section-heading">
           <div class="kicker">The Journey</div>
           <h2>Your Kingdom Starts With Verification.</h2>
-          <p>
-            A simple member journey from registration to an active Monarch
-            account.
-          </p>
+          <p>A simple member journey from registration to an active Monarch account.</p>
         </div>
-
         <div class="how-grid">
-          <article class="step">
-            <div class="step-number">01</div>
-            <h3>Create Your Account</h3>
-            <p>
-              Register with your NIN name, phone number, email and a secure
-              password. A referral code can be added during registration.
-            </p>
-          </article>
+          <article class="step"><div class="step-number">01</div><h3>Create Your Account</h3><p>Register with your identity details, phone number, email and secure password. A referral code can be added during registration.</p></article>
+          <article class="step"><div class="step-number">02</div><h3>Complete KYC</h3><p>Submit the required identity information and verification documents. Protected features remain locked until verification requirements are satisfied.</p></article>
+          <article class="step"><div class="step-number">03</div><h3>Enter The Dashboard</h3><p>Once approved, manage your profile, investments, earnings, withdrawals, referrals and financial ledger from your Monarch dashboard.</p></article>
+        </div>
+      </div>
+    </section>
 
-          <article class="step">
-            <div class="step-number">02</div>
-            <h3>Complete KYC</h3>
-            <p>
-              Submit the required identity details, NIN documents and a clear
-              front-facing selfie for verification.
-            </p>
-          </article>
-
-          <article class="step">
-            <div class="step-number">03</div>
-            <h3>Enter the Dashboard</h3>
-            <p>
-              Once your account is approved, manage your profile, investments,
-              earnings, withdrawals and referrals from your Monarch dashboard.
-            </p>
-          </article>
+    <section class="section">
+      <div class="container">
+        <div class="section-heading center">
+          <div class="kicker">Questions Before You Enter?</div>
+          <h2>Read The Codex Carefully.</h2>
+          <p>Here are a few important things every prospective Monarch should understand.</p>
+        </div>
+        <div class="faq-grid">
+          <article class="faq"><h3>Is verification required?</h3><p>Yes. MONARCH CODEX uses a verification-first onboarding process, and protected member features require verified KYC status.</p></article>
+          <article class="faq"><h3>Can I see my account activity?</h3><p>Yes. The member dashboard includes investment activity, earnings, withdrawals, referrals and a financial ledger.</p></article>
+          <article class="faq"><h3>When is SOVEREIGN DESK launching?</h3><p>The partnership is currently announced as coming soon. No launch date has been announced yet.</p></article>
+          <article class="faq"><h3>Are trading signals guaranteed?</h3><p>No. Trading signals and market guidance cannot guarantee profitable results. Trading involves risk and members should make their own decisions.</p></article>
         </div>
       </div>
     </section>
@@ -690,11 +717,8 @@
       <div class="container">
         <div class="cta">
           <div class="kicker">Your Seat Awaits</div>
-          <h2>Ready to Enter the Codex?</h2>
-          <p>
-            Create your account and begin the verification process to become a
-            Monarch.
-          </p>
+          <h2>Ready To Enter The Codex?</h2>
+          <p>Create your account, complete the verification process and explore the MONARCH CODEX member experience.</p>
           <a class="btn btn-gold" href="register.html">Join MONARCH CODEX</a>
         </div>
       </div>
