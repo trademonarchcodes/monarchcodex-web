@@ -480,7 +480,8 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   function money(value){
     const n = Number(value || 0);
-    return "$" + Math.max(0,n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+    const sign=n<0 ? "-" : "";
+    return sign + "$" + Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   }
 
   function num(value){ return Number(value || 0); }
@@ -632,10 +633,15 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       if(!r.error) withdrawals=r.data || [];
     }catch(e){console.warn("Withdrawals:",e)}
 
+    // The legacy transactions table is not consistently populated by the finance triggers.
+    // Keep it as an optional source, then build the member ledger from investments,
+    // earnings and withdrawals so real financial activity is always visible.
     try{
-      const r=await query("transactions",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(10));
+      const r=await query("transactions",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(50));
       if(!r.error) transactions=r.data || [];
-    }catch(e){console.warn("Transactions:",e)}
+    }catch(e){console.warn("Legacy transactions:",e)}
+
+    transactions=buildLedgerRows(investments,earnings,withdrawals,transactions);
 
     const approvedInvestments=investments.filter(x=>["approved","active","confirmed","completed"].includes(String(x.status||"").toLowerCase()));
     const totalInvestment=approvedInvestments.reduce((s,x)=>s+num(x.amount),0);
@@ -671,6 +677,52 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     renderTransactionTable(transactions);
 
     await loadReferralData();
+  }
+
+  function buildLedgerRows(investments,earnings,withdrawals,legacy){
+    const rows=[];
+    const approvedStatuses=["approved","active","confirmed","completed"];
+    (investments||[]).forEach(x=>{
+      const status=String(x.status||"").toLowerCase();
+      rows.push({
+        description:`Investment — ${x.package_name || x.package || x.name || "Package"}`,
+        type:status && approvedStatuses.includes(status) ? "investment approved" : "investment request",
+        amount:num(x.amount),
+        created_at:x.approved_at || x.created_at,
+        _priority:status && approvedStatuses.includes(status) ? 1 : 0
+      });
+    });
+    (earnings||[]).forEach(x=>{
+      rows.push({
+        description:x.description || (String(x.type||"").toLowerCase()==="referral" ? "Referral bonus" : "Earning"),
+        type:x.type || x.earning_type || "earning",
+        amount:num(x.amount),
+        created_at:x.created_at,
+        _priority:2
+      });
+    });
+    (withdrawals||[]).forEach(x=>{
+      rows.push({
+        description:`Withdrawal — ${x.method || "request"}`,
+        type:`withdrawal ${x.status || "pending"}`,
+        amount:-num(x.amount)-num(x.fee),
+        created_at:x.created_at,
+        _priority:3
+      });
+    });
+    // Preserve any genuine legacy transaction records that are not duplicates of the finance rows.
+    (legacy||[]).forEach(x=>{
+      rows.push({
+        description:x.description || "Transaction",
+        type:x.type || "transaction",
+        amount:num(x.amount),
+        created_at:x.created_at,
+        _priority:4
+      });
+    });
+    return rows
+      .filter(x=>x.created_at || x.description)
+      .sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
   }
 
   function renderRecentTransactions(rows){
