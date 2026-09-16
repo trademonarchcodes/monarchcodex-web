@@ -1024,7 +1024,17 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     if(!details){toast("Enter your destination or account details.","warning");return}
 
     try{
-      const payload={user_id:currentUser.id,amount,fee,method,status:"pending",details};
+      const detailLines=details.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+      const accountName=String(currentProfile?.full_name || currentUser.user_metadata?.full_name || "").trim();
+      let accountNumber=null;
+      let bankName=null;
+      if(method==="bank"){
+        const numberLine=detailLines.find(x=>/\d{8,12}/.test(x));
+        accountNumber=numberLine ? (numberLine.match(/\d{8,12}/)||[])[0] : null;
+        const nonNumericLine=detailLines.find(x=>x!==accountName && !/\d/.test(x));
+        bankName=nonNumericLine || null;
+      }
+      const payload={user_id:currentUser.id,amount,fee,method,status:"pending",details,account_name:accountName || "Monarch",account_number:accountNumber,bank_name:bankName};
       const {error}=await query("withdrawals",q=>q.insert(payload));
       if(error)throw error;
       toast("Withdrawal request submitted.","success");
