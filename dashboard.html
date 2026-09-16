@@ -764,17 +764,32 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   async function loadReferralData(){
     if(!currentUser)return;
-    const code=currentProfile?.referral_code || currentProfile?.uid || "";
 
     try{
-      const r=await query("profiles",q=>q.select("id,full_name,avatar_url,created_at").eq("referred_by",code));
-      if(!r.error){
-        setText("refCount",(r.data||[]).length);
-        $("referralTable").innerHTML=r.data?.length ? `<div class="table-wrap"><table><thead><tr><th>Monarch</th><th>Joined</th></tr></thead><tbody>${
-          r.data.map(x=>`<tr><td><div class="ref-member"><img src="${esc(x.avatar_url||"")}" onerror="this.style.display='none'" alt=""><span>${esc(x.full_name || "Monarch")}</span></div></td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
-        }</tbody></table></div>` : '<div class="empty">No referrals yet.</div>';
-      }
-    }catch(e){console.warn("Referrals:",e)}
+      /*
+       * Referral relationships are stored by UUID in profiles.referred_by.
+       * The member's referral_code/uid are display identifiers only.
+       */
+      const r=await query(
+        "profiles",
+        q=>q.select("id,full_name,avatar_url,created_at").eq("referred_by",currentUser.id).order("created_at",{ascending:false})
+      );
+
+      if(r.error)throw r.error;
+
+      const rows=r.data||[];
+      setText("refCount",rows.length);
+
+      $("referralTable").innerHTML=rows.length
+        ? `<div class="table-wrap"><table><thead><tr><th>Monarch</th><th>Joined</th></tr></thead><tbody>${
+            rows.map(x=>`<tr><td><div class="ref-member"><img src="${esc(x.avatar_url||"")}" onerror="this.style.display='none'" alt=""><span>${esc(x.full_name || "Monarch")}</span></div></td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
+          }</tbody></table></div>`
+        : '<div class="empty">No referrals yet.</div>';
+    }catch(e){
+      console.warn("Referrals:",e);
+      setText("refCount",0);
+      $("referralTable").innerHTML='<div class="empty">Referrals are temporarily unavailable.</div>';
+    }
   }
 
   async function loadNotifications(){
