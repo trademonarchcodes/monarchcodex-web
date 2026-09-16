@@ -334,16 +334,22 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
       <!-- WITHDRAWALS -->
       <div id="view-withdrawals" class="view">
-        <div class="hero"><h1>Withdrawals</h1><p>Request withdrawals from your available balance.</p></div>
+        <div class="hero"><h1>Withdrawals</h1><p>Withdraw eligible earnings or investment capital according to the MONARCH CODEX withdrawal rules.</p></div>
         <div class="card">
-          <div class="notice">Withdrawal fee: 1% of the requested withdrawal amount.</div>
+          <div class="cards" style="margin-bottom:18px">
+            <div class="card"><div class="card-title">Available Earnings</div><div id="withdrawAvailableEarnings" class="value">$0.00</div></div>
+            <div class="card"><div class="card-title">Eligible Investment Capital</div><div id="withdrawEligibleCapital" class="value">$0.00</div></div>
+          </div>
+          <div class="notice">Earnings can be withdrawn when your available earnings are <b>$10 or more</b>. Each approved investment's capital becomes eligible <b>3 months after the investment was approved</b>. Withdrawal fee is <b>1%</b> of the requested amount.</div>
           <div class="form-grid">
-            <div class="field"><label>Amount (USD)</label><input id="withdrawAmount" type="number" min="1" step="0.01"></div>
-            <div class="field"><label>Method</label><select id="withdrawMethod"><option value="bank">Bank</option><option value="wallet">Crypto</option></select></div>
+            <div class="field"><label>Withdraw From</label><select id="withdrawSource"><option value="earnings">Earnings</option><option value="capital">Investment Capital</option></select></div>
+            <div class="field"><label>Amount (USD)</label><input id="withdrawAmount" type="number" min="0.01" step="0.01"></div>
             <div class="field"><label>Fee (1%)</label><input id="withdrawFee" type="text" readonly value="$0.00"></div>
             <div class="field"><label>Net Amount</label><input id="withdrawNet" type="text" readonly value="$0.00"></div>
+            <div class="field"><label>Method</label><select id="withdrawMethod"><option value="bank">Bank</option><option value="wallet">Crypto</option></select></div>
             <div class="field full"><label id="withdrawDetailsLabel">Your Own Bank Account Details</label><textarea id="withdrawDetails" placeholder="Enter your own bank account name and account number. The account name must match your Monarch/KYC name."></textarea></div>
           </div>
+          <div id="withdrawRuleNotice" class="notice">Select a withdrawal source to see the applicable rule.</div>
           <div class="actions"><button id="withdrawBtn" class="btn">Request Withdrawal</button></div>
         </div>
 
@@ -577,10 +583,31 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     return data?.session || null;
   }
 
+  async function loadCapitalAdjustments(){
+    if(!currentUser)return [];
+    try{
+      const r=await query("capital_adjustments",q=>q.select("amount,created_at").eq("user_id",currentUser.id));
+      if(r.error)throw r.error;
+      return r.data||[];
+    }catch(e){
+      console.warn("Capital adjustments:",e);
+      return [];
+    }
+  }
+
+  function isApprovedStatus(value){
+    return ["approved","active","confirmed","completed"].includes(String(value||"").toLowerCase());
+  }
+
+  function isNonRejectedStatus(value){
+    return !["rejected","cancelled","failed"].includes(String(value||"").toLowerCase());
+  }
+
   async function loadOverview(){
     if(!currentUser) return;
 
     let investments=[], earnings=[], withdrawals=[], transactions=[];
+    const capitalAdjustments=await loadCapitalAdjustments();
 
     try{
       const r=await query("investments",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}));
@@ -602,11 +629,21 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       if(!r.error) transactions=r.data || [];
     }catch(e){console.warn("Transactions:",e)}
 
-    const approvedInvestments=investments.filter(x=>["approved","active","confirmed","completed"].includes(String(x.status||"").toLowerCase()));
-    const totalInvestment=approvedInvestments.reduce((s,x)=>s+num(x.amount),0);
+    const approvedInvestments=investments.filter(x=>isApprovedStatus(x.status));
+    const originalCapital=approvedInvestments.reduce((s,x)=>s+num(x.amount),0);
+    const capitalReduced=capitalAdjustments.reduce((s,x)=>s+num(x.amount),0);
+    const totalInvestment=Math.max(0,originalCapital-capitalReduced);
+
+    const threeMonthsAgo=new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
+    const eligibleOriginalCapital=approvedInvestments
+      .filter(x=>x.created_at && new Date(x.created_at)<=threeMonthsAgo)
+      .reduce((s,x)=>s+num(x.amount),0);
+    const eligibleCapital=Math.max(0,eligibleOriginalCapital-capitalReduced);
 
     const referralTypes=["referral","referral_earning","referral_bonus"];
     const normalTypes=["earning","profit","bonus","admin_add"];
+    const allEarnings=earnings.reduce((s,x)=>s+num(x.amount),0);
 
     const referralEarnings=earnings
       .filter(x=>referralTypes.includes(String(x.type||x.earning_type||"").toLowerCase()))
@@ -616,19 +653,27 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       .filter(x=>normalTypes.includes(String(x.type||x.earning_type||"").toLowerCase()))
       .reduce((s,x)=>s+num(x.amount),0);
 
-    const withdrawalTotal=withdrawals
-      .filter(x=>!["rejected","cancelled","failed"].includes(String(x.status||"").toLowerCase()))
+    const earningsWithdrawn=withdrawals
+      .filter(x=>isNonRejectedStatus(x.status) && String(x.source_type||"earnings").toLowerCase()==="earnings")
       .reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
 
-    const computed=Math.max(0,totalInvestment+normalEarnings+referralEarnings-withdrawalTotal);
+    const capitalWithdrawn=withdrawals
+      .filter(x=>isNonRejectedStatus(x.status) && String(x.source_type||"earnings").toLowerCase()==="capital")
+      .reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
+
+    const availableEarnings=Math.max(0,allEarnings-earningsWithdrawn);
+    const availableCapital=Math.max(0,totalInvestment-capitalWithdrawn);
+    const computed=Math.max(0,availableEarnings+availableCapital);
     const profileBalance=num(currentProfile?.balance);
-    const balance=profileBalance>0 ? profileBalance : computed;
+    const balance=profileBalance>0 ? Math.min(profileBalance,computed) : computed;
 
     setText("balance",money(balance));
     setText("totalInvestment",money(totalInvestment));
     setText("totalEarnings",money(normalEarnings));
     setText("referralEarnings",money(referralEarnings));
     setText("refEarn",money(referralEarnings));
+    setText("withdrawAvailableEarnings",money(availableEarnings));
+    setText("withdrawEligibleCapital",money(eligibleCapital));
 
     renderRecentTransactions(transactions);
     renderInvestmentTable(investments);
@@ -760,6 +805,19 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const fee=amount*WITHDRAWAL_FEE_RATE;
     $("withdrawFee").value=money(fee);
     $("withdrawNet").value=money(Math.max(0,amount-fee));
+  }
+
+  function updateWithdrawSourceUI(){
+    const source=$("withdrawSource")?.value||"earnings";
+    const amount=$("withdrawAmount");
+    if(source==="capital"){
+      if(amount)amount.min="0.01";
+      setText("withdrawRuleNotice","Investment capital is withdrawable only after 3 months from the approval date of the relevant investment.");
+    }else{
+      if(amount)amount.min="10";
+      setText("withdrawRuleNotice","Earnings withdrawals require at least $10 of available earnings.");
+    }
+    updateWithdrawCalc();
   }
 
   async function loadReferralData(){
@@ -971,18 +1029,53 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     }
   }
 
+  async function getWithdrawalEligibility(){
+    if(!currentUser)return {earnings:0,capital:0};
+    const [er,ir,wr,ar]=await Promise.all([
+      query("earnings",q=>q.select("amount")),
+      query("investments",q=>q.select("amount,status,created_at").eq("user_id",currentUser.id)),
+      query("withdrawals",q=>q.select("amount,fee,status,source_type").eq("user_id",currentUser.id)),
+      query("capital_adjustments",q=>q.select("amount").eq("user_id",currentUser.id))
+    ]);
+    if(er.error)throw er.error;if(ir.error)throw ir.error;if(wr.error)throw wr.error;if(ar.error)throw ar.error;
+    const earnings=(er.data||[]).reduce((s,x)=>s+num(x.amount),0);
+    const capitalOriginal=(ir.data||[]).filter(x=>isApprovedStatus(x.status)).reduce((s,x)=>s+num(x.amount),0);
+    const reductions=(ar.data||[]).reduce((s,x)=>s+num(x.amount),0);
+    const capital=Math.max(0,capitalOriginal-reductions);
+    const withdrawnEarnings=(wr.data||[]).filter(x=>isNonRejectedStatus(x.status)&&String(x.source_type||"earnings").toLowerCase()==="earnings").reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
+    const withdrawnCapital=(wr.data||[]).filter(x=>isNonRejectedStatus(x.status)&&String(x.source_type||"earnings").toLowerCase()==="capital").reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
+    const threeMonthsAgo=new Date();threeMonthsAgo.setMonth(threeMonthsAgo.getMonth()-3);
+    const eligibleOriginal=(ir.data||[]).filter(x=>isApprovedStatus(x.status)&&x.created_at&&new Date(x.created_at)<=threeMonthsAgo).reduce((s,x)=>s+num(x.amount),0);
+    return {earnings:Math.max(0,earnings-withdrawnEarnings),capital:Math.max(0,Math.min(capital,eligibleOriginal-reductions))};
+  }
+
+  async function refreshWithdrawalEligibility(){
+    try{
+      const e=await getWithdrawalEligibility();
+      setText("withdrawAvailableEarnings",money(e.earnings));
+      setText("withdrawEligibleCapital",money(e.capital));
+      return e;
+    }catch(err){console.warn("Withdrawal eligibility:",err);return {earnings:0,capital:0};}
+  }
+
   async function submitWithdrawal(){
     if(!currentUser)return;
     const amount=num($("withdrawAmount").value);
+    const sourceType=$("withdrawSource").value;
     const method=$("withdrawMethod").value;
     const details=$("withdrawDetails").value.trim();
     const fee=amount*WITHDRAWAL_FEE_RATE;
 
     if(amount<=0){toast("Enter a valid withdrawal amount.","warning");return}
+    if(sourceType==="earnings" && amount<10){toast("Earnings withdrawals require at least $10.","warning");return}
     if(!details){toast("Enter your destination or account details.","warning");return}
 
     try{
-      const payload={user_id:currentUser.id,amount,fee,method,status:"pending",details};
+      const eligible=await getWithdrawalEligibility();
+      const available=sourceType==="capital"?eligible.capital:eligible.earnings;
+      if(sourceType==="earnings" && available<10){toast("You need at least $10 in available earnings before you can withdraw earnings.","warning");return}
+      if(amount>available+0.000001){toast(`Withdrawal exceeds your ${sourceType==="capital"?"eligible capital":"available earnings"} of ${money(available)}.`,"warning");return}
+      const payload={user_id:currentUser.id,amount,fee,method,status:"pending",details,source_type:sourceType};
       const {error}=await query("withdrawals",q=>q.insert(payload));
       if(error)throw error;
       toast("Withdrawal request submitted.","success");
@@ -1047,6 +1140,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     $("mobileShade").classList.remove("show");
 
     if(name==="transactions")loadOverview();
+    if(name==="withdrawals"){loadOverview();refreshWithdrawalEligibility();updateWithdrawSourceUI();}
     if(name==="referrals")loadReferralData();
     if(name==="investments"){loadPackages();loadPaymentDestinations();}
   }
@@ -1167,6 +1261,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     on("investMethod","change",()=>{updateInvestNaira();loadPaymentDestinations();});
     on("investReceipt","change",()=>{const file=$("investReceipt")?.files?.[0];setText("receiptName",file?"Selected: "+file.name:"");});
     on("withdrawAmount","input",updateWithdrawCalc);
+    on("withdrawSource","change",updateWithdrawSourceUI);
     on("withdrawMethod","change",()=>{updateWithdrawCalc();updateWithdrawFields();});
     on("copyRefLink","click",()=>copyText($("refLink")?.value||""));
     on("copyRefCode","click",()=>copyText(currentProfile?.referral_code || currentProfile?.uid || ""));
