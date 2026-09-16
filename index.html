@@ -542,6 +542,13 @@
     .skill-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
     .skill-pill{padding:8px 11px;border:1px solid rgba(212,175,55,.18);border-radius:999px;color:#aaa59a;background:rgba(212,175,55,.035);font-size:10px}
     .company-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .company-vision{margin-top:24px;border:1px solid rgba(212,175,55,.16);border-radius:20px;background:radial-gradient(circle at 85% 20%,rgba(212,175,55,.10),transparent 34%),linear-gradient(135deg,#141414,#090909);padding:34px;display:grid;grid-template-columns:1.35fr .65fr;gap:28px;align-items:center;overflow:hidden;position:relative}
+    .company-vision:after{content:'CODEX';position:absolute;right:-10px;bottom:-35px;font-family:Cinzel,serif;font-size:110px;letter-spacing:8px;color:rgba(212,175,55,.035);pointer-events:none}
+    .company-vision h3{font-family:Cinzel,serif;font-size:24px;margin-bottom:10px;position:relative;z-index:1}
+    .company-vision p{color:#928e85;font-size:13px;line-height:1.9;position:relative;z-index:1}
+    .vision-points{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:1}
+    .vision-point{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);border-radius:12px;padding:13px;color:#c5c0b5;font-size:11px}
+
     .company-card{border:1px solid rgba(255,255,255,.07);border-radius:16px;background:#0d0d0d;padding:32px}
     .company-card h3{font-family:Cinzel,serif;font-size:22px;margin-bottom:12px}
     .company-card p{color:#929087;font-size:13px;line-height:1.9;margin-bottom:14px}
@@ -560,7 +567,7 @@
     .faq summary:after{content:'+';font-family:Poppins,Arial,sans-serif;color:var(--gold);font-size:22px;font-weight:400;line-height:1;flex:0 0 auto}
     .faq details[open] summary:after{content:'−'}
     .faq-answer{padding:0 23px 22px;color:#858178;font-size:12px;line-height:1.8}
-    @media(max-width:900px){.about-feature,.company-grid{grid-template-columns:1fr}.support-grid{grid-template-columns:1fr 1fr}.founder-copy{max-width:760px;margin:auto}}
+    @media(max-width:900px){.company-vision{grid-template-columns:1fr;padding:26px}.company-vision:after{font-size:70px}.about-feature,.company-grid{grid-template-columns:1fr}.support-grid{grid-template-columns:1fr 1fr}.founder-copy{max-width:760px;margin:auto}}
     @media(max-width:600px){.founder-photo{max-width:430px;margin:auto;padding:6px;border-radius:20px}.founder-photo:before{inset:5px;border-radius:15px}.founder-photo:after{left:16px;bottom:16px;font-size:8px;padding:8px 10px}.company-card{padding:24px}.support-grid{grid-template-columns:1fr}.founder-quote{font-size:16px}}
   </style>
 </head>
@@ -743,6 +750,19 @@
             <p>MONARCH CODEX is not intended to remain an investment dashboard only. The platform is designed as an expanding ecosystem, with additional tools, educational resources, trading support, community experiences and other features planned for the future.</p>
             <p>As new features are introduced, the goal is to keep the experience connected, structured and useful from one place.</p>
           </article>
+        </div>
+        <div class="company-vision">
+          <div>
+            <div class="kicker">The Codex Is Only Beginning</div>
+            <h3>One Platform. Many Possibilities.</h3>
+            <p>MONARCH CODEX is being built as a growing ecosystem — not simply a place to view an investment balance. The vision is to create a digital environment where financial participation can sit alongside knowledge, technology, trading resources, community and future tools that help Monarchs develop across different areas of life.</p>
+          </div>
+          <div class="vision-points">
+            <div class="vision-point">Financial Growth</div>
+            <div class="vision-point">Trading & Education</div>
+            <div class="vision-point">AI & Technology</div>
+            <div class="vision-point">Community & Purpose</div>
+          </div>
         </div>
       </div>
     </section>
