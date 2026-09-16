@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">  window.__monarchKycGateTimer=setInterval(()=>{if(currentUser)applyKycGate();},15000);
+</script>
 
 <style>
 :root{
@@ -888,20 +889,20 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
     const finalPath=path+"/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"_"+safe;
     const timeoutMs=bucket==="receipts" ? 60000 : 30000;
-    const buckets=bucket==="avatars" ? ["avatars","kyc"] : bucket==="kyc" ? ["kyc","avatars"] : ["receipts","kyc"];
-    let lastError=null;
-    for(const b of buckets){
-      try{
-        const r=await withTimeout(db.storage.from(b).upload(finalPath,file,{upsert:false,contentType:file.type||undefined}),timeoutMs);
-        if(r.error){lastError=r.error;continue;}
-        const pub=db.storage.from(b).getPublicUrl(finalPath);
-        const publicUrl=pub?.data?.publicUrl;
-        if(!publicUrl)throw new Error("Upload succeeded, but the file URL could not be created.");
-        return publicUrl;
-      }catch(e){lastError=e;}
+
+    try{
+      const r=await withTimeout(
+        db.storage.from(bucket).upload(finalPath,file,{upsert:false,contentType:file.type||undefined}),
+        timeoutMs
+      );
+      if(r.error)throw r.error;
+      const pub=db.storage.from(bucket).getPublicUrl(finalPath);
+      if(!pub?.data?.publicUrl)throw new Error("Receipt uploaded, but its file URL could not be created.");
+      return pub.data.publicUrl;
+    }catch(e){
+      const msg=e?.message || e?.error_description || e?.details || "Upload failed.";
+      throw new Error(bucket==="receipts" ? "Receipt upload failed: "+msg : msg);
     }
-    const msg=lastError?.message || lastError?.error_description || lastError?.details || "Upload failed.";
-    throw new Error(bucket==="receipts" ? "Receipt upload failed: "+msg : bucket==="kyc" ? "KYC document upload failed: "+msg : "Profile photo upload failed: "+msg);
   }
 
   async function saveKyc(){
@@ -911,28 +912,44 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     const name=$("kycName").value.trim();
     const phone=$("kycPhone").value.trim();
     const nin=$("kycNin").value.trim();
-    const file=$("kycFile")?.files?.[0] || null;
     if(!name || !phone || !nin){toast("Please complete your KYC details.","warning");return}
     if(!/^\d{11}$/.test(nin)){toast("NIN must contain exactly 11 digits.","warning");return}
-    if(file && file.size>10*1024*1024){toast("KYC document must be 10MB or smaller.","warning");return}
-    const btn=$("saveKyc"), original=btn?.textContent||"Submit KYC";
+
     try{
-      if(btn){btn.disabled=true;btn.textContent=file?"Uploading document...":"Submitting KYC...";}
+      const file=$("kycFile").files[0];
       let documentUrl=currentProfile?.kyc_document_url || null;
-      if(file)documentUrl=await uploadFile("kyc",file,currentUser.id);
-      const payload={full_name:name,phone,nin,kyc_status:"pending",kyc_document_url:documentUrl};
-      if(btn)btn.textContent="Submitting KYC...";
+      if(file){
+        let lastError=null;
+        for(const bucket of ["kyc","avatars"]){
+          try{documentUrl=await uploadFile(bucket,file,currentUser.id);if(documentUrl)break;}catch(e){lastError=e;}
+        }
+        if(!documentUrl)throw lastError||new Error("Could not upload the KYC document.");
+      }
+
+      const payload={
+        full_name:name,
+        phone,
+        nin,
+        kyc_status:"pending",
+        kyc_document_url:documentUrl
+      };
+
       const {data,error}=await query("profiles",q=>q.update(payload).eq("id",currentUser.id).select("*").maybeSingle());
       if(error)throw error;
-      if(!data)throw new Error("KYC details were not saved. Please refresh your session and try again.");
-      currentProfile=data; renderProfile(); if($("kycFile"))$("kycFile").value="";
+      if(!data)throw new Error("KYC details could not be saved to your profile. Please try again.");
+      currentProfile=data;
+      renderProfile();
+      applyKycGate();
       toast("KYC submitted successfully. It is now under review.","success");
-    }catch(e){console.error("KYC submission:",e);toast(e.message || "Could not submit KYC.","error");}
-    finally{if(btn){btn.disabled=false;btn.textContent=original;}}
+    }catch(e){
+      console.error(e);
+      toast(e.message || "Could not submit KYC.","error");
+    }
   }
 
   async function submitInvestment(){
     if(!currentUser)return;
+    if(!isKycVerified()){showKycRequired();return;}
     const amount=num($("investAmount").value), index=$("investPackage").value, method=$("investMethod").value, note=$("investNote").value.trim(), receiptFile=$("investReceipt")?.files?.[0];
     if(amount<=0){toast("Enter a valid investment amount.","warning");return}
     if(index===""){toast("Please select an investment package.","warning");return}
@@ -980,6 +997,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
   async function submitWithdrawal(){
     if(!currentUser)return;
+    if(!isKycVerified()){showKycRequired();return;}
     const amount=num($("withdrawAmount").value);
     const method=$("withdrawMethod").value;
     const details=$("withdrawDetails").value.trim();
@@ -1016,18 +1034,24 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   }
 
   async function updateAvatar(){
-    const file=$("avatarFile")?.files?.[0];
+    const file=$("avatarFile").files[0];
     if(!file || !currentUser)return;
-    if(file.size>5*1024*1024){toast("Profile photo must be 5MB or smaller.","warning");return}
-    const input=$("avatarFile");
+    if(!file.type.startsWith("image/")){toast("Please choose an image file.","warning");return;}
+    if(file.size>5*1024*1024){toast("Profile photo must be 5MB or smaller.","warning");return;}
     try{
-      const url=await uploadFile("avatars",file,currentUser.id);
+      let url=null,lastError=null;
+      for(const bucket of ["avatars","kyc"]){
+        try{url=await uploadFile(bucket,file,currentUser.id);if(url)break;}catch(e){lastError=e;}
+      }
+      if(!url)throw lastError||new Error("Could not upload profile photo.");
       const {data,error}=await query("profiles",q=>q.update({avatar_url:url}).eq("id",currentUser.id).select("*").maybeSingle());
       if(error)throw error;
-      if(!data)throw new Error("Photo uploaded, but your profile could not be updated.");
-      currentProfile=data; renderProfile(); if(input)input.value="";
+      if(!data)throw new Error("The photo uploaded, but your profile could not be updated. Please try again.");
+      currentProfile=data;
+      renderProfile();
+      $("avatarFile").value="";
       toast("Profile photo updated successfully.","success");
-    }catch(e){console.error("Avatar update:",e);toast(e.message || "Could not update photo.","error")}
+    }catch(e){console.error(e);toast(e.message || "Could not update photo.","error")}
   }
 
   async function copyText(text){
@@ -1039,7 +1063,61 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     }
   }
 
-  function openView(name){
+
+  const KYC_PROTECTED_VIEWS=["investments","withdrawals","transactions","referrals"];
+
+  function isKycVerified(){
+    const status=String(currentProfile?.kyc_status || currentProfile?.kyc || "not_submitted").toLowerCase().trim();
+    return ["approved","verified","kyc verified"].includes(status);
+  }
+
+  function showKycRequired(){
+    toast("KYC verification is required before you can use this feature.","warning");
+    openView("kyc",true);
+  }
+
+  function applyKycGate(){
+    const locked=!isKycVerified();
+
+    document.querySelectorAll(".nav button[data-view]").forEach(btn=>{
+      const view=btn.dataset.view;
+      if(KYC_PROTECTED_VIEWS.includes(view)){
+        btn.classList.toggle("kyc-locked",locked);
+        btn.title=locked ? "KYC verification required" : "";
+      }
+    });
+
+    ["investPackage","investAmount","investMethod","investReceipt","investNote","investBtn",
+     "withdrawAmount","withdrawMethod","withdrawDetails","withdrawBtn"].forEach(id=>{
+      const e=$(id);
+      if(e)e.disabled=locked;
+    });
+
+    const investBtn=$("investBtn");
+    if(investBtn)investBtn.textContent=locked ? "KYC REQUIRED" : "Submit Investment";
+
+    const withdrawBtn=$("withdrawBtn");
+    if(withdrawBtn)withdrawBtn.textContent=locked ? "KYC REQUIRED" : "Request Withdrawal";
+
+    let banner=$("kycLockBanner");
+    if(!banner){
+      banner=document.createElement("div");
+      banner.id="kycLockBanner";
+      banner.className="notice kyc-lock-banner";
+      const content=document.querySelector(".content");
+      if(content)content.prepend(banner);
+    }
+    banner.style.display=locked ? "block" : "none";
+    if(locked){
+      banner.innerHTML="🔒 <b>MONARCH CODEX KYC REQUIRED</b><br>Verify your identity to unlock investments, withdrawals, transactions and referrals. Your Profile and KYC sections remain available.";
+    }
+  }
+
+  function openView(name,bypassGate=false){
+    if(!bypassGate && KYC_PROTECTED_VIEWS.includes(name) && !isKycVerified()){
+      showKycRequired();
+      return;
+    }
     document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
     document.querySelectorAll(".nav button[data-view]").forEach(b=>b.classList.remove("active"));
     const view=$("view-"+name);
