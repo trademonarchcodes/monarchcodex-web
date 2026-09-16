@@ -35,26 +35,87 @@
 <script>
 const COINS=['bitcoin','ethereum','solana','binancecoin','ripple','cardano','dogecoin','avalanche-2','chainlink','sui','toncoin','polkadot'];
 const $=id=>document.getElementById(id);
-const money=n=>{if(n==null||isNaN(n))return '—';return '$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:Number(n)<1?6:2})};
-const compact=n=>{if(n==null||isNaN(n))return '—';const x=Math.abs(Number(n));if(x>=1e12)return '$'+(n/1e12).toFixed(2)+'T';if(x>=1e9)return '$'+(n/1e9).toFixed(2)+'B';if(x>=1e6)return '$'+(n/1e6).toFixed(2)+'M';if(x>=1e3)return '$'+(n/1e3).toFixed(2)+'K';return money(n)};
-async function getJSON(url,timeout=12000){const c=new AbortController();const t=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal,headers:{accept:'application/json'}});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(t)}}
+const money=n=>{if(n==null||isNaN(n))return '—';const x=Number(n);return '$'+x.toLocaleString('en-US',{maximumFractionDigits:Math.abs(x)<1?6:2})};
+const compact=n=>{if(n==null||isNaN(n))return '—';const x=Number(n),a=Math.abs(x);if(a>=1e12)return '$'+(x/1e12).toFixed(2)+'T';if(a>=1e9)return '$'+(x/1e9).toFixed(2)+'B';if(a>=1e6)return '$'+(x/1e6).toFixed(2)+'M';if(a>=1e3)return '$'+(x/1e3).toFixed(2)+'K';return money(x)};
+const cacheKey='monarch_feeds_cache_v2';
+async function getJSON(url,timeout=15000){const c=new AbortController();const t=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal,headers:{accept:'application/json'}});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(t)}}
+function readCache(key){try{return JSON.parse(localStorage.getItem(cacheKey)||'{}')[key]||null}catch{return null}}
+function writeCache(key,value){try{const all=JSON.parse(localStorage.getItem(cacheKey)||'{}');all[key]=value;localStorage.setItem(cacheKey,JSON.stringify(all))}catch{}}
+function stamp(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}
+function sourceLabel(el,text){el.textContent=text}
+function renderMarket(data,source='Live market data'){
+ const body=$('marketBody');
+ body.innerHTML=data.map(c=>`<tr><td><div class="coin"><div class="coin-logo">${(c.symbol||'?').slice(0,4).toUpperCase()}</div><div class="coin-name"><strong>${escapeHTML(c.name||'Unknown')}</strong><span>${escapeHTML((c.symbol||'').toUpperCase())}</span></div></div></td><td>${money(c.current_price)}</td><td class="${Number(c.price_change_percentage_24h)>=0?'up':'down'}">${Number(c.price_change_percentage_24h)>=0?'+':''}${Number(c.price_change_percentage_24h||0).toFixed(2)}%</td><td>${compact(c.market_cap)}</td><td>${compact(c.total_volume)}</td><td>${money(c.high_24h)}</td><td>${money(c.low_24h)}</td></tr>`).join('');
+ const total=data.reduce((sum,c)=>sum+(Number(c.market_cap)||0),0);
+ $('marketCap').textContent=compact(total);
+ $('marketMeta').textContent=`${source} • Updated ${stamp()}`;
+}
 async function loadMarket(){
  const body=$('marketBody');
  try{
-  const data=await getJSON('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+COINS.join(',')+'&order=market_cap_desc&per_page='+COINS.length+'&page=1&sparkline=false&price_change_percentage=24h');
-  if(!Array.isArray(data)||!data.length)throw new Error('No market data returned.');
-  body.innerHTML=data.map(c=>`<tr><td><div class="coin"><div class="coin-logo">${(c.symbol||'?').slice(0,4).toUpperCase()}</div><div class="coin-name"><strong>${c.name}</strong><span>${(c.symbol||'').toUpperCase()}</span></div></div></td><td>${money(c.current_price)}</td><td class="${Number(c.price_change_percentage_24h)>=0?'up':'down'}">${Number(c.price_change_percentage_24h)>=0?'+':''}${Number(c.price_change_percentage_24h||0).toFixed(2)}%</td><td>${compact(c.market_cap)}</td><td>${compact(c.total_volume)}</td><td>${money(c.high_24h)}</td><td>${money(c.low_24h)}</td></tr>`).join('');
-  const total=data.reduce((s,c)=>s+(Number(c.market_cap)||0),0);$('marketCap').textContent=compact(total);$('marketMeta').textContent='Tracked coins • live market snapshot';
- }catch(e){body.innerHTML='<tr><td colspan="7" class="loading error">Market data could not be loaded right now. Please refresh.</td></tr>';$('marketCap').textContent='Unavailable';$('marketMeta').textContent='External market service unavailable'}
+  // Primary source: cryptocurrency.cv. It exposes browser-friendly market endpoints without requiring an API key.
+  const params=new URLSearchParams({vs_currency:'usd',ids:COINS.join(','),order:'market_cap_desc',per_page:String(COINS.length)});
+  const result=await getJSON('https://cryptocurrency.cv/api/market/coins?'+params.toString());
+  const data=Array.isArray(result)?result:(result.coins||result.data||[]);
+  if(!data.length)throw new Error('No primary market data');
+  renderMarket(data,'Live market data');
+  writeCache('market',{data,updatedAt:Date.now()});
+ }catch(primaryError){
+  try{
+   // Fallback source: CoinGecko public API.
+   const url='https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids='+COINS.join(',')+'&order=market_cap_desc&per_page='+COINS.length+'&page=1&sparkline=false&price_change_percentage=24h';
+   const data=await getJSON(url);
+   if(!Array.isArray(data)||!data.length)throw new Error('No fallback market data');
+   renderMarket(data,'Live market data • fallback');
+   writeCache('market',{data,updatedAt:Date.now()});
+  }catch(fallbackError){
+   const cached=readCache('market');
+   if(cached?.data?.length){
+    renderMarket(cached.data,'Last successful market data');
+    $('marketMeta').textContent=`Last successful update ${new Date(cached.updatedAt).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})}`;
+    body.insertAdjacentHTML('afterbegin','<tr><td colspan="7" class="loading">Live connection unavailable — showing the last successful market snapshot.</td></tr>');
+   }else{
+    body.innerHTML='<tr><td colspan="7" class="loading error">Live market data is temporarily unavailable. Please try again in a moment.</td></tr>';
+    $('marketCap').textContent='Unavailable';$('marketMeta').textContent='Both market data sources are unavailable';
+   }
+  }
+ }
+}
+function renderNews(items,source='Live crypto news'){
+ const grid=$('newsGrid');
+ grid.innerHTML=items.slice(0,9).map(n=>{
+  const title=n.title||n.name||'Market update';
+  const desc=n.description||n.body||n.summary||'';
+  const url=n.link||n.url||'#';
+  const sourceName=n.source||n.source_name||n.source_info?.name||'Market source';
+  const date=n.pubDate||n.posted_at||n.published_at||n.publishedAt;
+  return `<article class="panel news"><div class="tag">${escapeHTML(n.category||n.categories?.[0]||'CRYPTO')}</div><h3>${escapeHTML(title)}</h3><p>${escapeHTML(String(desc).replace(/<[^>]*>/g,'').slice(0,190))}${String(desc).length>190?'…':''}</p><div class="news-foot"><span>${escapeHTML(sourceName)}${date?' • '+escapeHTML(new Date(date).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})):''}</span><a href="${safeURL(url)}" target="_blank" rel="noopener noreferrer">Read story ↗</a></div></article>`
+ }).join('');
+ if(source)$('newsGrid').dataset.source=source;
 }
 async function loadNews(){
  const grid=$('newsGrid');
  try{
-  const data=await getJSON('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
-  const items=(data.Data||[]).slice(0,9);
-  if(!items.length)throw new Error('No news');
-  grid.innerHTML=items.map(n=>`<article class="panel news"><div class="tag">${(n.categories||'CRYPTO').split('|')[0]}</div><h3>${escapeHTML(n.title||'Market update')}</h3><p>${escapeHTML((n.body||'').replace(/<[^>]*>/g,'').slice(0,180))}${(n.body||'').length>180?'…':''}</p><div class="news-foot"><span>${escapeHTML(n.source_info?.name||n.source||'Market source')}</span><a href="${safeURL(n.url)}" target="_blank" rel="noopener noreferrer">Read story ↗</a></div></article>`).join('');
- }catch(e){grid.innerHTML='<div class="panel loading error">News could not be loaded right now. Please refresh.</div>'}
+  const result=await getJSON('https://cryptocurrency.cv/api/news?limit=12');
+  const items=result.articles||result.news||result.data||[];
+  if(!items.length)throw new Error('No primary news');
+  renderNews(items,'Live crypto news');
+  writeCache('news',{items,updatedAt:Date.now()});
+ }catch(primaryError){
+  try{
+   const result=await getJSON('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+   const items=result.Data||[];
+   if(!items.length)throw new Error('No fallback news');
+   renderNews(items,'Live crypto news • fallback');
+   writeCache('news',{items,updatedAt:Date.now()});
+  }catch(fallbackError){
+   const cached=readCache('news');
+   if(cached?.items?.length){
+    renderNews(cached.items,'Last successful news');
+    grid.insertAdjacentHTML('afterbegin','<div class="panel loading">Live news connection unavailable — showing the last successful news snapshot.</div>');
+   }else grid.innerHTML='<div class="panel loading error">Live crypto news is temporarily unavailable. Please try again in a moment.</div>';
+  }
+ }
 }
 function escapeHTML(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function safeURL(v){try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?u.href:'#'}catch{return '#'}}
