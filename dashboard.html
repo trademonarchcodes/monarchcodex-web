@@ -228,6 +228,27 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 .x-side{display:flex;flex-direction:column;gap:12px}.x-side .card{padding:16px}.x-side h3{font-family:Cinzel,serif;color:var(--gold);font-size:13px;margin:0 0 10px}.x-feature{padding:10px 0;border-bottom:1px solid #242424;font-size:11px;color:#aaa;line-height:1.5}.x-feature:last-child{border-bottom:0}.x-note{font-size:10px;color:#777;line-height:1.6}.x-demo{font-size:9px;color:#8d7530;margin-top:10px}
 @media(max-width:900px){.x-shell{grid-template-columns:1fr}.x-side{display:none}}
 @media(max-width:560px){.x-shell,.x-chat{min-height:calc(100vh - 150px)}.x-messages{padding:16px}.x-msg{max-width:94%}.x-head{padding:14px}.x-status{display:none}}
+
+/* MONARCH EXPERIENCE */
+.monarch-hero{position:relative;overflow:hidden;background:radial-gradient(circle at 85% 15%,#2a230d 0,#151515 35%,#0d0d0d 75%);border:1px solid #3a321c;border-radius:20px;padding:28px;margin-bottom:18px}
+.monarch-hero:after{content:"♔";position:absolute;right:22px;top:-18px;font-family:Cinzel,serif;font-size:120px;color:#d4af3710;pointer-events:none}
+.monarch-kicker{font-size:10px;letter-spacing:2px;color:#b99a39;text-transform:uppercase;font-weight:700}
+.monarch-hero h1{font-family:Cinzel,serif;color:var(--gold);font-size:30px;margin:7px 0 6px}
+.monarch-hero p{color:#aaa;margin:0;max-width:760px;line-height:1.65}
+.experience-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:16px;margin-bottom:18px}
+.experience-card{background:linear-gradient(145deg,#151515,#0f0f0f);border:1px solid var(--line);border-radius:16px;padding:18px}
+.experience-card h3{font-family:Cinzel,serif;color:var(--gold);margin:0 0 12px;font-size:15px}
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.status-tile{background:#0b0b0b;border:1px solid #292929;border-radius:12px;padding:13px}
+.status-tile span{display:block;color:#777;font-size:10px;text-transform:uppercase;letter-spacing:.7px}
+.status-tile strong{display:block;margin-top:5px;font-size:13px;color:#eee}
+.membership-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid #5d4b18;background:#211b0b;color:#f0d477;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:700}
+.ref-progress{margin-top:13px}.ref-progress-bar{height:8px;background:#292929;border-radius:999px;overflow:hidden}.ref-progress-bar span{display:block;height:100%;background:linear-gradient(90deg,#8f731c,var(--gold2));border-radius:999px;width:0}.ref-progress-meta{display:flex;justify-content:space-between;color:#777;font-size:10px;margin-top:7px}
+.profile-launch{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #302b1c;background:#111;border-radius:14px;cursor:pointer;transition:.15s}.profile-launch:hover{border-color:#6f5a1d;background:#17150e}.profile-launch img{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover;background:#171717}.profile-launch .pl-main{min-width:0;flex:1}.profile-launch .pl-name{font-weight:700;font-size:14px}.profile-launch .pl-sub{color:#777;font-size:10px;margin-top:3px}
+.public-profile-box{width:min(650px,100%);max-height:90vh;overflow:auto;background:#101010;border:1px solid #3b321d;border-radius:20px;padding:0}.public-profile-cover{padding:26px;background:radial-gradient(circle at 80% 0,#29220d,#121212 55%);border-bottom:1px solid var(--line)}.public-profile-head{display:flex;align-items:center;gap:15px}.public-profile-head img{width:82px;height:82px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;background:#171717}.public-profile-name{font-family:Cinzel,serif;color:var(--gold);font-size:22px}.public-profile-uid{font-size:10px;color:#777;margin-top:4px;word-break:break-all}.public-profile-body{padding:20px}.public-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.public-stat{background:#151515;border:1px solid #292929;border-radius:12px;padding:13px}.public-stat span{display:block;color:#777;font-size:10px;text-transform:uppercase;letter-spacing:.6px}.public-stat strong{display:block;margin-top:5px;font-size:13px;color:#eee}.public-note{margin-top:15px;padding:12px;border:1px solid #2f2a1b;background:#17140b;color:#aaa;border-radius:11px;font-size:11px;line-height:1.55}.public-close{margin-top:16px;width:100%}
+.clickable-profile{cursor:pointer}.clickable-profile:hover{color:var(--gold)!important}
+@media(max-width:900px){.experience-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.status-grid{grid-template-columns:1fr}.monarch-hero{padding:21px}.monarch-hero h1{font-size:24px}.public-profile-grid{grid-template-columns:1fr}.public-profile-head img{width:68px;height:68px}}
 </style>
 </head>
 
@@ -287,9 +308,45 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
       <!-- OVERVIEW -->
       <div id="view-overview" class="view active">
-        <div class="hero">
+        <div class="monarch-hero">
+          <div class="monarch-kicker">THE INNER KINGDOM • MONARCH EXPERIENCE</div>
           <h1 id="welcomeName">Welcome, Monarch</h1>
-          <p>Your MONARCH CODEX account overview.</p>
+          <p id="welcomeMessage">Welcome back to MONARCH CODEX. Your account, progress and financial activity are organized in one private member experience.</p>
+        </div>
+
+        <div class="experience-grid">
+          <div class="experience-card">
+            <h3>Account Status</h3>
+            <div class="status-grid">
+              <div class="status-tile"><span>Account</span><strong id="experienceAccountStatus">Checking...</strong></div>
+              <div class="status-tile"><span>Identity</span><strong id="experienceKycStatus">Checking...</strong></div>
+              <div class="status-tile"><span>Membership</span><strong id="experienceMembership">MONARCH</strong></div>
+            </div>
+          </div>
+          <div class="experience-card">
+            <h3>Membership</h3>
+            <div class="membership-badge">♔ <span id="membershipBadgeText">MONARCH MEMBER</span></div>
+            <div class="muted" style="font-size:11px;line-height:1.6;margin-top:10px" id="membershipSince">Member since —</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:18px">
+          <h2 class="section-title">Your Monarch Profile</h2>
+          <div id="profileLaunch" class="profile-launch" data-go="profile">
+            <img id="overviewAvatar" alt="Monarch profile photo">
+            <div class="pl-main"><div id="overviewProfileName" class="pl-name">Monarch</div><div id="overviewProfileSub" class="pl-sub">Open your full private profile</div></div>
+            <div class="gold" style="font-size:20px">›</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:18px">
+          <h2 class="section-title">Referral Progress</h2>
+          <div class="status-grid">
+            <div class="status-tile"><span>Total Referrals</span><strong id="experienceRefCount">0</strong></div>
+            <div class="status-tile"><span>Referral Earnings</span><strong id="experienceRefEarn">$0.00</strong></div>
+            <div class="status-tile"><span>Referral Window</span><strong>6 Months</strong></div>
+          </div>
+          <div class="ref-progress"><div class="ref-progress-bar"><span id="refProgressFill"></span></div><div class="ref-progress-meta"><span id="refProgressLabel">0 referrals</span><span>Build your network</span></div></div>
         </div>
 
         <div class="cards">
@@ -474,6 +531,28 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
   </main>
 </div>
 
+<div id="publicProfileModal" class="modal" aria-hidden="true">
+  <div class="public-profile-box">
+    <div class="public-profile-cover">
+      <div class="modal-head"><strong style="font-family:Cinzel,serif;color:var(--gold)">MONARCH PROFILE</strong><button id="closePublicProfile" class="close" type="button">×</button></div>
+      <div class="public-profile-head" style="margin-top:18px">
+        <img id="publicProfileAvatar" alt="Monarch profile photo">
+        <div><div id="publicProfileName" class="public-profile-name">Monarch</div><div id="publicProfileUid" class="public-profile-uid">—</div><div class="membership-badge" style="margin-top:9px">♔ MONARCH MEMBER</div></div>
+      </div>
+    </div>
+    <div class="public-profile-body">
+      <div class="public-profile-grid">
+        <div class="public-stat"><span>Member Since</span><strong id="publicMemberSince">—</strong></div>
+        <div class="public-stat"><span>Account Status</span><strong id="publicAccountStatus">—</strong></div>
+        <div class="public-stat"><span>KYC Status</span><strong id="publicKycStatus">—</strong></div>
+        <div class="public-stat"><span>Community</span><strong>MONARCH CODEX</strong></div>
+      </div>
+      <div class="public-note">This is a public Monarch profile. Private information such as email, phone number, NIN, bank details, wallet details, balances, investments and withdrawals is not displayed here.</div>
+      <button id="closePublicProfile2" class="btn secondary public-close" type="button">Close Profile</button>
+    </div>
+  </div>
+</div>
+
 <div id="notificationPanel" class="notification-panel">
   <div class="notification-head">
     <h3>Notifications</h3>
@@ -620,6 +699,8 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     setText("refCode",p.referral_code || p.uid || "—");
     $("refLink").value=location.origin + location.pathname.replace(/dashboard\.html?$/i,"register.html") +
       "?ref=" + encodeURIComponent(p.referral_code || p.uid || "");
+
+    renderMonarchExperience();
 
     const avatar=p.avatar_url || p.avatar || "";
     $("avatar").src=avatar || "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(
@@ -906,10 +987,11 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
       const rows=r.data||[];
       setText("refCount",rows.length);
+      renderMonarchExperience();
 
       $("referralTable").innerHTML=rows.length
         ? `<div class="table-wrap"><table><thead><tr><th>Monarch</th><th>Joined</th></tr></thead><tbody>${
-            rows.map(x=>`<tr><td><div class="ref-member"><img src="${esc(x.avatar_url||"")}" onerror="this.style.display='none'" alt=""><span>${esc(x.full_name || "Monarch")}</span></div></td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
+            rows.map(x=>`<tr><td><div class="ref-member clickable-profile" data-public-profile="${esc(x.id)}"><img src="${esc(x.avatar_url||"")}" onerror="this.style.display='none'" alt=""><span>${esc(x.full_name || "Monarch")}</span></div></td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
           }</tbody></table></div>`
         : '<div class="empty">No referrals yet.</div>';
     }catch(e){
@@ -917,6 +999,64 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
       setText("refCount",0);
       $("referralTable").innerHTML='<div class="empty">Referrals are temporarily unavailable.</div>';
     }
+  }
+
+  function profileFallback(){
+    return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="62" text-anchor="middle" fill="#D4AF37" font-size="42" font-family="serif">M</text></svg>`);
+  }
+
+  function renderMonarchExperience(){
+    if(!currentProfile)return;
+    const p=currentProfile;
+    const name=p.full_name || currentUser?.user_metadata?.full_name || "Monarch";
+    const avatar=p.avatar_url || p.avatar || profileFallback();
+    const account=String(p.status || "active").replaceAll("_"," ");
+    const kyc=String(p.kyc_status || p.kyc || "not submitted").toLowerCase();
+    const kycLabel=["approved","verified","kyc verified"].includes(kyc) ? "KYC VERIFIED" : kyc==="rejected" ? "KYC REJECTED" : "KYC " + kyc.toUpperCase();
+    setText("welcomeMessage",`Welcome back, ${name}. Your MONARCH CODEX account, membership and progress are organized in one private Monarch experience.`);
+    setText("experienceAccountStatus",account.toUpperCase());
+    setText("experienceKycStatus",kycLabel);
+    setText("experienceMembership",p.role?.toLowerCase()==="admin" ? "ADMIN MONARCH" : "MONARCH");
+    setText("membershipBadgeText",p.role?.toLowerCase()==="admin" ? "ADMIN MONARCH" : "MONARCH MEMBER");
+    setText("membershipSince","Member since " + formatDate(p.created_at));
+    setText("overviewProfileName",name);
+    setText("overviewProfileSub",`${p.display_username ? "@"+p.display_username+" • " : ""}Open your full private profile`);
+    const oa=$("overviewAvatar"); if(oa){oa.src=avatar;oa.onerror=()=>{oa.src=profileFallback();};}
+    const refCount=num($("refCount")?.textContent);
+    setText("experienceRefCount",refCount);
+    setText("experienceRefEarn",$("refEarn")?.textContent || "$0.00");
+    setText("refProgressLabel",`${refCount} referral${refCount===1?"":"s"}`);
+    const fill=$("refProgressFill"); if(fill)fill.style.width=Math.min(100,refCount*10)+"%";
+  }
+
+  async function openPublicProfile(userId){
+    if(!userId || userId===currentUser?.id){openView("profile");return;}
+    const modal=$("publicProfileModal");
+    if(!modal)return;
+    modal.classList.add("show"); modal.setAttribute("aria-hidden","false");
+    setText("publicProfileName","Loading Monarch...");
+    setText("publicProfileUid","Loading public profile");
+    try{
+      const r=await query("profiles",q=>q.select("id,full_name,display_username,avatar_url,created_at,status,kyc_status").eq("id",userId).maybeSingle());
+      if(r.error)throw r.error;
+      const p=r.data;
+      if(!p)throw new Error("This public profile is unavailable.");
+      setText("publicProfileName",p.full_name || "Monarch");
+      setText("publicProfileUid",p.display_username ? "@"+p.display_username : "MONARCH MEMBER");
+      setText("publicMemberSince",formatDate(p.created_at));
+      setText("publicAccountStatus",String(p.status||"active").replaceAll("_"," ").toUpperCase());
+      const k=String(p.kyc_status||"not submitted").toLowerCase();
+      setText("publicKycStatus",["approved","verified","kyc verified"].includes(k)?"VERIFIED":"NOT PUBLIC");
+      const img=$("publicProfileAvatar"); if(img){img.src=p.avatar_url||profileFallback();img.onerror=()=>{img.src=profileFallback();};}
+    }catch(e){
+      setText("publicProfileName","Profile unavailable");
+      setText("publicProfileUid",e.message||"Unable to load this profile.");
+      setText("publicMemberSince","—");setText("publicAccountStatus","—");setText("publicKycStatus","—");
+    }
+  }
+
+  function closePublicProfile(){
+    const modal=$("publicProfileModal"); if(modal){modal.classList.remove("show");modal.setAttribute("aria-hidden","true");}
   }
 
   async function loadNotifications(){
@@ -1425,6 +1565,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     });
     on("menuBtn","click",toggleMenu);
     on("mobileShade","click",toggleMenu);
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")closePublicProfile();});
     document.querySelectorAll(".nav button[data-view]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
     document.querySelectorAll("[data-go]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.go)));
     on("logoutBtn","click",logout);
@@ -1447,6 +1588,14 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     on("copyRefLink","click",()=>copyText($("refLink")?.value||""));
     on("copyRefCode","click",()=>copyText(currentProfile?.referral_code || currentProfile?.uid || ""));
     on("avatarFile","change",updateAvatar);
+    on("closePublicProfile","click",closePublicProfile);
+    on("closePublicProfile2","click",closePublicProfile);
+    const publicModal=$("publicProfileModal");
+    if(publicModal)publicModal.addEventListener("click",e=>{if(e.target===publicModal)closePublicProfile();});
+    document.addEventListener("click",e=>{
+      const target=e.target.closest("[data-public-profile]");
+      if(target)openPublicProfile(target.dataset.publicProfile);
+    });
   }
 
   function startDashboard(){
