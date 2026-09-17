@@ -189,38 +189,52 @@ function updateMarketSnapshot(globalData){
   }
 }
 
+function setMarketStatus(label, stale=false){
+  const dot=stale?'stale-dot':'';
+  $('marketMeta').innerHTML=
+    `<span class="live-dot ${dot}"></span>${escapeHTML(label)}`;
+}
+
 function applyLiveTicker(t){
   const symbol=String(t.s||'').replace(/USDT$/i,'').toUpperCase();
   const row=marketRows.get(symbol);
   if(!row)return;
 
-  row.current_price=Number(t.c)||row.current_price;
-  row.price_change_percentage_24h=Number(t.P)||row.price_change_percentage_24h;
-  row.high_24h=Number(t.h)||row.high_24h;
-  row.low_24h=Number(t.l)||row.low_24h;
-  row.total_volume=Number(t.q)||row.total_volume;
+  const price=Number(t.c);
+  const change=Number(t.P);
+  const high=Number(t.h);
+  const low=Number(t.l);
+  const quoteVolume=Number(t.q);
+
+  if(Number.isFinite(price))row.current_price=price;
+  if(Number.isFinite(change))row.price_change_percentage_24h=change;
+  if(Number.isFinite(high) && high>0)row.high_24h=high;
+  if(Number.isFinite(low) && low>0)row.low_24h=low;
+  if(Number.isFinite(quoteVolume) && quoteVolume>0)row.total_volume=quoteVolume;
   row.lastUpdate=Date.now();
 
   const tr=document.querySelector(`tr[data-symbol="${CSS.escape(symbol)}"]`);
   if(!tr)return;
 
-  const price=tr.querySelector('.js-price');
-  const change=tr.querySelector('.js-change');
+  const priceEl=tr.querySelector('.js-price');
+  const changeEl=tr.querySelector('.js-change');
 
-  price.textContent=money(row.current_price);
-  change.textContent=(row.price_change_percentage_24h>=0?'+':'')+
+  priceEl.textContent=money(row.current_price);
+  changeEl.textContent=(row.price_change_percentage_24h>=0?'+':'')+
     row.price_change_percentage_24h.toFixed(2)+'%';
-  change.className='js-change '+(row.price_change_percentage_24h>=0?'up':'down');
+  changeEl.className='js-change '+(row.price_change_percentage_24h>=0?'up':'down');
+
   tr.querySelector('.js-volume').textContent=compact(row.total_volume);
   tr.querySelector('.js-high').textContent=money(row.high_24h);
   tr.querySelector('.js-low').textContent=money(row.low_24h);
 
-  price.classList.remove('price-flash');
-  void price.offsetWidth;
-  price.classList.add('price-flash');
+  priceEl.classList.remove('price-flash');
+  void priceEl.offsetWidth;
+  priceEl.classList.add('price-flash');
 
-  $('marketMeta').innerHTML=
-    `<span class="live-dot"></span>LIVE MARKET STREAM • Updating every second • ${stamp()}`;
+  setMarketStatus(
+    `LIVE MARKET STREAM • Updating every second • ${stamp()}`
+  );
 
   saveMarketCache();
 }
@@ -242,8 +256,12 @@ async function loadGlobalSnapshot(){
     const cached=readCache('global');
     if(cached?.data){
       updateMarketSnapshot(cached.data);
-      $('marketMeta').innerHTML=
-        `<span class="live-dot stale-dot"></span>Last global snapshot • ${new Date(cached.updatedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}`;
+      setMarketStatus(
+        `Last global snapshot • ${new Date(cached.updatedAt).toLocaleTimeString('en-US',{
+          hour:'2-digit',minute:'2-digit',second:'2-digit'
+        })}`,
+        true
+      );
       return true;
     }
     return false;
@@ -252,14 +270,6 @@ async function loadGlobalSnapshot(){
 
 async function loadPaprikaMarket(){
   try{
-    /*
-      CoinPaprika free REST endpoint:
-      - no API key
-      - current price
-      - 24h change
-      - market cap
-      - 24h volume
-    */
     const list=await getJSON(
       'https://api.coinpaprika.com/v1/tickers?quotes=USD',
       20000
@@ -278,10 +288,6 @@ async function loadPaprikaMarket(){
       const existing=marketRows.get(meta.symbol)||{};
       const row=normalisePaprika(item,meta);
 
-      /*
-        Preserve live high/low values from the Binance stream
-        when the REST market-cap refresh happens.
-      */
       row.high_24h=existing.high_24h||0;
       row.low_24h=existing.low_24h||0;
 
@@ -294,19 +300,75 @@ async function loadPaprikaMarket(){
 
     renderMarket(rows,'LIVE MARKET DATA');
     saveMarketCache();
+
+    /*
+      CoinPaprika gives us the aggregated market baseline.
+      Binance supplies the rolling 24h ticker values in real time.
+    */
+    await loadBinance24hBaseline();
     connectLiveMarket();
+
     return true;
   }catch(error){
     const cached=readCache('market');
 
     if(cached?.data?.length===COINS.length){
       renderMarket(cached.data,'Last successful market data');
-      $('marketMeta').innerHTML=
-        `<span class="live-dot stale-dot"></span>Live REST refresh unavailable • Last update ${new Date(cached.updatedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
+      setMarketStatus(
+        `Live market baseline unavailable • Last update ${new Date(cached.updatedAt).toLocaleTimeString('en-US',{
+          hour:'2-digit',minute:'2-digit',second:'2-digit'
+        })}`,
+        true
+      );
       connectLiveMarket();
       return true;
     }
 
+    $('marketBody').innerHTML=
+      '<tr><td colspan="7" class="market-error">Live market data is temporarily unavailable. Please try again in a moment.</td></tr>';
+    setMarketStatus('Live market data unavailable',true);
+    return false;
+  }
+}
+
+async function loadBinance24hBaseline(){
+  try{
+    const symbols=COINS.map(c=>c.pair);
+    const url='https://api.binance.com/api/v3/ticker/24hr?symbols='+
+      encodeURIComponent(JSON.stringify(symbols));
+
+    const data=await getJSON(url,12000);
+    if(!Array.isArray(data))throw new Error('Invalid Binance ticker response');
+
+    let count=0;
+
+    for(const t of data){
+      const symbol=String(t.symbol||'').replace(/USDT$/i,'').toUpperCase();
+      const row=marketRows.get(symbol);
+      if(!row)continue;
+
+      const price=Number(t.lastPrice);
+      const change=Number(t.priceChangePercent);
+      const high=Number(t.highPrice);
+      const low=Number(t.lowPrice);
+      const volume=Number(t.quoteVolume);
+
+      if(Number.isFinite(price))row.current_price=price;
+      if(Number.isFinite(change))row.price_change_percentage_24h=change;
+      if(Number.isFinite(high) && high>0)row.high_24h=high;
+      if(Number.isFinite(low) && low>0)row.low_24h=low;
+      if(Number.isFinite(volume) && volume>0)row.total_volume=volume;
+
+      count++;
+    }
+
+    if(count){
+      renderMarket([...marketRows.values()],'LIVE MARKET DATA');
+      saveMarketCache();
+    }
+
+    return count===COINS.length;
+  }catch{
     return false;
   }
 }
@@ -325,47 +387,172 @@ async function refreshMarketREST(){
   }
 }
 
-function connectLiveMarket(){
-  clearTimeout(socketRetry);
+/*
+  We use the standard Binance Spot stream endpoint first.
+  The market-data-only endpoint is a fallback.
+  If a combined connection is rejected by a network/browser,
+  individual symbol streams are opened instead.
+*/
+let marketSockets=[];
+let individualSocketMode=false;
 
+function closeMarketSockets(){
+  for(const ws of marketSockets){
+    try{ws.onclose=null;ws.close()}catch{}
+  }
+  marketSockets=[];
   try{
     if(marketSocket){
       marketSocket.onclose=null;
       marketSocket.close();
     }
   }catch{}
+  marketSocket=null;
+}
+
+function connectIndividualMarketSockets(endpoint='wss://stream.binance.com:443'){
+  closeMarketSockets();
+  individualSocketMode=true;
+
+  let opened=0;
+  let messages=0;
+
+  for(const coin of COINS){
+    let ws;
+
+    try{
+      ws=new WebSocket(
+        `${endpoint}/ws/${coin.pair.toLowerCase()}@ticker`
+      );
+    }catch{
+      continue;
+    }
+
+    marketSockets.push(ws);
+
+    ws.onopen=()=>{
+      opened++;
+      setMarketStatus(
+        `LIVE MARKET STREAM • ${opened}/${COINS.length} coins connected • ${stamp()}`
+      );
+    };
+
+    ws.onmessage=e=>{
+      try{
+        const t=JSON.parse(e.data);
+        if(t?.s){
+          messages++;
+          applyLiveTicker(t);
+        }
+      }catch{}
+    };
+
+    ws.onerror=()=>{};
+
+    ws.onclose=()=>{
+      setTimeout(()=>{
+        if(individualSocketMode) connectLiveMarket();
+      },5000);
+    };
+  }
+
+  if(!marketSockets.length){
+    scheduleSocketRetry();
+  }
+}
+
+function connectLiveMarket(){
+  clearTimeout(socketRetry);
+  individualSocketMode=false;
+  closeMarketSockets();
 
   const streams=COINS
     .map(c=>c.pair.toLowerCase()+'@ticker')
     .join('/');
 
-  try{
-    marketSocket=new WebSocket(
-      'wss://data-stream.binance.vision/stream?streams='+streams
-    );
-  }catch{
-    scheduleSocketRetry();
-    return;
+  const endpoints=[
+    'wss://stream.binance.com:443',
+    'wss://data-stream.binance.vision'
+  ];
+
+  let index=0;
+
+  function tryCombined(){
+    if(index>=endpoints.length){
+      connectIndividualMarketSockets('wss://stream.binance.com:443');
+      return;
+    }
+
+    const endpoint=endpoints[index++];
+
+    let ws;
+
+    try{
+      ws=new WebSocket(
+        `${endpoint}/stream?streams=${streams}`
+      );
+    }catch{
+      tryCombined();
+      return;
+    }
+
+    marketSocket=ws;
+
+    let received=false;
+
+    ws.onopen=()=>{
+      setMarketStatus(
+        `LIVE MARKET STREAM • Connecting ${COINS.length} coins • ${stamp()}`
+      );
+
+      /*
+        Give the connection a few seconds to prove it is actually
+        receiving ticker messages. An open socket without messages
+        is not treated as a working market stream.
+      */
+      setTimeout(()=>{
+        if(!received && marketSocket===ws){
+          try{ws.onclose=null;ws.close()}catch{}
+          if(index<endpoints.length)tryCombined();
+          else connectIndividualMarketSockets('wss://stream.binance.com:443');
+        }
+      },7000);
+    };
+
+    ws.onmessage=e=>{
+      try{
+        const packet=JSON.parse(e.data);
+        const ticker=packet?.data||packet;
+
+        if(ticker?.s){
+          received=true;
+          applyLiveTicker(ticker);
+        }
+      }catch{}
+    };
+
+    ws.onerror=()=>{
+      if(marketSocket===ws){
+        try{ws.close()}catch{}
+      }
+    };
+
+    ws.onclose=()=>{
+      if(marketSocket!==ws)return;
+
+      marketSocket=null;
+
+      if(!received && index<endpoints.length){
+        tryCombined();
+      }else if(!received){
+        connectIndividualMarketSockets('wss://stream.binance.com:443');
+      }else{
+        scheduleSocketRetry();
+      }
+    };
   }
 
-  marketSocket.onopen=()=>{
-    $('marketMeta').innerHTML=
-      `<span class="live-dot"></span>LIVE MARKET STREAM • Updating every second • ${stamp()}`;
-  };
-
-  marketSocket.onmessage=event=>{
-    try{
-      const packet=JSON.parse(event.data);
-      const ticker=packet.data||packet;
-      if(ticker?.s)applyLiveTicker(ticker);
-    }catch{}
-  };
-
-  marketSocket.onerror=()=>{};
-
-  marketSocket.onclose=()=>{
-    scheduleSocketRetry();
-  };
+  tryCombined();
 }
 
 function scheduleSocketRetry(){
@@ -376,21 +563,22 @@ function scheduleSocketRetry(){
 }
 
 /*
-  If the WebSocket is temporarily unavailable, the REST market feed
-  continues refreshing every 20 seconds so the page never becomes static.
+  REST is only a safety net. When the WebSocket is live,
+  prices/high/low/volume are updated from the live ticker stream.
 */
 setInterval(async()=>{
   if(!marketSocket || marketSocket.readyState!==WebSocket.OPEN){
-    await loadPaprikaMarket();
+    if(!individualSocketMode)await loadBinance24hBaseline();
   }
-},20000);
+},15000);
 
-/* Market-cap/global snapshot refresh */
+/* Global market snapshot */
 setInterval(loadGlobalSnapshot,60000);
 
-/* Full market-cap/price baseline refresh */
-setInterval(loadPaprikaMarket,120000);
-
+/* Market baseline refresh */
+setInterval(async()=>{
+  await loadPaprikaMarket();
+},120000);
 
 /* ---------------- HIGH-IMPACT NEWS ---------------- */
 
