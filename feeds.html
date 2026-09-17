@@ -34,272 +34,627 @@
 <footer class="footer"><div class="wrap"><strong>MONARCH CODEX</strong> • Strategy-Driven & Trusted Trading Community<br><span>Live market information is supplied by external data services.</span></div></footer>
 <script>
 const COINS=[
- {id:'bitcoin',symbol:'BTC',pair:'BTCUSDT',name:'Bitcoin'},
- {id:'ethereum',symbol:'ETH',pair:'ETHUSDT',name:'Ethereum'},
- {id:'solana',symbol:'SOL',pair:'SOLUSDT',name:'Solana'},
- {id:'binancecoin',symbol:'BNB',pair:'BNBUSDT',name:'BNB'},
- {id:'ripple',symbol:'XRP',pair:'XRPUSDT',name:'XRP'},
- {id:'cardano',symbol:'ADA',pair:'ADAUSDT',name:'Cardano'},
- {id:'dogecoin',symbol:'DOGE',pair:'DOGEUSDT',name:'Dogecoin'},
- {id:'avalanche-2',symbol:'AVAX',pair:'AVAXUSDT',name:'Avalanche'},
- {id:'chainlink',symbol:'LINK',pair:'LINKUSDT',name:'Chainlink'},
- {id:'sui',symbol:'SUI',pair:'SUIUSDT',name:'Sui'},
- {id:'toncoin',symbol:'TON',pair:'TONUSDT',name:'Toncoin'},
- {id:'polkadot',symbol:'DOT',pair:'DOTUSDT',name:'Polkadot'}
+  {symbol:'BTC',pair:'BTCUSDT',name:'Bitcoin'},
+  {symbol:'ETH',pair:'ETHUSDT',name:'Ethereum'},
+  {symbol:'SOL',pair:'SOLUSDT',name:'Solana'},
+  {symbol:'BNB',pair:'BNBUSDT',name:'BNB'},
+  {symbol:'XRP',pair:'XRPUSDT',name:'XRP'},
+  {symbol:'ADA',pair:'ADAUSDT',name:'Cardano'},
+  {symbol:'DOGE',pair:'DOGEUSDT',name:'Dogecoin'},
+  {symbol:'AVAX',pair:'AVAXUSDT',name:'Avalanche'},
+  {symbol:'LINK',pair:'LINKUSDT',name:'Chainlink'},
+  {symbol:'SUI',pair:'SUIUSDT',name:'Sui'},
+  {symbol:'TON',pair:'TONUSDT',name:'Toncoin'},
+  {symbol:'DOT',pair:'DOTUSDT',name:'Polkadot'}
 ];
+
 const $=id=>document.getElementById(id);
-const money=n=>{if(n==null||isNaN(n))return '—';const x=Number(n);return '$'+x.toLocaleString('en-US',{maximumFractionDigits:Math.abs(x)<1?8:2})};
-const compact=n=>{if(n==null||isNaN(n))return '—';const x=Number(n),a=Math.abs(x);if(a>=1e12)return '$'+(x/1e12).toFixed(2)+'T';if(a>=1e9)return '$'+(x/1e9).toFixed(2)+'B';if(a>=1e6)return '$'+(x/1e6).toFixed(2)+'M';if(a>=1e3)return '$'+(x/1e3).toFixed(2)+'K';return money(x)};
-const cacheKey='monarch_feeds_cache_v3';
+const money=n=>{
+  if(n==null||!Number.isFinite(Number(n)))return '—';
+  const x=Number(n);
+  return '$'+x.toLocaleString('en-US',{maximumFractionDigits:Math.abs(x)<1?8:2});
+};
+const compact=n=>{
+  if(n==null||!Number.isFinite(Number(n)))return '—';
+  const x=Number(n),a=Math.abs(x);
+  if(a>=1e12)return '$'+(x/1e12).toFixed(2)+'T';
+  if(a>=1e9)return '$'+(x/1e9).toFixed(2)+'B';
+  if(a>=1e6)return '$'+(x/1e6).toFixed(2)+'M';
+  if(a>=1e3)return '$'+(x/1e3).toFixed(2)+'K';
+  return money(x);
+};
+const cacheKey='monarch_codex_feeds_v5';
 const marketRows=new Map();
 let marketSocket=null;
-let marketSocketRetry=null;
-let liveTickerCount=0;
+let socketRetry=null;
+let marketPolling=false;
 
-async function getJSON(url,timeout=15000){const c=new AbortController();const t=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal,headers:{accept:'application/json'},cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(t)}}
-function readCache(key){try{return JSON.parse(localStorage.getItem(cacheKey)||'{}')[key]||null}catch{return null}}
-function writeCache(key,value){try{const all=JSON.parse(localStorage.getItem(cacheKey)||'{}');all[key]=value;localStorage.setItem(cacheKey,JSON.stringify(all))}catch{}}
-function stamp(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
-function escapeHTML(v){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function safeURL(v){try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?u.href:'#'}catch{return '#'}}
-
-function normaliseCoin(c,meta={}){
- const sym=String(c.symbol||meta.symbol||'').toUpperCase();
- return {
-  id:c.id||meta.id,
-  symbol:sym,
-  name:c.name||meta.name||sym,
-  current_price:Number(c.current_price??c.price??0),
-  price_change_percentage_24h:Number(c.price_change_percentage_24h??c.change_24h??c.priceChangePercent??0),
-  market_cap:Number(c.market_cap??meta.market_cap??0),
-  total_volume:Number(c.total_volume??c.volume_24h??meta.total_volume??0),
-  high_24h:Number(c.high_24h??c.high??meta.high_24h??0),
-  low_24h:Number(c.low_24h??c.low??meta.low_24h??0)
- };
+async function getJSON(url,timeout=15000){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeout);
+  try{
+    const response=await fetch(url,{
+      signal:controller.signal,
+      cache:'no-store',
+      headers:{accept:'application/json'}
+    });
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    return await response.json();
+  }finally{
+    clearTimeout(timer);
+  }
 }
 
-function renderMarket(data,source='Live market data'){
- const body=$('marketBody');
- marketRows.clear();
- data.forEach(c=>marketRows.set(c.symbol.toUpperCase(),c));
- body.innerHTML=data.map(c=>marketRowHTML(c)).join('');
- updateMarketSummary(data,source);
+function readCache(key){
+  try{return JSON.parse(localStorage.getItem(cacheKey)||'{}')[key]||null}catch{return null}
 }
+function writeCache(key,value){
+  try{
+    const all=JSON.parse(localStorage.getItem(cacheKey)||'{}');
+    all[key]=value;
+    localStorage.setItem(cacheKey,JSON.stringify(all));
+  }catch{}
+}
+function stamp(){
+  return new Date().toLocaleTimeString('en-US',{
+    hour:'2-digit',minute:'2-digit',second:'2-digit'
+  });
+}
+function escapeHTML(v){
+  return String(v).replace(/[&<>'"]/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'
+  }[c]));
+}
+function safeURL(v){
+  try{
+    const u=new URL(v);
+    return ['http:','https:'].includes(u.protocol)?u.href:'#';
+  }catch{return '#'}
+}
+
+/* ---------------- MARKET DATA ---------------- */
+
+function normalisePaprika(item,meta){
+  const q=item?.quotes?.USD||{};
+  return {
+    symbol:meta.symbol,
+    name:meta.name,
+    pair:meta.pair,
+    current_price:Number(q.price)||0,
+    price_change_percentage_24h:Number(q.percent_change_24h)||0,
+    market_cap:Number(q.market_cap)||0,
+    total_volume:Number(q.volume_24h)||0,
+    high_24h:0,
+    low_24h:0,
+    lastUpdate:Date.now()
+  };
+}
+
 function marketRowHTML(c){
- const change=Number(c.price_change_percentage_24h||0);
- return `<tr data-symbol="${escapeHTML(c.symbol)}"><td><div class="coin"><div class="coin-logo">${escapeHTML(c.symbol.slice(0,4))}</div><div class="coin-name"><strong>${escapeHTML(c.name||'Unknown')}</strong><span>${escapeHTML(c.symbol)}</span></div></div></td><td class="js-price">${money(c.current_price)}</td><td class="js-change ${change>=0?'up':'down'}">${change>=0?'+':''}${change.toFixed(2)}%</td><td class="js-cap">${compact(c.market_cap)}</td><td class="js-volume">${compact(c.total_volume)}</td><td class="js-high">${money(c.high_24h)}</td><td class="js-low">${money(c.low_24h)}</td></tr>`;
-}
-function updateMarketSummary(data,source){
- const total=data.reduce((sum,c)=>sum+(Number(c.market_cap)||0),0);
- $('marketCap').textContent=compact(total);
- $('marketMeta').innerHTML=`<span class="${source.includes('Live')?'live-dot':'live-dot stale-dot'}"></span>${escapeHTML(source)} • Updated ${stamp()}`;
-}
-function updateRowLive(t){
- const symbol=String(t.s||'').replace('USDT','').toUpperCase();
- const row=document.querySelector(`tr[data-symbol="${CSS.escape(symbol)}"]`);
- const current=marketRows.get(symbol);
- if(!row||!current)return;
- current.current_price=Number(t.c);
- current.price_change_percentage_24h=Number(t.P);
- current.high_24h=Number(t.h);
- current.low_24h=Number(t.l);
- current.total_volume=Number(t.q);
- row.querySelector('.js-price').textContent=money(current.current_price);
- const change=row.querySelector('.js-change');
- change.textContent=(current.price_change_percentage_24h>=0?'+':'')+current.price_change_percentage_24h.toFixed(2)+'%';
- change.className='js-change '+(current.price_change_percentage_24h>=0?'up':'down');
- row.querySelector('.js-volume').textContent=compact(current.total_volume);
- row.querySelector('.js-high').textContent=money(current.high_24h);
- row.querySelector('.js-low').textContent=money(current.low_24h);
- row.querySelector('.js-price').classList.remove('price-flash');
- void row.querySelector('.js-price').offsetWidth;
- row.querySelector('.js-price').classList.add('price-flash');
- liveTickerCount++;
- if(liveTickerCount%5===0)$('marketMeta').innerHTML=`<span class="live-dot"></span>Live market stream • Updated ${stamp()}`;
+  const change=Number(c.price_change_percentage_24h||0);
+  return `<tr data-symbol="${escapeHTML(c.symbol)}">
+    <td>
+      <div class="coin">
+        <div class="coin-logo">${escapeHTML(c.symbol.slice(0,4))}</div>
+        <div class="coin-name">
+          <strong>${escapeHTML(c.name)}</strong>
+          <span>${escapeHTML(c.symbol)}</span>
+        </div>
+      </div>
+    </td>
+    <td class="js-price">${money(c.current_price)}</td>
+    <td class="js-change ${change>=0?'up':'down'}">${change>=0?'+':''}${change.toFixed(2)}%</td>
+    <td class="js-cap">${compact(c.market_cap)}</td>
+    <td class="js-volume">${compact(c.total_volume)}</td>
+    <td class="js-high">${money(c.high_24h)}</td>
+    <td class="js-low">${money(c.low_24h)}</td>
+  </tr>`;
 }
 
-async function fetchMarketCaps(){
- try{
-  const result=await getJSON('https://cryptocurrency.cv/api/market/coins?limit=100',12000);
-  const list=Array.isArray(result)?result:(result.coins||result.data||[]);
-  return list;
- }catch{return []}
+function renderMarket(rows,status='Live market data'){
+  const body=$('marketBody');
+  marketRows.clear();
+
+  rows.forEach(row=>marketRows.set(row.symbol,row));
+
+  body.innerHTML=rows.map(marketRowHTML).join('');
+
+  $('marketMeta').innerHTML=
+    `<span class="live-dot"></span>${escapeHTML(status)} • Updated ${stamp()}`;
 }
-async function fetchBinance24h(){
- const symbols=COINS.map(c=>c.pair);
- // Try the compact multi-symbol request first.
- try{
-  const url='https://data-api.binance.vision/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(symbols));
-  const result=await getJSON(url,10000);
-  if(Array.isArray(result)&&result.length)return result;
- }catch{}
- // Mobile browsers/networks can reject the multi-symbol request even when
- // the public Binance endpoint itself is reachable. Fall back to one symbol
- // per request and keep every successful response.
- const results=await Promise.allSettled(symbols.map(symbol=>
-  getJSON('https://data-api.binance.vision/api/v3/ticker/24hr?symbol='+encodeURIComponent(symbol),10000)
- ));
- const rows=results.filter(r=>r.status==='fulfilled'&&r.value&&r.value.symbol).map(r=>r.value);
- if(rows.length)return rows;
- // Final public-data endpoint fallback.
- const alt=await Promise.allSettled(symbols.map(symbol=>
-  getJSON('https://api.binance.com/api/v3/ticker/24hr?symbol='+encodeURIComponent(symbol),10000)
- ));
- return alt.filter(r=>r.status==='fulfilled'&&r.value&&r.value.symbol).map(r=>r.value);
-}
-async function loadMarket(){
- const body=$('marketBody');
- try{
-  const [caps,tickers]=await Promise.all([fetchMarketCaps(),fetchBinance24h()]);
-  if(!Array.isArray(tickers)||!tickers.length)throw new Error('No live ticker data');
-  const capMap=new Map(caps.map(x=>[String(x.symbol||'').toUpperCase(),x]));
-  const rows=COINS.map(meta=>{
-   const t=tickers.find(x=>String(x.symbol||'').toUpperCase()===meta.pair);
-   const cap=capMap.get(meta.symbol);
-   if(!t)return null;
-   return normaliseCoin({
-    id:meta.id,name:meta.name,symbol:meta.symbol,
-    current_price:Number(t.lastPrice),price_change_percentage_24h:Number(t.priceChangePercent),
-    total_volume:Number(t.quoteVolume),high_24h:Number(t.highPrice),low_24h:Number(t.lowPrice),
-    market_cap:cap?.market_cap||0
-   },meta);
-  }).filter(Boolean);
-  if(!rows.length)throw new Error('No matching coins');
-  renderMarket(rows,'Live market data');
-  writeCache('market',{data:rows,updatedAt:Date.now()});
-  connectLiveMarket();
- }catch(e){
-  const cached=readCache('market');
-  if(cached?.data?.length){
-   renderMarket(cached.data,'Last successful market data');
-   $('marketMeta').innerHTML=`<span class="live-dot stale-dot"></span>Live connection unavailable • Last update ${new Date(cached.updatedAt).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})}`;
-  }else{
-   body.innerHTML='<tr><td colspan="7" class="loading error">Live market data is temporarily unavailable. Please try again in a moment.</td></tr>';
-   $('marketCap').textContent='Unavailable';$('marketMeta').textContent='Live market data is unavailable';
+
+function updateMarketSnapshot(globalData){
+  if(!globalData)return;
+  const cap=Number(globalData.market_cap_usd);
+  const volume=Number(globalData.volume_24h_usd);
+  const btcDom=Number(globalData.bitcoin_dominance_percentage);
+
+  if(Number.isFinite(cap)){
+    $('marketCap').textContent=compact(cap);
+    $('marketMeta').innerHTML=
+      `<span class="live-dot"></span>Global market cap • Updated ${stamp()}`;
   }
- }
-}
-async function refreshLiveMarket(){
- try{
-  const tickers=await fetchBinance24h();
-  if(!Array.isArray(tickers)||!tickers.length)return;
-  const cached=readCache('market');
-  const base=Array.isArray(cached?.data)?cached.data:[];
-  const map=new Map(base.map(x=>[x.symbol,x]));
-  for(const t of tickers){
-   const sym=String(t.symbol||'').replace(/USDT$/,'').toUpperCase();
-   const meta=COINS.find(c=>c.symbol===sym);
-   if(!meta)continue;
-   const old=map.get(sym)||{};
-   map.set(sym,normaliseCoin({
-    ...old,id:meta.id,name:meta.name,symbol:meta.symbol,
-    current_price:Number(t.lastPrice),price_change_percentage_24h:Number(t.priceChangePercent),
-    total_volume:Number(t.quoteVolume),high_24h:Number(t.highPrice),low_24h:Number(t.lowPrice)
-   },meta));
+
+  const summary=document.querySelector('.market-summary');
+  if(summary){
+    let extra=summary.querySelector('.snapshot-extra');
+    if(!extra){
+      extra=document.createElement('div');
+      extra.className='snapshot-extra';
+      extra.style.cssText='margin-top:10px;color:#777;font-size:10px;line-height:1.7';
+      summary.appendChild(extra);
+    }
+    extra.textContent=
+      `24h volume ${compact(volume)} • BTC dominance ${Number.isFinite(btcDom)?btcDom.toFixed(2)+'%':'—'}`;
   }
-  const rows=COINS.map(c=>map.get(c.symbol)).filter(Boolean);
-  if(rows.length){
-   renderMarket(rows,'Live market polling');
-   writeCache('market',{data:rows,updatedAt:Date.now()});
-   $('marketMeta').innerHTML='<span class="live-dot"></span>LIVE MARKET • Updating every 10 seconds';
-  }
- }catch{}
 }
+
+function applyLiveTicker(t){
+  const symbol=String(t.s||'').replace(/USDT$/i,'').toUpperCase();
+  const row=marketRows.get(symbol);
+  if(!row)return;
+
+  row.current_price=Number(t.c)||row.current_price;
+  row.price_change_percentage_24h=Number(t.P)||row.price_change_percentage_24h;
+  row.high_24h=Number(t.h)||row.high_24h;
+  row.low_24h=Number(t.l)||row.low_24h;
+  row.total_volume=Number(t.q)||row.total_volume;
+  row.lastUpdate=Date.now();
+
+  const tr=document.querySelector(`tr[data-symbol="${CSS.escape(symbol)}"]`);
+  if(!tr)return;
+
+  const price=tr.querySelector('.js-price');
+  const change=tr.querySelector('.js-change');
+
+  price.textContent=money(row.current_price);
+  change.textContent=(row.price_change_percentage_24h>=0?'+':'')+
+    row.price_change_percentage_24h.toFixed(2)+'%';
+  change.className='js-change '+(row.price_change_percentage_24h>=0?'up':'down');
+  tr.querySelector('.js-volume').textContent=compact(row.total_volume);
+  tr.querySelector('.js-high').textContent=money(row.high_24h);
+  tr.querySelector('.js-low').textContent=money(row.low_24h);
+
+  price.classList.remove('price-flash');
+  void price.offsetWidth;
+  price.classList.add('price-flash');
+
+  $('marketMeta').innerHTML=
+    `<span class="live-dot"></span>LIVE MARKET STREAM • Updating every second • ${stamp()}`;
+
+  saveMarketCache();
+}
+
+function saveMarketCache(){
+  writeCache('market',{
+    data:[...marketRows.values()],
+    updatedAt:Date.now()
+  });
+}
+
+async function loadGlobalSnapshot(){
+  try{
+    const data=await getJSON('https://api.coinpaprika.com/v1/global',12000);
+    updateMarketSnapshot(data);
+    writeCache('global',{data,updatedAt:Date.now()});
+    return true;
+  }catch{
+    const cached=readCache('global');
+    if(cached?.data){
+      updateMarketSnapshot(cached.data);
+      $('marketMeta').innerHTML=
+        `<span class="live-dot stale-dot"></span>Last global snapshot • ${new Date(cached.updatedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}`;
+      return true;
+    }
+    return false;
+  }
+}
+
+async function loadPaprikaMarket(){
+  try{
+    /*
+      CoinPaprika free REST endpoint:
+      - no API key
+      - current price
+      - 24h change
+      - market cap
+      - 24h volume
+    */
+    const list=await getJSON(
+      'https://api.coinpaprika.com/v1/tickers?quotes=USD',
+      20000
+    );
+
+    if(!Array.isArray(list)||!list.length)throw new Error('No CoinPaprika market data');
+
+    const bySymbol=new Map(
+      list.map(item=>[String(item.symbol||'').toUpperCase(),item])
+    );
+
+    const rows=COINS.map(meta=>{
+      const item=bySymbol.get(meta.symbol);
+      if(!item)return null;
+
+      const existing=marketRows.get(meta.symbol)||{};
+      const row=normalisePaprika(item,meta);
+
+      /*
+        Preserve live high/low values from the Binance stream
+        when the REST market-cap refresh happens.
+      */
+      row.high_24h=existing.high_24h||0;
+      row.low_24h=existing.low_24h||0;
+
+      return row;
+    }).filter(Boolean);
+
+    if(rows.length!==COINS.length){
+      throw new Error('CoinPaprika did not return all tracked coins');
+    }
+
+    renderMarket(rows,'LIVE MARKET DATA');
+    saveMarketCache();
+    connectLiveMarket();
+    return true;
+  }catch(error){
+    const cached=readCache('market');
+
+    if(cached?.data?.length===COINS.length){
+      renderMarket(cached.data,'Last successful market data');
+      $('marketMeta').innerHTML=
+        `<span class="live-dot stale-dot"></span>Live REST refresh unavailable • Last update ${new Date(cached.updatedAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
+      connectLiveMarket();
+      return true;
+    }
+
+    return false;
+  }
+}
+
+async function refreshMarketREST(){
+  if(marketPolling)return;
+  marketPolling=true;
+
+  try{
+    await Promise.all([
+      loadPaprikaMarket(),
+      loadGlobalSnapshot()
+    ]);
+  }finally{
+    marketPolling=false;
+  }
+}
+
 function connectLiveMarket(){
- if(marketSocket){try{marketSocket.close()}catch{}}
- const streams=COINS.map(c=>c.pair.toLowerCase()+'@ticker').join('/');
- try{marketSocket=new WebSocket('wss://data-stream.binance.vision/stream?streams='+streams)}catch{return}
- marketSocket.onopen=()=>{$('marketMeta').innerHTML='<span class="live-dot"></span>LIVE MARKET STREAM • Updates every second'};
- marketSocket.onmessage=e=>{try{const msg=JSON.parse(e.data);updateRowLive(msg.data||msg)}catch{}};
- marketSocket.onerror=()=>{};
- marketSocket.onclose=()=>{
-  clearTimeout(marketSocketRetry);
-  marketSocketRetry=setTimeout(()=>connectLiveMarket(),5000);
- };
+  clearTimeout(socketRetry);
+
+  try{
+    if(marketSocket){
+      marketSocket.onclose=null;
+      marketSocket.close();
+    }
+  }catch{}
+
+  const streams=COINS
+    .map(c=>c.pair.toLowerCase()+'@ticker')
+    .join('/');
+
+  try{
+    marketSocket=new WebSocket(
+      'wss://data-stream.binance.vision/stream?streams='+streams
+    );
+  }catch{
+    scheduleSocketRetry();
+    return;
+  }
+
+  marketSocket.onopen=()=>{
+    $('marketMeta').innerHTML=
+      `<span class="live-dot"></span>LIVE MARKET STREAM • Updating every second • ${stamp()}`;
+  };
+
+  marketSocket.onmessage=event=>{
+    try{
+      const packet=JSON.parse(event.data);
+      const ticker=packet.data||packet;
+      if(ticker?.s)applyLiveTicker(ticker);
+    }catch{}
+  };
+
+  marketSocket.onerror=()=>{};
+
+  marketSocket.onclose=()=>{
+    scheduleSocketRetry();
+  };
 }
+
+function scheduleSocketRetry(){
+  clearTimeout(socketRetry);
+  socketRetry=setTimeout(()=>{
+    connectLiveMarket();
+  },5000);
+}
+
+/*
+  If the WebSocket is temporarily unavailable, the REST market feed
+  continues refreshing every 20 seconds so the page never becomes static.
+*/
+setInterval(async()=>{
+  if(!marketSocket || marketSocket.readyState!==WebSocket.OPEN){
+    await loadPaprikaMarket();
+  }
+},20000);
+
+/* Market-cap/global snapshot refresh */
+setInterval(loadGlobalSnapshot,60000);
+
+/* Full market-cap/price baseline refresh */
+setInterval(loadPaprikaMarket,120000);
+
+
+/* ---------------- HIGH-IMPACT NEWS ---------------- */
 
 function classifyNews(n){
- const text=String([n.title,n.name,n.description,n.body,n.summary,n.category,n.categories?.join(' ')].filter(Boolean).join(' ')).toLowerCase();
- const rules=[
-  {label:'REGULATION',icon:'🏛',cls:'high',words:['sec','cftc','regulation','regulatory','legislation','lawmakers','senate','congress','clarity act','stablecoin bill','ban','approval','approved']},
-  {label:'MACRO',icon:'📈',cls:'macro',words:['federal reserve','fed ','interest rate','inflation','cpi','ppi','jobs report','employment','gdp','treasury','yield','liquidity','central bank']},
-  {label:'SECURITY',icon:'🛡',cls:'security',words:['hack','hacked','exploit','breach','stolen','attack','vulnerability','security incident','drained']},
-  {label:'INSTITUTIONS',icon:'🏦',cls:'market',words:['blackrock','fidelity','jpmorgan','j.p. morgan','bank','institutional','etf','fund manager','custody','deutsche bank']},
-  {label:'MARKET',icon:'⚡',cls:'market',words:['bitcoin','ethereum','solana','xrp','bnb','crypto market','market crash','market rally','liquidation','whale','trading volume']}
- ];
- let best={score:0,label:'CRYPTO',icon:'🔥',cls:'high'};
- for(const r of rules){const score=r.words.reduce((a,w)=>a+(text.includes(w)?1:0),0);if(score>best.score)best={score,label:r.label,icon:r.icon,cls:r.cls};}
- const impact=best.score>=2?'HIGH':best.score===1?'MARKET':'NEWS';
- return {...best,impact};
+  const text=String([
+    n.title,n.name,n.description,n.body,n.summary,n.category,
+    Array.isArray(n.categories)?n.categories.join(' '):n.categories
+  ].filter(Boolean).join(' ')).toLowerCase();
+
+  const rules=[
+    {
+      label:'REGULATION',icon:'🏛',cls:'high',
+      words:[
+        'sec','cftc','regulation','regulatory','legislation','lawmakers',
+        'senate','congress','clarity act','stablecoin bill','ban',
+        'approval','approved','enforcement','policy'
+      ]
+    },
+    {
+      label:'MACRO',icon:'📈',cls:'macro',
+      words:[
+        'federal reserve','fed ','interest rate','inflation','cpi','ppi',
+        'jobs report','employment','gdp','treasury','yield','liquidity',
+        'central bank','fomc'
+      ]
+    },
+    {
+      label:'SECURITY',icon:'🛡',cls:'security',
+      words:[
+        'hack','hacked','exploit','breach','stolen','attack',
+        'vulnerability','security incident','drained'
+      ]
+    },
+    {
+      label:'INSTITUTIONS',icon:'🏦',cls:'market',
+      words:[
+        'blackrock','fidelity','jpmorgan','j.p. morgan','bank',
+        'institutional','etf','fund manager','custody','deutsche bank'
+      ]
+    },
+    {
+      label:'MARKET',icon:'⚡',cls:'market',
+      words:[
+        'bitcoin','ethereum','solana','xrp','bnb','crypto market',
+        'market crash','market rally','liquidation','whale',
+        'trading volume'
+      ]
+    }
+  ];
+
+  let best={score:0,label:'CRYPTO',icon:'🔥',cls:'high'};
+
+  for(const rule of rules){
+    const score=rule.words.reduce(
+      (total,word)=>total+(text.includes(word)?1:0),0
+    );
+    if(score>best.score){
+      best={
+        score,
+        label:rule.label,
+        icon:rule.icon,
+        cls:rule.cls
+      };
+    }
+  }
+
+  return {
+    ...best,
+    impact:best.score>=2?'HIGH':best.score===1?'MARKET':'NEWS'
+  };
 }
-function articleDate(n){const d=n.pubDate||n.published_at||n.publishedAt||n.posted_at||n.date;const t=d?new Date(d).getTime():0;return Number.isFinite(t)?t:0}
-function renderNews(items,source='Live crypto news'){
- const grid=$('newsGrid');
- const ranked=items.map(n=>({...n,_impact:classifyNews(n),_time:articleDate(n)})).sort((a,b)=>b._time-a._time || b._impact.score-a._impact.score);
- const high=ranked.filter(n=>n._impact.score>=1);
- const selected=(high.length?high:ranked).slice(0,9);
- if(!selected.length){grid.innerHTML='<div class="panel loading error">No high-impact market stories are available right now.</div>';return;}
- grid.innerHTML=selected.map(n=>{
-  const title=n.title||n.name||'Market update';
-  const desc=String(n.description||n.body||n.summary||'').replace(/<[^>]*>/g,'').trim();
-  const url=n.link||n.url||'#';
-  const sourceName=n.source||n.source_name||n.source_info?.name||'Market source';
-  const cat=String(n.category||n.categories?.[0]||n._impact.label||'CRYPTO').toUpperCase();
-  const shortDesc=desc.length>190?desc.slice(0,190)+'…':desc;
-  const dateText=n._time?new Date(n._time).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
-  return `<article class="panel news"><div class="tag">${n._impact.icon} ${escapeHTML(cat)} <span class="impact ${n._impact.cls}">${escapeHTML(n._impact.impact)} IMPACT</span></div><h3>${escapeHTML(title)}</h3><p>${escapeHTML(shortDesc||'Market-relevant development. Read the source for the full story and context.')}</p><div class="news-foot"><span class="news-source">${escapeHTML(sourceName)}${dateText?' • '+escapeHTML(dateText):''}</span><a href="${safeURL(url)}" target="_blank" rel="noopener noreferrer">Read story ↗</a></div></article>`
- }).join('');
- grid.dataset.source=source;
+
+function articleDate(n){
+  const raw=n.pubDate||n.published_at||n.publishedAt||n.posted_at||n.date;
+  const time=raw?new Date(raw).getTime():0;
+  return Number.isFinite(time)?time:0;
 }
+
+function renderNews(items){
+  const grid=$('newsGrid');
+
+  const ranked=items
+    .map(n=>({
+      ...n,
+      _impact:classifyNews(n),
+      _time:articleDate(n)
+    }))
+    .sort((a,b)=>
+      b._time-a._time ||
+      b._impact.score-a._impact.score
+    );
+
+  const high=ranked.filter(n=>n._impact.score>=1);
+  const selected=(high.length?high:ranked).slice(0,9);
+
+  if(!selected.length){
+    grid.innerHTML=
+      '<div class="panel loading error">No high-impact market stories are available right now.</div>';
+    return;
+  }
+
+  grid.innerHTML=selected.map(n=>{
+    const title=n.title||n.name||'Market update';
+    const desc=String(
+      n.description||n.body||n.summary||''
+    ).replace(/<[^>]*>/g,'').trim();
+
+    const url=n.link||n.url||'#';
+    const sourceName=
+      n.source||n.source_name||n.source_info?.name||'Market source';
+
+    const cat=String(
+      n.category||
+      (Array.isArray(n.categories)?n.categories[0]:'')||
+      n._impact.label||
+      'CRYPTO'
+    ).toUpperCase();
+
+    const shortDesc=
+      desc.length>190?desc.slice(0,190)+'…':desc;
+
+    const dateText=n._time?
+      new Date(n._time).toLocaleString('en-US',{
+        month:'short',
+        day:'numeric',
+        hour:'2-digit',
+        minute:'2-digit'
+      }):'';
+
+    return `
+      <article class="panel news">
+        <div class="tag">
+          ${n._impact.icon} ${escapeHTML(cat)}
+          <span class="impact ${n._impact.cls}">
+            ${escapeHTML(n._impact.impact)} IMPACT
+          </span>
+        </div>
+        <h3>${escapeHTML(title)}</h3>
+        <p>${escapeHTML(
+          shortDesc||'Market-relevant development. Read the source for the full story and context.'
+        )}</p>
+        <div class="news-foot">
+          <span class="news-source">
+            ${escapeHTML(sourceName)}
+            ${dateText?' • '+escapeHTML(dateText):''}
+          </span>
+          <a href="${safeURL(url)}" target="_blank" rel="noopener noreferrer">
+            Read story ↗
+          </a>
+        </div>
+      </article>`;
+  }).join('');
+}
+
 async function loadNews(){
- const grid=$('newsGrid');
- const now=Date.now();
- const urls=[
-  'https://cryptocurrency.cv/api/breaking',
-  'https://cryptocurrency.cv/api/breaking?limit=30',
-  'https://cryptocurrency.cv/api/regulatory?limit=15',
-  'https://cryptocurrency.cv/api/news?limit=40&category=institutional',
-  'https://cryptocurrency.cv/api/news?limit=40',
-  'https://min-api.cryptocompare.com/data/v2/news/?lang=EN'
- ];
- try{
-  const results=await Promise.allSettled(urls.map(url=>getJSON(url,12000)));
-  const merged=[];const seen=new Set();
-  for(const r of results){
-   if(r.status!=='fulfilled')continue;
-   const data=r.value||{};const list=data.articles||data.news||data.items||data.data||data.Data||[];
-   if(!Array.isArray(list))continue;
-   for(const item of list){
-    const title=String(item.title||item.name||'').trim();const link=String(item.link||item.url||item.guid||'').trim();
-    if(!title)continue;
-    const key=(title.toLowerCase()+'|'+link).slice(0,500);
-    if(seen.has(key))continue;seen.add(key);merged.push(item);
-   }
+  const grid=$('newsGrid');
+  const now=Date.now();
+
+  const urls=[
+    'https://cryptocurrency.cv/api/breaking?limit=30',
+    'https://cryptocurrency.cv/api/regulatory?limit=20',
+    'https://cryptocurrency.cv/api/news?limit=40&category=institutional',
+    'https://cryptocurrency.cv/api/news?limit=40',
+    'https://min-api.cryptocompare.com/data/v2/news/?lang=EN'
+  ];
+
+  try{
+    const results=await Promise.allSettled(
+      urls.map(url=>getJSON(url,12000))
+    );
+
+    const merged=[];
+    const seen=new Set();
+
+    for(const result of results){
+      if(result.status!=='fulfilled')continue;
+
+      const data=result.value||{};
+      const list=
+        data.articles||
+        data.news||
+        data.items||
+        data.data||
+        data.Data||
+        [];
+
+      if(!Array.isArray(list))continue;
+
+      for(const item of list){
+        const title=String(
+          item.title||item.name||''
+        ).trim();
+
+        const link=String(
+          item.link||item.url||item.guid||''
+        ).trim();
+
+        if(!title)continue;
+
+        const key=(title.toLowerCase()+'|'+link).slice(0,500);
+
+        if(seen.has(key))continue;
+
+        seen.add(key);
+        merged.push(item);
+      }
+    }
+
+    if(!merged.length)throw new Error('No news returned');
+
+    const fresh=merged.filter(item=>{
+      const time=articleDate(item);
+      return !time || now-time<=72*60*60*1000;
+    });
+
+    const usable=fresh.length?fresh:merged;
+
+    renderNews(usable);
+
+    writeCache('news',{
+      items:usable,
+      updatedAt:now
+    });
+  }catch{
+    const cached=readCache('news');
+
+    if(cached?.items?.length){
+      renderNews(cached.items);
+      grid.insertAdjacentHTML(
+        'afterbegin',
+        '<div class="panel loading">Live news connection unavailable — showing the last successful MONARCH CODEX snapshot.</div>'
+      );
+    }else{
+      grid.innerHTML=
+        '<div class="panel loading error">MONARCH CODEX news sources are temporarily unavailable. Please try again in a moment.</div>';
+    }
   }
-  if(!merged.length)throw new Error('No news returned');
-  // Breaking news is intended to be fresh. Keep the feed focused on recent stories.
-  const fresh=merged.filter(n=>{const t=articleDate(n);return !t || now-t<=72*60*60*1000});
-  const usable=fresh.length?fresh:merged;
-  renderNews(usable,'MONARCH CODEX • LIVE MARKET INTELLIGENCE');
-  writeCache('news',{items:usable,updatedAt:now});
- }catch(e){
-  const cached=readCache('news');
-  if(cached?.items?.length){
-   renderNews(cached.items,'MONARCH CODEX • Last successful news snapshot');
-   grid.insertAdjacentHTML('afterbegin','<div class="panel loading">Live news connection unavailable — showing the last successful MONARCH CODEX snapshot.</div>');
-  }else{
-   grid.innerHTML='<div class="panel loading error">MONARCH CODEX news sources are temporarily unavailable. Please try again in a moment.</div>';
-  }
- }
 }
-$('refreshMarket').onclick=loadMarket;$('refreshNews').onclick=loadNews;
-loadMarket();loadNews();
-// News: refresh frequently so new high-impact stories enter the page as they appear.
+
+
+/* ---------------- STARTUP ---------------- */
+
+$('refreshMarket').onclick=refreshMarketREST;
+$('refreshNews').onclick=loadNews;
+
+(async()=>{
+  /*
+    Market starts from CoinPaprika, not Binance REST.
+    This means the Binance WebSocket can start even if a REST
+    endpoint is temporarily blocked by the mobile network/browser.
+  */
+  await refreshMarketREST();
+  await loadNews();
+})();
+
+/* High-impact news: every 60 seconds */
 setInterval(loadNews,60000);
-// Market REST fallback / market-cap refresh. The WebSocket updates prices continuously between polls.
-setInterval(refreshLiveMarket,10000);
-setInterval(loadMarket,180000);
-window.addEventListener('beforeunload',()=>{try{marketSocket?.close()}catch{}});
+
+/* Keep global snapshot visibly current */
+setInterval(loadGlobalSnapshot,60000);
+
+window.addEventListener('beforeunload',()=>{
+  try{marketSocket?.close()}catch{}
+});
 </script>
 </body>
 </html>
