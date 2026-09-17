@@ -1172,43 +1172,106 @@
   async function loadHomeBaseline(){
     if(homeBaselineBusy)return;
     homeBaselineBusy=true;
+
     try{
+      /* Use CoinPaprika first so the homepage can load a market snapshot
+         even when Binance REST is unavailable in a visitor's network. */
+      const paprikaIds={
+        BTC:"btc-bitcoin",
+        ETH:"eth-ethereum",
+        SOL:"sol-solana",
+        BNB:"bnb-binance-coin",
+        XRP:"xrp-xrp",
+        ADA:"ada-cardano",
+        DOGE:"doge-dogecoin",
+        AVAX:"avax-avalanche",
+        LINK:"link-chainlink",
+        SUI:"sui-sui",
+        TON:"ton-toncoin",
+        DOT:"dot-polkadot"
+      };
+
+      const results=await Promise.allSettled(
+        HOME_COINS.map(async coin=>{
+          const id=paprikaIds[coin.symbol];
+          if(!id)throw new Error("Missing market id");
+          const d=await homeJSON(`https://api.coinpaprika.com/v1/tickers/${id}`,10000);
+          const q=d?.quotes?.USD;
+          if(!q || !Number.isFinite(Number(q.price)))throw new Error("Invalid market response");
+          return {
+            symbol:coin.symbol,
+            name:coin.name,
+            price:Number(q.price),
+            change:Number(q.percent_change_24h)||0,
+            high:0,
+            low:0,
+            volume:Number(q.volume_24h)||0,
+            marketCap:Number(q.market_cap)||0,
+            updatedAt:Date.now()
+          };
+        })
+      );
+
+      let loaded=0;
+      for(const r of results){
+        if(r.status!=="fulfilled")continue;
+        homeRows.set(r.value.symbol,r.value);
+        loaded++;
+      }
+
+      /* Fill the 24H high/low from Binance where available. */
       const symbols=encodeURIComponent(JSON.stringify(HOME_COINS.map(c=>c.pair)));
-      const urls=[
+      const binanceUrls=[
         `https://data-api.binance.vision/api/v3/ticker/24hr?symbols=${symbols}`,
         `https://api.binance.com/api/v3/ticker/24hr?symbols=${symbols}`
       ];
 
-      let data=null;
-      for(const url of urls){
+      let baseline=null;
+      for(const url of binanceUrls){
         try{
-          const d=await homeJSON(url,12000);
-          if(Array.isArray(d)&&d.length){data=d;break}
+          const d=await homeJSON(url,10000);
+          if(Array.isArray(d)&&d.length){baseline=d;break}
         }catch{}
       }
 
-      if(data){
-        for(const t of data){
+      if(Array.isArray(baseline)){
+        for(const t of baseline){
           const symbol=String(t.symbol||"").replace(/USDT$/i,"").toUpperCase();
-          const meta=HOME_COINS.find(c=>c.symbol===symbol);
-          if(!meta)continue;
-          homeRows.set(symbol,{
-            symbol,
-            name:meta.name,
-            price:Number(t.lastPrice)||0,
-            change:Number(t.priceChangePercent)||0,
-            high:Number(t.highPrice)||0,
-            low:Number(t.lowPrice)||0,
-            updatedAt:Date.now()
-          });
+          const row=homeRows.get(symbol);
+          if(!row)continue;
+          const price=Number(t.lastPrice);
+          const change=Number(t.priceChangePercent);
+          const high=Number(t.highPrice);
+          const low=Number(t.lowPrice);
+          if(Number.isFinite(price)&&price>0)row.price=price;
+          if(Number.isFinite(change))row.change=change;
+          if(Number.isFinite(high)&&high>0)row.high=high;
+          if(Number.isFinite(low)&&low>0)row.low=low;
+          row.volume=Number(t.quoteVolume)||row.volume||0;
+          row.updatedAt=Date.now();
+          homeRows.set(symbol,row);
         }
+      }
+
+      if(loaded>0){
         renderHomeMarket();
-        document.getElementById("homeMarketTime").textContent=homeStamp();
-        homeStatus("LIVE MARKET • Binance 24H baseline");
+        const time=document.getElementById("homeMarketTime");
+        if(time)time.textContent=homeStamp();
+
+        if(Array.isArray(baseline)){
+          homeStatus("LIVE MARKET • Connected to market data");
+        }else{
+          homeStatus("LIVE MARKET • Snapshot loaded — connecting live stream");
+        }
+
         connectHomeSocket();
         return true;
       }
-    }catch{}
+    }catch(e){
+      console.warn("Homepage market baseline error:",e);
+    }finally{
+      homeBaselineBusy=false;
+    }
 
     renderHomeMarket();
     homeStatus("LIVE MARKET • Connecting to live stream…");
