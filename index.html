@@ -569,7 +569,73 @@
     .faq-answer{padding:0 23px 22px;color:#858178;font-size:12px;line-height:1.8}
     @media(max-width:900px){.company-vision{grid-template-columns:1fr;padding:26px}.company-vision:after{font-size:70px}.about-feature,.company-grid{grid-template-columns:1fr}.support-grid{grid-template-columns:1fr 1fr}.founder-copy{max-width:760px;margin:auto}}
     @media(max-width:600px){.founder-photo{max-width:430px;margin:auto;padding:6px;border-radius:20px}.founder-photo:before{inset:5px;border-radius:15px}.founder-photo:after{left:16px;bottom:16px;font-size:8px;padding:8px 10px}.company-card{padding:24px}.support-grid{grid-template-columns:1fr}.founder-quote{font-size:16px}}
-  </style>
+  
+/* ================= LIVE MARKET HOME FEED ================= */
+.live-market-home{position:relative;overflow:hidden}
+.live-market-home::before{content:"";position:absolute;inset:-120px auto auto -120px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.10),transparent 68%);pointer-events:none}
+.live-market-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px}
+.live-market-head h2{margin:5px 0 7px}
+.live-market-head p{margin:0;color:#8f8b84;max-width:650px;line-height:1.7}
+.live-market-status{display:flex;align-items:center;gap:7px;color:#777;font-size:10px;white-space:nowrap}
+.live-market-status .dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 rgba(74,222,128,.45);animation:homeLivePulse 1.8s infinite}
+.live-market-status.stale .dot{background:#d4af37;animation:none}
+@keyframes homeLivePulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.45)}70%{box-shadow:0 0 0 7px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.live-market-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.live-market-card{background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));border:1px solid rgba(212,175,55,.15);border-radius:18px;padding:20px;box-shadow:0 16px 40px rgba(0,0,0,.18)}
+.live-snapshot{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.live-stat{padding:14px;border:1px solid rgba(255,255,255,.06);border-radius:13px;background:rgba(0,0,0,.18)}
+.live-stat span{display:block;color:#777;font-size:9px;text-transform:uppercase;letter-spacing:1.1px;margin-bottom:6px}
+.live-stat strong{font-size:18px;color:#eee}
+.live-feed-table{width:100%;border-collapse:collapse}
+.live-feed-table th,.live-feed-table td{padding:11px 7px;border-bottom:1px solid rgba(255,255,255,.055);text-align:right;font-size:10px;white-space:nowrap}
+.live-feed-table th:first-child,.live-feed-table td:first-child{text-align:left}
+.live-feed-table th{color:#69655f;font-size:8px;text-transform:uppercase;letter-spacing:1px}
+.live-feed-table td{color:#cfcac1}
+.live-coin-name{display:flex;align-items:center;gap:9px}
+.live-coin-icon{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(212,175,55,.22);color:#d4af37;font-size:8px;font-weight:700}
+.live-coin-name strong{display:block;color:#eee;font-size:10px}
+.live-coin-name span{display:block;color:#666;font-size:8px;margin-top:2px}
+.live-up{color:#4ade80!important}.live-down{color:#fb7185!important}
+.live-price-flash{animation:homePriceFlash .55s ease}
+@keyframes homePriceFlash{0%{opacity:.45}100%{opacity:1}}
+.live-movers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.live-mover-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.live-mover-title h3{margin:0;font-size:12px}
+.live-mover-title span{font-size:8px;color:#777}
+.live-mover-list{display:grid;gap:7px}
+.live-mover{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.045)}
+.live-mover-left{display:flex;align-items:center;gap:8px;min-width:0}
+.live-mover-left strong{display:block;font-size:9px;color:#eee}
+.live-mover-left small{display:block;font-size:8px;color:#666;margin-top:2px}
+.live-mover-right{text-align:right}.live-mover-right strong{display:block;font-size:9px}.live-mover-right small{display:block;font-size:8px;color:#777;margin-top:2px}
+.live-news-list{display:grid;gap:10px}
+.live-news-item{display:block;padding:13px;border-radius:13px;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018);text-decoration:none}
+.live-news-item:hover{border-color:rgba(212,175,55,.28);transform:translateY(-1px)}
+.live-news-tag{font-size:8px;letter-spacing:1px;color:#d4af37;text-transform:uppercase;margin-bottom:7px}
+.live-news-item h3{margin:0;color:#eee;font-size:11px;line-height:1.45}
+.live-news-item p{margin:6px 0 0;color:#777;font-size:9px;line-height:1.5}
+.live-market-actions{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+.live-market-actions button,.live-market-actions a{font:inherit;text-decoration:none;cursor:pointer;border-radius:999px;padding:10px 16px;font-size:9px;letter-spacing:.5px}
+.live-refresh{border:1px solid rgba(212,175,55,.35);background:rgba(212,175,55,.08);color:#d4af37}
+.live-open-feeds{border:1px solid rgba(255,255,255,.12);background:transparent;color:#aaa}
+.live-home-note{margin-top:12px;color:#666;font-size:8px;line-height:1.6;text-align:center}
+.live-home-loading{padding:28px;text-align:center;color:#777;font-size:10px}
+@media(max-width:900px){
+  .live-market-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .live-market-head{display:block}
+  .live-market-status{margin-top:10px}
+  .live-snapshot{grid-template-columns:1fr 1fr}
+  .live-snapshot .live-stat:last-child{grid-column:1/-1}
+  .live-market-card{padding:14px}
+  .live-feed-table th:nth-child(4),.live-feed-table td:nth-child(4),
+  .live-feed-table th:nth-child(5),.live-feed-table td:nth-child(5){display:none}
+  .live-movers{grid-template-columns:1fr}
+  .live-feed-table th,.live-feed-table td{padding:10px 4px}
+}
+
+</style>
 </head>
 
 <body>
@@ -681,6 +747,66 @@
           <article class="market-card"><div class="icon">♔</div><h3>Referral Network</h3><p>Every Monarch can have a dedicated referral identity and track eligible members and referral earnings through the platform.</p></article>
           <article class="market-card"><div class="icon">✓</div><h3>Verification First</h3><p>KYC verification is part of the onboarding journey, helping establish a verified member identity before access to protected features.</p></article>
           <article class="market-card"><div class="icon">↗</div><h3>Trading Support</h3><p>The upcoming SOVEREIGN DESK partnership is intended to introduce a separate trading-signals and market-guidance experience.</p></article>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section live-market-home" id="live-market">
+      <div class="container">
+        <div class="live-market-head">
+          <div>
+            <div class="kicker">MONARCH CODEX • LIVE MARKET</div>
+            <h2>See The Market Move.</h2>
+            <p>The same live market intelligence available inside the Monarch dashboard is also available here — current prices, 24H movement, rolling highs and lows, gainers, losers and market-moving headlines.</p>
+          </div>
+          <div class="live-market-status" id="homeMarketStatus"><span class="dot"></span><span>Connecting to live market…</span></div>
+        </div>
+
+        <div class="live-market-grid">
+          <div class="live-market-card">
+            <div class="live-snapshot">
+              <div class="live-stat"><span>Total Market Cap</span><strong id="homeMarketCap">—</strong></div>
+              <div class="live-stat"><span>Tracked Coins</span><strong id="homeTrackedCoins">12</strong></div>
+              <div class="live-stat"><span>Last Update</span><strong id="homeMarketTime">—</strong></div>
+            </div>
+
+            <div class="live-market-table-wrap">
+              <table class="live-feed-table">
+                <thead>
+                  <tr><th>Coin</th><th>Price</th><th>24H</th><th>24H High</th><th>24H Low</th></tr>
+                </thead>
+                <tbody id="homeMarketBody">
+                  <tr><td colspan="5" class="live-home-loading">Loading live market data…</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="live-market-actions">
+              <button class="live-refresh" id="homeMarketRefresh" type="button">Refresh Market</button>
+              <a class="live-open-feeds" href="feeds.html">Open Full Live Feeds →</a>
+            </div>
+          </div>
+
+          <div class="live-market-card">
+            <div class="live-movers">
+              <div>
+                <div class="live-mover-title"><h3>📈 Top Gainers</h3><span>24H</span></div>
+                <div class="live-mover-list" id="homeGainers"><div class="live-home-loading">Loading…</div></div>
+              </div>
+              <div>
+                <div class="live-mover-title"><h3>📉 Top Losers</h3><span>24H</span></div>
+                <div class="live-mover-list" id="homeLosers"><div class="live-home-loading">Loading…</div></div>
+              </div>
+            </div>
+
+            <div style="height:16px"></div>
+
+            <div class="live-mover-title"><h3>🔥 High-Impact News</h3><span>LIVE</span></div>
+            <div class="live-news-list" id="homeNews"><div class="live-home-loading">Loading market news…</div></div>
+
+            <div class="live-home-note">Market information changes quickly and is provided for information and education. It is not investment advice or a guarantee of results.</div>
+          </div>
         </div>
       </div>
     </section>
@@ -894,6 +1020,357 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* ================= LIVE MARKET HOME FEED ================= */
+  const HOME_COINS=[
+    {symbol:"BTC",pair:"BTCUSDT",name:"Bitcoin"},
+    {symbol:"ETH",pair:"ETHUSDT",name:"Ethereum"},
+    {symbol:"SOL",pair:"SOLUSDT",name:"Solana"},
+    {symbol:"BNB",pair:"BNBUSDT",name:"BNB"},
+    {symbol:"XRP",pair:"XRPUSDT",name:"XRP"},
+    {symbol:"ADA",pair:"ADAUSDT",name:"Cardano"},
+    {symbol:"DOGE",pair:"DOGEUSDT",name:"Dogecoin"},
+    {symbol:"AVAX",pair:"AVAXUSDT",name:"Avalanche"},
+    {symbol:"LINK",pair:"LINKUSDT",name:"Chainlink"},
+    {symbol:"SUI",pair:"SUIUSDT",name:"Sui"},
+    {symbol:"TON",pair:"TONUSDT",name:"Toncoin"},
+    {symbol:"DOT",pair:"DOTUSDT",name:"Polkadot"}
+  ];
+
+  const homeRows=new Map();
+  let homeSocket=null;
+  let homeSocketRetry=null;
+  let homeBaselineBusy=false;
+
+  const homeMoney=n=>{
+    if(n==null||!Number.isFinite(Number(n)))return "—";
+    const x=Number(n);
+    return "$"+x.toLocaleString("en-US",{maximumFractionDigits:Math.abs(x)<1?8:2});
+  };
+
+  const homeCompact=n=>{
+    if(n==null||!Number.isFinite(Number(n)))return "—";
+    const x=Number(n),a=Math.abs(x);
+    if(a>=1e12)return "$"+(x/1e12).toFixed(2)+"T";
+    if(a>=1e9)return "$"+(x/1e9).toFixed(2)+"B";
+    if(a>=1e6)return "$"+(x/1e6).toFixed(2)+"M";
+    if(a>=1e3)return "$"+(x/1e3).toFixed(2)+"K";
+    return homeMoney(x);
+  };
+
+  const homeEscape=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+  const homeSafeURL=v=>{try{const u=new URL(v);return ["http:","https:"].includes(u.protocol)?u.href:"#"}catch{return "#"}};
+
+  async function homeJSON(url,timeout=12000){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),timeout);
+    try{
+      const r=await fetch(url,{signal:controller.signal,cache:"no-store",headers:{accept:"application/json"}});
+      if(!r.ok)throw new Error("HTTP "+r.status);
+      return await r.json();
+    }finally{clearTimeout(timer)}
+  }
+
+  function homeStamp(){
+    return new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  }
+
+  function homeStatus(text,stale=false){
+    const el=document.getElementById("homeMarketStatus");
+    if(!el)return;
+    el.className="live-market-status"+(stale?" stale":"");
+    el.innerHTML='<span class="dot"></span><span>'+homeEscape(text)+'</span>';
+  }
+
+  function renderHomeMarket(){
+    const body=document.getElementById("homeMarketBody");
+    if(!body)return;
+    const rows=HOME_COINS.map(c=>homeRows.get(c.symbol)).filter(Boolean);
+    if(!rows.length){
+      body.innerHTML='<tr><td colspan="5" class="live-home-loading">Live market data is temporarily unavailable.</td></tr>';
+      return;
+    }
+
+    body.innerHTML=rows.map(c=>{
+      const change=Number(c.change||0);
+      return `
+        <tr data-home-symbol="${homeEscape(c.symbol)}">
+          <td>
+            <div class="live-coin-name">
+              <div class="live-coin-icon">${homeEscape(c.symbol.slice(0,3))}</div>
+              <div><strong>${homeEscape(c.name)}</strong><span>${homeEscape(c.symbol)}</span></div>
+            </div>
+          </td>
+          <td class="home-price">${homeMoney(c.price)}</td>
+          <td class="${change>=0?"live-up":"live-down"}">${change>=0?"+":""}${change.toFixed(2)}%</td>
+          <td class="home-high">${homeMoney(c.high)}</td>
+          <td class="home-low">${homeMoney(c.low)}</td>
+        </tr>`;
+    }).join("");
+
+    renderHomeMovers();
+  }
+
+  function updateHomeTicker(t){
+    const symbol=String(t?.s||"").replace(/USDT$/i,"").toUpperCase();
+    const meta=HOME_COINS.find(c=>c.symbol===symbol);
+    if(!meta)return;
+
+    const row=homeRows.get(symbol)||{symbol,name:meta.name};
+    const price=Number(t.c),change=Number(t.P),high=Number(t.h),low=Number(t.l);
+
+    if(Number.isFinite(price))row.price=price;
+    if(Number.isFinite(change))row.change=change;
+    if(Number.isFinite(high)&&high>0)row.high=high;
+    if(Number.isFinite(low)&&low>0)row.low=low;
+    row.updatedAt=Date.now();
+    homeRows.set(symbol,row);
+
+    const tr=document.querySelector(`tr[data-home-symbol="${CSS.escape(symbol)}"]`);
+    if(tr){
+      const priceEl=tr.querySelector(".home-price");
+      priceEl.textContent=homeMoney(row.price);
+      tr.querySelector("td:nth-child(3)").textContent=(row.change>=0?"+":"")+Number(row.change||0).toFixed(2)+"%";
+      tr.querySelector("td:nth-child(3)").className=row.change>=0?"live-up":"live-down";
+      tr.querySelector(".home-high").textContent=homeMoney(row.high);
+      tr.querySelector(".home-low").textContent=homeMoney(row.low);
+      priceEl.classList.remove("live-price-flash");
+      void priceEl.offsetWidth;
+      priceEl.classList.add("live-price-flash");
+    }else{
+      renderHomeMarket();
+    }
+
+    document.getElementById("homeMarketTime").textContent=homeStamp();
+    homeStatus("LIVE MARKET • Updating continuously");
+    renderHomeMovers();
+  }
+
+  function renderHomeMovers(){
+    const rows=[...homeRows.values()].filter(r=>Number.isFinite(Number(r.change)));
+    const gainers=rows.filter(r=>r.change>0).sort((a,b)=>b.change-a.change).slice(0,4);
+    const losers=rows.filter(r=>r.change<0).sort((a,b)=>a.change-b.change).slice(0,4);
+
+    const moverHTML=(r,positive)=>`
+      <div class="live-mover">
+        <div class="live-mover-left">
+          <div class="live-coin-icon">${homeEscape(r.symbol.slice(0,3))}</div>
+          <div><strong>${homeEscape(r.name)}</strong><small>${homeMoney(r.price)}</small></div>
+        </div>
+        <div class="live-mover-right">
+          <strong class="${positive?"live-up":"live-down"}">${positive?"+":""}${Number(r.change).toFixed(2)}%</strong>
+          <small>24H</small>
+        </div>
+      </div>`;
+
+    const g=document.getElementById("homeGainers");
+    const l=document.getElementById("homeLosers");
+    if(g)g.innerHTML=gainers.length?gainers.map(r=>moverHTML(r,true)).join(""):'<div class="live-home-loading">No positive movers yet.</div>';
+    if(l)l.innerHTML=losers.length?losers.map(r=>moverHTML(r,false)).join(""):'<div class="live-home-loading">No negative movers yet.</div>';
+  }
+
+  async function loadHomeBaseline(){
+    if(homeBaselineBusy)return;
+    homeBaselineBusy=true;
+    try{
+      const symbols=encodeURIComponent(JSON.stringify(HOME_COINS.map(c=>c.pair)));
+      const urls=[
+        `https://data-api.binance.vision/api/v3/ticker/24hr?symbols=${symbols}`,
+        `https://api.binance.com/api/v3/ticker/24hr?symbols=${symbols}`
+      ];
+
+      let data=null;
+      for(const url of urls){
+        try{
+          const d=await homeJSON(url,12000);
+          if(Array.isArray(d)&&d.length){data=d;break}
+        }catch{}
+      }
+
+      if(data){
+        for(const t of data){
+          const symbol=String(t.symbol||"").replace(/USDT$/i,"").toUpperCase();
+          const meta=HOME_COINS.find(c=>c.symbol===symbol);
+          if(!meta)continue;
+          homeRows.set(symbol,{
+            symbol,
+            name:meta.name,
+            price:Number(t.lastPrice)||0,
+            change:Number(t.priceChangePercent)||0,
+            high:Number(t.highPrice)||0,
+            low:Number(t.lowPrice)||0,
+            updatedAt:Date.now()
+          });
+        }
+        renderHomeMarket();
+        document.getElementById("homeMarketTime").textContent=homeStamp();
+        homeStatus("LIVE MARKET • Binance 24H baseline");
+        connectHomeSocket();
+        return true;
+      }
+    }catch{}
+
+    homeStatus("Live market connection unavailable",true);
+    renderHomeMarket();
+    return false;
+  }
+
+  function connectHomeSocket(){
+    clearTimeout(homeSocketRetry);
+    try{
+      if(homeSocket){homeSocket.onclose=null;homeSocket.close()}
+    }catch{}
+    homeSocket=null;
+
+    const streams=HOME_COINS.map(c=>c.pair.toLowerCase()+"@ticker").join("/");
+    const endpoints=[
+      "wss://stream.binance.com:443",
+      "wss://data-stream.binance.vision"
+    ];
+    let index=0;
+
+    function tryEndpoint(){
+      if(index>=endpoints.length){
+        homeStatus("Live market stream unavailable — using 24H data",true);
+        return;
+      }
+
+      const endpoint=endpoints[index++];
+      let ws;
+      try{ws=new WebSocket(`${endpoint}/stream?streams=${streams}`)}catch{tryEndpoint();return}
+      homeSocket=ws;
+      let received=false;
+
+      ws.onopen=()=>homeStatus("LIVE MARKET • Updating continuously");
+
+      ws.onmessage=e=>{
+        try{
+          const packet=JSON.parse(e.data);
+          const t=packet?.data||packet;
+          if(t?.s){received=true;updateHomeTicker(t)}
+        }catch{}
+      };
+
+      ws.onerror=()=>{try{ws.close()}catch{}};
+
+      ws.onclose=()=>{
+        if(homeSocket!==ws)return;
+        homeSocket=null;
+        if(!received&&index<endpoints.length){
+          tryEndpoint();
+        }else{
+          homeSocketRetry=setTimeout(connectHomeSocket,5000);
+        }
+      };
+
+      setTimeout(()=>{
+        if(homeSocket===ws&&!received){
+          try{ws.onclose=null;ws.close()}catch{}
+          if(index<endpoints.length)tryEndpoint();
+        }
+      },7000);
+    }
+
+    tryEndpoint();
+  }
+
+  async function loadHomeGlobal(){
+    try{
+      const d=await homeJSON("https://api.coinpaprika.com/v1/global",12000);
+      const el=document.getElementById("homeMarketCap");
+      if(el)el.textContent=homeCompact(d.market_cap_usd);
+    }catch{}
+  }
+
+  function homeNewsImpact(item){
+    const text=String([item.title,item.name,item.description,item.body,item.summary,item.category].filter(Boolean).join(" ")).toLowerCase();
+    if(/sec|cftc|regulat|legislation|lawmakers|senate|congress|stablecoin bill|enforcement|policy/.test(text))return ["REGULATION","🏛"];
+    if(/federal reserve|\bfed\b|interest rate|inflation|cpi|ppi|jobs report|employment|gdp|treasury|yield|liquidity|central bank|fomc/.test(text))return ["MACRO","📈"];
+    if(/hack|hacked|exploit|breach|stolen|attack|security/.test(text))return ["SECURITY","🛡"];
+    return ["MARKET","🔥"];
+  }
+
+  function homeArticleDate(item){
+    const raw=item.published_at||item.publishedAt||item.pubDate||item.published||item.created_at||item.date||item.time;
+    const t=raw?Date.parse(raw):NaN;
+    return Number.isFinite(t)?t:0;
+  }
+
+  async function loadHomeNews(){
+    const urls=[
+      "https://cryptocurrency.cv/api/breaking?limit=12",
+      "https://cryptocurrency.cv/api/regulatory?limit=12",
+      "https://cryptocurrency.cv/api/news?limit=20",
+      "https://min-api.cryptocompare.com/data/v2/news/?lang=EN"
+    ];
+
+    try{
+      const results=await Promise.allSettled(urls.map(u=>homeJSON(u,12000)));
+      const merged=[],seen=new Set();
+
+      for(const r of results){
+        if(r.status!=="fulfilled")continue;
+        const d=r.value||{};
+        const list=d.articles||d.news||d.items||d.data||d.Data||[];
+        if(!Array.isArray(list))continue;
+
+        for(const item of list){
+          const title=String(item.title||item.name||"").trim();
+          const url=String(item.link||item.url||item.guid||"").trim();
+          if(!title)continue;
+          const key=(title.toLowerCase()+"|"+url).slice(0,500);
+          if(seen.has(key))continue;
+          seen.add(key);
+          merged.push(item);
+        }
+      }
+
+      merged.sort((a,b)=>homeArticleDate(b)-homeArticleDate(a));
+      const usable=merged.slice(0,3);
+      const box=document.getElementById("homeNews");
+
+      if(!box)return;
+      if(!usable.length){
+        box.innerHTML='<div class="live-home-loading">Market news is temporarily unavailable.</div>';
+        return;
+      }
+
+      box.innerHTML=usable.map(item=>{
+        const title=String(item.title||item.name||"Market development").trim();
+        const url=String(item.link||item.url||item.guid||"#").trim();
+        const desc=String(item.description||item.summary||item.body||"").replace(/\s+/g," ").trim().slice(0,125);
+        const [cat,icon]=homeNewsImpact(item);
+        const source=String(item.source||item.source_info?.name||item.source_name||item.publisher||"Market source").trim();
+
+        return `<a class="live-news-item" href="${homeSafeURL(url)}" target="_blank" rel="noopener noreferrer">
+          <div class="live-news-tag">${icon} ${homeEscape(cat)} • ${homeEscape(source)}</div>
+          <h3>${homeEscape(title)}</h3>
+          ${desc?`<p>${homeEscape(desc)}${desc.length>=125?"…":""}</p>`:""}
+        </a>`;
+      }).join("");
+    }catch{
+      const box=document.getElementById("homeNews");
+      if(box)box.innerHTML='<div class="live-home-loading">Market news is temporarily unavailable.</div>';
+    }
+  }
+
+  async function startHomeLiveFeed(){
+    await Promise.allSettled([loadHomeBaseline(),loadHomeGlobal(),loadHomeNews()]);
+  }
+
+  document.getElementById("homeMarketRefresh")?.addEventListener("click",()=>{
+    loadHomeBaseline();
+    loadHomeGlobal();
+    loadHomeNews();
+  });
+
+  startHomeLiveFeed();
+  setInterval(loadHomeGlobal,60000);
+  setInterval(loadHomeNews,300000);
+  setInterval(()=>{
+    if(!homeSocket||homeSocket.readyState!==WebSocket.OPEN)loadHomeBaseline();
+  },15000);
+
   </script>
 
 </body>
