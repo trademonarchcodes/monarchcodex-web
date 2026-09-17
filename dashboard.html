@@ -1436,7 +1436,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     box.innerHTML=xHistory.map(m=>`<div class="x-msg ${m.role==='user'?'user':''}"><div class="x-avatar">${m.role==='user'?'M':'X'}</div><div><div class="x-bubble">${xEscape(m.text)}</div><div class="x-time">${xEscape(m.time||'')}</div></div></div>`).join('');
     box.scrollTop=box.scrollHeight;
   }
-  const X_API_URL = "/api/x";
+  const X_API_URL = "https://monarchcodex-web.trademonarchofficial.workers.dev/api/x";
   async function xAskRealAI(){
     const messages=xHistory.slice(-20).map(m=>({
       role:m.role==="assistant"?"assistant":"user",
