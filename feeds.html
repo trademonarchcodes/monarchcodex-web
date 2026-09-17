@@ -127,8 +127,25 @@ async function fetchMarketCaps(){
 }
 async function fetchBinance24h(){
  const symbols=COINS.map(c=>c.pair);
- const url='https://data-api.binance.vision/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(symbols));
- return await getJSON(url,12000);
+ // Try the compact multi-symbol request first.
+ try{
+  const url='https://data-api.binance.vision/api/v3/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(symbols));
+  const result=await getJSON(url,10000);
+  if(Array.isArray(result)&&result.length)return result;
+ }catch{}
+ // Mobile browsers/networks can reject the multi-symbol request even when
+ // the public Binance endpoint itself is reachable. Fall back to one symbol
+ // per request and keep every successful response.
+ const results=await Promise.allSettled(symbols.map(symbol=>
+  getJSON('https://data-api.binance.vision/api/v3/ticker/24hr?symbol='+encodeURIComponent(symbol),10000)
+ ));
+ const rows=results.filter(r=>r.status==='fulfilled'&&r.value&&r.value.symbol).map(r=>r.value);
+ if(rows.length)return rows;
+ // Final public-data endpoint fallback.
+ const alt=await Promise.allSettled(symbols.map(symbol=>
+  getJSON('https://api.binance.com/api/v3/ticker/24hr?symbol='+encodeURIComponent(symbol),10000)
+ ));
+ return alt.filter(r=>r.status==='fulfilled'&&r.value&&r.value.symbol).map(r=>r.value);
 }
 async function loadMarket(){
  const body=$('marketBody');
@@ -137,7 +154,7 @@ async function loadMarket(){
   if(!Array.isArray(tickers)||!tickers.length)throw new Error('No live ticker data');
   const capMap=new Map(caps.map(x=>[String(x.symbol||'').toUpperCase(),x]));
   const rows=COINS.map(meta=>{
-   const t=tickers.find(x=>x.symbol===meta.pair);
+   const t=tickers.find(x=>String(x.symbol||'').toUpperCase()===meta.pair);
    const cap=capMap.get(meta.symbol);
    if(!t)return null;
    return normaliseCoin({
@@ -161,6 +178,32 @@ async function loadMarket(){
    $('marketCap').textContent='Unavailable';$('marketMeta').textContent='Live market data is unavailable';
   }
  }
+}
+async function refreshLiveMarket(){
+ try{
+  const tickers=await fetchBinance24h();
+  if(!Array.isArray(tickers)||!tickers.length)return;
+  const cached=readCache('market');
+  const base=Array.isArray(cached?.data)?cached.data:[];
+  const map=new Map(base.map(x=>[x.symbol,x]));
+  for(const t of tickers){
+   const sym=String(t.symbol||'').replace(/USDT$/,'').toUpperCase();
+   const meta=COINS.find(c=>c.symbol===sym);
+   if(!meta)continue;
+   const old=map.get(sym)||{};
+   map.set(sym,normaliseCoin({
+    ...old,id:meta.id,name:meta.name,symbol:meta.symbol,
+    current_price:Number(t.lastPrice),price_change_percentage_24h:Number(t.priceChangePercent),
+    total_volume:Number(t.quoteVolume),high_24h:Number(t.highPrice),low_24h:Number(t.lowPrice)
+   },meta));
+  }
+  const rows=COINS.map(c=>map.get(c.symbol)).filter(Boolean);
+  if(rows.length){
+   renderMarket(rows,'Live market polling');
+   writeCache('market',{data:rows,updatedAt:Date.now()});
+   $('marketMeta').innerHTML='<span class="live-dot"></span>LIVE MARKET • Updating every 10 seconds';
+  }
+ }catch{}
 }
 function connectLiveMarket(){
  if(marketSocket){try{marketSocket.close()}catch{}}
@@ -254,6 +297,7 @@ loadMarket();loadNews();
 // News: refresh frequently so new high-impact stories enter the page as they appear.
 setInterval(loadNews,60000);
 // Market REST fallback / market-cap refresh. The WebSocket updates prices continuously between polls.
+setInterval(refreshLiveMarket,10000);
 setInterval(loadMarket,180000);
 window.addEventListener('beforeunload',()=>{try{marketSocket?.close()}catch{}});
 </script>
