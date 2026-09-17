@@ -214,7 +214,21 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 .notification-message{font-size:12px;color:#bbb;margin-top:5px;line-height:1.5}
 .notification-time{font-size:10px;color:#777;margin-top:7px}
 .notification-empty{padding:30px 15px;text-align:center;color:var(--muted)}
-.payment-destinations{display:grid;gap:10px}.payment-option{background:#171717;border:1px solid #333;border-radius:10px;padding:13px;font-size:11px}.payment-option b{color:#D4AF37;font-family:Cinzel,serif}.payment-value{margin-top:7px;word-break:break-all;color:#eee;line-height:1.5}.payment-row{display:flex;align-items:center;gap:8px;margin-top:7px}.payment-row .payment-value{margin-top:0;flex:1;min-width:0}.copy-payment{border:1px solid #555;background:#0d0d0d;color:#D4AF37;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;white-space:nowrap}.copy-payment:hover{border-color:#D4AF37;background:#18150b}.receipt-box{border:1px dashed #4a4a4a;background:#101010;border-radius:12px;padding:14px}.receipt-help{font-size:11px;color:#888;margin-top:6px;line-height:1.5}.receipt-name{font-size:11px;color:#D4AF37;margin-top:8px;word-break:break-all}</style>
+.payment-destinations{display:grid;gap:10px}.payment-option{background:#171717;border:1px solid #333;border-radius:10px;padding:13px;font-size:11px}.payment-option b{color:#D4AF37;font-family:Cinzel,serif}.payment-value{margin-top:7px;word-break:break-all;color:#eee;line-height:1.5}.payment-row{display:flex;align-items:center;gap:8px;margin-top:7px}.payment-row .payment-value{margin-top:0;flex:1;min-width:0}.copy-payment{border:1px solid #555;background:#0d0d0d;color:#D4AF37;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;white-space:nowrap}.copy-payment:hover{border-color:#D4AF37;background:#18150b}.receipt-box{border:1px dashed #4a4a4a;background:#101010;border-radius:12px;padding:14px}.receipt-help{font-size:11px;color:#888;margin-top:6px;line-height:1.5}.receipt-name{font-size:11px;color:#D4AF37;margin-top:8px;word-break:break-all}
+/* X AI INTERFACE */
+.x-shell{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;min-height:620px}
+.x-chat{display:flex;flex-direction:column;min-height:620px;overflow:hidden}
+.x-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#17140b,#111)}
+.x-brand{display:flex;align-items:center;gap:12px}.x-mark{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#e6c85c,#9f7d17);color:#080808;font-weight:900;font-family:Cinzel,serif;box-shadow:0 8px 24px #0008}.x-brand strong{font-family:Cinzel,serif;color:var(--gold);font-size:17px}.x-brand span{display:block;color:#888;font-size:10px;margin-top:3px}
+.x-status{font-size:10px;color:#7ee2a8;border:1px solid #244a35;background:#0d1a12;padding:6px 9px;border-radius:999px}
+.x-messages{flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:16px;background:radial-gradient(circle at 50% 0,#17140a 0,#0b0b0b 45%,#080808 100%)}
+.x-msg{display:flex;gap:10px;max-width:88%;align-items:flex-start}.x-msg.user{margin-left:auto;flex-direction:row-reverse}.x-avatar{width:30px;height:30px;min-width:30px;border-radius:9px;display:grid;place-items:center;font-size:11px;font-weight:800;background:#191919;border:1px solid #333;color:var(--gold)}.x-msg.user .x-avatar{background:#27200b;border-color:#65521b}.x-bubble{padding:12px 14px;border:1px solid #292929;border-radius:14px;background:#121212;color:#ddd;font-size:13px;line-height:1.65;white-space:pre-wrap}.x-msg.user .x-bubble{background:#211b0b;border-color:#4e4018;color:#f1e6bf}.x-time{font-size:9px;color:#666;margin-top:5px}
+.x-composer{padding:14px;border-top:1px solid var(--line);background:#101010}.x-input-wrap{display:flex;align-items:flex-end;gap:8px;background:#171717;border:1px solid #353535;border-radius:15px;padding:8px}.x-input-wrap:focus-within{border-color:#766020;box-shadow:0 0 0 3px #d4af3712}.x-input-wrap textarea{flex:1;min-height:44px;max-height:130px;resize:none;border:0;background:transparent;outline:0;color:#eee;padding:9px;font:inherit;font-size:13px}.x-send{width:44px;height:44px;border:0;border-radius:12px;background:var(--gold);color:#080808;font-weight:900;cursor:pointer}.x-send:hover{filter:brightness(1.08)}
+.x-prompts{display:flex;gap:8px;overflow:auto;padding-top:10px}.x-prompt{white-space:nowrap;border:1px solid #303030;background:#141414;color:#bbb;border-radius:999px;padding:8px 11px;font-size:10px;cursor:pointer}.x-prompt:hover{border-color:#6f5a1d;color:var(--gold)}
+.x-side{display:flex;flex-direction:column;gap:12px}.x-side .card{padding:16px}.x-side h3{font-family:Cinzel,serif;color:var(--gold);font-size:13px;margin:0 0 10px}.x-feature{padding:10px 0;border-bottom:1px solid #242424;font-size:11px;color:#aaa;line-height:1.5}.x-feature:last-child{border-bottom:0}.x-note{font-size:10px;color:#777;line-height:1.6}.x-demo{font-size:9px;color:#8d7530;margin-top:10px}
+@media(max-width:900px){.x-shell{grid-template-columns:1fr}.x-side{display:none}}
+@media(max-width:560px){.x-shell,.x-chat{min-height:calc(100vh - 150px)}.x-messages{padding:16px}.x-msg{max-width:94%}.x-head{padding:14px}.x-status{display:none}}
+</style>
 </head>
 
 <body>
@@ -246,6 +260,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
 
     <nav class="nav">
       <button class="active" data-view="overview"><span class="icon">⌂</span>Overview</button>
+      <button data-view="x"><span class="icon">✦</span>X AI</button>
       <button data-view="kyc"><span class="icon">✓</span>KYC Verification</button>
       <button data-view="investments"><span class="icon">◈</span>Investments</button>
       <button data-view="withdrawals"><span class="icon">↗</span>Withdrawals</button>
@@ -297,6 +312,34 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
           <div class="card">
             <h2 class="section-title">Recent Transactions</h2>
             <div id="recentTransactions" class="empty">Loading ledger...</div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- X AI -->
+      <div id="view-x" class="view">
+        <div class="hero"><h1>Ask X.</h1><p>Your MONARCH CODEX intelligence interface — built to become your AI companion for the Codex.</p></div>
+        <div class="x-shell">
+          <div class="card x-chat">
+            <div class="x-head">
+              <div class="x-brand"><div class="x-mark">X</div><div><strong>X</strong><span>MONARCH CODEX INTELLIGENCE</span></div></div>
+              <div class="x-status">● Interface Ready</div>
+            </div>
+            <div id="xMessages" class="x-messages" aria-live="polite"></div>
+            <div class="x-composer">
+              <div class="x-input-wrap"><textarea id="xInput" rows="1" placeholder="Ask X anything about the Codex..."></textarea><button id="xSend" class="x-send" type="button" aria-label="Send">↑</button></div>
+              <div id="xPrompts" class="x-prompts">
+                <button class="x-prompt" type="button" data-x-prompt="What is MONARCH CODEX?">What is MONARCH CODEX?</button>
+                <button class="x-prompt" type="button" data-x-prompt="Explain market structure to me.">Explain market structure</button>
+                <button class="x-prompt" type="button" data-x-prompt="How does my dashboard work?">How does my dashboard work?</button>
+                <button class="x-prompt" type="button" data-x-prompt="What should I know about risk management?">Risk management</button>
+              </div>
+            </div>
+          </div>
+          <div class="x-side">
+            <div class="card"><h3>What X Is Becoming</h3><div class="x-feature">◆ A real AI conversation layer</div><div class="x-feature">◆ MONARCH CODEX knowledge</div><div class="x-feature">◆ Live market intelligence</div><div class="x-feature">◆ Controlled account assistance</div><div class="x-feature">◆ Trading education & explanations</div></div>
+            <div class="card"><h3>Built In Stages</h3><div class="x-note">X now connects to the secure AI backend. Account and sensitive-data access will be added separately and deliberately.</div><div class="x-demo">CURRENT: AI BACKEND MODE</div></div>
           </div>
         </div>
       </div>
@@ -1204,7 +1247,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     if(btn)btn.classList.add("active");
 
     const titles={
-      overview:"MONARCH CODEX",kyc:"KYC Verification",investments:"Investments",
+      overview:"MONARCH CODEX",x:"X AI",kyc:"KYC Verification",investments:"Investments",
       withdrawals:"Withdrawals",transactions:"Transactions",referrals:"Referrals",profile:"My Profile"
     };
     setText("topTitle",titles[name] || "MONARCH CODEX");
@@ -1214,6 +1257,7 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
     if(name==="transactions")loadOverview();
     if(name==="referrals")loadReferralData();
     if(name==="investments"){loadPackages();loadPaymentDestinations();}
+    if(name==="x")xBind();
   }
 
   function toggleMenu(){
@@ -1234,6 +1278,72 @@ hr{border:0;border-top:1px solid var(--line);margin:20px 0}
         toast("Dashboard opened, but the session check is taking longer than expected. Please refresh if your account does not appear.","warning");
       }
     },5000);
+  }
+
+  /* ---------------- X AI INTERFACE ---------------- */
+  const X_HISTORY_KEY="monarch_x_chat_v1";
+  function xNow(){return new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});}
+  function xEscape(value){return String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+  function xStore(){try{localStorage.setItem(X_HISTORY_KEY,JSON.stringify(xHistory.slice(-60)))}catch(e){}}
+  function xLoad(){try{const v=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||"[]");return Array.isArray(v)?v:[]}catch(e){return []}}
+  let xHistory=xLoad();
+  function xRender(){
+    const box=$("xMessages"); if(!box)return;
+    if(!xHistory.length){
+      box.innerHTML=`<div class="x-msg"><div class="x-avatar">X</div><div><div class="x-bubble">Welcome, Monarch. I’m <b>X</b> — the intelligence interface for MONARCH CODEX.<br><br>Ask me about the Codex, your dashboard, trading education, risk management or how the platform works.</div><div class="x-time">${xNow()}</div></div></div>`;
+      return;
+    }
+    box.innerHTML=xHistory.map(m=>`<div class="x-msg ${m.role==='user'?'user':''}"><div class="x-avatar">${m.role==='user'?'M':'X'}</div><div><div class="x-bubble">${xEscape(m.text)}</div><div class="x-time">${xEscape(m.time||'')}</div></div></div>`).join('');
+    box.scrollTop=box.scrollHeight;
+  }
+  const X_API_URL = "/api/x";
+  async function xAskRealAI(){
+    const messages=xHistory.slice(-20).map(m=>({
+      role:m.role==="assistant"?"assistant":"user",
+      content:String(m.text||"").slice(0,6000)
+    }));
+    const {data:{session},error:sessionError}=await db.auth.getSession();
+    if(sessionError||!session?.access_token) throw new Error("Your MONARCH CODEX session is no longer available. Please log in again.");
+    const response=await fetch(X_API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},
+      body:JSON.stringify({messages}),
+      cache:"no-store"
+    });
+    let payload=null;
+    try{payload=await response.json()}catch{}
+    if(!response.ok||!payload?.ok){
+      throw new Error(payload?.error||`X server returned HTTP ${response.status}`);
+    }
+    return String(payload.assistant||"X did not return a response.").trim();
+  }
+  async function xSendMessage(prefill){
+    const input=$("xInput"); const text=String(prefill??input?.value??"").trim(); if(!text)return;
+    if(input)input.value="";
+    xHistory.push({role:"user",text,time:xNow()}); xStore(); xRender();
+    const send=$("xSend"); if(send)send.disabled=true;
+    const pending={role:"assistant",text:"X is thinking…",time:xNow(),pending:true};
+    xHistory.push(pending); xRender();
+    try{
+      const answer=await xAskRealAI();
+      pending.text=answer; pending.pending=false; pending.time=xNow();
+    }catch(error){
+      pending.text="I couldn’t reach my AI service right now.\n\n"+(error?.message||"Please try again.");
+      pending.pending=false;
+      console.error("X AI error:",error);
+    }finally{
+      xStore(); xRender(); if(send)send.disabled=false;
+    }
+  }
+  function xBind(){
+    const send=$("xSend"),input=$("xInput");
+    if(!send||!input||send.dataset.bound)return;
+    send.dataset.bound="1";
+    send.addEventListener("click",()=>xSendMessage());
+    input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();xSendMessage()}});
+    input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,130)+"px"});
+    document.querySelectorAll("[data-x-prompt]").forEach(b=>b.addEventListener("click",()=>xSendMessage(b.dataset.xPrompt)));
+    xRender();
   }
 
   async function boot(){
