@@ -58,6 +58,7 @@
 <body>
 <div id="toastWrap" class="toast-wrap"></div>
 <div id="diag" class="diag"></div>
+<div id="status" style="display:none;margin:14px 0 0;padding:12px;border:1px solid #3a3215;background:#17140a;border-radius:11px;color:#d4af37;font-size:12px;line-height:1.6"></div>
 
 <div class="wrap">
   <main class="card">
@@ -205,15 +206,17 @@ async function withTimeout(promise, ms=12000){
 async function createProfileWithRetry(user, profile){
   if(!user?.id) throw new Error("Missing Supabase account ID.");
   const payload={id:user.id,...profile};
+
   let lastError=null;
   for(let attempt=1;attempt<=3;attempt++){
     try{
-      const {data,error}=await withTimeout(
-        supabase.from("profiles").upsert(payload,{onConflict:"id",ignoreDuplicates:false}).select("*").single(),
+      const result=await withTimeout(
+        supabase.from("profiles").upsert(payload,{onConflict:"id",ignoreDuplicates:false}).select("id").single(),
         12000
       );
-      if(!error && data) return data;
-      lastError=error || new Error("Profile was not created.");
+      if(!result.error && result.data?.id) return result.data;
+
+      lastError=result.error || new Error("Profile was not created.");
       console.error("Profile upsert attempt "+attempt,lastError);
     }catch(e){
       lastError=e;
@@ -265,9 +268,18 @@ function clearDiagnostic(){
   const box=document.getElementById("diag");
   if(box){box.textContent="";box.classList.remove("show");}
 }
+function showStatus(message){
+  const box=document.getElementById("status");
+  if(box){box.textContent=message;box.style.display="block";}
+}
+function clearStatus(){
+  const box=document.getElementById("status");
+  if(box){box.textContent="";box.style.display="none";}
+}
 
 async function register(){
   clearDiagnostic();
+  clearStatus();
   if(!supabase){
     showToast("Secure connection is not ready. Please refresh and try again.","error");
     showDiagnostic("Supabase JavaScript client did not load.");
@@ -307,7 +319,9 @@ async function register(){
     }
 
     showToast("Connecting securely to MONARCH CODEX...","info");
+    showStatus("Secure connection established. Creating your account…");
 
+    showStatus("Creating your secure login account…");
     const {data,error}=await withTimeout(
       supabase.auth.signUp({
         email,
@@ -346,6 +360,7 @@ async function register(){
       throw new Error("Supabase returned an account with a different email address. Please try again.");
     }
 
+    showStatus("Login account created. Creating your Monarch profile…");
     const profile={
       full_name,
       phone,
@@ -370,9 +385,11 @@ async function register(){
     localStorage.setItem("monarch_last_email",email);
 
     if(data.session){
+      clearStatus();
       showToast("Account created successfully. Welcome, Monarch.","success");
       setTimeout(()=>window.location.replace("dashboard.html"),1200);
     }else{
+      clearStatus();
       showToast("Account created successfully. Check your email to confirm your account, then log in.","success");
       setTimeout(()=>window.location.replace("login.html"),2500);
     }
@@ -386,6 +403,7 @@ async function register(){
     if(/already registered|user already registered/i.test(msg)) msg="This email is already registered. Please log in instead.";
     showToast(msg,"error");
   }finally{
+    clearStatus();
     btn.disabled=false;
     btn.textContent="CREATE MONARCH ACCOUNT";
   }
@@ -412,7 +430,17 @@ document.addEventListener("DOMContentLoaded",async()=>{
 
   document.getElementById("registerForm").addEventListener("submit",e=>{
     e.preventDefault();
-    register();
+    register().catch(err=>{
+      console.error("Unhandled registration error:",err);
+      const message=err?.message || String(err) || "Unexpected registration error.";
+      showDiagnostic("Unexpected registration error: "+message);
+      showToast(message,"error");
+      const btn=document.getElementById("registerBtn");
+      if(btn){
+        btn.disabled=false;
+        btn.textContent="CREATE MONARCH ACCOUNT";
+      }
+    });
   });
 
   if(supabase) await checkSupabaseConnection();
