@@ -170,7 +170,7 @@ const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 let supabase = null;
 
-function showToast(message,type="info"){
+function showToast(message, type="info"){
   const wrap=document.getElementById("toastWrap");
   const el=document.createElement("div");
   el.className="toast "+type;
@@ -183,31 +183,80 @@ function showToast(message,type="info"){
 function genUID(){
   return "MONARCH"+String(Math.floor(100000+Math.random()*900000));
 }
-
 function genRef(){
   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let s="";
   for(let i=0;i<4;i++) s+=chars[Math.floor(Math.random()*chars.length)];
   return "MONARCH"+s+String(Math.floor(10+Math.random()*90));
 }
-
 function getReferralFromURL(){
   const p=new URLSearchParams(location.search);
   return (p.get("ref")||"").trim().toUpperCase();
 }
-
 function normalizeEmail(v){return v.trim().toLowerCase()}
 
-async function withTimeout(promise,ms=12000){
+async function withTimeout(promise, ms=12000){
   return Promise.race([
     promise,
     new Promise((_,reject)=>setTimeout(()=>reject(new Error("Request timed out. Please check your internet connection.")),ms))
   ]);
 }
 
+async function createProfileWithRetry(user, profile){
+  if(!user?.id) throw new Error("Missing Supabase account ID.");
+  const payload={id:user.id,...profile};
+  let lastError=null;
+  for(let attempt=1;attempt<=3;attempt++){
+    try{
+      const {data,error}=await withTimeout(
+        supabase.from("profiles").upsert(payload,{onConflict:"id",ignoreDuplicates:false}).select("*").single(),
+        12000
+      );
+      if(!error && data) return data;
+      lastError=error || new Error("Profile was not created.");
+      console.error("Profile upsert attempt "+attempt,lastError);
+    }catch(e){
+      lastError=e;
+      console.error("Profile upsert attempt "+attempt,e);
+    }
+    if(attempt<3) await new Promise(r=>setTimeout(r,700*attempt));
+  }
+  throw lastError || new Error("Could not create Monarch profile.");
+}
+
+async function findReferrer(code){
+  if(!code) return null;
+  const clean=code.trim().toUpperCase();
+  const {data,error}=await withTimeout(
+    supabase.from("profiles").select("id,referral_code,uid").or("referral_code.eq."+clean+",uid.eq."+clean).limit(1),
+    10000
+  );
+  if(error) throw error;
+  return data && data.length ? data[0].id : null;
+}
+
+async function checkSupabaseConnection(){
+  try{
+    const response=await fetch(SUPABASE_URL+"/auth/v1/settings",{
+      method:"GET",
+      headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY},
+      cache:"no-store"
+    });
+    const text=await response.text();
+    if(!response.ok){
+      throw new Error("Supabase Auth returned HTTP "+response.status+(text?": "+text:""));
+    }
+    return true;
+  }catch(e){
+    console.error("Supabase connectivity check failed:",e);
+    showDiagnostic("Supabase connection check failed: "+(e.message||e));
+    return false;
+  }
+}
+
 function showDiagnostic(message){
   const box=document.getElementById("diag");
-  if(!box)return;
+  if(!box) return;
   box.textContent="Registration detail: "+message;
   box.classList.add("show");
 }
@@ -217,126 +266,8 @@ function clearDiagnostic(){
   if(box){box.textContent="";box.classList.remove("show");}
 }
 
-/*
- * IMPORTANT FIX:
- * The old file called createProfileWithRetry() but that function did not exist.
- * This function now creates the profile correctly.
- *
- * First we use the complete current Monarch profile fields. If the database
- * does not contain one of the older optional columns, we automatically fall
- * back to the confirmed core profile fields instead of breaking registration.
- */
-async function createProfileWithRetry(user,profile){
-  const fullProfile={
-    id:user.id,
-    ...profile
-  };
-
-  const {data,error}=await withTimeout(
-    supabase.from("profiles").insert(fullProfile).select().single(),
-    12000
-  );
-
-  if(!error)return data;
-
-  console.error("Full profile insert failed:",error);
-
-  /*
-   * If a trigger already created the row, update the core fields.
-   */
-  if(error.code==="23505"){
-    const {data:existing,error:updateError}=await withTimeout(
-      supabase.from("profiles")
-        .update({
-          full_name:profile.full_name,
-          phone:profile.phone,
-          role:"member",
-          status:"pending"
-        })
-        .eq("id",user.id)
-        .select()
-        .single(),
-      12000
-    );
-
-    if(!updateError)return existing;
-    throw updateError;
-  }
-
-  /*
-   * Schema-safe fallback. These are the confirmed core columns.
-   */
-  const coreProfile={
-    id:user.id,
-    full_name:profile.full_name,
-    phone:profile.phone,
-    role:"member",
-    status:"pending"
-  };
-
-  const {data:coreData,error:coreError}=await withTimeout(
-    supabase.from("profiles").insert(coreProfile).select().single(),
-    12000
-  );
-
-  if(coreError)throw coreError;
-  return coreData;
-}
-
-async function findReferrer(code){
-  if(!code)return null;
-  const clean=code.trim().toUpperCase();
-
-  try{
-    const {data,error}=await withTimeout(
-      supabase.from("profiles")
-        .select("id,referral_code,uid")
-        .or("referral_code.eq."+clean+",uid.eq."+clean)
-        .limit(1),
-      10000
-    );
-
-    if(error)throw error;
-    return data&&data.length?data[0].id:null;
-  }catch(error){
-    /*
-     * Referral lookup must not destroy normal registration when the
-     * referral columns are unavailable. If a code was supplied and cannot
-     * be verified, we stop and explain it instead of silently assigning
-     * the wrong referrer.
-     */
-    throw error;
-  }
-}
-
-async function checkSupabaseConnection(){
-  try{
-    const response=await fetch(SUPABASE_URL+"/auth/v1/settings",{
-      method:"GET",
-      headers:{
-        "apikey":SUPABASE_KEY,
-        "Authorization":"Bearer "+SUPABASE_KEY
-      },
-      cache:"no-store"
-    });
-
-    const text=await response.text();
-
-    if(!response.ok){
-      throw new Error("Supabase Auth returned HTTP "+response.status+(text?": "+text:""));
-    }
-
-    return true;
-  }catch(e){
-    console.error("Supabase connectivity check failed:",e);
-    showDiagnostic("Supabase connection check failed: "+(e.message||e));
-    return false;
-  }
-}
-
 async function register(){
   clearDiagnostic();
-
   if(!supabase){
     showToast("Secure connection is not ready. Please refresh and try again.","error");
     showDiagnostic("Supabase JavaScript client did not load.");
@@ -358,17 +289,17 @@ async function register(){
   btn.textContent="CREATING ACCOUNT...";
 
   try{
+    // Validate the referral before creating the Auth account so an invalid code
+    // never leaves an orphaned Auth user behind.
     let referred_by=null;
-
     if(referral){
       try{
         referred_by=await findReferrer(referral);
       }catch(refError){
         console.error("Referral lookup error:",refError);
         showDiagnostic("Referral lookup failed: "+(refError?.message||refError));
-        throw new Error("We could not verify that referral code right now. Please check the code and try again.");
+        throw new Error("We could not verify that referral code right now. Please check your connection and try again.");
       }
-
       if(!referred_by){
         showDiagnostic("Referral code entered: "+referral+". No matching Monarch referral code was found.");
         throw new Error("Referral code was not found. Check the code and try again.");
@@ -382,11 +313,7 @@ async function register(){
         email,
         password,
         options:{
-          data:{
-            full_name,
-            phone,
-            referral_code_used:referral||null
-          }
+          data:{full_name,phone,referral_code_used:referral||null}
         }
       }),
       20000
@@ -398,19 +325,18 @@ async function register(){
       throw error;
     }
 
-    if(!data||!data.user){
+    if(!data || !data.user){
       showDiagnostic("Supabase returned no user object after signup.");
       throw new Error("Supabase did not create an account. Please try again.");
     }
 
     const user=data.user;
-
     if(!user.id){
       showDiagnostic("Supabase returned a user without an account ID.");
       throw new Error("Supabase did not return a valid account ID. Please try again.");
     }
 
-    if(Array.isArray(user.identities)&&user.identities.length===0){
+    if(Array.isArray(user.identities) && user.identities.length===0){
       showDiagnostic("Supabase returned an empty identity list. The email may already exist or signup may have been filtered by Auth.");
       throw new Error("This email is already registered or cannot be registered. Please use another email address.");
     }
@@ -426,7 +352,7 @@ async function register(){
       referral_code:genRef(),
       referred_by,
       role:"member",
-      status:"pending",
+      status:"pending_kyc",
       kyc_status:"pending",
       display_username:full_name.split(/\s+/)[0],
       balance:0
@@ -436,18 +362,12 @@ async function register(){
       await createProfileWithRetry(user,profile);
     }catch(profileError){
       console.error("Profile creation error:",profileError);
-
       const detail=profileError?.message||"Unknown profile error";
       showDiagnostic("Auth account was created, but profile creation failed: "+detail);
-
       throw new Error("Your login account was created, but your Monarch profile could not be completed. Do not register again. Please send this message to support.");
     }
 
     localStorage.setItem("monarch_last_email",email);
-
-    if(referral){
-      localStorage.setItem("monarch_last_referral",referral);
-    }
 
     if(data.session){
       showToast("Account created successfully. Welcome, Monarch.","success");
@@ -456,20 +376,15 @@ async function register(){
       showToast("Account created successfully. Check your email to confirm your account, then log in.","success");
       setTimeout(()=>window.location.replace("login.html"),2500);
     }
-
   }catch(err){
     console.error("Registration error:",err);
-
     let msg=err?.message||"Registration failed. Please try again.";
-
-    if(err?.status===429)msg="Too many registration attempts. Please wait a few minutes and try again.";
-    if(/email.*invalid|invalid.*email/i.test(msg))msg="Please enter a valid email address.";
-    if(/password.*(weak|short)|password.*6/i.test(msg))msg="Password must be at least 6 characters.";
-    if(err?.code==="23505")msg="That account identity is already in use. Please try again.";
-    if(/already registered|user already registered/i.test(msg))msg="This email is already registered. Please log in instead.";
-
+    if(err?.status===429) msg="Too many registration attempts. Please wait a few minutes and try again.";
+    if(/email.*invalid|invalid.*email/i.test(msg)) msg="Please enter a valid email address.";
+    if(/password.*(weak|short)|password.*6/i.test(msg)) msg="Password must be at least 6 characters.";
+    if(err?.code==="23505") msg="That account identity is already in use. Please try again.";
+    if(/already registered|user already registered/i.test(msg)) msg="This email is already registered. Please log in instead.";
     showToast(msg,"error");
-
   }finally{
     btn.disabled=false;
     btn.textContent="CREATE MONARCH ACCOUNT";
@@ -478,13 +393,9 @@ async function register(){
 
 document.addEventListener("DOMContentLoaded",async()=>{
   try{
-    if(window.supabase&&typeof window.supabase.createClient==="function"){
+    if(window.supabase && typeof window.supabase.createClient==="function"){
       supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
-        auth:{
-          persistSession:true,
-          autoRefreshToken:true,
-          detectSessionInUrl:true
-        }
+        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
       });
     }else{
       showToast("Supabase failed to load. Please check your connection or content blocker.","error");
@@ -497,14 +408,14 @@ document.addEventListener("DOMContentLoaded",async()=>{
   }
 
   const ref=getReferralFromURL();
-  if(ref)document.getElementById("referral").value=ref;
+  if(ref) document.getElementById("referral").value=ref;
 
   document.getElementById("registerForm").addEventListener("submit",e=>{
     e.preventDefault();
     register();
   });
 
-  if(supabase)await checkSupabaseConnection();
+  if(supabase) await checkSupabaseConnection();
 });
 </script>
 </body>
