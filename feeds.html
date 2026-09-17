@@ -115,25 +115,52 @@ function renderNews(items,source='Live crypto news'){
 }
 async function loadNews(){
  const grid=$('newsGrid');
+ const attempts=[
+  "https://cryptocurrency.cv/api/breaking",
+  "https://cryptocurrency.cv/api/regulatory?limit=8",
+  "https://cryptocurrency.cv/api/news?limit=20",
+  "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fapp.chaingpt.org%2Frssfeeds.xml",
+  "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fapp.chaingpt.org%2Frssfeeds-bitcoin.xml",
+  "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fapp.chaingpt.org%2Frssfeeds-ethereum.xml",
+  "https://min-api.cryptocompare.com/data/v2/news/?lang=EN"
+ ];
  try{
-  const result=await getJSON('https://cryptocurrency.cv/api/news?limit=12');
-  const items=result.articles||result.news||result.data||[];
-  if(!items.length)throw new Error('No primary news');
-  renderNews(items,'Live crypto news');
-  writeCache('news',{items,updatedAt:Date.now()});
- }catch(primaryError){
-  try{
-   const result=await getJSON('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
-   const items=result.Data||[];
-   if(!items.length)throw new Error('No fallback news');
-   renderNews(items,'Live crypto news • fallback');
-   writeCache('news',{items,updatedAt:Date.now()});
-  }catch(fallbackError){
-   const cached=readCache('news');
-   if(cached?.items?.length){
-    renderNews(cached.items,'Last successful news');
-    grid.insertAdjacentHTML('afterbegin','<div class="panel loading">Live news connection unavailable — showing the last successful news snapshot.</div>');
-   }else grid.innerHTML='<div class="panel loading error">Live crypto news is temporarily unavailable. Please try again in a moment.</div>';
+  const results=await Promise.allSettled(attempts.map(url=>getJSON(url)));
+  const merged=[];
+  const seen=new Set();
+  for(const r of results){
+   if(r.status!=='fulfilled')continue;
+   const data=r.value||{};
+   const list=data.articles||data.news||data.items||data.data||data.Data||[];
+   if(!Array.isArray(list))continue;
+   for(const item of list){
+    const title=String(item.title||item.name||'').trim();
+    const link=String(item.link||item.url||item.guid||'').trim();
+    if(!title)continue;
+    const key=(title.toLowerCase()+'|'+link).slice(0,500);
+    if(seen.has(key))continue;
+    seen.add(key);
+    merged.push(item);
+   }
+  }
+  if(!merged.length)throw new Error('All news sources unavailable');
+  const now=Date.now();
+  const fresh=merged.filter(n=>{
+   const d=n.pubDate||n.published_at||n.publishedAt||n.posted_at;
+   if(!d)return true;
+   const t=new Date(d).getTime();
+   return Number.isFinite(t) && now-t <= 7*24*60*60*1000;
+  });
+  const usable=fresh.length?fresh:merged;
+  renderNews(usable,'MONARCH CODEX • Live market intelligence');
+  writeCache('news',{items:usable,updatedAt:now});
+ }catch(allError){
+  const cached=readCache('news');
+  if(cached?.items?.length){
+   renderNews(cached.items,'MONARCH CODEX • Last successful news snapshot');
+   grid.insertAdjacentHTML('afterbegin','<div class="panel loading">Live news connection unavailable — showing the last successful MONARCH CODEX news snapshot.</div>');
+  }else{
+   grid.innerHTML='<div class="panel loading error">MONARCH CODEX news sources are temporarily unavailable. Please try again in a moment.</div>';
   }
  }
 }
