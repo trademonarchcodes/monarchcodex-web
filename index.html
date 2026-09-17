@@ -1210,69 +1210,185 @@
       }
     }catch{}
 
-    homeStatus("Live market connection unavailable",true);
     renderHomeMarket();
+    homeStatus("LIVE MARKET • Connecting to live stream…");
+    connectHomeSocket();
     return false;
   }
 
   function connectHomeSocket(){
     clearTimeout(homeSocketRetry);
     try{
-      if(homeSocket){homeSocket.onclose=null;homeSocket.close()}
+      if(homeSocket){
+        homeSocket.onclose=null;
+        homeSocket.onerror=null;
+        homeSocket.close();
+      }
     }catch{}
     homeSocket=null;
 
-    const streams=HOME_COINS.map(c=>c.pair.toLowerCase()+"@ticker").join("/");
-    const endpoints=[
+    const combinedStreams=HOME_COINS.map(c=>c.pair.toLowerCase()+"@ticker").join("/");
+    const combinedEndpoints=[
       "wss://stream.binance.com:443",
       "wss://data-stream.binance.vision"
     ];
-    let index=0;
 
-    function tryEndpoint(){
-      if(index>=endpoints.length){
-        homeStatus("Live market stream unavailable — using 24H data",true);
+    let combinedIndex=0;
+    let individualStarted=false;
+
+    function startIndividualSockets(){
+      if(individualStarted)return;
+      individualStarted=true;
+
+      let opened=0;
+      let received=0;
+      let finished=0;
+      const sockets=[];
+
+      HOME_COINS.forEach(c=>{
+        const urls=[
+          `wss://stream.binance.com:443/ws/${c.pair.toLowerCase()}@ticker`,
+          `wss://data-stream.binance.vision/ws/${c.pair.toLowerCase()}@ticker`
+        ];
+
+        let endpointIndex=0;
+        let ws=null;
+        let got=false;
+
+        function openOne(){
+          if(endpointIndex>=urls.length){
+            finished++;
+            if(finished===HOME_COINS.length && received===0){
+              homeStatus("Live stream unavailable — using 24H market data",true);
+            }
+            return;
+          }
+
+          const url=urls[endpointIndex++];
+          try{ws=new WebSocket(url)}catch{openOne();return}
+          sockets.push(ws);
+
+          ws.onopen=()=>{
+            opened++;
+            homeStatus("LIVE MARKET • Updating continuously");
+          };
+
+          ws.onmessage=e=>{
+            try{
+              const t=JSON.parse(e.data);
+              if(t?.s){
+                got=true;
+                received++;
+                updateHomeTicker(t);
+              }
+            }catch{}
+          };
+
+          ws.onerror=()=>{
+            try{ws.close()}catch{}
+          };
+
+          ws.onclose=()=>{
+            if(!got && endpointIndex<urls.length){
+              openOne();
+            }else{
+              finished++;
+              if(finished===HOME_COINS.length && received===0){
+                homeStatus("Live stream unavailable — using 24H market data",true);
+              }
+            }
+          };
+
+          setTimeout(()=>{
+            if(ws && !got && ws.readyState===WebSocket.OPEN){
+              try{ws.close()}catch{}
+            }
+          },7000);
+        }
+
+        openOne();
+      });
+
+      window.__homeIndividualSockets=sockets;
+    }
+
+    function tryCombined(){
+      if(combinedIndex>=combinedEndpoints.length){
+        startIndividualSockets();
         return;
       }
 
-      const endpoint=endpoints[index++];
+      const endpoint=combinedEndpoints[combinedIndex++];
       let ws;
-      try{ws=new WebSocket(`${endpoint}/stream?streams=${streams}`)}catch{tryEndpoint();return}
-      homeSocket=ws;
       let received=false;
+      try{
+        ws=new WebSocket(`${endpoint}/stream?streams=${combinedStreams}`);
+      }catch{
+        tryCombined();
+        return;
+      }
 
-      ws.onopen=()=>homeStatus("LIVE MARKET • Updating continuously");
+      homeSocket=ws;
+
+      ws.onopen=()=>{
+        homeStatus("LIVE MARKET • Updating continuously");
+      };
 
       ws.onmessage=e=>{
         try{
           const packet=JSON.parse(e.data);
           const t=packet?.data||packet;
-          if(t?.s){received=true;updateHomeTicker(t)}
+          if(t?.s){
+            received=true;
+            updateHomeTicker(t);
+          }
         }catch{}
       };
 
-      ws.onerror=()=>{try{ws.close()}catch{}};
+      ws.onerror=()=>{
+        try{ws.close()}catch{}
+      };
 
       ws.onclose=()=>{
         if(homeSocket!==ws)return;
         homeSocket=null;
-        if(!received&&index<endpoints.length){
-          tryEndpoint();
+        if(received){
+          homeSocketRetry=setTimeout(connectHomeSocket,15000);
+        }else if(combinedIndex<combinedEndpoints.length){
+          tryCombined();
         }else{
-          homeSocketRetry=setTimeout(connectHomeSocket,5000);
+          startIndividualSockets();
         }
       };
 
       setTimeout(()=>{
-        if(homeSocket===ws&&!received){
-          try{ws.onclose=null;ws.close()}catch{}
-          if(index<endpoints.length)tryEndpoint();
+        if(homeSocket===ws && !received){
+          try{
+            ws.onclose=null;
+            ws.close();
+          }catch{}
+          homeSocket=null;
+          if(combinedIndex<combinedEndpoints.length)tryCombined();
+          else startIndividualSockets();
         }
       },7000);
     }
 
-    tryEndpoint();
+    tryCombined();
   }
+
+
+  window.addEventListener("beforeunload",()=>{
+    clearTimeout(homeSocketRetry);
+    try{
+      if(homeSocket){homeSocket.onclose=null;homeSocket.close()}
+    }catch{}
+    try{
+      (window.__homeIndividualSockets||[]).forEach(ws=>{
+        try{ws.onclose=null;ws.close()}catch{}
+      });
+    }catch{}
+  });
 
   async function loadHomeGlobal(){
     try{
