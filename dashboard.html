@@ -286,11 +286,29 @@ $('kycForm').addEventListener('submit',async e=>{
   try{
     const updates={nin_number:nin,kyc_status:'pending'};
     const files=[['ninFront','nin_front_url','kyc/nin-front'],['ninBack','nin_back_url','kyc/nin-back'],['selfie','selfie_url','kyc/selfie']];
-    for(const [input,col,prefix] of files){const f=$(input).files[0];if(f)updates[col]=await uploadFile('kyc-documents',currentUser.id+'/'+prefix+'/'+Date.now()+'_'+String(f.name).replace(/[^a-zA-Z0-9._-]/g,'_'),f)}
-    const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);if(error)throw error;
+    for(const [input,col,prefix] of files){
+      const f=$(input).files[0];
+      if(!f)throw new Error('Please select your '+prefix.split('/').pop().replaceAll('-',' ')+' file.');
+      const safeName=String(f.name||'document').replace(/[^a-zA-Z0-9._-]/g,'_');
+      const stamp=Date.now()+'_'+Math.random().toString(36).slice(2,7);
+      let uploadedUrl='';let firstError=null;
+      const paths=[
+        storageName(prefix,f),
+        currentUser.id+'/'+prefix+'/'+stamp+'_'+safeName
+      ];
+      for(const path of paths){
+        try{uploadedUrl=await uploadFile('kyc-documents',path,f);break}catch(err){firstError=err}
+      }
+      if(!uploadedUrl)throw (firstError||new Error('Unable to upload '+prefix.split('/').pop().replaceAll('-',' ')+'.'));
+      updates[col]=uploadedUrl;
+    }
+    const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
+    if(error)throw error;
     await loadProfile();renderIdentity();renderKyc();toast('KYC submitted successfully for review.');renderOverview();
-  }catch(err){toast('Your KYC submission could not be completed.','error');console.error(err)}
-  finally{btn.disabled=isApproved();btn.textContent='Submit KYC for Review'}
+  }catch(err){
+    console.error('KYC submission error:',err);
+    toast(err?.message?'KYC submission failed: '+err.message:'Your KYC submission could not be completed.','error');
+  }finally{btn.disabled=isApproved();btn.textContent='Submit KYC for Review'}
 });
 
 async function loadPackagesPayments(){
