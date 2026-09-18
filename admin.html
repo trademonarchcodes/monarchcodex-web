@@ -92,15 +92,19 @@ function storageInfo(raw,bucketHint=""){
  const value=String(raw||"").trim(); if(!value)return null;
  try{
   const u=new URL(value,location.href), parts=u.pathname.split("/").filter(Boolean), i=parts.indexOf("object");
+  // Supabase object URLs are /storage/v1/object/{public|authenticated|sign}/{bucket}/{path...}
   if(i>=0 && parts[i+1] && parts[i+2]){
-   const bucket=decodeURIComponent(parts[i+3]||"");
-   const path=parts.slice(i+4).map(decodeURIComponent).join("/");
-   if(bucket&&path)return {bucket,path};
+   const access=String(parts[i+1]).toLowerCase();
+   const bucket=decodeURIComponent(parts[i+2]||"");
+   const path=parts.slice(i+3).map(decodeURIComponent).join("/");
+   if((access==="public"||access==="authenticated"||access==="sign")&&bucket&&path){
+    return {bucket,path,access};
+   }
   }
  }catch(e){}
  const clean=value.replace(/^\/+/,"");
- if(bucketHint && clean.startsWith(bucketHint+"/"))return {bucket:bucketHint,path:clean.slice(bucketHint.length+1)};
- const m=clean.match(/^([^/]+)\/(.+)$/); return m?{bucket:m[1],path:m[2]}:null;
+ if(bucketHint && clean.startsWith(bucketHint+"/"))return {bucket:bucketHint,path:clean.slice(bucketHint.length+1),access:"unknown"};
+ const m=clean.match(/^([^/]+)\/(.+)$/); return m?{bucket:m[1],path:m[2],access:"unknown"}:null;
 }
 async function openStoredFile(raw,bucketHint=""){
  const value=String(raw||"").trim(); if(!value)return toast("Document is unavailable.","warning");
@@ -108,11 +112,17 @@ async function openStoredFile(raw,bucketHint=""){
  try{
   const info=storageInfo(value,bucketHint);
   if(info && db){
+   // Public objects do not need signing. This also avoids turning a valid public
+   // bucket URL into a request for a different bucket.
+   if(info.access==="public"){
+    const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(info.bucket)}/${info.path.split("/").map(encodeURIComponent).join("/")}`;
+    if(tab)tab.location.href=publicUrl;else window.location.href=publicUrl;
+    return;
+   }
    const signed=await db.storage.from(info.bucket).createSignedUrl(info.path,600);
    if(!signed.error&&signed.data?.signedUrl){if(tab)tab.location.href=signed.data.signedUrl;else window.location.href=signed.data.signedUrl;return}
-   const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(info.bucket)}/${info.path.split("/").map(encodeURIComponent).join("/")}`;
-   if(tab)tab.location.href=publicUrl;else window.location.href=publicUrl;
-   if(signed.error)toast(`Could not create a private document link: ${signed.error.message||"storage access denied"}`,"warning");
+   if(tab)tab.close();
+   toast(`Could not open document: ${signed.error?.message||"storage access denied"}`,"error");
    return;
   }
   if(tab)tab.location.href=value;else window.location.href=value;
