@@ -1,450 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MONARCH CODEX — Register</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;background:#070707;color:#fff;font-family:Poppins,sans-serif;min-height:100vh}
-    a{color:#d4af37;text-decoration:none}
-    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .card{width:100%;max-width:560px;background:#121212;border:1px solid #292929;border-radius:22px;padding:30px;box-shadow:0 20px 70px rgba(0,0,0,.45)}
-    .brand{text-align:center;margin-bottom:24px}
-    .brand h1{font-family:Cinzel,serif;color:#d4af37;letter-spacing:2px;margin:0;font-size:27px}
-    .brand p{color:#999;margin:7px 0 0;font-size:13px}
-    h2{margin:0 0 6px;font-size:23px}
-    .intro{color:#aaa;font-size:13px;margin:0 0 22px}
-    label{display:block;font-size:12px;color:#ddd;font-weight:600;margin:15px 0 7px}
-    input{width:100%;padding:13px 14px;border-radius:11px;border:1px solid #333;background:#090909;color:#fff;outline:none;font-family:inherit}
-    input:focus{border-color:#d4af37;box-shadow:0 0 0 3px rgba(212,175,55,.08)}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .refbox{border:1px solid #282828;background:#0d0d0d;padding:14px;border-radius:13px;margin-top:17px}
-    .refbox strong{display:block;font-size:12px;color:#d4af37;margin-bottom:4px}
-    .refbox span{font-size:12px;color:#999}
-    .terms{display:flex;gap:10px;align-items:flex-start;margin:18px 0;font-size:12px;color:#999}
-    .terms input{width:17px;height:17px;margin-top:1px;accent-color:#d4af37}
-    button{width:100%;border:0;border-radius:12px;padding:14px;background:#d4af37;color:#080808;font-family:inherit;font-weight:800;cursor:pointer}
-    button:disabled{opacity:.55;cursor:not-allowed}
-    .bottom{text-align:center;color:#999;font-size:13px;margin-top:20px}
-    .toast-wrap{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 36px))}
-    .toast{padding:13px 15px;border-radius:12px;color:#fff;font-size:13px;box-shadow:0 12px 30px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);animation:in .2s ease}
-    .success{background:#164d31}.error{background:#5a1d1d}.warning{background:#614a10}.info{background:#171717}
-    @keyframes in{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:5000;padding:20px;align-items:center;justify-content:center}
-    .modal.open{display:flex}
-    .modal:target{display:flex}
-    .modal-card{max-width:680px;width:100%;max-height:82vh;overflow:auto;background:#121212;border:1px solid #333;border-radius:18px;padding:25px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #252525;padding-bottom:12px;margin-bottom:15px}
-    .modal-head h3{margin:0}
-    .modal-x{border:1px solid #333;background:#0b0b0b;color:#aaa;border-radius:10px;width:36px;height:36px;font-size:20px;cursor:pointer}
-    .modal-card h4{color:#d4af37;font-size:13px;margin:18px 0 7px}
-    .modal-card p,.modal-card li{color:#aaa;font-size:13px;line-height:1.75}
-    .modal-card ul{padding-left:20px}
-    .modal-card .notice{background:#19170d;border:1px solid #3b3214;border-radius:10px;padding:12px;color:#c9c09a;font-size:12px;line-height:1.6}
-    .modal-card h3{font-family:Cinzel,serif;color:#d4af37}
-    .policy-link{width:auto;display:inline-block;padding:0;background:transparent;color:#d4af37;border:0;border-radius:0;font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
-    .close{background:#242424;color:#fff;margin-top:15px}
-    .links{margin-top:12px;text-align:center;font-size:11px;color:#777}
-    .diag{display:none;margin:14px 0 0;padding:12px;border:1px solid #5a1d1d;background:#160b0b;border-radius:11px;color:#f0b0b0;font-size:12px;line-height:1.6;word-break:break-word}
-    .diag.show{display:block}
-    @media(max-width:600px){.wrap{padding:14px}.card{padding:22px 18px}.row{grid-template-columns:1fr}.brand h1{font-size:23px}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MONARCH CODEX — Register</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070707;color:#fff;font-family:Arial,sans-serif;min-height:100vh}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}.card{width:100%;max-width:560px;background:#121212;border:1px solid #292929;border-radius:20px;padding:26px;box-shadow:0 20px 60px #0008}h1{text-align:center;color:#d4af37;letter-spacing:2px;font-size:26px;margin:0}.sub{text-align:center;color:#999;margin:6px 0 25px;font-size:13px}h2{margin:0 0 6px;font-size:21px}.intro{color:#aaa;font-size:13px;line-height:1.6;margin:0 0 20px}label{display:block;color:#ddd;font-size:12px;font-weight:bold;margin:14px 0 7px}input{width:100%;padding:13px;border:1px solid #333;border-radius:10px;background:#080808;color:#fff;font:inherit;outline:none}input:focus{border-color:#d4af37}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.terms{display:flex;gap:9px;align-items:flex-start;color:#999;font-size:12px;line-height:1.6;margin:18px 0}.terms input{width:17px;height:17px;margin:2px 0;accent-color:#d4af37}a{color:#d4af37}button{width:100%;padding:14px;border:0;border-radius:11px;background:#d4af37;color:#080808;font-weight:800;font-size:13px;cursor:pointer}button:disabled{opacity:.55}#status,#error{display:none;margin-top:13px;padding:12px;border-radius:10px;font-size:12px;line-height:1.6;word-break:break-word}#status{background:#17140a;border:1px solid #4a3b12;color:#d4af37}#error{background:#210d0d;border:1px solid #682020;color:#ffb1b1}.bottom{text-align:center;color:#999;font-size:13px;margin-top:18px}@media(max-width:600px){.row{grid-template-columns:1fr}.card{padding:22px 17px}}
+</style>
 </head>
-<body>
-<div id="toastWrap" class="toast-wrap"></div>
-<div id="diag" class="diag"></div>
-<div id="status" style="display:none;margin:14px 0 0;padding:12px;border:1px solid #3a3215;background:#17140a;border-radius:11px;color:#d4af37;font-size:12px;line-height:1.6"></div>
-
-<div class="wrap">
-  <main class="card">
-    <div class="brand">
-      <h1>MONARCH CODEX</h1>
-      <p>The Inner Kingdom</p>
-    </div>
-
-    <h2>Create Your Monarch Account</h2>
-    <p class="intro">Register with your real details. Your full name must match your NIN identity information.</p>
-
-    <form id="registerForm">
-      <label for="fullName">Full Name — as shown on NIN</label>
-      <input id="fullName" type="text" autocomplete="name" required placeholder="Enter your full name">
-
-      <div class="row">
-        <div>
-          <label for="phone">Phone Number</label>
-          <input id="phone" type="tel" autocomplete="tel" required placeholder="08012345678">
-        </div>
-        <div>
-          <label for="email">Email Address</label>
-          <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
-        </div>
-      </div>
-
-      <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Minimum 6 characters">
-
-      <label for="referral">Referral Code <span style="color:#777">(optional)</span></label>
-      <input id="referral" type="text" placeholder="MONARCH••••••">
-
-      <div class="refbox">
-        <strong>Important</strong>
-        <span>Your NIN name is used as your official identity. Complete KYC after registration to activate your Monarch account.</span>
-      </div>
-
-      <div class="terms">
-        <input id="terms" type="checkbox" required>
-        <div>I agree to the <a class="policy-link" href="#termsModal">Terms</a>, <a class="policy-link" href="#rulesModal">Rules</a>, and <a class="policy-link" href="#privacyModal">Privacy Policy</a>.</div>
-      </div>
-
-      <button id="registerBtn" type="submit">CREATE MONARCH ACCOUNT</button>
-    </form>
-
-    <div class="bottom">Already have an account? <a href="login.html">Log in</a></div>
-    <div class="links">MONARCH CODEX • Identity • Discipline • Transparency</div>
-  </main>
-</div>
-
-<div id="termsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
-  <div class="modal-card">
-    <div class="modal-head"><h3 id="termsTitle">Terms & Conditions</h3><a href="#" class="modal-x close" aria-label="Close">×</a></div>
-    <p>These Terms & Conditions govern your use of MONARCH CODEX. By creating an account, you confirm that the information you provide is accurate, complete and belongs to you.</p>
-    <h4>1. Account & Identity</h4>
-    <p>You must register using your own identity information and keep your login credentials secure. Your account may be subject to identity verification before access to restricted features is enabled.</p>
-    <h4>2. Platform Use</h4>
-    <p>You agree to use MONARCH CODEX lawfully and only for permitted platform activities. Do not impersonate another person, submit false information, abuse platform systems or attempt to bypass security controls.</p>
-    <h4>3. Financial Risk</h4>
-    <p>Any investment or financial activity available through the platform involves risk. Past performance is not a guarantee of future results, and no return should be understood as guaranteed.</p>
-    <h4>4. Verification & Compliance</h4>
-    <p>We may request KYC information and supporting documents to verify identity, protect members and meet applicable compliance requirements. Approval is subject to review.</p>
-    <h4>5. Changes & Suspension</h4>
-    <p>MONARCH CODEX may update platform procedures, security requirements or these terms. Accounts may be restricted or suspended where there is suspected fraud, misuse, security risk or violation of the rules.</p>
-    <div class="notice">By checking the agreement box during registration, you confirm that you have read and accepted these terms.</div>
-    <a href="#" class="btn close" style="display:block;text-align:center;text-decoration:none;margin-top:16px">Close</a>
-  </div>
-</div>
-
-<div id="rulesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
-  <div class="modal-card">
-    <div class="modal-head"><h3 id="rulesTitle">Community Rules</h3><a href="#" class="modal-x close" aria-label="Close">×</a></div>
-    <p>MONARCH CODEX is built around identity, discipline, transparency and respectful participation.</p>
-    <ul>
-      <li>Use your real identity information and keep your account details accurate.</li>
-      <li>Never impersonate another person or use another member's identity.</li>
-      <li>Do not submit altered, fraudulent or misleading KYC documents.</li>
-      <li>Do not use another person's bank account or payment details for your own transactions.</li>
-      <li>Keep your password, verification codes and account access private.</li>
-      <li>Do not attempt to exploit bugs, bypass permissions or interfere with platform security.</li>
-      <li>Respect other Monarchs, administrators and support personnel.</li>
-      <li>Do not use referrals, messages or platform features for scams, harassment or deceptive activity.</li>
-    </ul>
-    <div class="notice">Violation of these rules may result in review, restricted access or account suspension.</div>
-    <a href="#" class="btn close" style="display:block;text-align:center;text-decoration:none;margin-top:16px">Close</a>
-  </div>
-</div>
-
-<div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
-  <div class="modal-card">
-    <div class="modal-head"><h3 id="privacyTitle">Privacy Policy</h3><a href="#" class="modal-x close" aria-label="Close">×</a></div>
-    <p>This Privacy Policy explains how information submitted through MONARCH CODEX may be used to operate and secure your account.</p>
-    <h4>Information We Use</h4>
-    <p>This may include your name, email address, phone number, referral information, KYC details, profile information and transaction-related records that you provide through the platform.</p>
-    <h4>Why We Use It</h4>
-    <p>Information may be used for account creation, identity verification, member support, transaction processing, referrals, security, fraud prevention and platform administration.</p>
-    <h4>Security</h4>
-    <p>Access to sensitive information should be limited to authorized platform functions and personnel. Never send passwords, one-time codes or sensitive documents through unofficial channels.</p>
-    <h4>Data Accuracy</h4>
-    <p>You are responsible for providing accurate information and notifying the platform when important account information needs to be corrected.</p>
-    <h4>Updates</h4>
-    <p>This policy may be updated as the platform, security practices or applicable requirements change. The current version shown on the registration page applies when you create an account.</p>
-    <div class="notice">For your protection, submit KYC documents only through the official MONARCH CODEX platform.</div>
-    <a href="#" class="btn close" style="display:block;text-align:center;text-decoration:none;margin-top:16px">Close</a>
-  </div>
-</div>
-
+<body><div class="wrap"><main class="card">
+<h1>MONARCH CODEX</h1><div class="sub">The Inner Kingdom</div>
+<h2>Create Your Monarch Account</h2><p class="intro">Register with your real details. Your full name should match your NIN identity information.</p>
+<form id="registerForm" novalidate>
+<label for="fullName">Full Name — as shown on NIN</label><input id="fullName" type="text" autocomplete="name" required>
+<div class="row"><div><label for="phone">Phone Number</label><input id="phone" type="tel" autocomplete="tel" required></div><div><label for="email">Email Address</label><input id="email" type="email" autocomplete="email" required></div></div>
+<label for="password">Password</label><input id="password" type="password" autocomplete="new-password" minlength="6" required>
+<label for="referral">Referral Code <span style="color:#777">(optional)</span></label><input id="referral" type="text" autocomplete="off">
+<div class="terms"><input id="terms" type="checkbox" required><div>I agree to the platform Terms, Rules, and Privacy Policy.</div></div>
+<button id="registerBtn" type="submit">CREATE MONARCH ACCOUNT</button>
+</form>
+<div id="status"></div><div id="error"></div>
+<div class="bottom">Already have an account? <a href="login.html">Log in</a></div>
+</main></div>
 <script>
-const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
-const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-let supabase = null;
-
-function showToast(message, type="info"){
-  const wrap=document.getElementById("toastWrap");
-  const el=document.createElement("div");
-  el.className="toast "+type;
-  const icon=type==="success"?"✓":type==="error"?"✕":type==="warning"?"⚠":"ℹ";
-  el.textContent=icon+" "+message;
-  wrap.appendChild(el);
-  setTimeout(()=>el.remove(),5000);
+"use strict";
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+let client=null,registering=false;
+const $=id=>document.getElementById(id);
+function showStatus(m){$("error").style.display="none";$("error").textContent="";$("status").textContent=m;$("status").style.display="block"}
+function showError(m){$("status").style.display="none";$("status").textContent="";$("error").textContent=m;$("error").style.display="block"}
+function clearMessages(){["status","error"].forEach(id=>{$(id).textContent="";$(id).style.display="none"})}
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error("Request timed out. Please check your internet connection and try again.")),ms))])}
+function friendlyError(e){let m=e&&e.message?e.message:"Registration failed.";if(/user already registered|already registered/i.test(m))return"This email is already registered. Please log in instead.";if(/password/i.test(m)&&/6|weak|short/i.test(m))return"Password must be at least 6 characters.";if(/failed to fetch|networkerror|load failed/i.test(m))return"Could not reach Supabase. Check your internet connection and try again.";if(e&&e.status===429)return"Too many attempts. Please wait a few minutes and try again.";return m}
+async function connect(){
+ if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("Supabase library failed to load.");
+ client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ const r=await withTimeout(fetch(SUPABASE_URL+"/auth/v1/settings",{headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY},cache:"no-store"}),10000);
+ if(!r.ok)throw new Error("Supabase Auth returned HTTP "+r.status+".");
 }
-
-function genUID(){
-  return "MONARCH"+String(Math.floor(100000+Math.random()*900000));
-}
-function genRef(){
-  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let s="";
-  for(let i=0;i<4;i++) s+=chars[Math.floor(Math.random()*chars.length)];
-  return "MONARCH"+s+String(Math.floor(10+Math.random()*90));
-}
-function getReferralFromURL(){
-  const p=new URLSearchParams(location.search);
-  return (p.get("ref")||"").trim().toUpperCase();
-}
-function normalizeEmail(v){return v.trim().toLowerCase()}
-
-async function withTimeout(promise, ms=12000){
-  return Promise.race([
-    promise,
-    new Promise((_,reject)=>setTimeout(()=>reject(new Error("Request timed out. Please check your internet connection.")),ms))
-  ]);
-}
-
-async function createProfileWithRetry(user, profile){
-  if(!user?.id) throw new Error("Missing Supabase account ID.");
-  const payload={id:user.id,...profile};
-
-  let lastError=null;
-  for(let attempt=1;attempt<=3;attempt++){
-    try{
-      const result=await withTimeout(
-        supabase.from("profiles").upsert(payload,{onConflict:"id",ignoreDuplicates:false}).select("id").single(),
-        12000
-      );
-      if(!result.error && result.data?.id) return result.data;
-
-      lastError=result.error || new Error("Profile was not created.");
-      console.error("Profile upsert attempt "+attempt,lastError);
-    }catch(e){
-      lastError=e;
-      console.error("Profile upsert attempt "+attempt,e);
-    }
-    if(attempt<3) await new Promise(r=>setTimeout(r,700*attempt));
-  }
-  throw lastError || new Error("Could not create Monarch profile.");
-}
-
-async function findReferrer(code){
-  if(!code) return null;
-  const clean=code.trim().toUpperCase();
-  const {data,error}=await withTimeout(
-    supabase.from("profiles").select("id,referral_code,uid").or("referral_code.eq."+clean+",uid.eq."+clean).limit(1),
-    10000
-  );
-  if(error) throw error;
-  return data && data.length ? data[0].id : null;
-}
-
-async function checkSupabaseConnection(){
-  try{
-    const response=await fetch(SUPABASE_URL+"/auth/v1/settings",{
-      method:"GET",
-      headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY},
-      cache:"no-store"
-    });
-    const text=await response.text();
-    if(!response.ok){
-      throw new Error("Supabase Auth returned HTTP "+response.status+(text?": "+text:""));
-    }
-    return true;
-  }catch(e){
-    console.error("Supabase connectivity check failed:",e);
-    showDiagnostic("Supabase connection check failed: "+(e.message||e));
-    return false;
-  }
-}
-
-function showDiagnostic(message){
-  const box=document.getElementById("diag");
-  if(!box) return;
-  box.textContent="Registration detail: "+message;
-  box.classList.add("show");
-}
-
-function clearDiagnostic(){
-  const box=document.getElementById("diag");
-  if(box){box.textContent="";box.classList.remove("show");}
-}
-function showStatus(message){
-  const box=document.getElementById("status");
-  if(box){box.textContent=message;box.style.display="block";}
-}
-function clearStatus(){
-  const box=document.getElementById("status");
-  if(box){box.textContent="";box.style.display="none";}
-}
-
 async function register(){
-  clearDiagnostic();
-  clearStatus();
-  if(!supabase){
-    showToast("Secure connection is not ready. Please refresh and try again.","error");
-    showDiagnostic("Supabase JavaScript client did not load.");
-    return;
-  }
-
-  const full_name=document.getElementById("fullName").value.trim().replace(/\s+/g," ");
-  const phone=document.getElementById("phone").value.trim();
-  const email=normalizeEmail(document.getElementById("email").value);
-  const password=document.getElementById("password").value;
-  const referral=document.getElementById("referral").value.trim().toUpperCase();
-  const btn=document.getElementById("registerBtn");
-
-  if(full_name.length<3){showToast("Enter your full NIN name.","warning");return}
-  if(phone.length<7){showToast("Enter a valid phone number.","warning");return}
-  if(password.length<6){showToast("Password must be at least 6 characters.","warning");return}
-
-  btn.disabled=true;
-  btn.textContent="CREATING ACCOUNT...";
-
-  try{
-    // Validate the referral before creating the Auth account so an invalid code
-    // never leaves an orphaned Auth user behind.
-    let referred_by=null;
-    if(referral){
-      try{
-        referred_by=await findReferrer(referral);
-      }catch(refError){
-        console.error("Referral lookup error:",refError);
-        showDiagnostic("Referral lookup failed: "+(refError?.message||refError));
-        throw new Error("We could not verify that referral code right now. Please check your connection and try again.");
-      }
-      if(!referred_by){
-        showDiagnostic("Referral code entered: "+referral+". No matching Monarch referral code was found.");
-        throw new Error("Referral code was not found. Check the code and try again.");
-      }
-    }
-
-    showToast("Connecting securely to MONARCH CODEX...","info");
-    showStatus("Secure connection established. Creating your account…");
-
-    showStatus("Creating your secure login account…");
-    const {data,error}=await withTimeout(
-      supabase.auth.signUp({
-        email,
-        password,
-        options:{
-          data:{full_name,phone,referral_code_used:referral||null}
-        }
-      }),
-      20000
-    );
-
-    if(error){
-      console.error("Supabase signUp error:",error);
-      showDiagnostic("Auth signup failed — message: "+(error.message||"unknown")+" | status: "+(error.status||"unknown")+" | code: "+(error.code||"none"));
-      throw error;
-    }
-
-    if(!data || !data.user){
-      showDiagnostic("Supabase returned no user object after signup.");
-      throw new Error("Supabase did not create an account. Please try again.");
-    }
-
-    const user=data.user;
-    if(!user.id){
-      showDiagnostic("Supabase returned a user without an account ID.");
-      throw new Error("Supabase did not return a valid account ID. Please try again.");
-    }
-
-    if(Array.isArray(user.identities) && user.identities.length===0){
-      showDiagnostic("Supabase returned an empty identity list. The email may already exist or signup may have been filtered by Auth.");
-      throw new Error("This email is already registered or cannot be registered. Please use another email address.");
-    }
-
-    if(normalizeEmail(user.email||"")!==email){
-      showDiagnostic("Supabase returned a different email address than the one submitted.");
-      throw new Error("Supabase returned an account with a different email address. Please try again.");
-    }
-
-    showStatus("Login account created. Creating your Monarch profile…");
-    const profile={
-      full_name,
-      phone,
-      referral_code:genRef(),
-      referred_by,
-      role:"member",
-      status:"pending_kyc",
-      kyc_status:"pending",
-      display_username:full_name.split(/\s+/)[0],
-      balance:0
-    };
-
-    try{
-      await createProfileWithRetry(user,profile);
-    }catch(profileError){
-      console.error("Profile creation error:",profileError);
-      const detail=profileError?.message||"Unknown profile error";
-      showDiagnostic("Auth account was created, but profile creation failed: "+detail);
-      throw new Error("Your login account was created, but your Monarch profile could not be completed. Do not register again. Please send this message to support.");
-    }
-
-    localStorage.setItem("monarch_last_email",email);
-
-    if(data.session){
-      clearStatus();
-      showToast("Account created successfully. Welcome, Monarch.","success");
-      setTimeout(()=>window.location.replace("dashboard.html"),1200);
-    }else{
-      clearStatus();
-      showToast("Account created successfully. Check your email to confirm your account, then log in.","success");
-      setTimeout(()=>window.location.replace("login.html"),2500);
-    }
-  }catch(err){
-    console.error("Registration error:",err);
-    let msg=err?.message||"Registration failed. Please try again.";
-    if(err?.status===429) msg="Too many registration attempts. Please wait a few minutes and try again.";
-    if(/email.*invalid|invalid.*email/i.test(msg)) msg="Please enter a valid email address.";
-    if(/password.*(weak|short)|password.*6/i.test(msg)) msg="Password must be at least 6 characters.";
-    if(err?.code==="23505") msg="That account identity is already in use. Please try again.";
-    if(/already registered|user already registered/i.test(msg)) msg="This email is already registered. Please log in instead.";
-    showToast(msg,"error");
-  }finally{
-    clearStatus();
-    btn.disabled=false;
-    btn.textContent="CREATE MONARCH ACCOUNT";
-  }
+ if(registering)return;
+ clearMessages();
+ const fullName=$("fullName").value.trim().replace(/\s+/g," "),phone=$("phone").value.trim().replace(/\s+/g,""),email=$("email").value.trim().toLowerCase(),password=$("password").value,referral=$("referral").value.trim().toUpperCase(),terms=$("terms").checked,btn=$("registerBtn");
+ if(fullName.length<3)return showError("Please enter your full name.");
+ if(phone.length<7)return showError("Please enter a valid phone number.");
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return showError("Please enter a valid email address.");
+ if(password.length<6)return showError("Password must be at least 6 characters.");
+ if(!terms)return showError("Please accept the Terms, Rules, and Privacy Policy.");
+ if(!client)return showError("The secure registration service is not ready. Please refresh the page and try again.");
+ registering=true;btn.disabled=true;btn.textContent="CREATING ACCOUNT...";
+ try{
+  showStatus("Creating your secure Monarch account...");
+  const r=await withTimeout(client.auth.signUp({email,password,options:{data:{full_name:fullName,phone:phone,referral_code:referral||null}}}),20000);
+  if(r.error)throw r.error;
+  if(!r.data||!r.data.user)throw new Error("Supabase did not return a user account.");
+  localStorage.setItem("monarch_last_email",email);
+  if(r.data.session){showStatus("Account created successfully. Opening your Monarch dashboard...");setTimeout(()=>location.replace("dashboard.html"),700)}
+  else{showStatus("Account created successfully. Check your email to confirm your account, then log in.");setTimeout(()=>location.replace("login.html"),3000)}
+ }catch(e){console.error("MONARCH CODEX REGISTRATION ERROR:",e);showError(friendlyError(e))}
+ finally{registering=false;btn.disabled=false;btn.textContent="CREATE MONARCH ACCOUNT"}
 }
-
 document.addEventListener("DOMContentLoaded",async()=>{
-  try{
-    if(window.supabase && typeof window.supabase.createClient==="function"){
-      supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
-        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
-      });
-    }else{
-      showToast("Supabase failed to load. Please check your connection or content blocker.","error");
-      showDiagnostic("The Supabase JavaScript library did not load from the CDN.");
-    }
-  }catch(e){
-    console.error(e);
-    showToast("Could not initialize the secure connection.","error");
-    showDiagnostic(e?.message||String(e));
-  }
-
-  const ref=getReferralFromURL();
-  if(ref) document.getElementById("referral").value=ref;
-
-  document.getElementById("registerForm").addEventListener("submit",e=>{
-    e.preventDefault();
-    register().catch(err=>{
-      console.error("Unhandled registration error:",err);
-      const message=err?.message || String(err) || "Unexpected registration error.";
-      showDiagnostic("Unexpected registration error: "+message);
-      showToast(message,"error");
-      const btn=document.getElementById("registerBtn");
-      if(btn){
-        btn.disabled=false;
-        btn.textContent="CREATE MONARCH ACCOUNT";
-      }
-    });
-  });
-
-  if(supabase) await checkSupabaseConnection();
+ $("registerForm").addEventListener("submit",e=>{e.preventDefault();e.stopPropagation();register();return false});
+ try{await connect();showStatus("Registration service connected.");setTimeout(()=>{if($("status").textContent==="Registration service connected.")$("status").style.display="none"},1500)}
+ catch(e){console.error("MONARCH CODEX CONNECTION ERROR:",e);showError("Registration service connection failed. "+friendlyError(e))}
 });
-</script>
-</body>
-</html>
+</script></body></html>
