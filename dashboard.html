@@ -286,7 +286,7 @@ $('kycForm').addEventListener('submit',async e=>{
   try{
     const updates={nin_number:nin,kyc_status:'pending'};
     const files=[['ninFront','nin_front_url','kyc/nin-front'],['ninBack','nin_back_url','kyc/nin-back'],['selfie','selfie_url','kyc/selfie']];
-    for(const [input,col,prefix] of files){const f=$(input).files[0];if(f)updates[col]=await uploadFile('kyc-documents',storageName(prefix,f),f)}
+    for(const [input,col,prefix] of files){const f=$(input).files[0];if(f)updates[col]=await uploadFile('kyc-documents',currentUser.id+'/'+prefix+'/'+Date.now()+'_'+String(f.name).replace(/[^a-zA-Z0-9._-]/g,'_'),f)}
     const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);if(error)throw error;
     await loadProfile();renderIdentity();renderKyc();toast('KYC submitted successfully for review.');renderOverview();
   }catch(err){toast('Your KYC submission could not be completed.','error');console.error(err)}
