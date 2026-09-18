@@ -88,6 +88,36 @@ const dt=x=>x?new Date(x).toLocaleDateString("en-GB",{day:"2-digit",month:"short
 function toast(message,type=""){const e=$("toast");e.textContent=message;e.className="show "+type;clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>e.className="",3500)}
 function badge(value){const x=String(value||"pending"),low=x.toLowerCase(),cls=["approved","active","confirmed","completed","kyc verified"].includes(low)?"ok":["rejected","blocked","kyc rejected"].includes(low)?"bad":"wait";return `<span class="badge ${cls}">${esc(x)}</span>`}
 async function q(table,callback){if(!db)throw new Error("Supabase connection is not ready. Please refresh the page.");const result=await callback(db.from(table));return result}
+function storageInfo(raw,bucketHint=""){
+ const value=String(raw||"").trim(); if(!value)return null;
+ try{
+  const u=new URL(value,location.href), parts=u.pathname.split("/").filter(Boolean), i=parts.indexOf("object");
+  if(i>=0 && parts[i+1] && parts[i+2]){
+   const bucket=decodeURIComponent(parts[i+3]||"");
+   const path=parts.slice(i+4).map(decodeURIComponent).join("/");
+   if(bucket&&path)return {bucket,path};
+  }
+ }catch(e){}
+ const clean=value.replace(/^\/+/,"");
+ if(bucketHint && clean.startsWith(bucketHint+"/"))return {bucket:bucketHint,path:clean.slice(bucketHint.length+1)};
+ const m=clean.match(/^([^/]+)\/(.+)$/); return m?{bucket:m[1],path:m[2]}:null;
+}
+async function openStoredFile(raw,bucketHint=""){
+ const value=String(raw||"").trim(); if(!value)return toast("Document is unavailable.","warning");
+ const tab=window.open("about:blank","_blank");
+ try{
+  const info=storageInfo(value,bucketHint);
+  if(info && db){
+   const signed=await db.storage.from(info.bucket).createSignedUrl(info.path,600);
+   if(!signed.error&&signed.data?.signedUrl){if(tab)tab.location.href=signed.data.signedUrl;else window.location.href=signed.data.signedUrl;return}
+   const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(info.bucket)}/${info.path.split("/").map(encodeURIComponent).join("/")}`;
+   if(tab)tab.location.href=publicUrl;else window.location.href=publicUrl;
+   if(signed.error)toast(`Could not create a private document link: ${signed.error.message||"storage access denied"}`,"warning");
+   return;
+  }
+  if(tab)tab.location.href=value;else window.location.href=value;
+ }catch(e){if(tab)tab.close();toast(e.message||"Unable to open document.","error")}
+}
 function adminOK(){return String(user?.email||"").toLowerCase()===ADMIN_EMAIL.toLowerCase()||String(profile?.role||"").toLowerCase().includes("admin")}
 function showError(id,error){if($(id))$(id).innerHTML=`<div class="empty">${esc(error?.message||error||"Something went wrong.")}</div>`}
 async function notifyMember(userId,title,message,type="info"){if(!userId)return;try{await q("notifications",x=>x.insert({user_id:userId,title,message,type,is_read:false}))}catch(e){console.warn("Notification error:",e.message||e)}}
@@ -127,7 +157,7 @@ async function kycLoad(){
   $("kyc").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${a.map(p=>{
    const k=String(p.kyc_status||"not_submitted").toLowerCase(),review=["pending","submitted","under_review"].includes(k),reason=typeof p.kyc_rejection_reason==="object"?JSON.stringify(p.kyc_rejection_reason):p.kyc_rejection_reason||"";
    const docs=[["Front",p.nin_front_url],["Back",p.nin_back_url],["Selfie",p.selfie_url]].filter(x=>x[1]);
-   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<a class="doc-link" href="${esc(d[1])}" target="_blank" rel="noopener"><span>↗</span>${esc(d[0])}</a>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
+   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<button type="button" class="doc-link" data-action="open-file" data-url="${esc(d[1])}" data-bucket="kyc-documents"><span>↗</span>${esc(d[0])}</button>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
   }).join("")}</table></div>`:'<div class="empty">No matching KYC requests.</div>';
  }catch(e){showError("kyc",e);toast(e.message,"error")}
 }
@@ -136,7 +166,7 @@ async function kycReject(id){const reason=prompt("Enter the rejection reason:");
 async function investLoad(){
  try{
   const r=await q("investments",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[],f=$("investmentFilter").value,a=f==="all"?all:all.filter(x=>String(x.status||"pending").toLowerCase()===f);$("statInvestments").textContent=all.filter(x=>String(x.status||"pending").toLowerCase()==="pending").length;
-  $("investments").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>Package</th><th>Amount</th><th>Method</th><th>Fee</th><th>Receipt</th><th>Status</th><th>Date</th><th>Action</th></tr>${a.map(x=>{const pending=String(x.status||"pending").toLowerCase()==="pending";return `<tr><td>${esc(memberName(x.user_id))}</td><td>${esc(x.package_name||"—")}</td><td>${money(x.amount)}</td><td>${esc(x.payment_method||x.method||"—")}</td><td>${money(x.fee)}</td><td>${x.receipt_url?`<a class="btn secondary" href="${esc(x.receipt_url)}" target="_blank" rel="noopener">↗ Receipt</a>`:"—"}</td><td>${badge(x.status)}</td><td>${dt(x.created_at)}</td><td>${pending?`<button class="btn success" data-action="invest-status" data-id="${esc(x.id)}" data-status="approved">Approve</button> <button class="btn danger" data-action="invest-status" data-id="${esc(x.id)}" data-status="rejected">Reject</button>`:"—"}</td></tr>`}).join("")}</table></div>`:'<div class="empty">No matching investment requests.</div>';
+  $("investments").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>Package</th><th>Amount</th><th>Method</th><th>Fee</th><th>Receipt</th><th>Status</th><th>Date</th><th>Action</th></tr>${a.map(x=>{const pending=String(x.status||"pending").toLowerCase()==="pending";return `<tr><td>${esc(memberName(x.user_id))}</td><td>${esc(x.package_name||"—")}</td><td>${money(x.amount)}</td><td>${esc(x.payment_method||x.method||"—")}</td><td>${money(x.fee)}</td><td>${x.receipt_url?`<button type="button" class="btn secondary" data-action="open-file" data-url="${esc(x.receipt_url)}" data-bucket="receipts">↗ Receipt</button>`:"—"}</td><td>${badge(x.status)}</td><td>${dt(x.created_at)}</td><td>${pending?`<button class="btn success" data-action="invest-status" data-id="${esc(x.id)}" data-status="approved">Approve</button> <button class="btn danger" data-action="invest-status" data-id="${esc(x.id)}" data-status="rejected">Reject</button>`:"—"}</td></tr>`}).join("")}</table></div>`:'<div class="empty">No matching investment requests.</div>';
  }catch(e){showError("investments",e);toast(e.message,"error")}
 }
 async function investSet(id,status){if(!confirm(`${status} investment?`))return;try{const r=await q("investments",x=>x.update({status, ...(status==="approved"?{approved_at:new Date().toISOString()}:{})}).eq("id",id));if(r.error)throw r.error;const inv=await q("investments",x=>x.select("user_id,amount,package_name").eq("id",id).maybeSingle());if(inv.data?.user_id)await notifyMember(inv.data.user_id,status==="approved"?"Investment Approved":"Investment Rejected",status==="approved"?`Your ${inv.data.package_name||"investment"} investment request for ${money(inv.data.amount)} has been approved.`:`Your ${inv.data.package_name||"investment"} investment request for ${money(inv.data.amount)} has been rejected.`,status==="approved"?"success":"warning");toast("Investment "+status,"success");await investLoad()}catch(e){toast(e.message,"error")}}
@@ -210,6 +240,7 @@ async function boot(){
   await Promise.allSettled([kycLoad(),investLoad(),packagesLoad(),paymentsLoad(),earnLoad(),withdrawLoad(),refLoad(),capitalLoad(),transactionsLoad()]);
  }catch(e){$("bootText").textContent=e.message||"Unable to connect.";setTimeout(()=>{$("boot").style.display="none";toast(e.message||"Unable to connect to Supabase","error")},700)}
 }
+document.addEventListener("click",e=>{const b=e.target.closest?.("[data-action=\"open-file\"]");if(!b)return;e.preventDefault();openStoredFile(b.dataset.url||"",b.dataset.bucket||"")});
 document.addEventListener("DOMContentLoaded",()=>{
  document.querySelectorAll("nav button[data-v]").forEach(b=>{b.type="button";b.addEventListener("click",()=>view(b.dataset.v))});
  document.querySelectorAll("[data-go]").forEach(b=>{b.type="button";b.addEventListener("click",()=>view(b.dataset.go))});
