@@ -1,72 +1,756 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MONARCH CODEX — Login Test</title>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Login | Monarch Codex</title>
+
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
+
 <body>
-  <h1>MONARCH CODEX</h1>
-  <h2>Basic Login Test</h2>
 
-  <form id="loginForm">
-    <label for="email">Email</label><br>
-    <input id="email" type="email" autocomplete="email" required><br><br>
+<header class="site-header">
 
-    <label for="password">Password</label><br>
-    <input id="password" type="password" autocomplete="current-password" required><br><br>
+    <div class="container nav-container">
 
-    <button id="loginButton" type="submit">Sign In</button>
-  </form>
+        <a
+            href="index.html"
+            class="logo"
+        >
+            MONARCH <span>CODEX</span>
+        </a>
 
-  <p id="status"></p>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
+        <nav class="main-nav">
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="register.html">
+                Register
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+
+<main class="auth-page">
+
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <p class="eyebrow">
+                MONARCH CODEX
+            </p>
+
+            <h1>
+                Welcome Back
+            </h1>
+
+            <p>
+                Login to access your Monarch Codex account.
+            </p>
+
+        </div>
+
+
+
+        <form id="loginForm">
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary auth-submit"
+                id="loginButton"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+
+        <div
+            id="loginMessage"
+            class="form-message"
+            style="margin-top:15px;text-align:center;"
+        ></div>
+
+
+
+        <div class="auth-footer">
+
+            <p>
+
+                Don't have an account?
+
+                <a href="register.html">
+                    Create an account
+                </a>
+
+            </p>
+
+
+            <p>
+
+                <a href="index.html">
+                    ← Back to Monarch Codex
+                </a>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+
+<footer class="site-footer">
+
+    <div class="container">
+
+        <p>
+
+            ©
+            <span id="currentYear"></span>
+            Monarch Codex.
+            All rights reserved.
+
+        </p>
+
+    </div>
+
+</footer>
+
+
+
+<!-- =====================================================
+     SUPABASE
+     ===================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<!-- =====================================================
+     MONARCH CODEX LOGIN
+
+     This page intentionally uses its own Supabase client.
+     It does not depend on script.js.
+     ===================================================== -->
+
+<script>
+
+(function () {
+
     "use strict";
 
-    const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
-    const { createClient } = window.supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    /* =====================================================
+       SUPABASE
+       ===================================================== */
 
-    const form = document.getElementById("loginForm");
-    const button = document.getElementById("loginButton");
-    const status = document.getElementById("status");
+    const SUPABASE_URL =
+        "https://avaworleivncevaoqeny.supabase.co";
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
+    const SUPABASE_KEY =
+        "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+    let supabase = null;
 
-      status.textContent = "Signing in...";
-      button.disabled = true;
 
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
 
-        if (error) {
-          throw error;
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const loginMessage =
+        document.getElementById("loginMessage");
+
+    const currentYear =
+        document.getElementById("currentYear");
+
+
+
+    /* =====================================================
+       YEAR
+       ===================================================== */
+
+    if (currentYear) {
+
+        currentYear.textContent =
+            new Date().getFullYear();
+
+    }
+
+
+
+    /* =====================================================
+       MESSAGE
+       ===================================================== */
+
+    function showLoginMessage(
+        message,
+        type = "error"
+    ) {
+
+        if (!loginMessage) {
+            return;
         }
 
-        if (!data.session || !data.user) {
-          throw new Error("Supabase returned no active session.");
+        loginMessage.textContent =
+            message;
+
+        loginMessage.style.display =
+            "block";
+
+        loginMessage.className =
+            "form-message";
+
+        if (type === "success") {
+
+            loginMessage.style.color =
+                "#D4AF37";
+
+        } else if (type === "info") {
+
+            loginMessage.style.color =
+                "#ffffff";
+
+        } else {
+
+            loginMessage.style.color =
+                "#ff6b6b";
+
         }
 
-        status.textContent =
-          "LOGIN SUCCESSFUL — " + (data.user.email || "Account authenticated.");
-      } catch (error) {
-        console.error("Login test error:", error);
-        status.textContent = "LOGIN FAILED — " + (error?.message || String(error));
-      } finally {
-        button.disabled = false;
-      }
-    });
-  </script>
+    }
+
+
+
+    /* =====================================================
+       LOADING
+       ===================================================== */
+
+    function setLoading(loading) {
+
+        if (!loginButton) {
+            return;
+        }
+
+        loginButton.disabled =
+            loading;
+
+        loginButton.textContent =
+            loading
+                ? "Logging in..."
+                : "Login";
+
+    }
+
+
+
+    /* =====================================================
+       SUPABASE CONNECTION
+       ===================================================== */
+
+    function connectSupabase() {
+
+        if (
+            !window.supabase ||
+            typeof window.supabase.createClient !== "function"
+        ) {
+
+            throw new Error(
+                "Supabase failed to load. Please refresh the page and try again."
+            );
+
+        }
+
+        supabase =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY,
+                {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true
+                    }
+                }
+            );
+
+    }
+
+
+
+    /* =====================================================
+       PROFILE
+       ===================================================== */
+
+    async function getCurrentProfile(userId) {
+
+        if (!userId) {
+            return null;
+        }
+
+        const result =
+            await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", userId)
+                .maybeSingle();
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        return result.data || null;
+
+    }
+
+
+
+    /* =====================================================
+       ADMIN CHECK
+
+       Uses the existing MONARCH CODEX admin rules:
+       - profiles.role = admin
+       - existing admin email fallback
+       ===================================================== */
+
+    function isAdmin(profile, user) {
+
+        const role =
+            String(
+                profile?.role || ""
+            )
+            .toLowerCase()
+            .trim();
+
+        const email =
+            String(
+                user?.email || ""
+            )
+            .toLowerCase()
+            .trim();
+
+        return (
+            role === "admin" ||
+            email === "trademonarchofficial@gmail.com"
+        );
+
+    }
+
+
+
+    /* =====================================================
+       LOGIN
+       ===================================================== */
+
+    async function loginUser(event) {
+
+        event.preventDefault();
+
+
+        const email =
+            document
+                .getElementById("email")
+                .value
+                .trim()
+                .toLowerCase();
+
+        const password =
+            document
+                .getElementById("password")
+                .value;
+
+
+        if (!email || !password) {
+
+            showLoginMessage(
+                "Please enter your email and password.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!supabase) {
+
+            showLoginMessage(
+                "The MONARCH CODEX authentication system is not ready. Please refresh the page.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        setLoading(true);
+
+        showLoginMessage(
+            "Logging in...",
+            "info"
+        );
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+
+            if (error) {
+
+                console.error(
+                    "MONARCH CODEX LOGIN ERROR:",
+                    error
+                );
+
+                showLoginMessage(
+                    error.message ||
+                    "Login failed. Please check your email and password.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+            if (
+                !data ||
+                !data.user
+            ) {
+
+                showLoginMessage(
+                    "Login failed. No user account was returned.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+            const user =
+                data.user;
+
+
+            try {
+
+                localStorage.setItem(
+                    "monarch_last_email",
+                    email
+                );
+
+            } catch (e) {
+                console.warn(
+                    "Could not save last email:",
+                    e
+                );
+            }
+
+
+            const profile =
+                await getCurrentProfile(
+                    user.id
+                );
+
+
+            if (!profile) {
+
+                await supabase.auth.signOut();
+
+                showLoginMessage(
+                    "Your account was found, but your MONARCH CODEX member profile could not be loaded. Please contact support.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+
+            /* =================================================
+               BLOCKED ACCOUNT
+               ================================================= */
+
+            if (
+                String(profile.status || "")
+                    .toLowerCase()
+                    .trim() === "blocked"
+            ) {
+
+                await supabase.auth.signOut();
+
+                showLoginMessage(
+                    "Your account has been blocked. Please contact support.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+
+            /* =================================================
+               ADMIN
+               ================================================= */
+
+            if (isAdmin(profile, user)) {
+
+                showLoginMessage(
+                    "Admin login successful. Loading admin dashboard...",
+                    "success"
+                );
+
+                setTimeout(function () {
+
+                    window.location.replace(
+                        "admin.html"
+                    );
+
+                }, 400);
+
+                return;
+
+            }
+
+
+
+            /* =================================================
+               PENDING ACCOUNT
+
+               Keep the existing active-account rule.
+               ================================================= */
+
+            const profileStatus =
+                String(
+                    profile.status || ""
+                )
+                .toLowerCase()
+                .trim();
+
+
+            if (
+                profileStatus === "pending"
+            ) {
+
+                await supabase.auth.signOut();
+
+                showLoginMessage(
+                    "Your account is pending approval. Please wait for an administrator to activate your account.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+
+            /* =================================================
+               NON-ACTIVE ACCOUNT
+               ================================================= */
+
+            if (
+                profileStatus !== "active"
+            ) {
+
+                await supabase.auth.signOut();
+
+                showLoginMessage(
+                    "Your account is not currently active. Please contact support.",
+                    "error"
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
+
+
+
+            /* =================================================
+               MEMBER
+               ================================================= */
+
+            showLoginMessage(
+                "Login successful. Loading your dashboard...",
+                "success"
+            );
+
+
+            setTimeout(function () {
+
+                window.location.replace(
+                    "dashboard.html"
+                );
+
+            }, 400);
+
+
+        } catch (error) {
+
+            console.error(
+                "UNEXPECTED MONARCH CODEX LOGIN ERROR:",
+                error
+            );
+
+
+            showLoginMessage(
+                error?.message ||
+                "Unable to login. Please try again.",
+                "error"
+            );
+
+
+            try {
+                await supabase.auth.signOut();
+            } catch (signOutError) {
+                console.warn(
+                    "Sign-out after login error failed:",
+                    signOutError
+                );
+            }
+
+
+            setLoading(false);
+
+        }
+
+    }
+
+
+
+    /* =====================================================
+       START
+       ===================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            try {
+
+                connectSupabase();
+
+            } catch (error) {
+
+                console.error(
+                    "MONARCH CODEX SUPABASE INIT ERROR:",
+                    error
+                );
+
+                showLoginMessage(
+                    error?.message ||
+                    "The authentication system could not be loaded. Please refresh the page.",
+                    "error"
+                );
+
+            }
+
+
+            if (loginForm) {
+
+                loginForm.addEventListener(
+                    "submit",
+                    loginUser
+                );
+
+            }
+
+        }
+    );
+
+
+})();
+
+</script>
+
+
 </body>
+
 </html>
