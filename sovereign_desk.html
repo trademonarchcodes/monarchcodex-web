@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MONARCH CODEX — SOVEREIGN DESK</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070707;color:#f5f5f5;font-family:Poppins,Arial,sans-serif}
+:root{--gold:#D4AF37;--gold2:#ead06b;--card:#121212;--line:#292929;--muted:#999;--red:#f87171;--green:#4ade80;--blue:#7dd3fc}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:flex}
+aside{position:fixed;inset:0 auto 0 0;width:260px;background:#0b0b0b;border-right:1px solid var(--line);padding:22px 14px;z-index:30;overflow:auto}
+.brand{text-align:center;border-bottom:1px solid var(--line);padding:5px 0 20px}.brand b{font:600 19px Cinzel,serif;color:var(--gold)}.brand small{display:block;color:#777;letter-spacing:2px;font-size:9px;margin-top:4px}
+.desk-card{background:#171717;border:1px solid #353535;border-radius:12px;padding:13px;margin:16px 0}.desk-card b{display:block;color:var(--gold2);font:600 13px Cinzel,serif}.desk-card small{display:block;color:#777;font-size:10px;word-break:break-all;margin-top:5px}
+nav{display:grid;gap:6px}nav button{background:transparent;color:#aaa;border:1px solid transparent;border-radius:9px;padding:11px;text-align:left}nav button:hover,nav button.active{background:#181818;border-color:#333;color:var(--gold2)}
+nav .logout{color:#f88;margin-top:10px}
+main{margin-left:260px;width:calc(100% - 260px)}
+header{height:68px;position:sticky;top:0;background:rgba(7,7,7,.96);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 25px;z-index:20}
+.title{font:600 18px Cinzel,serif;color:var(--gold)}.menu{display:none;background:#171717;color:var(--gold);border:1px solid #333;border-radius:8px;padding:7px 10px}
+.content{padding:25px;max-width:1500px;margin:auto}.view{display:none}.view.active{display:block}
+.hero{margin-bottom:20px}.hero h1{font:600 30px Cinzel,serif;margin:0 0 7px}.hero p{color:var(--muted);margin:0;font-size:12px}.eyebrow{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px;margin-bottom:15px}
+.label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px}.value{font-size:24px;font-weight:700;color:var(--gold);margin-top:6px}.sub{font-size:10px;color:#777;margin-top:4px}
+.section{font:600 17px Cinzel,serif;margin:0 0 14px}.notice{background:#171717;border:1px solid #333;border-radius:9px;padding:12px;color:#aaa;font-size:12px;margin-bottom:14px}.notice strong{color:#ddd}.notice.warning{border-color:#5a461d;background:#191408;color:#dfc17a}.notice.success{border-color:#294a33;background:#0d1710;color:#9dd4aa}.notice.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field{display:grid;gap:5px}.full{grid-column:1/-1}.field label{font-size:10px;color:#999;text-transform:uppercase}
+input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border-radius:8px;padding:10px;outline:none;width:100%}input:focus,select:focus,textarea:focus{border-color:var(--gold)}textarea{min-height:80px}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.btn{background:var(--gold);color:#090909;border:1px solid var(--gold);border-radius:8px;padding:9px 13px;font-weight:700;font-size:11px}.btn.secondary{background:#171717;color:#ddd;border-color:#444}.btn.danger{background:#281111;color:#ffaaaa;border-color:#662626}.btn:disabled{opacity:.45;cursor:not-allowed}
+.table{overflow:auto;border:1px solid var(--line);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:720px}th,td{padding:10px;border-bottom:1px solid #252525;text-align:left;font-size:11px;vertical-align:top}th{background:#171717;color:var(--gold);font-size:9px;text-transform:uppercase}tr:last-child td{border:0}
+.badge{display:inline-block;border:1px solid #444;background:#202020;border-radius:99px;padding:4px 7px;font-size:9px;text-transform:uppercase}.active{color:#8ee8a7;border-color:#28613b;background:#102216}.pending{color:#f4d66b;border-color:#66551b;background:#211d0c}.restricted{color:#ff9999;border-color:#662626;background:#251010}
+.profile{display:grid;grid-template-columns:1fr 1fr;gap:12px}.info{background:#0e0e0e;border:1px solid #242424;padding:12px;border-radius:9px}.info span{display:block;font-size:9px;color:#777;text-transform:uppercase}.info strong{display:block;margin-top:4px;font-size:12px;word-break:break-word}
+.module-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.module{background:#121212;border:1px solid #292929;border-radius:13px;padding:16px}.module h3{font:600 15px Cinzel,serif;color:var(--gold2);margin:0 0 5px}.module p{font-size:11px;color:#999;line-height:1.6;margin:0 0 12px}
+.lock{display:inline-flex;align-items:center;gap:6px;border:1px solid #4a4a4a;background:#101010;color:#aaa;border-radius:99px;padding:5px 9px;font-size:9px;text-transform:uppercase}
+.empty{text-align:center;color:#777;padding:25px}.overlay{position:fixed;inset:0;background:#070707;display:flex;align-items:center;justify-content:center;z-index:100}.spin{width:32px;height:32px;border:3px solid #333;border-top-color:var(--gold);border-radius:50%;animation:x 1s linear infinite;margin:auto auto 13px}@keyframes x{to{transform:rotate(360deg)}}
+#toast{display:none;position:fixed;right:16px;bottom:16px;z-index:200;background:#171717;border:1px solid #444;border-radius:9px;padding:11px 14px;font-size:11px;max-width:350px}#toast.show{display:block}
+.hidden{display:none!important}
+@media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.module-grid{grid-template-columns:1fr}}
+@media(max-width:700px){aside{transform:translateX(-100%);transition:.2s;width:275px}aside.open{transform:translateX(0)}main{margin-left:0;width:100%}.menu{display:block}.content{padding:17px 13px}.form,.profile,.grid{grid-template-columns:1fr}.full{grid-column:auto}header{padding:0 13px}.title{font-size:15px}}
+</style>
+</head>
+<body>
+<div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING SOVEREIGN DESK</div><div id="bootText" style="color:#999;font-size:11px;margin-top:6px">Checking your session...</div></div></div>
+<div id="toast"></div>
+
+<div class="app">
+<aside id="side">
+  <div class="brand"><b>MONARCH CODEX</b><small>SOVEREIGN DESK</small></div>
+  <div class="desk-card"><b>♛ SOVEREIGN DESK</b><small id="deskEmail">Checking...</small><small id="deskRole" style="color:#c7a93d;margin-top:6px">Role: checking...</small></div>
+  <nav>
+    <button class="active" data-v="overview">⌂ &nbsp; Desk Overview</button>
+    <button data-v="members">♔ &nbsp; Member Management</button>
+    <button data-v="profit">↗ &nbsp; Profit Management</button>
+    <button data-v="funds">◈ &nbsp; Fund Adjustments</button>
+    <button data-v="signals">✈ &nbsp; Telegram Signals</button>
+    <button data-v="activity">▤ &nbsp; Activity & Audit</button>
+    <button data-v="permissions">⚿ &nbsp; My Permissions</button>
+    <button type="button" onclick="window.location.href='admin.html'">♛ &nbsp; Main Admin</button>
+    <button id="logout" class="logout">↪ &nbsp; Logout</button>
+  </nav>
+</aside>
+
+<main>
+<header>
+  <div style="display:flex;align-items:center;gap:12px"><button id="menu" class="menu">☰</button><div id="title" class="title">SOVEREIGN DESK</div></div>
+  <span style="color:#999;font-size:10px">Trade Smart. Stay Sovereign. 💯</span>
+</header>
+
+<section class="content">
+
+<div id="view-overview" class="view active">
+  <div class="hero"><div class="eyebrow">Operations Console</div><h1>SOVEREIGN DESK</h1><p>Controlled operational access for authorized MONARCH CODEX partner teams.</p></div>
+  <div id="securityNotice" class="notice warning"><strong>Security boundary:</strong> Sensitive financial mutations are intentionally blocked until they are backed by server-side authorization/database functions. Hiding a button in JavaScript is not sufficient security.</div>
+  <div class="grid">
+    <div class="card"><div class="label">Members Visible</div><div id="statMembers" class="value">0</div><div class="sub">Profiles available to this session</div></div>
+    <div class="card"><div class="label">KYC Under Review</div><div id="statKyc" class="value">0</div><div class="sub">Read-only operational count</div></div>
+    <div class="card"><div class="label">Pending Withdrawals</div><div id="statWithdrawals" class="value">0</div><div class="sub">Read-only until delegated</div></div>
+    <div class="card"><div class="label">Permissions</div><div id="statPermissions" class="value">0</div><div class="sub">Granted to this account</div></div>
+  </div>
+  <div class="card"><h2 class="section">Operational Modules</h2><div class="module-grid">
+    <div class="module"><h3>Member Management</h3><p>Search by MONARCH UID, name or email and inspect the member information allowed by the current role.</p><button class="btn secondary" data-go="members">Open Members</button></div>
+    <div class="module"><h3>Profit Management</h3><p>Prepared for amount/percentage adjustments. Actual mutation requires a secure backend operation and immutable audit record.</p><span class="lock">🔒 Secure operation required</span></div>
+    <div class="module"><h3>Fund Adjustments</h3><p>Prepared for controlled capital/fund reductions with previous value, adjustment, new value, reason and performer recorded.</p><span class="lock">🔒 Secure operation required</span></div>
+    <div class="module"><h3>Telegram Signals</h3><p>Prepared for membership status and Telegram integration. Telegram success must come from the Bot API, not from a frontend assumption.</p><span class="lock">🔒 Integration required</span></div>
+  </div></div>
+</div>
+
+<div id="view-members" class="view">
+  <div class="hero"><div class="eyebrow">Member Operations</div><h1>Member Management</h1><p>Search the existing MONARCH CODEX member records without changing the member dashboard.</p></div>
+  <div class="card">
+    <div class="form" style="grid-template-columns:1fr auto;margin-bottom:13px">
+      <div class="field"><label>Search</label><input id="memberSearch" placeholder="MONARCH UID, name or email"></div>
+      <div style="align-self:end"><button id="refreshMembers" class="btn">Refresh</button></div>
+    </div>
+    <div id="members" class="empty">Loading...</div>
+  </div>
+  <div id="memberDetail" class="card hidden"><h2 class="section">Selected Member</h2><div id="memberProfile"></div></div>
+</div>
+
+<div id="view-profit" class="view">
+  <div class="hero"><div class="eyebrow">Financial Operations</div><h1>Profit Management</h1><p>Add/remove a specific amount or percentage. This interface will only execute through a secure server-side operation.</p></div>
+  <div class="notice warning"><strong>Mutation locked.</strong> The existing MONARCH CODEX frontend currently performs financial writes directly from the browser. SOVEREIGN DESK must not copy that pattern. A secure RPC/Edge Function with authorization, atomic calculation and audit logging must be connected before this module can change money.</div>
+  <div class="card"><h2 class="section">Profit Adjustment</h2><div class="form">
+    <div class="field"><label>Member</label><select id="profitUser"><option value="">Select member</option></select></div>
+    <div class="field"><label>Adjustment</label><select id="profitType"><option value="amount_add">Add Amount</option><option value="amount_remove">Remove Amount</option><option value="percent_add">Add Percentage</option><option value="percent_remove">Remove Percentage</option></select></div>
+    <div class="field"><label>Value</label><input id="profitValue" type="number" min="0.01" step=".01"></div>
+    <div class="field"><label>Reason</label><input id="profitReason" placeholder="Required reason"></div>
+    <div class="full"><button class="btn" id="profitSubmit" disabled>Secure Profit Adjustment Not Connected</button></div>
+  </div></div>
+</div>
+
+<div id="view-funds" class="view">
+  <div class="hero"><div class="eyebrow">Capital Operations</div><h1>Fund Adjustments</h1><p>Reduce member funds by a specific amount or percentage while preserving the original investment ledger.</p></div>
+  <div class="notice warning"><strong>Mutation locked.</strong> The calculation and authorization must happen server-side and atomically. The browser must never be the authority for a financial balance.</div>
+  <div class="card"><h2 class="section">Reduce Member Funds</h2><div class="form">
+    <div class="field"><label>Member</label><select id="fundUser"><option value="">Select member</option></select></div>
+    <div class="field"><label>Reduction</label><select id="fundType"><option value="amount">Reduce by Amount</option><option value="percent">Reduce by Percentage</option></select></div>
+    <div class="field"><label>Value</label><input id="fundValue" type="number" min="0.01" step=".01"></div>
+    <div class="field"><label>Reason</label><input id="fundReason" placeholder="Required reason"></div>
+    <div class="full"><button class="btn danger" id="fundSubmit" disabled>Secure Fund Adjustment Not Connected</button></div>
+  </div></div>
+</div>
+
+<div id="view-signals" class="view">
+  <div class="hero"><div class="eyebrow">Telegram Operations</div><h1>Telegram Signal Membership</h1><p>View signal membership state and prepare controlled add/remove operations.</p></div>
+  <div class="notice warning"><strong>Telegram integration is not assumed.</strong> Adding/removing a member must be confirmed by the Telegram Bot API with the required channel permissions. A UI click alone will never report success.</div>
+  <div class="card"><div class="form" style="grid-template-columns:1fr auto;margin-bottom:13px"><div class="field"><label>Search Member</label><input id="signalSearch" placeholder="MONARCH UID, name, email or Telegram username"></div><div style="align-self:end"><button id="refreshSignals" class="btn">Refresh</button></div></div><div id="signals" class="empty">Loading...</div></div>
+</div>
+
+<div id="view-activity" class="view">
+  <div class="hero"><div class="eyebrow">Oversight</div><h1>Activity & Audit</h1><p>Separate operational action events from immutable security/audit records.</p></div>
+  <div class="notice"><strong>Audit rule:</strong> SOVEREIGN DESK must not be able to delete, rewrite or “clean up” its own audit history. The final implementation will use append-only server-side audit records with restricted INSERT access and no UPDATE/DELETE permission for desk users.</div>
+  <div class="card"><h2 class="section">Activity Feed</h2><div class="actions" style="margin-bottom:12px"><select id="activityFilter" style="max-width:230px"><option value="all">All Actions</option><option value="profit">Profit Adjustments</option><option value="funds">Fund Adjustments</option><option value="telegram">Telegram Changes</option><option value="investment">Investment Actions</option><option value="withdrawal">Withdrawal Actions</option><option value="kyc">KYC Actions</option></select><button id="refreshActivity" class="btn secondary">Refresh</button></div><div id="activity" class="empty">Audit table is not connected yet.</div></div>
+</div>
+
+<div id="view-permissions" class="view">
+  <div class="hero"><div class="eyebrow">Access Control</div><h1>My Permissions</h1><p>Permissions shown here must ultimately come from the database/server authorization layer.</p></div>
+  <div class="card"><div id="permissionsList" class="module-grid"></div></div>
+</div>
+
+</section></main></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+let user=null,profile=null,members=[],activeView="overview";
+const permissionKeys=[
+  ["can_view_members","View Members"],
+  ["can_adjust_profit","Update Profits"],
+  ["can_adjust_funds","Adjust Funds"],
+  ["can_manage_signals","Manage Signal Members"],
+  ["can_view_investments","View Investments"],
+  ["can_view_withdrawals","View Withdrawals"],
+  ["can_manage_withdrawals","Manage Withdrawals"],
+  ["can_view_kyc","View KYC"],
+  ["can_approve_kyc","Approve KYC"],
+  ["can_reject_kyc","Reject KYC"]
+];
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const money=n=>"$"+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const dt=v=>v?new Date(v).toLocaleString():"—";
+function toast(msg,type="info"){const t=$("toast");t.textContent=msg;t.className="show";if(type==="error")t.style.borderColor="#662626";else if(type==="success")t.style.borderColor="#28613b";else t.style.borderColor="#444";clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.className="",3500)}
+function bootText(s){$("bootText").textContent=s}
+function roleName(){return String(profile?.role||"").toLowerCase()}
+function isDeskRole(){const r=roleName();return r==="sovereign_desk"||r==="sovereign-desk"||r.includes("sovereign_desk")}
+function isAdminRole(){return roleName().includes("admin")}
+function permissions(){
+  const p=profile?.permissions;
+  if(!p)return [];
+  if(Array.isArray(p))return p.map(String);
+  if(typeof p==="object")return Object.keys(p).filter(k=>p[k]);
+  return [];
+}
+function hasPermission(k){return isAdminRole()||permissions().includes(k)}
+function memberName(id){const m=members.find(x=>String(x.id)===String(id));return m?.full_name||m?.display_username||m?.uid||"Unknown Monarch"}
+
+async function loadProfile(){
+  const {data,error}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();
+  if(error)throw error;
+  profile=data;
+}
+async function loadMembers(){
+  const {data,error}=await db.from("profiles").select("*").order("created_at",{ascending:false});
+  if(error)throw error;
+  members=data||[];
+  $("statMembers").textContent=members.length;
+  $("statKyc").textContent=members.filter(x=>String(x.kyc_status||"").toLowerCase()==="under_review").length;
+  renderMembers();
+  fillMemberSelects();
+  renderSignals();
+}
+function renderMembers(){
+  const q=String($("memberSearch")?.value||"").trim().toLowerCase();
+  const rows=members.filter(m=>!q||[m.uid,m.full_name,m.display_username,m.email,m.phone].some(v=>String(v||"").toLowerCase().includes(q)));
+  $("members").innerHTML=rows.length?`<div class="table"><table><tr><th>MONARCH UID</th><th>Name</th><th>Email</th><th>Status</th><th>KYC</th><th>Joined</th><th>Action</th></tr>${rows.map(m=>`<tr><td>${esc(m.uid||"—")}</td><td>${esc(m.full_name||m.display_username||"Monarch")}</td><td>${esc(m.email||"—")}</td><td><span class="badge ${String(m.status||"").toLowerCase()==="active"?"active":String(m.status||"").toLowerCase()==="blocked"?"restricted":""}">${esc(m.status||"—")}</span></td><td>${esc(m.kyc_status||"—")}</td><td>${dt(m.created_at)}</td><td><button class="btn secondary btn-view-member" data-id="${esc(m.id)}">View</button></td></tr>`).join("")}</table></div>`:"<div class='empty'>No matching members.</div>";
+}
+function renderMember(id){
+  const m=members.find(x=>String(x.id)===String(id));if(!m)return;
+  $("memberDetail").classList.remove("hidden");
+  const allowed=[
+    ["MONARCH UID",m.uid],["Full Name",m.full_name],["Display Username",m.display_username],
+    ["Email",m.email],["Phone",m.phone],["Country",m.country],["State",m.state],["City",m.city],
+    ["Status",m.status],["KYC Status",m.kyc_status],["Referral Code",m.referral_code],["Joined",dt(m.created_at)]
+  ];
+  $("memberProfile").innerHTML=`<div class="profile">${allowed.map(([a,b])=>`<div class="info"><span>${esc(a)}</span><strong>${esc(b||"—")}</strong></div>`).join("")}</div>`;
+}
+function fillMemberSelects(){
+  for(const id of ["profitUser","fundUser"]){
+    const el=$(id);if(!el)continue;
+    const old=el.value;
+    el.innerHTML='<option value="">Select member</option>'+members.map(m=>`<option value="${esc(m.id)}">${esc(m.uid||"No UID")} — ${esc(m.full_name||m.display_username||"Monarch")}</option>`).join("");
+    el.value=old;
+  }
+}
+function renderSignals(){
+  const q=String($("signalSearch")?.value||"").trim().toLowerCase();
+  const rows=members.filter(m=>!q||[m.uid,m.full_name,m.display_username,m.email,m.telegram_username].some(v=>String(v||"").toLowerCase().includes(q)));
+  $("signals").innerHTML=rows.length?`<div class="table"><table><tr><th>Member</th><th>Telegram</th><th>Signal Access</th><th>Action</th></tr>${rows.map(m=>{
+    const tg=m.telegram_username||m.telegram||"—";
+    const status=m.signal_access||m.telegram_signal_status||m.signal_status||"NOT ACTIVE";
+    const active=String(status).toLowerCase().includes("active");
+    return `<tr><td><strong>${esc(m.uid||"—")}</strong><br><span style="color:#888">${esc(m.full_name||m.display_username||"Monarch")}</span></td><td>${esc(tg)}</td><td><span class="badge ${active?"active":"pending"}">${esc(status)}</span></td><td><button class="btn secondary" disabled>${active?"Remove from Signal":"Add to Signal"} — Integration Required</button></td></tr>`;
+  }).join("")}</table></div>`:"<div class='empty'>No matching members.</div>";
+}
+function renderPermissions(){
+  const granted=permissions();
+  $("statPermissions").textContent=permissionKeys.filter(([k])=>hasPermission(k)).length;
+  $("permissionsList").innerHTML=permissionKeys.map(([k,label])=>{
+    const on=hasPermission(k);
+    return `<div class="module"><h3>${esc(label)}</h3><p>${on?"Granted for this session.":"Not granted to this session."}</p><span class="lock">${on?"✓ GRANTED":"○ NOT GRANTED"}</span></div>`;
+  }).join("");
+}
+function setView(v){
+  activeView=v;
+  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+  $("view-"+v)?.classList.add("active");
+  document.querySelectorAll("nav button[data-v]").forEach(x=>x.classList.toggle("active",x.dataset.v===v));
+  const titles={overview:"SOVEREIGN DESK",members:"Member Management",profit:"Profit Management",funds:"Fund Adjustments",signals:"Telegram Signals",activity:"Activity & Audit",permissions:"My Permissions"};
+  $("title").textContent=titles[v]||"SOVEREIGN DESK";
+  $("side").classList.remove("open");
+  if(v==="members")renderMembers();
+  if(v==="signals")renderSignals();
+  if(v==="permissions")renderPermissions();
+}
+async function start(){
+  try{
+    bootText("Checking your session...");
+    const {data}=await db.auth.getSession();user=data.session?.user;
+    if(!user){location.href="login.html";return}
+    $("deskEmail").textContent=user.email||"Authenticated user";
+    bootText("Loading authorization profile...");
+    await loadProfile();
+    if(!isDeskRole()&&!isAdminRole()){
+      $("boot").innerHTML='<div class="notice error" style="max-width:430px;margin:20px"><strong>SOVEREIGN DESK ACCESS DENIED</strong><br><br>Your authenticated profile is not authorized for this dashboard.<br><br><button class="btn" onclick="location.href=\'dashboard.html\'">Return to Member Dashboard</button></div>';
+      return;
+    }
+    $("deskRole").textContent="Role: "+(profile.role||"unknown");
+    renderPermissions();
+    bootText("Loading member operations...");
+    await loadMembers();
+    $("boot").classList.add("hidden");
+  }catch(e){
+    console.error(e);
+    $("bootText").textContent=e.message||"Unable to initialize SOVEREIGN DESK.";
+    toast(e.message||"Unable to initialize SOVEREIGN DESK.","error");
+  }
+}
+
+$("menu").addEventListener("click",()=>$("side").classList.toggle("open"));
+document.querySelectorAll("nav button[data-v]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.v)));
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.go)));
+$("memberSearch").addEventListener("input",renderMembers);
+$("refreshMembers").addEventListener("click",async()=>{try{await loadMembers();toast("Members refreshed.","success")}catch(e){toast(e.message,"error")}});
+$("signalSearch").addEventListener("input",renderSignals);
+$("refreshSignals").addEventListener("click",async()=>{try{await loadMembers();toast("Signal data refreshed.","success")}catch(e){toast(e.message,"error")}});
+$("refreshActivity").addEventListener("click",()=>toast("Audit backend is not connected yet.","warning"));
+$("members").addEventListener("click",e=>{const b=e.target.closest(".btn-view-member");if(b)renderMember(b.dataset.id)});
+$("logout").addEventListener("click",async()=>{await db.auth.signOut();location.href="login.html"});
+start();
+</script>
+</body>
+</html>
