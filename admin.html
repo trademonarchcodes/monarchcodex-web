@@ -119,6 +119,40 @@ function memberHTML(){
  }).join("")}</table></div>`;
 }
 async function memberStatus(id,status){if(!confirm(`Set member to ${status}?`))return;try{const r=await q("profiles",x=>x.update({status}).eq("id",id));if(r.error)throw r.error;await notifyMember(id,status==="blocked"?"Account Restricted":"Account Activated",status==="blocked"?"Your MONARCH CODEX account has been blocked by the administrator.":"Your MONARCH CODEX account has been activated. Welcome back, Monarch.",status==="blocked"?"warning":"success");toast("Member updated","success");await membersLoad()}catch(e){toast(e.message,"error")}}
+function parseStorageReference(value){
+  const raw=String(value||"").trim();
+  if(!raw)return null;
+  try{
+    const u=new URL(raw,window.location.href);
+    const marker="/storage/v1/object/";
+    const idx=u.pathname.indexOf(marker);
+    if(idx>=0){
+      const rest=u.pathname.slice(idx+marker.length);
+      const parts=rest.split("/").filter(Boolean);
+      if(parts[0]==="public"||parts[0]==="sign"||parts[0]==="authenticated")parts.shift();
+      if(parts.length>=2)return {bucket:decodeURIComponent(parts.shift()),path:parts.map(decodeURIComponent).join("/")};
+    }
+  }catch(e){}
+  if(raw.startsWith("kyc-documents/"))return {bucket:"kyc-documents",path:raw.slice("kyc-documents/".length)};
+  return {bucket:"kyc-documents",path:raw.replace(/^\/+/,"")};
+}
+async function openKycDocument(value,label){
+  const ref=parseStorageReference(value);
+  if(!ref)return toast(label+" document is unavailable.","error");
+  const btn=event?.currentTarget;
+  if(btn){btn.dataset.busy="1";btn.textContent="Opening…"}
+  try{
+    const signed=await db.storage.from(ref.bucket).createSignedUrl(ref.path,300);
+    if(signed.error)throw signed.error;
+    if(!signed.data?.signedUrl)throw new Error("Supabase did not return a document URL.");
+    window.open(signed.data.signedUrl,"_blank","noopener,noreferrer");
+  }catch(e){
+    console.error("KYC document open failed:",e);
+    toast("Unable to open "+label+". Storage bucket/permissions need to be checked.","error");
+  }finally{
+    if(btn){btn.dataset.busy="0";btn.textContent="↗ "+label}
+  }
+}
 async function kycLoad(){
  try{
   const f=$("kycFilter").value,r=await q("profiles",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[];
@@ -127,7 +161,7 @@ async function kycLoad(){
   $("kyc").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${a.map(p=>{
    const k=String(p.kyc_status||"not_submitted").toLowerCase(),review=["pending","submitted","under_review"].includes(k),reason=typeof p.kyc_rejection_reason==="object"?JSON.stringify(p.kyc_rejection_reason):p.kyc_rejection_reason||"";
    const docs=[["Front",p.nin_front_url],["Back",p.nin_back_url],["Selfie",p.selfie_url]].filter(x=>x[1]);
-   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<a class="doc-link" href="${esc(d[1])}" target="_blank" rel="noopener"><span>↗</span>${esc(d[0])}</a>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
+   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<button type="button" class="doc-link" data-kyc-doc="${esc(d[1])}" data-kyc-label="${esc(d[0])}"><span>↗</span>${esc(d[0])}</button>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
   }).join("")}</table></div>`:'<div class="empty">No matching KYC requests.</div>';
  }catch(e){showError("kyc",e);toast(e.message,"error")}
 }
@@ -222,6 +256,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(a==="member-status")return memberStatus(b.dataset.id,b.dataset.status);if(a==="kyc-approve")return kycApprove(b.dataset.id);if(a==="kyc-reject")return kycReject(b.dataset.id);if(a==="invest-status")return investSet(b.dataset.id,b.dataset.status);if(a==="withdraw-status")return withdrawSet(b.dataset.id,b.dataset.status);
   if(a==="edit-pkg")return editPkg(JSON.parse(b.dataset.pkg));if(a==="delete-pkg")return delPkg(b.dataset.id);if(a==="edit-pay")return editPay(JSON.parse(b.dataset.pay));if(a==="toggle-pay")return togglePay(b.dataset.id,b.dataset.active==="true");if(a==="delete-pay")return deletePay(b.dataset.id);
  }catch(err){toast(err.message||"Button action failed.","error")}});
+ document.addEventListener("click",e=>{const b=e.target.closest("[data-kyc-doc]");if(!b)return;openKycDocument(b.dataset.kycDoc,b.dataset.kycLabel)});
  boot();
 });
 </script>
