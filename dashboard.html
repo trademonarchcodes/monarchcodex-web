@@ -173,6 +173,22 @@ function status(v){const s=String(v||'unknown').toLowerCase();return '<span clas
 function isApproved(){return String(profile?.kyc_status||'').toLowerCase()==='approved'}
 function safeNum(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function storageName(prefix,file){return prefix+'/'+currentUser.id+'/'+Date.now()+'_'+String(file.name).replace(/[^a-zA-Z0-9._-]/g,'_')}
+function makeReferralCode(){
+  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let out='MC';
+  if(window.crypto&&crypto.getRandomValues){const a=new Uint32Array(8);crypto.getRandomValues(a);for(let i=0;i<a.length;i++)out+=alphabet[a[i]%alphabet.length]}
+  else{for(let i=0;i<8;i++)out+=alphabet[Math.floor(Math.random()*alphabet.length)]}
+  return out;
+}
+async function ensureReferralCode(){
+  const existing=String(profile?.referral_code||'').trim();
+  if(existing){profile.referral_code=existing;return existing}
+  for(let attempt=0;attempt<3;attempt++){
+    const code=makeReferralCode();
+    const {error}=await sb.from('profiles').update({referral_code:code,updated_at:new Date().toISOString()}).eq('id',currentUser.id);
+    if(!error){profile.referral_code=code;return code}
+  }
+  return '';
+}
 
 function showView(view,force=false){
   if(!view)return;
@@ -372,10 +388,14 @@ $('withdrawalForm').addEventListener('submit',async e=>{
   }catch(err){console.error(err);toast('Withdrawal could not be submitted.','error')}finally{btn.disabled=false;btn.textContent='Submit Withdrawal Request'}
 });
 
-function renderReferrals(){
+async function renderReferrals(){
   const gate=!isApproved();$('referralGate').classList.toggle('hidden',!gate);$('referralArea').classList.toggle('hidden',gate);if(gate){$('referralGate').innerHTML=kycMessage();return}
-  const f=calculateFinance();$('refCode').textContent=profile.referral_code||'—';$('refCodeChip').textContent=profile.referral_code||'—';$('refEarnings').textContent=fmt(f.refEarn);$('refCount').textContent=referrals.length;
-  const link=new URL('register.html',location.href).href+'?ref='+encodeURIComponent(profile.referral_code||'');$('refLink').value=link;
+  const f=calculateFinance();
+  const code=await ensureReferralCode();
+  $('refCode').textContent=code||'—';$('refCodeChip').textContent=code||'—';$('refEarnings').textContent=fmt(f.refEarn);$('refCount').textContent=referrals.length;
+  const link=code?new URL('register.html',location.href).href+'?ref='+encodeURIComponent(code):'';
+  $('refLink').value=link;
+  $('copyRefCode').disabled=!code;$('copyRefLink').disabled=!link;
   $('referralHistory').innerHTML=referrals.length?referrals.map(r=>{const p=r.profile||{};return `<tr><td>${esc(r.full_name||r.name||p.full_name||'Monarch')}</td><td>${esc(r.display_username||p.display_username||'—')}</td><td>${status(r.status||p.status||'active')}</td><td>${date(r.created_at)}</td><td><button class="btn btn-sm public-profile" data-id="${esc(r.user_id||r.referred_user_id||r.id||'')}">View</button></td></tr>`}).join(''):'<tr><td colspan="5" class="empty">No referrals found.</td></tr>';
   document.querySelectorAll('.public-profile').forEach(b=>b.addEventListener('click',()=>openPublicProfile(b.dataset.id)));
 }
@@ -385,11 +405,21 @@ async function refreshReferrals(){
   /* Enrich only with public fields, never private profile data. */
   const ids=referrals.map(r=>r.user_id||r.referred_user_id).filter(Boolean).filter(id=>id!==currentUser.id);
   if(ids.length){const {data:pub}=await sb.from('profiles').select('id,full_name,display_username,avatar_url,created_at,status,kyc_status').in('id',ids);const map=new Map((pub||[]).map(p=>[p.id,p]));referrals=referrals.map(r=>({...r,profile:map.get(r.user_id||r.referred_user_id)||null}))}
-  renderReferrals();renderOverview()
+  await renderReferrals();renderOverview()
 }
 $('refreshReferrals').addEventListener('click',async()=>{try{await refreshReferrals();toast('Referral network refreshed.')}catch(e){toast('Unable to load referrals.','error')}})
-async function copyText(v){try{await navigator.clipboard.writeText(v);toast('Copied.')}catch(e){toast('Copy failed.','error')}}
-$('copyRefCode').addEventListener('click',()=>copyText(profile.referral_code||''));$('copyRefLink').addEventListener('click',()=>copyText($('refLink').value));
+async function copyText(v){
+  const text=String(v||'').trim();if(!text)return toast('Nothing to copy.','error');
+  try{
+    if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);toast('Copied.');return}
+  }catch(e){}
+  try{
+    const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');ta.remove();if(ok){toast('Copied.');return}
+  }catch(e){}
+  toast('Copy failed — press and hold to copy.','error');
+}
+$('copyRefCode').addEventListener('click',async()=>{const code=await ensureReferralCode();await copyText(code)});
+$('copyRefLink').addEventListener('click',async()=>{if(!profile.referral_code)await ensureReferralCode();if(!$('refLink').value)await renderReferrals();await copyText($('refLink').value)});
 
 function renderProfile(){
   const name=profile.full_name||'Monarch';$('profileName').textContent=name;$('profileUsername').textContent='@'+(profile.display_username||'—');$('profileStatus').outerHTML=`<span id="profileStatus" class="status">${esc(profile.status||'active')}</span>`;
@@ -443,7 +473,7 @@ async function boot(){
     const {data:{session}}=await sb.auth.getSession();if(!session){location.href='login.html';return}currentUser=session.user;
     const results=await Promise.allSettled([loadProfile(),loadOptional()]);
     if(results[0].status==='rejected')throw results[0].reason;
-    renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
+    renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();await renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
     setLoading(false);$('app').classList.remove('hidden');
   }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
 }
