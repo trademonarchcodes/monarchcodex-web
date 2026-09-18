@@ -5,1611 +5,433 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#070707">
 <title>MONARCH CODEX — The Inner Kingdom</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root{
-  --gold:#D4AF37;
-  --gold2:#f0d477;
-  --black:#070707;
-  --card:#121212;
-  --card2:#181818;
-  --line:#292929;
-  --text:#f5f5f5;
-  --muted:#9b9b9b;
-  --danger:#ef5350;
-  --success:#4caf50;
-  --warning:#ffb300;
-}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--black);color:var(--text);font-family:Poppins,Arial,sans-serif}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-a{color:inherit;text-decoration:none}
-.hidden{display:none!important}
-.muted{color:var(--muted)}
-.gold{color:var(--gold)}
-body{overflow-x:hidden}
-
-/* Loading */
-#loading{
-  position:fixed;inset:0;z-index:99999;background:var(--black);
-  display:flex;align-items:center;justify-content:center;text-align:center;padding:24px
-}
-.loading-box{width:min(390px,100%)}
-.logo-mark{
-  width:66px;height:66px;margin:0 auto 18px;border:2px solid var(--gold);
-  border-radius:50%;display:grid;place-items:center;color:var(--gold);
-  font-family:Cinzel,serif;font-size:25px;font-weight:700
-}
-.spinner{
-  width:30px;height:30px;border:3px solid #292929;border-top-color:var(--gold);
-  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Layout */
-.app{min-height:100vh}
-.sidebar{
-  position:fixed;left:0;top:0;bottom:0;width:260px;background:#090909;
-  border-right:1px solid var(--line);padding:24px 16px;z-index:50;overflow-y:auto
-}
-.brand{font-family:Cinzel,serif;text-align:center;margin-bottom:28px}
-.brand .name{font-size:21px;letter-spacing:2px;color:var(--gold);font-weight:700}
-.brand .sub{font-size:9px;letter-spacing:3px;color:#aaa;margin-top:4px}
-.member-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:18px}.side-identity{display:flex;align-items:center;gap:10px;min-width:0}.side-avatar{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover;background:#171717;flex:0 0 44px}
-.member-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.member-uid{font-size:11px;color:var(--muted);margin-top:4px;word-break:break-all}
-.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);margin-right:7px}
-.nav{display:grid;gap:6px}
-.nav button.kyc-locked{opacity:.5}
-.nav button.kyc-locked::after{content:"🔒";float:right;font-size:10px}
-.kyc-lock-banner{margin-bottom:18px}
-.nav button{
-  width:100%;border:1px solid transparent;background:transparent;color:#bdbdbd;
-  padding:12px 13px;border-radius:10px;text-align:left;font-weight:600
-}
-.nav button:hover,.nav button.active{background:#171717;border-color:#292929;color:var(--gold)}
-.nav .icon{display:inline-block;width:25px}
-.logout{margin-top:20px!important;color:#d8d8d8!important}
-.main{margin-left:260px;min-height:100vh}
-.topbar{
-  position:sticky;top:0;z-index:40;height:72px;background:rgba(7,7,7,.94);
-  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;padding:0 30px
-}
-.top-title{font-family:Cinzel,serif;font-size:18px;letter-spacing:1px}
-.menu-btn{display:none;background:none;border:0;color:var(--gold);font-size:25px}
-.content{padding:30px;max-width:1450px;margin:auto}
-.view{display:none}
-.view.active{display:block}
-
-/* Components */
-.hero{
-  background:linear-gradient(135deg,#151515,#0d0d0d);border:1px solid var(--line);
-  border-radius:18px;padding:28px;margin-bottom:22px
-}
-.hero h1{font-family:Cinzel,serif;margin:0 0 8px;color:var(--gold);font-size:28px}
-.hero p{margin:0;color:#aaa}
-.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.card{
-  background:var(--card);border:1px solid var(--line);border-radius:15px;padding:19px
-}
-.card-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-.value{font-size:25px;font-weight:700;margin-top:7px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
-.section-title{font-family:Cinzel,serif;color:var(--gold);font-size:19px;margin:0 0 15px}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:600px}
-th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
-th{color:var(--muted);font-weight:600}
-.empty{text-align:center;padding:28px;color:var(--muted)}
-.badge{
-  display:inline-flex;align-items:center;border:1px solid #383838;border-radius:999px;
-  padding:4px 9px;font-size:11px;font-weight:600
-}
-.badge.success{color:#8ee08e;border-color:#315e31}
-.badge.warning{color:#ffd36b;border-color:#66501e}
-.badge.danger{color:#ff8e8e;border-color:#632d2d}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.field{display:grid;gap:7px}
-.field.full{grid-column:1/-1}
-label{font-size:12px;color:#aaa}
-input,select,textarea{
-  width:100%;background:#0b0b0b;border:1px solid #303030;color:#fff;
-  border-radius:10px;padding:12px 13px;outline:none
-}
-input:focus,select:focus,textarea:focus{border-color:var(--gold)}
-textarea{min-height:100px;resize:vertical}
-.btn{
-  border:1px solid var(--gold);background:var(--gold);color:#070707;
-  border-radius:10px;padding:11px 16px;font-weight:700
-}
-.btn:hover{background:var(--gold2)}
-.btn.secondary{background:transparent;color:var(--gold)}
-.btn.danger{border-color:#6b2b2b;background:#291111;color:#ff9d9d}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-.info-list{display:grid;gap:10px}
-.info-row{
-  display:flex;justify-content:space-between;gap:15px;padding:10px 0;
-  border-bottom:1px solid var(--line);font-size:13px
-}
-.info-row span:first-child{color:var(--muted)}
-.profile-head{display:flex;align-items:center;gap:16px;margin-bottom:22px}
-.avatar{
-  width:74px;height:74px;border-radius:50%;border:2px solid var(--gold);
-  object-fit:cover;background:#171717
-}
-.ref-box{display:flex;gap:8px}.ref-member{display:flex;align-items:center;gap:9px}.ref-member img{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);object-fit:cover;background:#171717}.ref-member span{font-weight:600}
-.ref-box input{flex:1}
-.notice{padding:13px;border:1px solid #3c351e;background:#18150b;border-radius:10px;color:#d9c77d;font-size:12px;margin-bottom:15px}
-.file-input{padding:10px}
-hr{border:0;border-top:1px solid var(--line);margin:20px 0}
-
-/* Toast */
-#toast{
-  position:fixed;right:18px;bottom:18px;z-index:100000;max-width:380px;
-  background:#171717;border:1px solid var(--line);border-left:4px solid var(--gold);
-  padding:13px 15px;border-radius:10px;box-shadow:0 12px 35px #0008;font-size:13px
-}
-#toast.success{border-left-color:var(--success)}
-#toast.error{border-left-color:var(--danger)}
-#toast.warning{border-left-color:var(--warning)}
-
-/* Modal */
-.modal{
-  position:fixed;inset:0;background:#000b;z-index:90000;display:none;
-  align-items:center;justify-content:center;padding:18px
-}
-.modal.show{display:flex}
-.modal-box{
-  width:min(520px,100%);max-height:90vh;overflow:auto;background:#111;
-  border:1px solid var(--line);border-radius:16px;padding:22px
-}
-.modal-head{display:flex;justify-content:space-between;align-items:center;gap:15px}
-.close{border:0;background:none;color:#aaa;font-size:24px}
-
-/* Mobile */
-@media(max-width:1050px){
-  .cards{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:800px){
-  .sidebar{
-    transform:translateX(-100%);transition:transform .2s ease;width:270px;
-    box-shadow:20px 0 50px #0008
-  }
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0}
-  .menu-btn{display:block}
-  .topbar{padding:0 16px}
-  .content{padding:18px 14px}
-  .grid2{grid-template-columns:1fr}
-}
-@media(max-width:560px){
-  .cards{grid-template-columns:1fr 1fr;gap:9px}
-  .card{padding:14px}
-  .value{font-size:19px}
-  .hero{padding:20px}
-  .hero h1{font-size:23px}
-  .form-grid{grid-template-columns:1fr}
-  .field.full{grid-column:auto}
-  .top-title{font-size:15px}
-}
-
-.notification-bell{position:relative;border:1px solid #303030;background:#111;color:#fff;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:19px}
-.notification-bell:hover{border-color:var(--gold);color:var(--gold)}
-.notification-count{position:absolute;top:-5px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#d33;color:#fff;font-size:10px;font-weight:700;display:none;place-items:center;border:2px solid var(--black)}
-.notification-panel{position:fixed;top:80px;right:24px;width:min(390px,calc(100vw - 28px));max-height:70vh;overflow:auto;background:#111;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 60px #000b;z-index:80000;display:none}
-.notification-panel.show{display:block}
-.notification-head{position:sticky;top:0;background:#111;border-bottom:1px solid var(--line);padding:15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.notification-head h3{margin:0;font-family:Cinzel,serif;color:var(--gold)}
-.notification-item{padding:14px 15px;border-bottom:1px solid var(--line);cursor:pointer}
-.notification-item:hover{background:#171717}
-.notification-item.unread{background:#15130b;border-left:3px solid var(--gold)}
-.notification-title{font-weight:700;font-size:13px}
-.notification-message{font-size:12px;color:#bbb;margin-top:5px;line-height:1.5}
-.notification-time{font-size:10px;color:#777;margin-top:7px}
-.notification-empty{padding:30px 15px;text-align:center;color:var(--muted)}
-.payment-destinations{display:grid;gap:10px}.payment-option{background:#171717;border:1px solid #333;border-radius:10px;padding:13px;font-size:11px}.payment-option b{color:#D4AF37;font-family:Cinzel,serif}.payment-value{margin-top:7px;word-break:break-all;color:#eee;line-height:1.5}.payment-row{display:flex;align-items:center;gap:8px;margin-top:7px}.payment-row .payment-value{margin-top:0;flex:1;min-width:0}.copy-payment{border:1px solid #555;background:#0d0d0d;color:#D4AF37;border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;white-space:nowrap}.copy-payment:hover{border-color:#D4AF37;background:#18150b}.receipt-box{border:1px dashed #4a4a4a;background:#101010;border-radius:12px;padding:14px}.receipt-help{font-size:11px;color:#888;margin-top:6px;line-height:1.5}.receipt-name{font-size:11px;color:#D4AF37;margin-top:8px;word-break:break-all}
-/* X AI INTERFACE */
-.x-shell{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;min-height:620px}
-.x-chat{display:flex;flex-direction:column;min-height:620px;overflow:hidden}
-.x-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#17140b,#111)}
-.x-brand{display:flex;align-items:center;gap:12px}.x-mark{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#e6c85c,#9f7d17);color:#080808;font-weight:900;font-family:Cinzel,serif;box-shadow:0 8px 24px #0008}.x-brand strong{font-family:Cinzel,serif;color:var(--gold);font-size:17px}.x-brand span{display:block;color:#888;font-size:10px;margin-top:3px}
-.x-status{font-size:10px;color:#7ee2a8;border:1px solid #244a35;background:#0d1a12;padding:6px 9px;border-radius:999px}
-.x-messages{flex:1;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:16px;background:radial-gradient(circle at 50% 0,#17140a 0,#0b0b0b 45%,#080808 100%)}
-.x-msg{display:flex;gap:10px;max-width:88%;align-items:flex-start}.x-msg.user{margin-left:auto;flex-direction:row-reverse}.x-avatar{width:30px;height:30px;min-width:30px;border-radius:9px;display:grid;place-items:center;font-size:11px;font-weight:800;background:#191919;border:1px solid #333;color:var(--gold)}.x-msg.user .x-avatar{background:#27200b;border-color:#65521b}.x-bubble{padding:12px 14px;border:1px solid #292929;border-radius:14px;background:#121212;color:#ddd;font-size:13px;line-height:1.65;white-space:pre-wrap}.x-msg.user .x-bubble{background:#211b0b;border-color:#4e4018;color:#f1e6bf}.x-time{font-size:9px;color:#666;margin-top:5px}
-.x-composer{padding:14px;border-top:1px solid var(--line);background:#101010}.x-input-wrap{display:flex;align-items:flex-end;gap:8px;background:#171717;border:1px solid #353535;border-radius:15px;padding:8px}.x-input-wrap:focus-within{border-color:#766020;box-shadow:0 0 0 3px #d4af3712}.x-input-wrap textarea{flex:1;min-height:44px;max-height:130px;resize:none;border:0;background:transparent;outline:0;color:#eee;padding:9px;font:inherit;font-size:13px}.x-send{width:44px;height:44px;border:0;border-radius:12px;background:var(--gold);color:#080808;font-weight:900;cursor:pointer}.x-send:hover{filter:brightness(1.08)}
-.x-prompts{display:flex;gap:8px;overflow:auto;padding-top:10px}.x-prompt{white-space:nowrap;border:1px solid #303030;background:#141414;color:#bbb;border-radius:999px;padding:8px 11px;font-size:10px;cursor:pointer}.x-prompt:hover{border-color:#6f5a1d;color:var(--gold)}
-.x-side{display:flex;flex-direction:column;gap:12px}.x-side .card{padding:16px}.x-side h3{font-family:Cinzel,serif;color:var(--gold);font-size:13px;margin:0 0 10px}.x-feature{padding:10px 0;border-bottom:1px solid #242424;font-size:11px;color:#aaa;line-height:1.5}.x-feature:last-child{border-bottom:0}.x-note{font-size:10px;color:#777;line-height:1.6}.x-demo{font-size:9px;color:#8d7530;margin-top:10px}
-@media(max-width:900px){.x-shell{grid-template-columns:1fr}.x-side{display:none}}
-@media(max-width:560px){.x-shell,.x-chat{min-height:calc(100vh - 150px)}.x-messages{padding:16px}.x-msg{max-width:94%}.x-head{padding:14px}.x-status{display:none}}
-
-/* MONARCH EXPERIENCE */
-.monarch-hero{position:relative;overflow:hidden;background:radial-gradient(circle at 85% 15%,#2a230d 0,#151515 35%,#0d0d0d 75%);border:1px solid #3a321c;border-radius:20px;padding:28px;margin-bottom:18px}
-.monarch-hero:after{content:"♔";position:absolute;right:22px;top:-18px;font-family:Cinzel,serif;font-size:120px;color:#d4af3710;pointer-events:none}
-.monarch-kicker{font-size:10px;letter-spacing:2px;color:#b99a39;text-transform:uppercase;font-weight:700}
-.monarch-hero h1{font-family:Cinzel,serif;color:var(--gold);font-size:30px;margin:7px 0 6px}
-.monarch-hero p{color:#aaa;margin:0;max-width:760px;line-height:1.65}
-.experience-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:16px;margin-bottom:18px}
-.experience-card{background:linear-gradient(145deg,#151515,#0f0f0f);border:1px solid var(--line);border-radius:16px;padding:18px}
-.experience-card h3{font-family:Cinzel,serif;color:var(--gold);margin:0 0 12px;font-size:15px}
-.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.status-tile{background:#0b0b0b;border:1px solid #292929;border-radius:12px;padding:13px}
-.status-tile span{display:block;color:#777;font-size:10px;text-transform:uppercase;letter-spacing:.7px}
-.status-tile strong{display:block;margin-top:5px;font-size:13px;color:#eee}
-.membership-badge{display:inline-flex;align-items:center;gap:7px;border:1px solid #5d4b18;background:#211b0b;color:#f0d477;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:700}
-.ref-progress{margin-top:13px}.ref-progress-bar{height:8px;background:#292929;border-radius:999px;overflow:hidden}.ref-progress-bar span{display:block;height:100%;background:linear-gradient(90deg,#8f731c,var(--gold2));border-radius:999px;width:0}.ref-progress-meta{display:flex;justify-content:space-between;color:#777;font-size:10px;margin-top:7px}
-.profile-launch{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid #302b1c;background:#111;border-radius:14px;cursor:pointer;transition:.15s}.profile-launch:hover{border-color:#6f5a1d;background:#17150e}.profile-launch img{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover;background:#171717}.profile-launch .pl-main{min-width:0;flex:1}.profile-launch .pl-name{font-weight:700;font-size:14px}.profile-launch .pl-sub{color:#777;font-size:10px;margin-top:3px}
-.public-profile-box{width:min(650px,100%);max-height:90vh;overflow:auto;background:#101010;border:1px solid #3b321d;border-radius:20px;padding:0}.public-profile-cover{padding:26px;background:radial-gradient(circle at 80% 0,#29220d,#121212 55%);border-bottom:1px solid var(--line)}.public-profile-head{display:flex;align-items:center;gap:15px}.public-profile-head img{width:82px;height:82px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;background:#171717}.public-profile-name{font-family:Cinzel,serif;color:var(--gold);font-size:22px}.public-profile-uid{font-size:10px;color:#777;margin-top:4px;word-break:break-all}.public-profile-body{padding:20px}.public-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.public-stat{background:#151515;border:1px solid #292929;border-radius:12px;padding:13px}.public-stat span{display:block;color:#777;font-size:10px;text-transform:uppercase;letter-spacing:.6px}.public-stat strong{display:block;margin-top:5px;font-size:13px;color:#eee}.public-note{margin-top:15px;padding:12px;border:1px solid #2f2a1b;background:#17140b;color:#aaa;border-radius:11px;font-size:11px;line-height:1.55}.public-close{margin-top:16px;width:100%}
-.clickable-profile{cursor:pointer}.clickable-profile:hover{color:var(--gold)!important}
-@media(max-width:900px){.experience-grid{grid-template-columns:1fr}}
-@media(max-width:560px){.status-grid{grid-template-columns:1fr}.monarch-hero{padding:21px}.monarch-hero h1{font-size:24px}.public-profile-grid{grid-template-columns:1fr}.public-profile-head img{width:68px;height:68px}}
+:root{--gold:#D4AF37;--gold2:#f0d477;--bg:#070707;--card:#121212;--card2:#181818;--border:#292929;--text:#f5f5f5;--muted:#9b9b9b;--danger:#d66;--success:#7dcc91;--sidebar:270px}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Poppins,Arial,sans-serif}body{overflow-x:hidden}button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+#loadingScreen{position:fixed;inset:0;z-index:9999;background:#050505;display:grid;place-items:center}.loader{text-align:center}.loader-mark{width:62px;height:62px;border:2px solid #333;border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 18px}.loader h1{font:600 22px Cinzel,serif;letter-spacing:3px;color:var(--gold)}.loader p{color:var(--muted);font-size:12px}@keyframes spin{to{transform:rotate(360deg)}}
+#app{min-height:100vh}.sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:var(--sidebar);background:#0b0b0b;border-right:1px solid var(--border);display:flex;flex-direction:column;padding:22px 16px}.brand{padding:4px 10px 24px;border-bottom:1px solid var(--border);margin-bottom:15px}.brand h1{font:700 21px Cinzel,serif;letter-spacing:2px;color:var(--gold);margin:0}.brand span{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}.side-profile{display:flex;gap:11px;align-items:center;padding:10px;border-radius:12px;background:#101010;margin-bottom:14px}.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#222;border:1px solid #4c401f}.avatar-fallback{display:grid;place-items:center;font-weight:700;color:var(--gold);background:#151515}.side-profile strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}.uid{font-size:10px;color:var(--muted)}.nav{display:grid;gap:5px;overflow:auto}.nav button{border:1px solid transparent;background:transparent;color:#bdbdbd;text-align:left;padding:11px 12px;border-radius:9px;transition:.2s}.nav button:hover,.nav button.active{color:var(--gold2);background:#15130d;border-color:#302a18}.nav-icon{display:inline-block;width:25px;color:var(--gold)}.side-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:12px}.logout{width:100%;border:1px solid #342a19;background:#12100b;color:#e8c75c;padding:11px;border-radius:9px}
+.main{margin-left:var(--sidebar);min-height:100vh}.topbar{height:72px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,7,7,.94);position:sticky;top:0;z-index:30;backdrop-filter:blur(10px)}.topbar h2{font:600 18px Cinzel,serif;margin:0}.top-actions{display:flex;gap:10px;align-items:center}.icon-btn{width:40px;height:40px;border-radius:9px;border:1px solid var(--border);background:#111;color:var(--gold);position:relative}.dot{position:absolute;right:7px;top:7px;width:7px;height:7px;background:#d55;border-radius:50%;border:1px solid #111}.mobile-menu{display:none}.content{padding:28px;max-width:1500px;margin:auto}.view{display:none;animation:fade .25s ease}.view.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.hero{padding:28px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(120deg,#14120c,#111 45%,#0c0c0c);margin-bottom:20px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}.hero h1{font:600 clamp(25px,4vw,38px) Cinzel,serif;margin:8px 0}.hero p{margin:0;color:var(--muted)}.grid{display:grid;gap:15px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:19px}.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.stat-value{font:600 25px Cinzel,serif;margin-top:7px;color:#f7e6a0}.stat-sub{font-size:10px;color:var(--muted);margin-top:4px}.two{grid-template-columns:1.25fr .75fr}.three{grid-template-columns:repeat(3,1fr)}.section-title{display:flex;justify-content:space-between;align-items:center;margin:25px 0 12px}.section-title h3{font:600 17px Cinzel,serif;margin:0}.btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:10px 14px;border-radius:9px;font-weight:600}.btn.primary{background:var(--gold);color:#080808;border-color:var(--gold)}.btn.danger{border-color:#593030;color:#e58d8d;background:#170e0e}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-sm{padding:7px 10px;font-size:11px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:#bbb}.field input,.field select,.field textarea{width:100%;background:#0c0c0c;border:1px solid #303030;color:var(--text);padding:11px 12px;border-radius:8px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#8c742b}.field small{font-size:10px;color:var(--muted)}.notice{padding:12px;border:1px solid #39301a;background:#151209;border-radius:9px;color:#d6c58e;font-size:12px}.success{border-color:#294a33;background:#0d1710;color:#9dd4aa}.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}.warning{border-color:#5a461d;background:#191408;color:#dfc17a}.status{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:999px;padding:4px 9px;font-size:10px;text-transform:capitalize}.status.approved,.status.active{color:var(--success);border-color:#2c5136}.status.pending{color:#dfc17a}.status.rejected{color:#e39a9a;border-color:#553030}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}.table{width:100%;border-collapse:collapse;min-width:680px}.table th,.table td{padding:12px 13px;border-bottom:1px solid #222;text-align:left;font-size:11px}.table th{color:#a99b69;font-size:10px;text-transform:uppercase;letter-spacing:.7px;background:#15130e}.table tr:last-child td{border-bottom:0}.empty{text-align:center;color:var(--muted);padding:30px!important}.profile-head{display:flex;gap:18px;align-items:center}.profile-large{width:78px;height:78px;border-radius:50%;object-fit:cover;border:1px solid #665525;background:#161616}.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-top:18px}.info{background:#0e0e0e;border:1px solid #242424;padding:12px;border-radius:9px}.info span{display:block;font-size:9px;color:var(--muted);text-transform:uppercase}.info strong{font-size:12px;display:block;margin-top:4px;word-break:break-word}.payment-list{display:grid;gap:10px}.payment{border:1px solid #2b2b2b;background:#0d0d0d;border-radius:10px;padding:12px}.payment.selected{border-color:#806a28;background:#151208}.payment h4{margin:0 0 6px;font-size:12px;color:#ecd271}.payment p{margin:3px 0;color:#aaa;font-size:10px;word-break:break-word}.radio-row{display:flex;gap:8px;flex-wrap:wrap}.radio{border:1px solid #303030;padding:9px 12px;border-radius:8px;font-size:11px;color:#aaa;cursor:pointer}.radio.selected{border-color:#8b722a;color:#f0d477;background:#151208}.chat{height:500px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;padding:8px;display:grid;align-content:start;gap:10px}.msg{max-width:82%;padding:11px 13px;border-radius:12px;font-size:12px;line-height:1.55;white-space:pre-wrap}.msg.x{background:#17140d;border:1px solid #3a311b}.msg.user{justify-self:end;background:#d4af37;color:#080808}.chat-form{display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px}.chat-form input{flex:1;background:#0c0c0c;border:1px solid #333;border-radius:9px;padding:11px;color:white}.suggestions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.suggestions button{background:#111;border:1px solid #292929;color:#bca85f;padding:7px 9px;border-radius:20px;font-size:10px}.ref-box{display:flex;gap:8px}.ref-box input{flex:1}.notification-panel{position:fixed;right:22px;top:64px;width:min(380px,calc(100vw - 30px));background:#101010;border:1px solid #34302a;border-radius:12px;z-index:80;box-shadow:0 20px 50px #000;max-height:70vh;overflow:auto}.notification-panel h3{font:600 14px Cinzel,serif;padding:14px;margin:0;border-bottom:1px solid #292929}.notification{padding:12px 14px;border-bottom:1px solid #222;font-size:11px}.notification.unread{background:#161309}.notification small{display:block;color:#777;margin-top:5px}.modal{position:fixed;inset:0;background:#000b;z-index:100;display:grid;place-items:center;padding:18px}.modal-box{width:min(560px,100%);max-height:90vh;overflow:auto;background:#111;border:1px solid #44391d;border-radius:15px;padding:20px}.modal-box h3{font:600 18px Cinzel,serif;margin-top:0;color:#efd36f}.toast{position:fixed;right:20px;bottom:20px;z-index:200;background:#151515;border:1px solid #3a3a3a;padding:12px 15px;border-radius:9px;font-size:11px;max-width:340px;box-shadow:0 10px 30px #000}.toast.error{background:#180d0d}.divider{height:1px;background:#252525;margin:18px 0}.muted{color:var(--muted)}.gold{color:var(--gold2)}.kpi{font-size:11px;color:#bbb}.progress{height:7px;background:#242424;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:var(--gold);width:0}.quick{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.three{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){:root{--sidebar:0px}.sidebar{transform:translateX(-100%);width:270px;transition:.25s;box-shadow:15px 0 50px #000}.sidebar.open{transform:none}.main{margin-left:0}.topbar{padding:0 15px;height:64px}.mobile-menu{display:block}.content{padding:16px}.stats,.three,.form-grid,.profile-grid{grid-template-columns:1fr}.hero{padding:20px}.topbar h2{font-size:15px}.chat{height:calc(100vh - 190px)}.notification-panel{right:10px;top:60px}.table{min-width:620px}}
 </style>
 </head>
-
 <body>
-<div id="loading">
-  <div class="loading-box">
-    <div class="logo-mark">M</div>
-    <div class="spinner"></div>
-    <h3 style="margin:0 0 6px;font-family:Cinzel,serif;color:#D4AF37">Entering your kingdom...</h3>
-    <div id="loadMsg" class="muted">Securing your session</div>
+<div id="loadingScreen"><div class="loader"><div class="loader-mark"></div><h1>MONARCH CODEX</h1><p>Securing your member dashboard…</p></div></div>
+
+<div id="app" class="hidden">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><h1>MONARCH CODEX</h1><span>The Inner Kingdom</span></div>
+  <div class="side-profile">
+    <div id="sideAvatar" class="avatar avatar-fallback">M</div>
+    <div><strong id="sideName">Monarch</strong><div class="uid" id="sideUid">—</div></div>
   </div>
-</div>
+  <nav class="nav" id="nav">
+    <button data-view="overview" class="active"><span class="nav-icon">◈</span>Overview</button>
+    <button data-view="x"><span class="nav-icon">✦</span>X AI</button>
+    <button data-view="kyc"><span class="nav-icon">◇</span>KYC Verification</button>
+    <button data-view="investments"><span class="nav-icon">◆</span>Investments</button>
+    <button data-view="withdrawals"><span class="nav-icon">↗</span>Withdrawals</button>
+    <button data-view="transactions"><span class="nav-icon">≡</span>Transactions</button>
+    <button data-view="referrals"><span class="nav-icon">♧</span>Referrals</button>
+    <button data-view="profile"><span class="nav-icon">◎</span>My Profile</button>
+  </nav>
+  <div class="side-bottom"><button class="logout" id="logoutBtn">↪ Logout</button></div>
+</aside>
 
-<div id="toast" class="hidden"></div>
+<main class="main">
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:10px"><button class="icon-btn mobile-menu" id="mobileMenu">☰</button><h2 id="pageTitle">Overview</h2></div>
+  <div class="top-actions"><button class="icon-btn" id="notificationBtn" aria-label="Notifications">♢<i id="notificationDot" class="dot hidden"></i></button></div>
+</header>
 
-<div class="app">
-  <aside id="sidebar" class="sidebar">
-    <div class="brand">
-      <div class="name">MONARCH CODEX</div>
-      <div class="sub">THE INNER KINGDOM</div>
-    </div>
+<div id="notificationPanel" class="notification-panel hidden"><h3>Notifications <button id="markAllRead" class="btn btn-sm" style="float:right">Mark all read</button></h3><div id="notificationList"></div></div>
 
-    <div class="member-card">
-      <div class="side-identity"><img id="sideAvatar" class="side-avatar" alt="Monarch photo"><div style="min-width:0"><div id="sideName" class="member-name">Monarch</div>
-      <div id="sideUid" class="member-uid">Loading...</div></div></div>
-      <div style="font-size:11px;margin-top:10px">
-        <span class="status-dot"></span><span id="sideStatus">Checking account</span>
+<section class="content">
+<!-- OVERVIEW -->
+<div class="view active" id="view-overview">
+  <div class="hero"><div class="eyebrow">Private Member Area</div><h1>Welcome, <span id="welcomeName">Monarch</span>.</h1><p>Your Inner Kingdom dashboard for managing your membership, investments, earnings and referrals.</p></div>
+  <div class="grid stats">
+    <div class="card"><div class="stat-label">Available Balance</div><div class="stat-value" id="statBalance">$0.00</div><div class="stat-sub">Current account balance</div></div>
+    <div class="card"><div class="stat-label">Total Invested</div><div class="stat-value" id="statInvested">$0.00</div><div class="stat-sub">Approved investments</div></div>
+    <div class="card"><div class="stat-label">Total Earnings</div><div class="stat-value" id="statEarnings">$0.00</div><div class="stat-sub">Profit & referral earnings</div></div>
+    <div class="card"><div class="stat-label">Withdrawable</div><div class="stat-value" id="statWithdrawable">$0.00</div><div class="stat-sub">Subject to withdrawal rules</div></div>
+  </div>
+  <div class="grid two">
+    <div>
+      <div class="section-title"><h3>Account Standing</h3></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="kpi">Membership</span><span id="membershipStatus" class="status">—</span></div>
+        <div class="divider"></div>
+        <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="kpi">KYC Verification</span><span id="overviewKyc" class="status">—</span></div>
+        <div class="divider"></div>
+        <div class="kpi">Referral progress</div><div style="margin:8px 0" class="progress"><i id="refProgress"></i></div><div id="refProgressText" class="muted" style="font-size:10px">0 referrals</div>
+        <div class="section-title" style="margin-top:18px"><h3>Quick Actions</h3></div>
+        <div class="quick"><button class="btn primary" data-go="investments">Invest</button><button class="btn" data-go="withdrawals">Withdraw</button><button class="btn" data-go="referrals">Invite a Monarch</button><button class="btn" data-go="x">Ask X</button></div>
       </div>
     </div>
-
-    <nav class="nav">
-      <button class="active" data-view="overview"><span class="icon">⌂</span>Overview</button>
-      <button data-view="x"><span class="icon">✦</span>X AI</button>
-      <button data-view="kyc"><span class="icon">✓</span>KYC Verification</button>
-      <button data-view="investments"><span class="icon">◈</span>Investments</button>
-      <button data-view="withdrawals"><span class="icon">↗</span>Withdrawals</button>
-      <button data-view="transactions"><span class="icon">▤</span>Transactions</button>
-      <button data-view="referrals"><span class="icon">♔</span>Referrals</button>
-      <button data-view="profile"><span class="icon">◉</span>My Profile</button>
-      <button id="logoutBtn" class="logout"><span class="icon">↪</span>Logout</button>
-    </nav>
-  </aside>
-
-  <main class="main">
-    <header class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
-        <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
-        <div id="topTitle" class="top-title">MONARCH CODEX</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div id="topEmail" class="muted" style="font-size:12px"></div>
-        <button id="notificationBtn" class="notification-bell" type="button" aria-label="Notifications" title="Notifications">🔔<span id="notificationCount" class="notification-count">0</span></button>
-      </div>
-    </header>
-
-    <section class="content">
-
-      <!-- OVERVIEW -->
-      <div id="view-overview" class="view active">
-        <div class="monarch-hero">
-          <div class="monarch-kicker">THE INNER KINGDOM • MONARCH EXPERIENCE</div>
-          <h1 id="welcomeName">Welcome, Monarch</h1>
-          <p id="welcomeMessage">Welcome back to MONARCH CODEX. Your account, progress and financial activity are organized in one private member experience.</p>
-        </div>
-
-        <div class="experience-grid">
-          <div class="experience-card">
-            <h3>Account Status</h3>
-            <div class="status-grid">
-              <div class="status-tile"><span>Account</span><strong id="experienceAccountStatus">Checking...</strong></div>
-              <div class="status-tile"><span>Identity</span><strong id="experienceKycStatus">Checking...</strong></div>
-              <div class="status-tile"><span>Membership</span><strong id="experienceMembership">MONARCH</strong></div>
-            </div>
-          </div>
-          <div class="experience-card">
-            <h3>Membership</h3>
-            <div class="membership-badge">♔ <span id="membershipBadgeText">MONARCH MEMBER</span></div>
-            <div class="muted" style="font-size:11px;line-height:1.6;margin-top:10px" id="membershipSince">Member since —</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-bottom:18px">
-          <h2 class="section-title">Your Monarch Profile</h2>
-          <div id="profileLaunch" class="profile-launch" data-go="profile">
-            <img id="overviewAvatar" alt="Monarch profile photo">
-            <div class="pl-main"><div id="overviewProfileName" class="pl-name">Monarch</div><div id="overviewProfileSub" class="pl-sub">Open your full private profile</div></div>
-            <div class="gold" style="font-size:20px">›</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-bottom:18px">
-          <h2 class="section-title">Referral Progress</h2>
-          <div class="status-grid">
-            <div class="status-tile"><span>Total Referrals</span><strong id="experienceRefCount">0</strong></div>
-            <div class="status-tile"><span>Referral Earnings</span><strong id="experienceRefEarn">$0.00</strong></div>
-            <div class="status-tile"><span>Referral Window</span><strong>6 Months</strong></div>
-          </div>
-          <div class="ref-progress"><div class="ref-progress-bar"><span id="refProgressFill"></span></div><div class="ref-progress-meta"><span id="refProgressLabel">0 referrals</span><span>Build your network</span></div></div>
-        </div>
-
-        <div class="cards">
-          <div class="card"><div class="card-title">Available Balance</div><div id="balance" class="value">$0.00</div></div>
-          <div class="card"><div class="card-title">Total Investment</div><div id="totalInvestment" class="value">$0.00</div></div>
-          <div class="card"><div class="card-title">Total Earnings</div><div id="totalEarnings" class="value">$0.00</div></div>
-          <div class="card"><div class="card-title">Referral Earnings</div><div id="referralEarnings" class="value">$0.00</div></div>
-        </div>
-
-        <div class="grid2">
-          <div class="card">
-            <h2 class="section-title">Account Status</h2>
-            <div id="accountStatus" class="notice">Loading account information...</div>
-            <div class="actions">
-              <button class="btn secondary" data-go="profile">View Profile</button>
-              <button class="btn secondary" data-go="transactions">View Ledger</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <h2 class="section-title">Recent Transactions</h2>
-            <div id="recentTransactions" class="empty">Loading ledger...</div>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- X AI -->
-      <div id="view-x" class="view">
-        <div class="hero"><h1>Ask X.</h1><p>Your MONARCH CODEX intelligence interface — built to become your AI companion for the Codex.</p></div>
-        <div class="x-shell">
-          <div class="card x-chat">
-            <div class="x-head">
-              <div class="x-brand"><div class="x-mark">X</div><div><strong>X</strong><span>MONARCH CODEX INTELLIGENCE</span></div></div>
-              <div class="x-status">● Interface Ready</div>
-            </div>
-            <div id="xMessages" class="x-messages" aria-live="polite"></div>
-            <div class="x-composer">
-              <div class="x-input-wrap"><textarea id="xInput" rows="1" placeholder="Ask X anything about the Codex..."></textarea><button id="xSend" class="x-send" type="button" aria-label="Send">↑</button></div>
-              <div id="xPrompts" class="x-prompts">
-                <button class="x-prompt" type="button" data-x-prompt="What is MONARCH CODEX?">What is MONARCH CODEX?</button>
-                <button class="x-prompt" type="button" data-x-prompt="Explain market structure to me.">Explain market structure</button>
-                <button class="x-prompt" type="button" data-x-prompt="How does my dashboard work?">How does my dashboard work?</button>
-                <button class="x-prompt" type="button" data-x-prompt="What should I know about risk management?">Risk management</button>
-              </div>
-            </div>
-          </div>
-          <div class="x-side">
-            <div class="card"><h3>What X Is Becoming</h3><div class="x-feature">◆ A real AI conversation layer</div><div class="x-feature">◆ MONARCH CODEX knowledge</div><div class="x-feature">◆ Live market intelligence</div><div class="x-feature">◆ Controlled account assistance</div><div class="x-feature">◆ Trading education & explanations</div></div>
-            <div class="card"><h3>Built In Stages</h3><div class="x-note">X now connects to the secure AI backend. Account and sensitive-data access will be added separately and deliberately.</div><div class="x-demo">CURRENT: AI BACKEND MODE</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- KYC -->
-      <div id="view-kyc" class="view">
-        <div class="hero"><h1>KYC Verification</h1><p>Keep your Monarch identity information secure and up to date.</p></div>
-        <div class="card">
-          <div id="kycNotice" class="notice">Your KYC status is being checked.</div>
-          <div class="form-grid">
-            <div class="field"><label>Full Name</label><input id="kycName" type="text"></div>
-            <div class="field"><label>Phone Number</label><input id="kycPhone" type="tel"></div>
-            <div class="field"><label>Email</label><input id="kycEmail" type="email" disabled></div>
-            <div class="field"><label>NIN</label><input id="kycNin" type="text" inputmode="numeric" maxlength="11"></div>
-            <div class="field full"><label>KYC Document / ID Image</label><input id="kycFile" class="file-input" type="file" accept="image/*,.pdf"></div>
-          </div>
-          <div class="actions"><button id="saveKyc" class="btn">Submit KYC</button></div>
-        </div>
-      </div>
-
-      <!-- INVESTMENTS -->
-      <div id="view-investments" class="view">
-        <div class="hero"><h1>Investments</h1><p>Choose a package and submit an investment request.</p></div>
-        <div id="packages" class="cards"><div class="card empty">Loading packages...</div></div>
-
-        <div class="card" style="margin-top:18px">
-          <h2 class="section-title">Investment Request</h2>
-          <div class="form-grid">
-            <div class="field"><label>Package</label><select id="investPackage"><option value="">Select package</option></select></div>
-            <div class="field"><label>Amount (USD)</label><input id="investAmount" type="number" min="0" step="0.01"></div>
-            <div class="field"><label>Payment Method</label><select id="investMethod"><option value="bank">Bank Transfer</option><option value="wallet">Wallet Address</option></select></div>
-            <div class="field full"><label>Available Payment Destinations</label><div id="paymentDestinations" class="payment-destinations"><div class="empty">Loading payment destinations...</div></div></div>
-            <div class="field"><label id="investAmountPayLabel">Amount to Pay (NGN)</label><input id="investNaira" type="text" readonly></div>
-            <div class="field"><label id="investFeeLabel">Investment Fee</label><input id="investFee" type="text" readonly value="₦2,800.00"></div>
-            <div class="field"><label id="investTotalLabel">Total to Pay</label><input id="investTotal" type="text" readonly value="₦0.00"></div>
-            <div class="field full"><label>Proof of Payment Receipt <span style="color:#D4AF37">*</span></label><div class="receipt-box"><input id="investReceipt" class="file-input" type="file" accept="image/*,.pdf"><div class="receipt-help">Upload a clear screenshot, photo or PDF of your payment receipt. Maximum 10MB.</div><div id="receiptName" class="receipt-name"></div></div></div><div class="field full"><label>Payment Reference / Note</label><textarea id="investNote" placeholder="Optional reference or payment note"></textarea></div>
-          </div>
-          <div class="actions"><button id="investBtn" class="btn">Submit Investment</button></div>
-        </div>
-
-        <div class="card" style="margin-top:18px">
-          <h2 class="section-title">My Investments</h2>
-          <div id="investmentTable" class="empty">Loading investments...</div>
-        </div>
-      </div>
-
-      <!-- WITHDRAWALS -->
-      <div id="view-withdrawals" class="view">
-        <div class="hero"><h1>Withdrawals</h1><p>Request withdrawals from your available balance.</p></div>
-        <div class="card">
-          <div class="notice">
-  Withdrawal fee: 1% of the requested withdrawal amount.<br>
-  Earnings withdrawals require at least <b>$10</b> in available earnings.
-  Investment capital becomes withdrawable <b>3 months after approval</b>.
-  The final eligibility check is enforced securely by MONARCH CODEX.
-</div>
-          <div class="form-grid">
-            <div class="field">
-  <label>Amount (USD)</label>
-  <input id="withdrawAmount" type="number" min="1" step="0.01">
-  <div id="withdrawRuleHint" class="receipt-help">Enter an amount to calculate the 1% withdrawal fee and net amount.</div>
-</div>
-            <div class="field"><label>Method</label><select id="withdrawMethod"><option value="bank">Bank</option><option value="wallet">Crypto</option></select></div>
-            <div class="field"><label>Fee (1%)</label><input id="withdrawFee" type="text" readonly value="$0.00"></div>
-            <div class="field"><label>Net Amount</label><input id="withdrawNet" type="text" readonly value="$0.00"></div>
-            <div class="field full"><label id="withdrawDetailsLabel">Your Own Bank Account Details</label><textarea id="withdrawDetails" placeholder="Enter your own bank account name and account number. The account name must match your Monarch/KYC name."></textarea></div>
-          </div>
-          <div class="actions"><button id="withdrawBtn" class="btn">Request Withdrawal</button></div>
-        </div>
-
-        <div class="card" style="margin-top:18px">
-          <h2 class="section-title">Withdrawal History</h2>
-          <div id="withdrawalTable" class="empty">Loading withdrawals...</div>
-        </div>
-      </div>
-
-      <!-- TRANSACTIONS -->
-      <div id="view-transactions" class="view">
-        <div class="hero"><h1>Transactions</h1><p>Your MONARCH CODEX financial ledger.</p></div>
-        <div class="card"><div id="transactionTable" class="empty">Loading ledger...</div></div>
-      </div>
-
-      <!-- REFERRALS -->
-      <div id="view-referrals" class="view">
-        <div class="hero"><h1>Referrals</h1><p>Build your Monarch network and track referral earnings.</p></div>
-        <div class="grid2">
-          <div class="card">
-            <h2 class="section-title">Your Referral</h2>
-            <div class="info-list">
-              <div class="info-row"><span>Referral Code</span><strong id="refCode">—</strong></div>
-              <div class="info-row"><span>Referral Earnings</span><strong id="refEarn">$0.00</strong></div>
-              <div class="info-row"><span>Referred Members</span><strong id="refCount">0</strong></div>
-            </div>
-            <hr>
-            <label>Referral Link</label>
-            <div class="ref-box" style="margin-top:7px">
-              <input id="refLink" readonly>
-              <button id="copyRefLink" class="btn secondary">Copy</button>
-            </div>
-            <div class="actions"><button id="copyRefCode" class="btn secondary">Copy Code</button></div>
-          </div>
-          <div class="card">
-            <h2 class="section-title">Your Referrals</h2>
-            <div id="referralTable" class="empty">Loading referrals...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PROFILE -->
-      <div id="view-profile" class="view">
-        <div class="hero"><h1>My Profile</h1><p>Manage your Monarch account details.</p></div>
-        <div class="card">
-          <div class="profile-head">
-            <img id="avatar" class="avatar" alt="Avatar">
-            <div>
-              <div id="profileName" style="font-size:19px;font-weight:700">Monarch</div>
-              <div id="profileUid" class="muted" style="font-size:12px">—</div>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="field"><label>Official Name</label><input id="username" type="text" readonly></div>
-            <div class="field"><label>Email</label><input id="profileEmail" type="email" disabled></div>
-            <div class="field"><label>Phone</label><input id="profilePhone" type="tel"></div>
-            <div class="field"><label>Referral Code</label><input id="profileRefCode" type="text" readonly></div>
-            <div class="field full"><label>Profile Photo</label><input id="avatarFile" class="file-input" type="file" accept="image/*"></div>
-          </div>
-          <div class="actions"><button id="saveUsername" class="btn">Save Profile</button></div>
-        </div>
-      </div>
-
-    </section>
-  </main>
-</div>
-
-<div id="publicProfileModal" class="modal" aria-hidden="true">
-  <div class="public-profile-box">
-    <div class="public-profile-cover">
-      <div class="modal-head"><strong style="font-family:Cinzel,serif;color:var(--gold)">MONARCH PROFILE</strong><button id="closePublicProfile" class="close" type="button">×</button></div>
-      <div class="public-profile-head" style="margin-top:18px">
-        <img id="publicProfileAvatar" alt="Monarch profile photo">
-        <div><div id="publicProfileName" class="public-profile-name">Monarch</div><div id="publicProfileUid" class="public-profile-uid">—</div><div class="membership-badge" style="margin-top:9px">♔ MONARCH MEMBER</div></div>
-      </div>
-    </div>
-    <div class="public-profile-body">
-      <div class="public-profile-grid">
-        <div class="public-stat"><span>Member Since</span><strong id="publicMemberSince">—</strong></div>
-        <div class="public-stat"><span>Account Status</span><strong id="publicAccountStatus">—</strong></div>
-        <div class="public-stat"><span>KYC Status</span><strong id="publicKycStatus">—</strong></div>
-        <div class="public-stat"><span>Community</span><strong>MONARCH CODEX</strong></div>
-      </div>
-      <div class="public-note">This is a public Monarch profile. Private information such as email, phone number, NIN, bank details, wallet details, balances, investments and withdrawals is not displayed here.</div>
-      <button id="closePublicProfile2" class="btn secondary public-close" type="button">Close Profile</button>
+    <div>
+      <div class="section-title"><h3>Recent Activity</h3></div><div class="card"><div id="recentActivity" class="muted" style="font-size:11px">Loading activity…</div></div>
     </div>
   </div>
 </div>
 
-<div id="notificationPanel" class="notification-panel">
-  <div class="notification-head">
-    <h3>Notifications</h3>
-    <button id="markNotificationsRead" class="btn secondary" type="button" style="padding:7px 10px;font-size:11px">Mark all read</button>
-  </div>
-  <div id="notificationList" class="notification-empty">Loading notifications...</div>
-</div>
+<!-- X -->
+<div class="view" id="view-x"><div class="hero"><div class="eyebrow">MONARCH CODEX Intelligence</div><h1>Ask X</h1><p>Your AI assistant for the Inner Kingdom.</p></div>
+<div class="card chat"><div id="xMessages" class="messages"></div><div class="suggestions"><button data-prompt="Explain my dashboard balance and withdrawal rules.">My balance</button><button data-prompt="Explain the current investment process.">Investment process</button><button data-prompt="Explain the KYC requirements.">KYC requirements</button><button data-prompt="How do referrals work?">Referrals</button><button id="clearX">Clear conversation</button></div><form id="xForm" class="chat-form"><input id="xInput" autocomplete="off" placeholder="Ask X anything about MONARCH CODEX…"><button class="btn primary" type="submit">Send</button></form></div></div>
 
-<div id="mobileShade" class="modal" style="background:#0008"></div>
+<!-- KYC -->
+<div class="view" id="view-kyc"><div class="hero"><div class="eyebrow">Identity Verification</div><h1>KYC Verification</h1><p>Complete your identity verification to unlock protected financial sections.</p></div>
+<div id="kycStatusBox" class="notice">Loading KYC status…</div><div class="card" style="margin-top:15px"><form id="kycForm" class="form-grid">
+<div class="field full"><label>NIN Number — exactly 11 digits</label><input id="ninNumber" inputmode="numeric" maxlength="11" pattern="[0-9]{11}" placeholder="Enter 11-digit NIN" required><small id="ninHelp">Your NIN is stored with your KYC record.</small></div>
+<div class="field"><label>NIN Front</label><input id="ninFront" type="file" accept="image/*,.pdf" required><small>Upload the front of your NIN document.</small></div>
+<div class="field"><label>NIN Back</label><input id="ninBack" type="file" accept="image/*,.pdf" required><small>Upload the back of your NIN document.</small></div>
+<div class="field"><label>Selfie</label><input id="selfie" type="file" accept="image/*" required><small>Use a clear recent selfie.</small></div>
+<div class="field full"><button class="btn primary" id="kycSubmit" type="submit">Submit KYC for Review</button></div>
+</form></div></div>
 
+<!-- INVESTMENTS -->
+<div class="view" id="view-investments"><div class="hero"><div class="eyebrow">Capital</div><h1>Investments</h1><p>Choose an available package, select your payment destination and submit your receipt for review.</p></div>
+<div id="investmentGate" class="notice hidden"></div><div id="investmentArea">
+<div class="grid two"><div class="card"><div class="section-title" style="margin-top:0"><h3>New Investment</h3></div><form id="investmentForm" class="form-grid">
+<div class="field full"><label>Investment Package</label><select id="packageSelect" required><option value="">Loading packages…</option></select></div>
+<div class="field"><label>Investment Amount (USD)</label><input id="investmentAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div>
+<div class="field"><label>Payment Method</label><select id="investmentMethod" required><option value="">Choose method</option><option value="bank">Bank Transfer</option><option value="wallet">Crypto / Wallet</option></select></div>
+<div class="field full"><label>Payment Destination</label><div id="paymentDestinations" class="payment-list"><div class="muted" style="font-size:11px">Choose a payment method.</div></div></div>
+<div class="field"><label>Fee</label><input id="investmentFee" readonly value="$0.00"></div><div class="field"><label>Total USD</label><input id="investmentTotal" readonly value="$0.00"></div>
+<div class="field"><label>Total NGN (bank only)</label><input id="investmentNgn" readonly value="—"></div>
+<div class="field"><label>Receipt</label><input id="investmentReceipt" type="file" accept="image/*,.pdf" required></div>
+<div class="field full"><label>Note (optional)</label><textarea id="investmentNote" rows="3" placeholder="Add a payment note if necessary"></textarea></div>
+<div class="field full"><button class="btn primary" id="investmentSubmit" type="submit">Submit Investment</button></div>
+</form></div>
+<div class="card"><div class="section-title" style="margin-top:0"><h3>Payment Instructions</h3></div><div id="paymentInstruction" class="notice">Select Bank Transfer or Crypto / Wallet to see available destinations.</div><div class="divider"></div><div class="notice">Investment fee: Bank $2 · Wallet $1 · Bank conversion: $1 = ₦1,400.</div></div></div>
+<div class="section-title"><h3>Investment History</h3><button class="btn btn-sm" id="refreshInvestments">Refresh</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Package</th><th>Amount</th><th>Fee</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="investmentHistory"></tbody></table></div>
+</div></div>
+
+<!-- WITHDRAWALS -->
+<div class="view" id="view-withdrawals"><div class="hero"><div class="eyebrow">Treasury</div><h1>Withdrawals</h1><p>Request eligible earnings or capital. All withdrawal requests are reviewed before payment.</p></div>
+<div id="withdrawalGate" class="notice hidden"></div><div id="withdrawalArea">
+<div class="grid stats" style="grid-template-columns:repeat(3,1fr)"><div class="card"><div class="stat-label">Available Profit</div><div class="stat-value" id="profitAvailable">$0.00</div></div><div class="card"><div class="stat-label">Withdrawable Capital</div><div class="stat-value" id="capitalAvailable">$0.00</div></div><div class="card"><div class="stat-label">Locked Capital</div><div class="stat-value" id="capitalLocked">$0.00</div></div></div>
+<div class="card" style="margin-top:15px"><form id="withdrawalForm" class="form-grid">
+<div class="field"><label>Withdrawal Source</label><select id="withdrawalSource" required><option value="earnings">Earnings</option><option value="capital">Capital</option></select></div>
+<div class="field"><label>Method</label><select id="withdrawalMethod" required><option value="bank">Bank</option><option value="crypto">Crypto</option></select></div>
+<div class="field"><label>Amount (USD)</label><input id="withdrawalAmount" type="number" min="0.01" step="0.01" required placeholder="0.00"></div>
+<div class="field"><label>Chain / Network (crypto)</label><select id="withdrawalChain"><option value="">Choose Chain</option><option>TRC20</option><option>BEP20</option><option>ERC20</option></select></div>
+<div class="field full" id="bankDetails"><div class="notice"><strong>Registered Bank Details</strong><div id="registeredBank" style="margin-top:7px">Loading…</div></div></div>
+<div class="field full hidden" id="cryptoDetails"><label>Wallet Address</label><input id="withdrawalWallet" placeholder="Enter wallet address"></div>
+<div class="field full"><div class="notice"><div>Requested amount: <strong id="withdrawRequest">$0.00</strong></div><div>1% fee: <strong id="withdrawFee">$0.00</strong></div><div>Net amount: <strong id="withdrawNet">$0.00</strong></div></div></div>
+<div class="field full"><button class="btn primary" id="withdrawSubmit" type="submit">Submit Withdrawal Request</button></div>
+</form></div>
+<div class="section-title"><h3>Withdrawal History</h3><button class="btn btn-sm" id="refreshWithdrawals">Refresh</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Source</th><th>Amount</th><th>Fee</th><th>Method / Destination</th><th>Status</th><th>Date</th></tr></thead><tbody id="withdrawalHistory"></tbody></table></div>
+</div></div>
+
+<!-- TRANSACTIONS -->
+<div class="view" id="view-transactions"><div class="hero"><div class="eyebrow">Ledger</div><h1>Transactions</h1><p>A consolidated view of your available financial records.</p></div><div id="transactionGate" class="notice hidden"></div><div id="transactionArea"><div class="table-wrap"><table class="table"><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody id="transactionHistory"></tbody></table></div></div></div>
+
+<!-- REFERRALS -->
+<div class="view" id="view-referrals"><div class="hero"><div class="eyebrow">Kingdom Network</div><h1>Referrals</h1><p>Build your network and track referral activity and eligible bonuses.</p></div><div id="referralGate" class="notice hidden"></div><div id="referralArea">
+<div class="grid three"><div class="card"><div class="stat-label">Referral Code</div><div class="stat-value" id="refCode" style="font-size:19px">—</div><button class="btn btn-sm" id="copyRefCode" style="margin-top:10px">Copy Code</button></div><div class="card"><div class="stat-label">Referral Earnings</div><div class="stat-value" id="refEarnings">$0.00</div></div><div class="card"><div class="stat-label">Network</div><div class="stat-value" id="refCount">0</div><div class="stat-sub">Registered referrals</div></div></div>
+<div class="card" style="margin-top:15px"><div class="section-title" style="margin-top:0"><h3>Your Referral Link</h3><button class="btn btn-sm" id="copyRefLink">Copy Link</button></div><div class="ref-box"><input id="refLink" readonly></div></div>
+<div class="section-title"><h3>Referral Network</h3><button class="btn btn-sm" id="refreshReferrals">Refresh</button></div><div class="table-wrap"><table class="table"><thead><tr><th>Monarch</th><th>Username</th><th>Status</th><th>Joined</th><th>Profile</th></tr></thead><tbody id="referralHistory"></tbody></table></div>
+</div></div>
+
+<!-- PROFILE -->
+<div class="view" id="view-profile"><div class="hero"><div class="eyebrow">Private Account</div><h1>My Profile</h1><p>Your private account information is visible only to you.</p></div><div class="grid two"><div class="card"><div class="profile-head"><div id="profileAvatar" class="profile-large avatar-fallback">M</div><div><h3 id="profileName" style="margin:0;font:600 19px Cinzel,serif">Monarch</h3><div id="profileUsername" class="gold">@—</div><div id="profileStatus" class="status">—</div></div></div><div class="divider"></div><form id="profileForm" class="form-grid"><div class="field full"><label>Display Username</label><input id="displayUsername" maxlength="30" required><small>Use letters, numbers, underscores or hyphens. Username rules are enforced by the database where applicable.</small></div><div class="field"><label>Full Name</label><input id="profileFullName" readonly></div><div class="field"><label>Email</label><input id="profileEmail" readonly></div><div class="field"><label>Phone</label><input id="profilePhone" readonly></div><div class="field"><label>UID</label><input id="profileUid" readonly></div><div class="field"><label>Country</label><input id="profileCountry" readonly></div><div class="field"><label>State</label><input id="profileState" readonly></div><div class="field"><label>City</label><input id="profileCity" readonly></div><div class="field"><label>KYC Status</label><input id="profileKyc" readonly></div><div class="field full"><label>Registered Bank</label><div id="profileBank" class="notice">—</div></div><div class="field full"><button class="btn primary" type="submit">Save Username</button></div></form></div>
+<div class="card"><div class="section-title" style="margin-top:0"><h3>Profile Photo</h3></div><p class="muted" style="font-size:11px">Upload a clear avatar for your private and public Monarch profile.</p><input id="avatarInput" type="file" accept="image/*"><button class="btn" id="avatarUpload" style="margin-top:10px">Upload Avatar</button><div class="divider"></div><div class="notice"><strong>Privacy</strong><br><span class="muted">Other Monarchs can only see your approved public profile fields. Private financial, KYC, contact and bank information is not displayed publicly.</span></div></div></div></div>
+</section>
+</main></div>
+
+<div id="profileModal" class="modal hidden"><div class="modal-box"><button id="closeProfileModal" class="icon-btn" style="float:right">×</button><div id="publicProfileContent"></div></div></div>
+<div id="toast" class="toast hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(function(){
-  setTimeout(function(){
-    var el=document.getElementById("loading");
-    if(el) el.style.display="none";
-  },6000);
-})();
-</script>
+'use strict';
 
-<script>
-(() => {
-  "use strict";
+const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co';
+const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
+const X_ENDPOINT='https://monarchcodex-web.trademonarchofficial.workers.dev/api/x';
+const X_HISTORY_KEY='monarch_x_chat_v1';
+const NGN_RATE=1400, BANK_FEE=2, WALLET_FEE=1, WITHDRAWAL_RATE=.01, MIN_EARNINGS=10, CAPITAL_LOCK_MONTHS=3;
+const KYC_PROTECTED_VIEWS=['investments','withdrawals','transactions','referrals'];
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let currentUser=null,profile=null,packages=[],payments=[],notifications=[],investments=[],earnings=[],withdrawals=[],adjustments=[],referralLedger=[],referrals=[];
+let currentView='overview', selectedPayment=null;
 
-  const SUPABASE_URL = "https://avaworleivncevaoqeny.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
-  const NGN_RATE = 1400;
-  const INVEST_BANK_FEE_USD = 2;
-  const INVEST_WALLET_FEE_USD = 1;
-  const WITHDRAWAL_FEE_RATE = 0.01;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+/* Currency helpers */
+function fmt(n){const x=Number(n);return '$'+(Number.isFinite(x)?x:0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function ngn(n){const x=Number(n);return '₦'+(Number.isFinite(x)?x:0).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
+function date(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
+function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast '+(type==='error'?'error':'');t.classList.remove('hidden');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.add('hidden'),4200)}
+function setLoading(on){$('loadingScreen').classList.toggle('hidden',!on)}
+function status(v){const s=String(v||'unknown').toLowerCase();return '<span class="status '+esc(s)+'">'+esc(s.replaceAll('_',' '))+'</span>'}
+function isApproved(){return String(profile?.kyc_status||'').toLowerCase()==='approved'}
+function safeNum(v){const n=Number(v);return Number.isFinite(n)?n:0}
+function storageName(prefix,file){return prefix+'/'+currentUser.id+'/'+Date.now()+'_'+String(file.name).replace(/[^a-zA-Z0-9._-]/g,'_')}
 
-  let db = null;
-  let currentUser = null;
-  let currentProfile = null;
-  let packagesCache = [];
-  let booted = false;
-  let loadingClosed = false;
-  let notificationsCache = [];
-
-  const $ = id => document.getElementById(id);
-
-  function esc(value){
-    return String(value ?? "")
-      .replaceAll("&","&amp;").replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+function showView(view,force=false){
+  if(!view)return;
+  if(KYC_PROTECTED_VIEWS.includes(view)&&!isApproved()&&!force){
+    toast('KYC approval is required to access this section.','error');view='kyc';
   }
-
-  function money(value){
-    const n = Number(value || 0);
-    const sign=n<0 ? "-" : "";
-    return sign + "$" + Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-  }
-
-  function num(value){ return Number(value || 0); }
-
-  function toast(message,type=""){
-    const el=$("toast");
-    el.textContent=message;
-    el.className=type || "";
-    clearTimeout(window.__toastTimer);
-    window.__toastTimer=setTimeout(()=>el.className="hidden",4200);
-  }
-
-  function hideLoading(){
-    if(loadingClosed) return;
-    loadingClosed=true;
-    $("loading").style.display="none";
-  }
-
-  function showLoad(message){
-    $("loadMsg").textContent=message;
-  }
-
-  function setText(id,value){
-    const el=$(id);
-    if(el) el.textContent=value ?? "";
-  }
-
-  function statusBadge(status){
-    const s=String(status || "pending").toLowerCase();
-    const cls=["approved","confirmed","active","completed","success"].includes(s) ? "success"
-      : ["rejected","blocked","failed","cancelled"].includes(s) ? "danger" : "warning";
-    return `<span class="badge ${cls}">${esc(status || "pending")}</span>`;
-  }
-
-  async function withTimeout(promise,ms=10000){
-    let timer;
-    const timeout=new Promise((_,reject)=>{
-      timer=setTimeout(()=>reject(new Error("Request timed out. Please check your connection and try again.")),ms);
-    });
-    try{return await Promise.race([promise,timeout])}
-    finally{clearTimeout(timer)}
-  }
-
-  async function query(table,build){
-    if(!db || typeof db.from!=="function") throw new Error("Supabase connection is not ready. Please refresh the page.");
-    let q=db.from(table);
-    q=build(q);
-    return await withTimeout(q,10000);
-  }
-
-  async function loadProfile(){
-    if(!currentUser) return null;
-
-    const attempts=3;
-    for(let i=0;i<attempts;i++){
-      try{
-        const {data,error}=await query("profiles",q=>q.select("*").eq("id",currentUser.id).maybeSingle());
-        if(!error && data) return data;
-        if(error) console.warn("Profile query:",error);
-      }catch(e){console.warn("Profile attempt:",e)}
-      await new Promise(r=>setTimeout(r,500*(i+1)));
-    }
-    return null;
-  }
-
-  function renderProfile(){
-    if(!currentUser) return;
-
-    const p=currentProfile || {};
-    const name=p.full_name || p.username || currentUser.user_metadata?.full_name || "Monarch";
-    const uid=p.uid || p.referral_code || currentUser.id;
-
-    setText("sideName",name);
-    setText("sideUid",uid);
-    const sideAvatarUrl=p.avatar_url || p.avatar || "";
-    const fallback="data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="62" text-anchor="middle" fill="#D4AF37" font-size="42" font-family="serif">M</text></svg>`);
-    if($("sideAvatar")){ $("sideAvatar").src=sideAvatarUrl||fallback; $("sideAvatar").onerror=()=>{$("sideAvatar").src=fallback;}; }
-    setText("welcomeName","Welcome, "+name);
-    setText("profileName",name);
-    setText("profileUid",currentUser.id);
-    setText("topEmail",currentUser.email || "");
-    setText("sideStatus",p.status || "active");
-
-    $("profileEmail").value=currentUser.email || "";
-    $("username").value=p.full_name || name || "";
-    $("profilePhone").value=p.phone || "";
-    $("profileRefCode").value=p.referral_code || p.uid || "";
-    $("kycEmail").value=currentUser.email || "";
-    $("kycName").value=p.full_name || name || "";
-    $("kycPhone").value=p.phone || "";
-    $("kycNin").value=p.nin || p.nin_number || "";
-
-    setText("refCode",p.referral_code || p.uid || "—");
-    $("refLink").value=location.origin + location.pathname.replace(/dashboard\.html?$/i,"register.html") +
-      "?ref=" + encodeURIComponent(p.referral_code || p.uid || "");
-
-    renderMonarchExperience();
-
-    const avatar=p.avatar_url || p.avatar || "";
-    $("avatar").src=avatar || "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="61" text-anchor="middle" fill="#D4AF37" font-size="40" font-family="serif">M</text></svg>`
-    );
-
-    const kyc=String(p.kyc_status || p.kyc || "not_submitted").toLowerCase().trim();
-    const kycApproved=kyc==="approved" || kyc==="verified" || kyc==="kyc verified";
-    const kycLabel=kycApproved?"KYC VERIFIED":kyc==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(kyc)?"UNDER REVIEW":"KYC NOT SUBMITTED";
-    const reason=p.kyc_rejection_reason || p.rejection_reason || "";
-    $("kycNotice").innerHTML=kycApproved
-      ? "<b style=\"color:#8ee08e\">KYC VERIFIED</b><br>Your identity has been approved. You do not need to submit KYC again."
-      : kycLabel==="KYC REJECTED"
-        ? "KYC status: <b>KYC REJECTED</b>"+(reason?"<br><span style=\"color:#ffaaaa\">Reason: "+esc(reason)+"</span>":"")
-        : "KYC status: "+kycLabel;
-    $("accountStatus").innerHTML="Account status: "+statusBadge(kycApproved?"active":(p.status || "active"))+" &nbsp; KYC: "+statusBadge(kycLabel);
-    setText("sideStatus",kycApproved?"active":(p.status || "active"));
-    const kycBtn=$("saveKyc");
-    const kycGrid=$("kycName")?.closest(".form-grid");
-    const kycActions=kycBtn?.closest(".actions");
-    if(kycApproved){
-      if(kycGrid)kycGrid.style.display="none";
-      if(kycActions)kycActions.style.display="none";
-    }else{
-      if(kycGrid)kycGrid.style.display="grid";
-      if(kycActions)kycActions.style.display="flex";
-      if(kycBtn){kycBtn.disabled=false;kycBtn.textContent=kyc==="rejected"?"Resubmit KYC":"Submit KYC";}
-    }
-  }
-
-  async function getSession(){
-    const {data,error}=await withTimeout(db.auth.getSession(),9000);
-    if(error) throw error;
-    return data?.session || null;
-  }
-
-  async function loadOverview(){
-    if(!currentUser) return;
-
-    let investments=[], earnings=[], withdrawals=[], transactions=[];
-
-    try{
-      const r=await query("investments",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}));
-      if(!r.error) investments=r.data || [];
-    }catch(e){console.warn("Investments:",e)}
-
-    try{
-      const r=await query("earnings",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}));
-      if(!r.error) earnings=r.data || [];
-    }catch(e){console.warn("Earnings:",e)}
-
-    try{
-      const r=await query("withdrawals",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}));
-      if(!r.error) withdrawals=r.data || [];
-    }catch(e){console.warn("Withdrawals:",e)}
-
-    // The legacy transactions table is not consistently populated by the finance triggers.
-    // Keep it as an optional source, then build the member ledger from investments,
-    // earnings and withdrawals so real financial activity is always visible.
-    try{
-      const r=await query("transactions",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(50));
-      if(!r.error) transactions=r.data || [];
-    }catch(e){console.warn("Legacy transactions:",e)}
-
-    transactions=buildLedgerRows(investments,earnings,withdrawals,transactions);
-
-    const approvedInvestments=investments.filter(x=>["approved","active","confirmed","completed"].includes(String(x.status||"").toLowerCase()));
-    const totalInvestment=approvedInvestments.reduce((s,x)=>s+num(x.amount),0);
-
-    const referralTypes=["referral","referral_earning","referral_bonus"];
-    const normalTypes=["earning","profit","bonus","admin_add"];
-
-    const referralEarnings=earnings
-      .filter(x=>referralTypes.includes(String(x.type||x.earning_type||"").toLowerCase()))
-      .reduce((s,x)=>s+num(x.amount),0);
-
-    const normalEarnings=earnings
-      .filter(x=>normalTypes.includes(String(x.type||x.earning_type||"").toLowerCase()))
-      .reduce((s,x)=>s+num(x.amount),0);
-
-    const withdrawalTotal=withdrawals
-      .filter(x=>!["rejected","cancelled","failed"].includes(String(x.status||"").toLowerCase()))
-      .reduce((s,x)=>s+num(x.amount)+num(x.fee),0);
-
-    const computed=Math.max(0,totalInvestment+normalEarnings+referralEarnings-withdrawalTotal);
-    const profileBalance=num(currentProfile?.balance);
-    const balance=profileBalance>0 ? profileBalance : computed;
-
-    setText("balance",money(balance));
-    setText("totalInvestment",money(totalInvestment));
-    setText("totalEarnings",money(normalEarnings));
-    setText("referralEarnings",money(referralEarnings));
-    setText("refEarn",money(referralEarnings));
-
-    renderRecentTransactions(transactions);
-    renderInvestmentTable(investments);
-    renderWithdrawalTable(withdrawals);
-    renderTransactionTable(transactions);
-
-    await loadReferralData();
-  }
-
-  function buildLedgerRows(investments,earnings,withdrawals,legacy){
-    const rows=[];
-    const approvedStatuses=["approved","active","confirmed","completed"];
-    (investments||[]).forEach(x=>{
-      const status=String(x.status||"").toLowerCase();
-      rows.push({
-        description:`Investment — ${x.package_name || x.package || x.name || "Package"}`,
-        type:status && approvedStatuses.includes(status) ? "investment approved" : "investment request",
-        amount:num(x.amount),
-        created_at:x.approved_at || x.created_at,
-        _priority:status && approvedStatuses.includes(status) ? 1 : 0
-      });
-    });
-    (earnings||[]).forEach(x=>{
-      rows.push({
-        description:x.description || (String(x.type||"").toLowerCase()==="referral" ? "Referral bonus" : "Earning"),
-        type:x.type || x.earning_type || "earning",
-        amount:num(x.amount),
-        created_at:x.created_at,
-        _priority:2
-      });
-    });
-    (withdrawals||[]).forEach(x=>{
-      rows.push({
-        description:`Withdrawal — ${x.method || "request"}`,
-        type:`withdrawal ${x.status || "pending"}`,
-        amount:-num(x.amount)-num(x.fee),
-        created_at:x.created_at,
-        _priority:3
-      });
-    });
-    // Preserve any genuine legacy transaction records that are not duplicates of the finance rows.
-    (legacy||[]).forEach(x=>{
-      rows.push({
-        description:x.description || "Transaction",
-        type:x.type || "transaction",
-        amount:num(x.amount),
-        created_at:x.created_at,
-        _priority:4
-      });
-    });
-    return rows
-      .filter(x=>x.created_at || x.description)
-      .sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
-  }
-
-  function renderRecentTransactions(rows){
-    if(!rows.length){$("recentTransactions").innerHTML='<div class="empty">No transactions yet.</div>';return}
-    $("recentTransactions").innerHTML=rows.slice(0,5).map(x=>{
-      const amount=num(x.amount);
-      return `<div class="info-row"><span>${esc(x.description || x.type || "Transaction")}</span><strong>${money(amount)}</strong></div>`;
-    }).join("");
-  }
-
-  function renderInvestmentTable(rows){
-    if(!rows.length){$("investmentTable").innerHTML='<div class="empty">No investments yet.</div>';return}
-    $("investmentTable").innerHTML=`<div class="table-wrap"><table><thead><tr><th>Package</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>${
-      rows.map(x=>`<tr><td>${esc(x.package_name || x.package || x.name || "Investment")}</td><td>${money(x.amount)}</td><td>${statusBadge(x.status)}</td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
-    }</tbody></table></div>`;
-  }
-
-  function renderWithdrawalTable(rows){
-    if(!rows.length){$("withdrawalTable").innerHTML='<div class="empty">No withdrawals yet.</div>';return}
-    $("withdrawalTable").innerHTML=`<div class="table-wrap"><table><thead><tr><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody>${
-      rows.map(x=>`<tr><td>${money(x.amount)}</td><td>${esc(x.method || "—")}</td><td>${statusBadge(x.status)}</td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
-    }</tbody></table></div>`;
-  }
-
-  function renderTransactionTable(rows){
-    if(!rows.length){$("transactionTable").innerHTML='<div class="empty">No ledger entries yet.</div>';return}
-    $("transactionTable").innerHTML=`<div class="table-wrap"><table><thead><tr><th>Description</th><th>Type</th><th>Amount</th><th>Date</th></tr></thead><tbody>${
-      rows.map(x=>`<tr><td>${esc(x.description || "Transaction")}</td><td>${esc(x.type || "—")}</td><td>${money(x.amount)}</td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
-    }</tbody></table></div>`;
-  }
-
-  async function loadPaymentDestinations(){
-    const wrap=$("paymentDestinations");
-    if(!wrap)return;
-    try{
-      const r=await query("payment_destinations",q=>q.select("*").eq("is_active",true).order("created_at",{ascending:false}));
-      if(r.error)throw r.error;
-      const rows=r.data||[];
-      wrap.innerHTML=rows.length?rows.map(p=>{
-        if(p.type==="wallet"){
-          const address=String(p.wallet_address||"");
-          return `<div class="payment-option"><b>${esc(p.label||"Wallet Address")}</b><div class="muted">Chain: ${esc(p.chain||"—")}</div><div class="payment-row"><div class="payment-value">${esc(address||"—")}</div>${address?`<button type="button" class="copy-payment" data-copy-payment="${esc(address)}">Copy</button>`:""}</div></div>`;
-        }
-        const account=String(p.account_number||"");
-        return `<div class="payment-option"><b>${esc(p.label||"Bank Transfer")}</b><div class="muted">Bank: ${esc(p.bank_name||"—")}</div><div class="muted">Account Name: ${esc(p.account_name||"—")}</div><div class="payment-row"><div class="payment-value">Account Number: ${esc(account||"—")}</div>${account?`<button type="button" class="copy-payment" data-copy-payment="${esc(account)}">Copy</button>`:""}</div></div>`;
-      }).join(""):'<div class="empty">No active payment destinations are configured yet.</div>';
-      wrap.querySelectorAll(".copy-payment").forEach(btn=>{btn.onclick=()=>copyText(btn.dataset.copyPayment||"");});
-    }catch(e){wrap.innerHTML=`<div class="empty">${esc(e.message||"Unable to load payment destinations.")}</div>`}
-  }
-
-  async function loadPackages(){
-    try{
-      const r=await query("packages",q=>q.select("*").order("amount",{ascending:true}));
-      if(r.error){console.warn("Packages:",r.error);return}
-      packagesCache=r.data || [];
-
-      $("packages").innerHTML=packagesCache.length ? packagesCache.map((p,i)=>`
-        <div class="card">
-          <div class="card-title">${esc(p.name || "Package")}</div>
-          <div class="value">${p.amount != null ? money(p.amount) : "Custom"}</div>
-          <div class="muted" style="font-size:12px;margin-top:7px">${esc(p.description || "Monarch investment package")}</div>
-          <div class="actions"><button class="btn secondary" onclick="selectPackage(${i})">Select</button></div>
-        </div>
-      `).join("") : '<div class="card empty">No packages are currently available.</div>';
-
-      $("investPackage").innerHTML='<option value="">Select package</option>'+packagesCache.map((p,i)=>
-        `<option value="${i}">${esc(p.name || "Package")}</option>`).join("");
-    }catch(e){console.warn(e)}
-  }
-
-  window.selectPackage=function(index){
-    const p=packagesCache[index];
-    if(!p)return;
-    $("investPackage").value=String(index);
-    if(p.amount != null)$("investAmount").value=p.amount;
-    updateInvestNaira();
-    openView("investments");
-  };
-
-  function updateInvestNaira(){
-    const amount=num($("investAmount").value);
-    const wallet=$("investMethod").value==="wallet";
-    const feeUsd=wallet ? INVEST_WALLET_FEE_USD : INVEST_BANK_FEE_USD;
-    const feeNgn=feeUsd*NGN_RATE;
-    const amountNgn=amount*NGN_RATE;
-    const totalUsd=amount+feeUsd;
-    const totalNgn=amountNgn+feeNgn;
-
-    if(wallet){
-      $("investAmountPayLabel").textContent="Amount to Pay (USD)";
-      $("investNaira").value=amount ? money(amount) : "$0.00";
-      $("investFeeLabel").textContent="Investment Fee (USD)";
-      $("investFee").value=money(feeUsd);
-      $("investTotalLabel").textContent="Total to Pay (USD)";
-      $("investTotal").value=amount ? money(totalUsd) : "$0.00";
-    }else{
-      $("investAmountPayLabel").textContent="Amount to Pay (NGN)";
-      $("investNaira").value=amount ? "₦"+amountNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) : "₦0.00";
-      $("investFeeLabel").textContent="Investment Fee (NGN)";
-      $("investFee").value="₦"+feeNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
-      $("investTotalLabel").textContent="Total to Pay (NGN)";
-      $("investTotal").value=amount ? "₦"+totalNgn.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2}) : "₦0.00";
-    }
-  }
-
-  function updateWithdrawFields(){
-    const bank=$("withdrawMethod").value==="bank";
-    if($("withdrawDetailsLabel"))$("withdrawDetailsLabel").textContent=bank?"Your Own Bank Account Details":"Crypto Withdrawal Address — Choose Chain";
-    if($("withdrawDetails"))$("withdrawDetails").placeholder=bank?"Enter your own bank account name and account number. The account name must match your Monarch/KYC name.":"Enter your crypto wallet address and chain/network (e.g. TRC20, BEP20, ERC20).";
-  }
-
-  function updateWithdrawCalc(){
-    const amount=num($("withdrawAmount").value);
-    const fee=amount*WITHDRAWAL_FEE_RATE;
-    $("withdrawFee").value=money(fee);
-    $("withdrawNet").value=money(Math.max(0,amount-fee));
-
-    const hint=$("withdrawRuleHint");
-    if(hint){
-      hint.textContent=amount>0
-        ? `A 1% fee of ${money(fee)} will be deducted. You will receive ${money(Math.max(0,amount-fee))} if the withdrawal is approved.`
-        : "Enter an amount to calculate the 1% withdrawal fee and net amount.";
-    }
-  }
-
-  async function loadReferralData(){
-    if(!currentUser)return;
-
-    try{
-      const r=await query(
-        "profiles",
-        q=>q.select("id,full_name,avatar_url,created_at")
-          .eq("referred_by",currentUser.id)
-          .order("created_at",{ascending:false})
-      );
-
-      if(r.error)throw r.error;
-
-      const rows=r.data||[];
-      setText("refCount",rows.length);
-      renderMonarchExperience();
-
-      $("referralTable").innerHTML=rows.length
-        ? `<div class="table-wrap"><table><thead><tr><th>Monarch</th><th>Joined</th></tr></thead><tbody>${
-            rows.map(x=>`<tr><td><div class="ref-member clickable-profile" data-public-profile="${esc(x.id)}"><img src="${esc(x.avatar_url||"")}" onerror="this.style.display='none'" alt=""><span>${esc(x.full_name || "Monarch")}</span></div></td><td>${esc(formatDate(x.created_at))}</td></tr>`).join("")
-          }</tbody></table></div>`
-        : '<div class="empty">No referrals yet.</div>';
-    }catch(e){
-      console.warn("Referrals:",e);
-      setText("refCount",0);
-      $("referralTable").innerHTML='<div class="empty">Referrals are temporarily unavailable.</div>';
-    }
-  }
-
-  function profileFallback(){
-    return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#171717"/><text x="50" y="62" text-anchor="middle" fill="#D4AF37" font-size="42" font-family="serif">M</text></svg>`);
-  }
-
-  function renderMonarchExperience(){
-    if(!currentProfile)return;
-    const p=currentProfile;
-    const name=p.full_name || currentUser?.user_metadata?.full_name || "Monarch";
-    const avatar=p.avatar_url || p.avatar || profileFallback();
-    const account=String(p.status || "active").replaceAll("_"," ");
-    const kyc=String(p.kyc_status || p.kyc || "not submitted").toLowerCase();
-    const kycLabel=["approved","verified","kyc verified"].includes(kyc) ? "KYC VERIFIED" : kyc==="rejected" ? "KYC REJECTED" : "KYC " + kyc.toUpperCase();
-    setText("welcomeMessage",`Welcome back, ${name}. Your MONARCH CODEX account, membership and progress are organized in one private Monarch experience.`);
-    setText("experienceAccountStatus",account.toUpperCase());
-    setText("experienceKycStatus",kycLabel);
-    setText("experienceMembership",p.role?.toLowerCase()==="admin" ? "ADMIN MONARCH" : "MONARCH");
-    setText("membershipBadgeText",p.role?.toLowerCase()==="admin" ? "ADMIN MONARCH" : "MONARCH MEMBER");
-    setText("membershipSince","Member since " + formatDate(p.created_at));
-    setText("overviewProfileName",name);
-    setText("overviewProfileSub",`${p.display_username ? "@"+p.display_username+" • " : ""}Open your full private profile`);
-    const oa=$("overviewAvatar"); if(oa){oa.src=avatar;oa.onerror=()=>{oa.src=profileFallback();};}
-    const refCount=num($("refCount")?.textContent);
-    setText("experienceRefCount",refCount);
-    setText("experienceRefEarn",$("refEarn")?.textContent || "$0.00");
-    setText("refProgressLabel",`${refCount} referral${refCount===1?"":"s"}`);
-    const fill=$("refProgressFill"); if(fill)fill.style.width=Math.min(100,refCount*10)+"%";
-  }
-
-  async function openPublicProfile(userId){
-    if(!userId || userId===currentUser?.id){openView("profile");return;}
-    const modal=$("publicProfileModal");
-    if(!modal)return;
-    modal.classList.add("show"); modal.setAttribute("aria-hidden","false");
-    setText("publicProfileName","Loading Monarch...");
-    setText("publicProfileUid","Loading public profile");
-    try{
-      const r=await query("profiles",q=>q.select("id,full_name,display_username,avatar_url,created_at,status,kyc_status").eq("id",userId).maybeSingle());
-      if(r.error)throw r.error;
-      const p=r.data;
-      if(!p)throw new Error("This public profile is unavailable.");
-      setText("publicProfileName",p.full_name || "Monarch");
-      setText("publicProfileUid",p.display_username ? "@"+p.display_username : "MONARCH MEMBER");
-      setText("publicMemberSince",formatDate(p.created_at));
-      setText("publicAccountStatus",String(p.status||"active").replaceAll("_"," ").toUpperCase());
-      const k=String(p.kyc_status||"not submitted").toLowerCase();
-      setText("publicKycStatus",["approved","verified","kyc verified"].includes(k)?"VERIFIED":"NOT PUBLIC");
-      const img=$("publicProfileAvatar"); if(img){img.src=p.avatar_url||profileFallback();img.onerror=()=>{img.src=profileFallback();};}
-    }catch(e){
-      setText("publicProfileName","Profile unavailable");
-      setText("publicProfileUid",e.message||"Unable to load this profile.");
-      setText("publicMemberSince","—");setText("publicAccountStatus","—");setText("publicKycStatus","—");
-    }
-  }
-
-  function closePublicProfile(){
-    const modal=$("publicProfileModal"); if(modal){modal.classList.remove("show");modal.setAttribute("aria-hidden","true");}
-  }
-
-  async function loadNotifications(){
-    if(!currentUser || !db)return;
-    const list=$("notificationList");
-    try{
-      const r=await query("notifications",q=>q.select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(30));
-      if(r.error)throw r.error;
-      notificationsCache=r.data||[];
-      const unread=notificationsCache.filter(n=>!n.is_read).length;
-      const count=$("notificationCount");
-      if(count){
-        count.textContent=unread>99?"99+":String(unread);
-        count.style.display=unread?"grid":"none";
-      }
-      if(!notificationsCache.length){
-        list.innerHTML='<div class="notification-empty">No notifications yet.</div>';
-        return;
-      }
-      list.innerHTML=notificationsCache.map(n=>`
-        <div class="notification-item ${n.is_read?"":"unread"}" data-notification-id="${esc(n.id)}">
-          <div class="notification-title">${esc(n.title||"Notification")}</div>
-          <div class="notification-message">${esc(n.message||"")}</div>
-          <div class="notification-time">${esc(formatDateTime(n.created_at))}</div>
-        </div>
-      `).join("");
-      list.querySelectorAll(".notification-item").forEach(item=>{
-        item.onclick=()=>markNotificationRead(item.dataset.notificationId);
-      });
-    }catch(e){
-      console.warn("Notifications:",e);
-      list.innerHTML='<div class="notification-empty">Notifications are temporarily unavailable.</div>';
-    }
-  }
-
-  async function markNotificationRead(id){
-    if(!id || !currentUser)return;
-    const item=notificationsCache.find(n=>n.id===id);
-    if(!item || item.is_read)return;
-    try{
-      const r=await query("notifications",q=>q.update({is_read:true}).eq("id",id).eq("user_id",currentUser.id));
-      if(r.error)throw r.error;
-      item.is_read=true;
-      await loadNotifications();
-    }catch(e){console.warn("Mark notification:",e)}
-  }
-
-  async function markAllNotificationsRead(){
-    if(!currentUser)return;
-    try{
-      const r=await query("notifications",q=>q.update({is_read:true}).eq("user_id",currentUser.id).eq("is_read",false));
-      if(r.error)throw r.error;
-      await loadNotifications();
-      toast("All notifications marked as read.","success");
-    }catch(e){toast(e.message||"Could not update notifications.","error")}
-  }
-
-  function toggleNotifications(){
-    const panel=$("notificationPanel");
-    if(!panel)return;
-    const show=!panel.classList.contains("show");
-    panel.classList.toggle("show",show);
-    if(show)loadNotifications();
-  }
-
-  function formatDateTime(value){
-    if(!value)return "—";
-    const d=new Date(value);
-    if(Number.isNaN(d.getTime()))return "—";
-    return d.toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
-  }
-
-  function formatDate(value){
-    if(!value)return "—";
-    const d=new Date(value);
-    if(Number.isNaN(d.getTime()))return "—";
-    return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
-  }
-
-  async function uploadFile(bucket,file,path){
-    if(!file)throw new Error("Please choose a file.");
-    const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-    const finalPath=path+"/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"_"+safe;
-    const timeoutMs=bucket==="receipts" ? 60000 : 30000;
-
-    try{
-      const r=await withTimeout(
-        db.storage.from(bucket).upload(finalPath,file,{upsert:false,contentType:file.type||undefined}),
-        timeoutMs
-      );
-      if(r.error)throw r.error;
-      const pub=db.storage.from(bucket).getPublicUrl(finalPath);
-      if(!pub?.data?.publicUrl)throw new Error("Receipt uploaded, but its file URL could not be created.");
-      return pub.data.publicUrl;
-    }catch(e){
-      const msg=e?.message || e?.error_description || e?.details || "Upload failed.";
-      throw new Error(bucket==="receipts" ? "Receipt upload failed: "+msg : msg);
-    }
-  }
-
-  async function saveKyc(){
-    if(!currentUser)return;
-    const existingKyc=String(currentProfile?.kyc_status || currentProfile?.kyc || "not_submitted").toLowerCase();
-    if(["approved","verified","kyc verified"].includes(existingKyc)){toast("Your KYC is already verified. You do not need to submit again.","warning");return;}
-    const name=$("kycName").value.trim();
-    const phone=$("kycPhone").value.trim();
-    const nin=$("kycNin").value.trim();
-    if(!name || !phone || !nin){toast("Please complete your KYC details.","warning");return}
-    if(!/^\d{11}$/.test(nin)){toast("NIN must contain exactly 11 digits.","warning");return}
-
-    try{
-      const file=$("kycFile").files[0];
-      let documentUrl=currentProfile?.kyc_document_url || null;
-      if(file){
-        let lastError=null;
-        for(const bucket of ["kyc","avatars"]){
-          try{documentUrl=await uploadFile(bucket,file,currentUser.id);if(documentUrl)break;}catch(e){lastError=e;}
-        }
-        if(!documentUrl)throw lastError||new Error("Could not upload the KYC document.");
-      }
-
-      const payload={
-        full_name:name,
-        phone,
-        nin,
-        kyc_status:"pending",
-        kyc_document_url:documentUrl
-      };
-
-      const {data,error}=await query("profiles",q=>q.update(payload).eq("id",currentUser.id).select("*").maybeSingle());
-      if(error)throw error;
-      if(!data)throw new Error("KYC details could not be saved to your profile. Please try again.");
-      currentProfile=data;
-      renderProfile();
-      applyKycGate();
-      toast("KYC submitted successfully. It is now under review.","success");
-    }catch(e){
-      console.error(e);
-      toast(e.message || "Could not submit KYC.","error");
-    }
-  }
-
-  async function submitInvestment(){
-    if(!currentUser)return;
-    if(!isKycVerified() && !isAdminUser()){showKycRequired();return;}
-    const amount=num($("investAmount").value), index=$("investPackage").value, method=$("investMethod").value, note=$("investNote").value.trim(), receiptFile=$("investReceipt")?.files?.[0];
-    if(amount<=0){toast("Enter a valid investment amount.","warning");return}
-    if(index===""){toast("Please select an investment package.","warning");return}
-    if(!receiptFile){toast("Please upload your proof of payment receipt.","warning");return}
-    if(receiptFile.size>10*1024*1024){toast("Receipt must be 10MB or smaller.","warning");return}
-
-    const selected=packagesCache[Number(index)]||null;
-    const feeUsd=method==="wallet" ? INVEST_WALLET_FEE_USD : INVEST_BANK_FEE_USD;
-    const btn=$("investBtn"), original=btn?.textContent||"Submit Investment";
-
-    try{
-      if(btn){btn.disabled=true;btn.textContent="Uploading receipt...";}
-      const receiptUrl=await uploadFile("receipts",receiptFile,currentUser.id);
-
-      if(btn)btn.textContent="Submitting investment...";
-      const payload={
-        user_id:currentUser.id,
-        package_name:selected?.name??null,
-        amount,
-        fee:feeUsd,
-        method,
-        payment_method:method,
-        note,
-        receipt_url:receiptUrl,
-        status:"pending"
-      };
-
-      const {error}=await query("investments",q=>q.insert(payload));
-      if(error)throw error;
-
-      toast("Investment request and payment receipt submitted successfully.","success");
-      $("investAmount").value="";
-      $("investNote").value="";
-      $("investReceipt").value="";
-      setText("receiptName","");
-      updateInvestNaira();
-      await loadOverview();
-    }catch(e){
-      console.error(e);
-      toast(e.message||"Could not submit investment request.","error");
-    }finally{
-      if(btn){btn.disabled=false;btn.textContent=original;}
-    }
-  }
-
-  async function submitWithdrawal(){
-    if(!currentUser)return;
-    if(!isKycVerified() && !isAdminUser()){showKycRequired();return;}
-    const amount=num($("withdrawAmount").value);
-    const method=$("withdrawMethod").value;
-    const details=$("withdrawDetails").value.trim();
-    const fee=amount*WITHDRAWAL_FEE_RATE;
-
-    if(amount<=0){toast("Enter a valid withdrawal amount.","warning");return}
-    if(!details){toast("Enter your destination or account details.","warning");return}
-
-    try{
-      const detailLines=details.split(/\n+/).map(x=>x.trim()).filter(Boolean);
-      const accountName=String(currentProfile?.full_name || currentUser.user_metadata?.full_name || "").trim();
-      let accountNumber=null;
-      let bankName=null;
-      if(method==="bank"){
-        const numberLine=detailLines.find(x=>/\d{8,12}/.test(x));
-        accountNumber=numberLine ? (numberLine.match(/\d{8,12}/)||[])[0] : null;
-        const nonNumericLine=detailLines.find(x=>x!==accountName && !/\d/.test(x));
-        bankName=nonNumericLine || null;
-      }
-      const payload={user_id:currentUser.id,amount,fee,method,status:"pending",details,account_name:accountName || "Monarch",account_number:accountNumber,bank_name:bankName};
-      const {error}=await query("withdrawals",q=>q.insert(payload));
-      if(error)throw error;
-      toast("Withdrawal request submitted.","success");
-      $("withdrawAmount").value="";
-      $("withdrawDetails").value="";
-      updateWithdrawCalc();
-      await loadOverview();
-    }catch(e){
-      console.error(e);
-      toast(e.message || "Could not submit withdrawal request.","error");
-    }
-  }
-
-  async function saveUsername(){
-    if(!currentUser)return;
-    try{
-      const phone=$("profilePhone").value.trim();
-      const {data,error}=await query("profiles",q=>q.update({phone}).eq("id",currentUser.id).select("*").maybeSingle());
-      if(error)throw error;
-      currentProfile=data || {...currentProfile,phone};
-      renderProfile();
-      toast("Profile saved.","success");
-    }catch(e){toast(e.message || "Could not save profile.","error")}
-  }
-
-  async function updateAvatar(){
-    const file=$("avatarFile").files[0];
-    if(!file || !currentUser)return;
-    try{
-      const url=await uploadFile("avatars",file,currentUser.id);
-      const {data,error}=await query("profiles",q=>q.update({avatar_url:url}).eq("id",currentUser.id).select("*").maybeSingle());
-      if(error)throw error;
-      currentProfile=data || {...currentProfile,avatar_url:url};
-      renderProfile();
-      toast("Profile photo updated.","success");
-    }catch(e){toast(e.message || "Could not update photo.","error")}
-  }
-
-  async function copyText(text){
-    try{
-      await navigator.clipboard.writeText(text);
-      toast("Copied.","success");
-    }catch(e){
-      toast("Copy failed. You can select and copy it manually.","warning");
-    }
-  }
-
-  const KYC_PROTECTED_VIEWS=["investments","withdrawals","transactions","referrals"];
-
-  function isKycVerified(){
-    const status=String(currentProfile?.kyc_status || currentProfile?.kyc || "not_submitted").toLowerCase().trim();
-    return ["approved","verified","kyc verified"].includes(status);
-  }
-
-  function isAdminUser(){
-    const role=String(currentProfile?.role || "").toLowerCase().trim();
-    return role==="admin" || String(currentUser?.email || "").toLowerCase().trim()==="trademonarchofficial@gmail.com";
-  }
-
-  function showKycRequired(){
-    toast("KYC verification is required before you can use this feature.","warning");
-    openView("kyc",true);
-  }
-
-  function applyKycGate(){
-    const locked=!isKycVerified() && !isAdminUser();
-    document.querySelectorAll(".nav button[data-view]").forEach(btn=>{
-      const view=btn.dataset.view;
-      if(KYC_PROTECTED_VIEWS.includes(view)){
-        btn.classList.toggle("kyc-locked",locked);
-        btn.title=locked?"KYC verification required":"";
-      }
-    });
-    ["investPackage","investAmount","investMethod","investReceipt","investNote","investBtn",
-     "withdrawAmount","withdrawMethod","withdrawDetails","withdrawBtn"].forEach(id=>{
-      const el=$(id); if(el)el.disabled=locked;
-    });
-    const ib=$("investBtn"); if(ib && locked)ib.textContent="KYC REQUIRED";
-    const wb=$("withdrawBtn"); if(wb && locked)wb.textContent="KYC REQUIRED";
-    let banner=$("kycLockBanner");
-    if(!banner){
-      banner=document.createElement("div");
-      banner.id="kycLockBanner";
-      banner.className="notice kyc-lock-banner";
-      const content=document.querySelector(".content");
-      if(content)content.prepend(banner);
-    }
-    if(banner){
-      banner.style.display=locked?"block":"none";
-      if(locked)banner.innerHTML="🔒 <b>MONARCH CODEX KYC REQUIRED</b><br>Verify your identity to unlock investments, withdrawals, transactions and referrals. Your Profile, KYC and Logout remain available.";
-    }
-  }
-
-  async function refreshProfileState(){
-    if(!currentUser)return;
-    const fresh=await loadProfile();
-    if(!fresh)return;
-    const oldKyc=String(currentProfile?.kyc_status || currentProfile?.kyc || "").toLowerCase();
-    const newKyc=String(fresh.kyc_status || fresh.kyc || "").toLowerCase();
-    currentProfile=fresh;
-    if(oldKyc!==newKyc)renderProfile();
-    else applyKycGate();
-  }
-
-  function openView(name,bypassGate=false){
-    if(!bypassGate && KYC_PROTECTED_VIEWS.includes(name) && !isKycVerified() && !isAdminUser()){
-      showKycRequired();
-      return;
-    }
-    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-    document.querySelectorAll(".nav button[data-view]").forEach(b=>b.classList.remove("active"));
-    const view=$("view-"+name);
-    const btn=document.querySelector(`.nav button[data-view="${name}"]`);
-    if(view)view.classList.add("active");
-    if(btn)btn.classList.add("active");
-
-    const titles={
-      overview:"MONARCH CODEX",x:"X AI",kyc:"KYC Verification",investments:"Investments",
-      withdrawals:"Withdrawals",transactions:"Transactions",referrals:"Referrals",profile:"My Profile"
-    };
-    setText("topTitle",titles[name] || "MONARCH CODEX");
-    $("sidebar").classList.remove("open");
-    $("mobileShade").classList.remove("show");
-
-    if(name==="transactions")loadOverview();
-    if(name==="referrals")loadReferralData();
-    if(name==="investments"){loadPackages();loadPaymentDestinations();}
-    if(name==="x")xBind();
-  }
-
-  function toggleMenu(){
-    const open=$("sidebar").classList.toggle("open");
-    $("mobileShade").classList.toggle("show",open);
-  }
-
-  async function logout(){
-    try{localStorage.clear();sessionStorage.clear()}catch(e){}
-    try{if(db)await db.auth.signOut()}catch(e){}
-    setTimeout(()=>window.location.replace("login.html"),200);
-  }
-
-  function startupFailsafe(){
-    setTimeout(()=>{
-      if(!loadingClosed){
-        hideLoading();
-        toast("Dashboard opened, but the session check is taking longer than expected. Please refresh if your account does not appear.","warning");
-      }
-    },5000);
-  }
-
-  /* ---------------- X AI INTERFACE ---------------- */
-  const X_HISTORY_KEY="monarch_x_chat_v1";
-  function xNow(){return new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});}
-  function xEscape(value){return String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
-  function xStore(){try{localStorage.setItem(X_HISTORY_KEY,JSON.stringify(xHistory.slice(-60)))}catch(e){}}
-  function xLoad(){try{const v=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||"[]");return Array.isArray(v)?v:[]}catch(e){return []}}
-  let xHistory=xLoad();
-  function xRender(){
-    const box=$("xMessages"); if(!box)return;
-    if(!xHistory.length){
-      box.innerHTML=`<div class="x-msg"><div class="x-avatar">X</div><div><div class="x-bubble">Welcome, Monarch. I’m <b>X</b> — the intelligence interface for MONARCH CODEX.<br><br>Ask me about the Codex, your dashboard, trading education, risk management or how the platform works.</div><div class="x-time">${xNow()}</div></div></div>`;
-      return;
-    }
-    box.innerHTML=xHistory.map(m=>`<div class="x-msg ${m.role==='user'?'user':''}"><div class="x-avatar">${m.role==='user'?'M':'X'}</div><div><div class="x-bubble">${xEscape(m.text)}</div><div class="x-time">${xEscape(m.time||'')}</div></div></div>`).join('');
-    box.scrollTop=box.scrollHeight;
-  }
-  const X_API_URL = "https://monarchcodex-web.trademonarchofficial.workers.dev/api/x";
-  async function xAskRealAI(){
-    const messages=xHistory.slice(-20).map(m=>({
-      role:m.role==="assistant"?"assistant":"user",
-      content:String(m.text||"").slice(0,6000)
-    }));
-    const {data:{session},error:sessionError}=await db.auth.getSession();
-    if(sessionError||!session?.access_token) throw new Error("Your MONARCH CODEX session is no longer available. Please log in again.");
-    const response=await fetch(X_API_URL,{
-      method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":`Bearer ${session.access_token}`},
-      body:JSON.stringify({messages}),
-      cache:"no-store"
-    });
-    let payload=null;
-    try{payload=await response.json()}catch{}
-    if(!response.ok||!payload?.ok){
-      throw new Error(payload?.error||`X server returned HTTP ${response.status}`);
-    }
-    return String(payload.assistant||"X did not return a response.").trim();
-  }
-  async function xSendMessage(prefill){
-    const input=$("xInput"); const text=String(prefill??input?.value??"").trim(); if(!text)return;
-    if(input)input.value="";
-    xHistory.push({role:"user",text,time:xNow()}); xStore(); xRender();
-    const send=$("xSend"); if(send)send.disabled=true;
-    const pending={role:"assistant",text:"X is thinking…",time:xNow(),pending:true};
-    xHistory.push(pending); xRender();
-    try{
-      const answer=await xAskRealAI();
-      pending.text=answer; pending.pending=false; pending.time=xNow();
-    }catch(error){
-      pending.text="I couldn’t reach my AI service right now.\n\n"+(error?.message||"Please try again.");
-      pending.pending=false;
-      console.error("X AI error:",error);
-    }finally{
-      xStore(); xRender(); if(send)send.disabled=false;
-    }
-  }
-  function xBind(){
-    const send=$("xSend"),input=$("xInput");
-    if(!send||!input||send.dataset.bound)return;
-    send.dataset.bound="1";
-    send.addEventListener("click",()=>xSendMessage());
-    input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();xSendMessage()}});
-    input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,130)+"px"});
-    document.querySelectorAll("[data-x-prompt]").forEach(b=>b.addEventListener("click",()=>xSendMessage(b.dataset.xPrompt)));
-    xRender();
-  }
-
-  async function boot(){
-    if(booted)return;
-    booted=true;
-    startupFailsafe();
-
-    try{
-      if(!window.supabase || typeof window.supabase.createClient!=="function"){
-        throw new Error("Supabase failed to load. Check your internet connection or browser/ad-blocker.");
-      }
-
-      showLoad("Connecting to the secure kingdom...");
-      db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
-        auth:{
-          persistSession:true,
-          autoRefreshToken:true,
-          detectSessionInUrl:true,
-        }
-      });
-
-      showLoad("Checking your secure session...");
-      currentUser=null;
-
-      let session=null;
-      try{
-        session=await getSession();
-      }catch(e){
-        console.warn("getSession failed:",e);
-      }
-
-      if(!session){
-        hideLoading();
-        toast("No active session. Returning to login.","warning");
-        setTimeout(()=>window.location.replace("login.html"),700);
-        return;
-      }
-
-      currentUser=session.user;
-      hideLoading();
-
-      /* Render basic authenticated identity immediately. */
-      setText("topEmail",currentUser.email || "");
-      setText("profileEmail",currentUser.email || "");
-      setText("kycEmail",currentUser.email || "");
-      setText("profileUid",currentUser.id);
-
-      currentProfile=await loadProfile();
-
-      if(currentProfile){
-        renderProfile();
-        applyKycGate();
-      }else{
-        setText("sideName",currentUser.user_metadata?.full_name || "Monarch");
-        setText("sideUid",currentUser.id);
-        setText("welcomeName","Welcome, "+(currentUser.user_metadata?.full_name || "Monarch"));
-        setText("sideStatus","Profile unavailable");
-        setText("accountStatus","Your session is active, but profile information could not be loaded.");
-        $("accountStatus").className="notice";
-        toast("Session is active, but your profile could not be loaded.","warning");
-      }
-
-      await Promise.allSettled([loadOverview(),loadPackages(),loadPaymentDestinations(),loadReferralData(),loadNotifications()]);
-    }catch(e){
-      console.error("Dashboard boot error:",e);
-      hideLoading();
-      toast(e.message || "Could not load your kingdom.","error");
-    }
-  }
-
-  function bindEvents(){
-    const on=(id,event,fn)=>{const el=$(id); if(el) el.addEventListener(event,fn);};
-    on("notificationBtn","click",toggleNotifications);
-    on("markNotificationsRead","click",markAllNotificationsRead);
-    document.addEventListener("click",e=>{
-      const panel=$("notificationPanel");
-      const bell=$("notificationBtn");
-      if(panel && panel.classList.contains("show") && !panel.contains(e.target) && e.target!==bell) panel.classList.remove("show");
-    });
-    on("menuBtn","click",toggleMenu);
-    on("mobileShade","click",toggleMenu);
-    document.addEventListener("keydown",e=>{if(e.key==="Escape")closePublicProfile();});
-    document.querySelectorAll(".nav button[data-view]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.view)));
-    document.querySelectorAll("[data-go]").forEach(btn=>btn.addEventListener("click",()=>openView(btn.dataset.go)));
-    on("logoutBtn","click",logout);
-    on("logoutBtn","dblclick",logout);
-    on("saveKyc","click",saveKyc);
-    on("investBtn","click",submitInvestment);
-    on("withdrawBtn","click",submitWithdrawal);
-    on("saveUsername","click",saveUsername);
-    on("investAmount","input",updateInvestNaira);
-    on("investPackage","change",()=>{
-      const el=$("investPackage");
-      const p=packagesCache[Number(el?.value)];
-      if(p?.amount != null && $("investAmount")) $("investAmount").value=p.amount;
-      updateInvestNaira();
-    });
-    on("investMethod","change",updateInvestNaira);
-    on("investReceipt","change",()=>{const file=$("investReceipt")?.files?.[0];setText("receiptName",file?"Selected: "+file.name:"");});
-    on("withdrawAmount","input",updateWithdrawCalc);
-    on("withdrawMethod","change",()=>{updateWithdrawCalc();updateWithdrawFields();});
-    on("copyRefLink","click",()=>copyText($("refLink")?.value||""));
-    on("copyRefCode","click",()=>copyText(currentProfile?.referral_code || currentProfile?.uid || ""));
-    on("avatarFile","change",updateAvatar);
-    on("closePublicProfile","click",closePublicProfile);
-    on("closePublicProfile2","click",closePublicProfile);
-    const publicModal=$("publicProfileModal");
-    if(publicModal)publicModal.addEventListener("click",e=>{if(e.target===publicModal)closePublicProfile();});
-    document.addEventListener("click",e=>{
-      const target=e.target.closest("[data-public-profile]");
-      if(target)openPublicProfile(target.dataset.publicProfile);
-    });
-  }
-
-  function startDashboard(){
-    try{ bindEvents(); }catch(e){ console.error("Dashboard event setup error:",e); }
-    try{ updateInvestNaira(); updateWithdrawCalc(); updateWithdrawFields(); }catch(e){ console.warn("Dashboard initial calculation:",e); }
-    try{ boot(); }catch(e){ console.error("Dashboard startup error:",e); hideLoading(); toast(e.message||"Could not start the dashboard.","error"); }
-    setInterval(()=>{ if(currentUser) loadNotifications(); },30000);
-    setInterval(()=>{ if(currentUser) refreshProfileState().catch(e=>console.warn("Profile refresh:",e)); },15000);
-  }
-
-  document.addEventListener("DOMContentLoaded",startDashboard);
-  if(document.readyState !== "loading") setTimeout(startDashboard,0);
-
-})();
+  currentView=view;
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  const titles={overview:'Overview',x:'X AI',kyc:'KYC Verification',investments:'Investments',withdrawals:'Withdrawals',transactions:'Transactions',referrals:'Referrals',profile:'My Profile'};
+  $('pageTitle').textContent=titles[view]||'Overview';
+  $('sidebar').classList.remove('open');$('notificationPanel').classList.add('hidden');
+  if(view==='x')initX(); if(view==='investments')renderInvestments(); if(view==='withdrawals')renderWithdrawals();if(view==='transactions')renderTransactions();if(view==='referrals')renderReferrals();if(view==='profile')renderProfile();
+}
+document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
+$('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
+$('notificationBtn').addEventListener('click',()=>{$('notificationPanel').classList.toggle('hidden');renderNotifications()});
+
+async function loadProfile(){
+  const {data,error}=await sb.from('profiles').select('id,full_name,display_username,username_last_changed,phone,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,uid,role,status,kyc_status,kyc_rejection_reason,balance,total_invested,total_earnings,referral_code,referred_by,withdrawal_account_name,withdrawal_account_number,withdrawal_bank,created_at,updated_at,avatar_url,kyc_document_url').eq('id',currentUser.id).maybeSingle();
+  if(error)throw error;if(!data)throw new Error('Profile not found.');
+  profile=data;
+}
+function renderIdentity(){
+  const name=profile.full_name||profile.display_username||'Monarch';
+  $('sideName').textContent=name;$('sideUid').textContent=profile.uid||'UID unavailable';$('welcomeName').textContent=name;
+  $('membershipStatus').innerHTML=status(profile.status||'active');$('overviewKyc').innerHTML=status(profile.kyc_status||'pending');
+  const src=profile.avatar_url;
+  ['sideAvatar','profileAvatar'].forEach(id=>{const el=$(id);if(src){el.classList.remove('avatar-fallback');el.innerHTML='';el.src=src;el.onerror=()=>{el.removeAttribute('src');el.classList.add('avatar-fallback');el.textContent=(name[0]||'M').toUpperCase()}}else{el.textContent=(name[0]||'M').toUpperCase()}})
+}
+async function uploadFile(bucket,path,file){
+  if(!file)throw new Error('File is required.');
+  const {error}=await sb.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type||undefined});
+  if(error)throw error;
+  const {data}=sb.storage.from(bucket).getPublicUrl(path);
+  if(!data?.publicUrl)throw new Error('Unable to create file URL.');
+  return data.publicUrl;
+}
+async function loadOptional(){
+  const tasks=[
+    ['investments',()=>sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})],
+    ['earnings',()=>sb.from('earnings').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})],
+    ['withdrawals',()=>sb.from('withdrawals').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})],
+    ['adjustments',()=>sb.from('capital_adjustments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})],
+    ['referralLedger',()=>sb.from('referral_bonus_ledger').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})],
+    ['referrals',()=>sb.from('referrals').select('*').or('referrer_id.eq.'+currentUser.id+',user_id.eq.'+currentUser.id).order('created_at',{ascending:false})],
+    ['packages',()=>sb.from('packages').select('*').eq('active',true)],
+    ['payments',()=>sb.from('payment_details').select('payment_details,title,payment_type,bank_name,account_name,account_number,crypto_name,crypto_network,wallet_address,active').eq('active',true)],
+    ['notifications',()=>sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50)]
+  ];
+  const results=await Promise.allSettled(tasks.map(t=>t[1]()));
+  results.forEach((r,i)=>{const key=tasks[i][0];if(r.status==='fulfilled'&&!r.value.error){window[key]=r.value.data||[]}else window[key]=[]});
+}
+function calculateFinance(){
+  const approved=investments.filter(x=>String(x.status).toLowerCase()==='approved');
+  const invested=approved.reduce((s,x)=>s+safeNum(x.amount),0);
+  const earned=earnings.reduce((s,x)=>s+safeNum(x.amount??x.profit??x.earning??x.value),0);
+  const refEarn=referralLedger.reduce((s,x)=>s+safeNum(x.amount??x.bonus),0);
+  const adj=adjustments.reduce((s,x)=>s+safeNum(x.amount??x.adjustment),0);
+  const paidWithdraw=withdrawals.filter(x=>['paid','approved','completed'].includes(String(x.status).toLowerCase())).reduce((s,x)=>s+safeNum(x.amount),0);
+  const pendingWithdraw=withdrawals.filter(x=>String(x.status).toLowerCase()==='pending').reduce((s,x)=>s+safeNum(x.amount),0);
+  const balance=Math.max(0,safeNum(profile.balance??0));
+  const totalEarnings=Math.max(0,safeNum(profile.total_earnings??earned+refEarn));
+  let profit=Math.max(0,totalEarnings-paidWithdraw-pendingWithdraw);
+  let capitalLocked=0,capitalFree=0;
+  approved.forEach(i=>{const amount=safeNum(i.amount);const d=new Date(i.approved_at);if(!Number.isNaN(d.getTime())){const eligible=new Date(d);eligible.setMonth(eligible.getMonth()+CAPITAL_LOCK_MONTHS);if(Date.now()>=eligible.getTime())capitalFree+=amount;else capitalLocked+=amount}else capitalLocked+=amount});
+  const totalWithdrawable=Math.max(0,profit+capitalFree);
+  return {invested,earned,totalEarnings,balance,paidWithdraw,pendingWithdraw,profit,capitalFree,capitalLocked,totalWithdrawable,refEarn,adj};
+}
+function renderOverview(){
+  const f=calculateFinance();$('statBalance').textContent=fmt(f.balance);$('statInvested').textContent=fmt(f.invested||profile.total_invested);$('statEarnings').textContent=fmt(f.totalEarnings);$('statWithdrawable').textContent=fmt(f.totalWithdrawable);
+  const count=referrals.length;$('refProgress').style.width=Math.min(100,count*10)+'%';$('refProgressText').textContent=count+' referral'+(count===1?'':'s');
+  const rows=buildTransactions().slice(0,5);$('recentActivity').innerHTML=rows.length?rows.map(r=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222"><span>${esc(r.desc)}</span><strong>${esc(r.amount)}</strong></div>`).join(''):'No recent financial activity.';
+}
+function buildTransactions(){
+  const out=[];
+  investments.forEach(x=>out.push({date:x.created_at,type:'Investment',desc:(x.package_name||'Investment')+' investment',amount:fmt(x.amount),status:x.status||'pending'}));
+  earnings.forEach(x=>out.push({date:x.created_at,type:'Earnings',desc:'Profit / earnings',amount:fmt(x.amount??x.profit??x.earning??x.value),status:'recorded'}));
+  referralLedger.forEach(x=>out.push({date:x.created_at,type:'Referral',desc:'Referral bonus',amount:fmt(x.amount??x.bonus),status:'recorded'}));
+  withdrawals.forEach(x=>out.push({date:x.created_at,type:'Withdrawal',desc:(x.source_type||'Withdrawal')+' withdrawal',amount:'-'+fmt(x.amount),status:x.status||'pending'}));
+  adjustments.forEach(x=>out.push({date:x.created_at,type:'Capital',desc:'Capital adjustment',amount:fmt(x.amount??x.adjustment),status:'recorded'}));
+  return out.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+}
+function renderTransactions(){
+  const tbody=$('transactionHistory'),rows=buildTransactions();tbody.innerHTML=rows.length?rows.map(r=>`<tr><td>${date(r.date)}</td><td>${esc(r.type)}</td><td>${esc(r.desc)}</td><td>${esc(r.amount)}</td><td>${status(r.status)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No financial transactions found.</td></tr>';
+}
+function kycMessage(){if(isApproved())return '<div class="notice success"><strong>KYC approved.</strong> Protected financial sections are unlocked.</div>';if(String(profile.kyc_status).toLowerCase()==='rejected')return `<div class="notice error"><strong>KYC rejected.</strong><br>${esc(profile.kyc_rejection_reason||'Please review your documents and submit again.')}</div>`;return '<div class="notice warning"><strong>KYC approval required.</strong> Submit your NIN front, NIN back and selfie for review.</div>'}
+function renderKyc(){
+  $('kycStatusBox').innerHTML=kycMessage();$('ninNumber').value=profile.nin_number||'';
+  const rejected=String(profile.kyc_status).toLowerCase()==='rejected';
+  $('kycSubmit').disabled=isApproved();$('ninFront').required=!profile.nin_front_url;$('ninBack').required=!profile.nin_back_url;$('selfie').required=!profile.selfie_url;
+  if(profile.nin_front_url||profile.nin_back_url||profile.selfie_url)$('ninHelp').textContent='Existing documents are on record. Upload new files to replace them.';
+}
+$('kycForm').addEventListener('submit',async e=>{
+  e.preventDefault();const nin=$('ninNumber').value.trim();if(!/^\d{11}$/.test(nin)){toast('NIN must contain exactly 11 digits.','error');return}
+  const btn=$('kycSubmit');btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    const updates={nin_number:nin,kyc_status:'pending'};
+    const files=[['ninFront','nin_front_url','kyc/nin-front'],['ninBack','nin_back_url','kyc/nin-back'],['selfie','selfie_url','kyc/selfie']];
+    for(const [input,col,prefix] of files){const f=$(input).files[0];if(f)updates[col]=await uploadFile('kyc-documents',storageName(prefix,f),f)}
+    const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);if(error)throw error;
+    await loadProfile();renderIdentity();renderKyc();toast('KYC submitted successfully for review.');renderOverview();
+  }catch(err){toast('Your KYC submission could not be completed.','error');console.error(err)}
+  finally{btn.disabled=isApproved();btn.textContent='Submit KYC for Review'}
+});
+
+async function loadPackagesPayments(){
+  if(!packages.length){const {data,error}=await sb.from('packages').select('*').eq('active',true);if(!error)packages=data||[]}
+  if(!payments.length){const {data,error}=await sb.from('payment_details').select('payment_details,title,payment_type,bank_name,account_name,account_number,crypto_name,crypto_network,wallet_address,active').eq('active',true);if(!error)payments=data||[]}
+  const sel=$('packageSelect');sel.innerHTML='<option value="">Choose package</option>'+packages.map(p=>{const amount=p.amount??p.package_amount??p.price;return `<option value="${esc(p.id??p.name??p.package_name)}" data-amount="${safeNum(amount)}">${esc(p.name??p.package_name??p.title??'Package')} — ${fmt(amount)}</option>`}).join('');
+}
+function selectedMethod(){return $('investmentMethod').value}
+function renderPayments(){
+  const method=selectedMethod();selectedPayment=null;
+  const list=payments.filter(p=>{const t=String(p.payment_type||'').toLowerCase();return method==='bank'?t.includes('bank'):t.includes('crypto')||t.includes('wallet')||!!p.wallet_address});
+  $('paymentDestinations').innerHTML=list.length?list.map((p,i)=>`<div class="payment" data-pay-index="${i}" tabindex="0"><h4>${esc(p.title||p.payment_type||'Payment Destination')}</h4>${p.bank_name?`<p>Bank: ${esc(p.bank_name)}</p>`:''}${p.account_name?`<p>Account Name: ${esc(p.account_name)}</p>`:''}${p.account_number?`<p>Account Number: ${esc(p.account_number)}</p>`:''}${p.crypto_name?`<p>Asset: ${esc(p.crypto_name)}</p>`:''}${p.crypto_network?`<p>Network: ${esc(p.crypto_network)}</p>`:''}${p.wallet_address?`<p>Wallet: ${esc(p.wallet_address)}</p>`:''}</div>`).join(''):'<div class="notice">No active payment destination is currently available for this method.</div>';
+  document.querySelectorAll('[data-pay-index]').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('[data-pay-index]').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');selectedPayment=list[Number(el.dataset.payIndex)];renderPaymentInstruction()}));
+  renderPaymentInstruction();
+}
+function renderPaymentInstruction(){
+  const p=selectedPayment;if(!p){$('paymentInstruction').textContent='Select a payment destination above.';return}
+  $('paymentInstruction').innerHTML=`<strong>${esc(p.title||'Payment destination')}</strong><br><span class="muted">${esc(p.payment_type||'')}</span>${p.bank_name?`<br>Bank: ${esc(p.bank_name)}`:''}${p.account_name?`<br>Account: ${esc(p.account_name)}`:''}${p.account_number?`<br>Number: ${esc(p.account_number)}`:''}${p.crypto_network?`<br>Network: ${esc(p.crypto_network)}`:''}${p.wallet_address?`<br>Wallet: ${esc(p.wallet_address)}`:''}`;
+}
+$('investmentMethod').addEventListener('change',renderPayments);
+$('investmentAmount').addEventListener('input',()=>{
+  const a=safeNum($('investmentAmount').value),fee=selectedMethod()==='bank'?BANK_FEE:WALLET_FEE;
+  $('investmentFee').value=fmt(a?fee:0);$('investmentTotal').value=fmt(a+fee);$('investmentNgn').value=selectedMethod()==='bank'&&a?ngn((a+fee)*NGN_RATE):'—';
+});
+$('packageSelect').addEventListener('change',()=>{const o=$('packageSelect').selectedOptions[0];if(o?.dataset.amount&&safeNum(o.dataset.amount)>0){$('investmentAmount').value=o.dataset.amount;$('investmentAmount').dispatchEvent(new Event('input'))}});
+async function refreshInvestments(){const {data,error}=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;investments=data||[];renderInvestments();renderOverview();renderWithdrawals();renderTransactions()}
+function renderInvestments(){
+  const approved=isApproved();$('investmentGate').classList.toggle('hidden',approved);$('investmentArea').classList.toggle('hidden',!approved);if(!approved){$('investmentGate').innerHTML=kycMessage();return}
+  $('investmentHistory').innerHTML=investments.length?investments.map(x=>`<tr><td>${esc(x.package_name||'—')}</td><td>${fmt(x.amount)}</td><td>${fmt(x.fee)}</td><td>${esc(x.method||x.payment_method||'—')}</td><td>${status(x.status)}</td><td>${date(x.created_at)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No investments found.</td></tr>';
+}
+$('refreshInvestments').addEventListener('click',async()=>{try{await refreshInvestments();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
+$('investmentForm').addEventListener('submit',async e=>{
+  e.preventDefault();if(!isApproved()){showView('kyc');return}
+  const amount=safeNum($('investmentAmount').value),method=$('investmentMethod').value,fee=method==='bank'?BANK_FEE:WALLET_FEE,file=$('investmentReceipt').files[0],pkg=$('packageSelect').selectedOptions[0];
+  if(amount<=0||!method||!file||!selectedPayment||!pkg?.value){toast('Complete the package, amount, payment method, destination and receipt.','error');return}
+  const btn=$('investmentSubmit');btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    const receipt=await uploadFile('investment-receipts',storageName('receipts',file),file);
+    const payload={user_id:currentUser.id,package_name:pkg.textContent.split(' — ')[0],amount,fee,method,payment_method:method,note:$('investmentNote').value.trim(),receipt_url:receipt,status:'pending'};
+    const {error}=await sb.from('investments').insert(payload);if(error)throw error;
+    $('investmentForm').reset();selectedPayment=null;renderPayments();await refreshInvestments();toast('Investment submitted and awaiting review.');
+  }catch(err){console.error(err);toast('Investment submission failed.','error')}finally{btn.disabled=false;btn.textContent='Submit Investment'}
+});
+
+function renderWithdrawals(){
+  const gate=!isApproved();$('withdrawalGate').classList.toggle('hidden',!gate);$('withdrawalArea').classList.toggle('hidden',gate);if(gate){$('withdrawalGate').innerHTML=kycMessage();return}
+  const f=calculateFinance();$('profitAvailable').textContent=fmt(f.profit);$('capitalAvailable').textContent=fmt(f.capitalFree);$('capitalLocked').textContent=fmt(f.capitalLocked);
+  const bname=profile.withdrawal_account_name||profile.full_name||'Not registered';$('registeredBank').innerHTML=`Account Name: <strong>${esc(bname)}</strong><br>Account Number: <strong>${esc(profile.withdrawal_account_number||'Not registered')}</strong><br>Bank: <strong>${esc(profile.withdrawal_bank||'Not registered')}</strong>`;
+  $('withdrawalHistory').innerHTML=withdrawals.length?withdrawals.map(x=>`<tr><td>${esc(x.source_type||'—')}</td><td>${fmt(x.amount)}</td><td>${fmt(x.fee)}</td><td>${esc(x.wallet_address?x.wallet_address:(x.bank_name||'Bank'))}</td><td>${status(x.status)}</td><td>${date(x.created_at)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No withdrawal requests found.</td></tr>';
+}
+function updateWithdrawalPreview(){
+  const a=safeNum($('withdrawalAmount').value),fee=a*WITHDRAWAL_RATE; $('withdrawRequest').textContent=fmt(a);$('withdrawFee').textContent=fmt(fee);$('withdrawNet').textContent=fmt(Math.max(0,a-fee));
+  const crypto=$('withdrawalMethod').value==='crypto';$('cryptoDetails').classList.toggle('hidden',!crypto);$('bankDetails').classList.toggle('hidden',crypto);$('withdrawalChain').required=crypto;$('withdrawalWallet').required=crypto;
+}
+$('withdrawalAmount').addEventListener('input',updateWithdrawalPreview);$('withdrawalMethod').addEventListener('change',updateWithdrawalPreview);
+$('withdrawalSource').addEventListener('change',()=>{const f=calculateFinance();if($('withdrawalSource').value==='earnings'&&f.profit<MIN_EARNINGS)toast('Available earnings are below the $10 minimum.','error')});
+async function refreshWithdrawals(){const {data,error}=await sb.from('withdrawals').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;withdrawals=data||[];renderWithdrawals();renderOverview();renderTransactions()}
+$('refreshWithdrawals').addEventListener('click',async()=>{try{await refreshWithdrawals();toast('Withdrawal history refreshed.')}catch(e){toast('Unable to load withdrawals.','error')}})
+$('withdrawalForm').addEventListener('submit',async e=>{
+  e.preventDefault();if(!isApproved()){showView('kyc');return}
+  const source=$('withdrawalSource').value,method=$('withdrawalMethod').value,a=safeNum($('withdrawalAmount').value),f=calculateFinance();
+  if(a<=0){toast('Enter a valid withdrawal amount.','error');return}
+  const available=source==='earnings'?f.profit:f.capitalFree;
+  if(source==='earnings'&&a<MIN_EARNINGS){toast('Minimum earnings withdrawal is $10.00.','error');return}
+  if(a>available){toast('The requested amount exceeds your available balance for this source.','error');return}
+  if(source==='capital'&&a>f.capitalFree){toast('Capital remains locked until the 3-month eligibility period has passed.','error');return}
+  let accountName='',accountNumber='',bankName='';
+  if(method==='bank'){accountName=profile.withdrawal_account_name||profile.full_name;accountNumber=profile.withdrawal_account_number;bankName=profile.withdrawal_bank;if(!accountName||!accountNumber||!bankName){toast('Registered bank details are incomplete.','error');return}}
+  else if(!$('withdrawalWallet').value.trim()||!$('withdrawalChain').value){toast('Enter a wallet address and choose a chain.','error');return}
+  const btn=$('withdrawSubmit');btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    /* The actual withdrawals table has no method/details columns. Crypto destination is
+       retained in the available account fields while source_type identifies the source. */
+    const payload={user_id:currentUser.id,amount:a,account_name:method==='bank'?accountName:`${$('withdrawalChain').value} — ${$('withdrawalWallet').value.trim()}`,account_number:method==='bank'?accountNumber:$('withdrawalWallet').value.trim(),bank_name:method==='bank'?bankName:$('withdrawalChain').value,status:'pending',source_type:source,fee:a*WITHDRAWAL_RATE};
+    const {error}=await sb.from('withdrawals').insert(payload);if(error)throw error;
+    $('withdrawalForm').reset();updateWithdrawalPreview();await refreshWithdrawals();toast('Withdrawal request submitted and is pending review.');
+  }catch(err){console.error(err);toast('Withdrawal could not be submitted.','error')}finally{btn.disabled=false;btn.textContent='Submit Withdrawal Request'}
+});
+
+function renderReferrals(){
+  const gate=!isApproved();$('referralGate').classList.toggle('hidden',!gate);$('referralArea').classList.toggle('hidden',gate);if(gate){$('referralGate').innerHTML=kycMessage();return}
+  const f=calculateFinance();$('refCode').textContent=profile.referral_code||'—';$('refEarnings').textContent=fmt(f.refEarn);$('refCount').textContent=referrals.length;
+  const link=location.origin+location.pathname.replace(/\/[^/]*$/,'/')+'register.html?ref='+encodeURIComponent(profile.referral_code||'');$('refLink').value=link;
+  $('referralHistory').innerHTML=referrals.length?referrals.map(r=>{const p=r.profile||{};return `<tr><td>${esc(r.full_name||r.name||p.full_name||'Monarch')}</td><td>${esc(r.display_username||p.display_username||'—')}</td><td>${status(r.status||p.status||'active')}</td><td>${date(r.created_at)}</td><td><button class="btn btn-sm public-profile" data-id="${esc(r.user_id||r.referred_user_id||r.id||'')}">View</button></td></tr>`}).join(''):'<tr><td colspan="5" class="empty">No referrals found.</td></tr>';
+  document.querySelectorAll('.public-profile').forEach(b=>b.addEventListener('click',()=>openPublicProfile(b.dataset.id)));
+}
+async function refreshReferrals(){
+  const {data,error}=await sb.from('referrals').select('*').or('referrer_id.eq.'+currentUser.id+',user_id.eq.'+currentUser.id).order('created_at',{ascending:false});
+  if(error)throw error;referrals=data||[];
+  /* Enrich only with public fields, never private profile data. */
+  const ids=referrals.map(r=>r.user_id||r.referred_user_id).filter(Boolean).filter(id=>id!==currentUser.id);
+  if(ids.length){const {data:pub}=await sb.from('profiles').select('id,full_name,display_username,avatar_url,created_at,status,kyc_status').in('id',ids);const map=new Map((pub||[]).map(p=>[p.id,p]));referrals=referrals.map(r=>({...r,profile:map.get(r.user_id||r.referred_user_id)||null}))}
+  renderReferrals();renderOverview()
+}
+$('refreshReferrals').addEventListener('click',async()=>{try{await refreshReferrals();toast('Referral network refreshed.')}catch(e){toast('Unable to load referrals.','error')}})
+async function copyText(v){try{await navigator.clipboard.writeText(v);toast('Copied.')}catch(e){toast('Copy failed.','error')}}
+$('copyRefCode').addEventListener('click',()=>copyText(profile.referral_code||''));$('copyRefLink').addEventListener('click',()=>copyText($('refLink').value));
+
+function renderProfile(){
+  const name=profile.full_name||'Monarch';$('profileName').textContent=name;$('profileUsername').textContent='@'+(profile.display_username||'—');$('profileStatus').outerHTML=`<span id="profileStatus" class="status">${esc(profile.status||'active')}</span>`;
+  $('displayUsername').value=profile.display_username||'';$('profileFullName').value=profile.full_name||'';$('profileEmail').value=currentUser.email||'';$('profilePhone').value=profile.phone||'';$('profileUid').value=profile.uid||'';$('profileCountry').value=profile.country||'';$('profileState').value=profile.state||'';$('profileCity').value=profile.city||'';$('profileKyc').value=profile.kyc_status||'pending';
+  $('profileBank').innerHTML=`Account Name: ${esc(profile.withdrawal_account_name||profile.full_name||'—')}<br>Account Number: ${esc(profile.withdrawal_account_number||'—')}<br>Bank: ${esc(profile.withdrawal_bank||'—')}`;
+}
+$('profileForm').addEventListener('submit',async e=>{e.preventDefault();const u=$('displayUsername').value.trim();if(!/^[A-Za-z0-9_-]{3,30}$/.test(u)){toast('Username must be 3–30 characters using letters, numbers, underscores or hyphens.','error');return}try{const {error}=await sb.from('profiles').update({display_username:u,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Username updated.')}catch(err){console.error(err);toast('Unable to update your username.','error')}})
+$('avatarUpload').addEventListener('click',async()=>{const file=$('avatarInput').files[0];if(!file){toast('Choose an image first.','error');return}const btn=$('avatarUpload');btn.disabled=true;try{const url=await uploadFile('avatars',storageName('profile',file),file);const {error}=await sb.from('profiles').update({avatar_url:url,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Avatar updated.')}catch(e){console.error(e);toast('Avatar upload failed.','error')}finally{btn.disabled=false}})
+
+async function openPublicProfile(id){
+  if(!id||id===currentUser.id)return showView('profile');
+  const {data,error}=await sb.from('profiles').select('id,full_name,display_username,avatar_url,created_at,status,kyc_status').eq('id',id).maybeSingle();
+  if(error||!data){toast('Public profile could not be loaded.','error');return}
+  $('publicProfileContent').innerHTML=`<div style="text-align:center"><img class="profile-large" src="${esc(data.avatar_url||'')}" onerror="this.style.display='none'"><h3>${esc(data.full_name||'Monarch')}</h3><div class="gold">@${esc(data.display_username||'—')}</div><div style="margin:12px">${status(data.status||'active')} ${status(data.kyc_status||'pending')}</div><div class="notice">Monarch since ${date(data.created_at)}<br><span class="muted">Only public profile information is displayed.</span></div></div>`;
+  $('profileModal').classList.remove('hidden')
+}
+$('closeProfileModal').addEventListener('click',()=>$('profileModal').classList.add('hidden'));$('profileModal').addEventListener('click',e=>{if(e.target.id==='profileModal')$('profileModal').classList.add('hidden')});
+
+function renderNotifications(){
+  const unread=notifications.filter(n=>!n.read_at&&!n.is_read).length;$('notificationDot').classList.toggle('hidden',!unread);
+  $('notificationList').innerHTML=notifications.length?notifications.map(n=>`<div class="notification ${(!n.read_at&&!n.is_read)?'unread':''}" data-notification="${esc(n.id||'')}"><strong>${esc(n.title||'Notification')}</strong><div>${esc(n.message||n.body||'')}</div><small>${date(n.created_at)}</small></div>`).join(''):'<div class="empty">No notifications.</div>';
+  document.querySelectorAll('[data-notification]').forEach(el=>el.addEventListener('click',async()=>{const id=el.dataset.notification;if(!id)return;const {error}=await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id).eq('user_id',currentUser.id);if(!error){const n=notifications.find(x=>String(x.id)===String(id));if(n)n.read_at=new Date().toISOString();renderNotifications()}}))
+}
+$('markAllRead').addEventListener('click',async()=>{try{const {error}=await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('user_id',currentUser.id).is('read_at',null);if(error)throw error;notifications.forEach(n=>n.read_at=new Date().toISOString());renderNotifications();toast('Notifications marked as read.')}catch(e){/* Some schemas may not expose read_at; keep dashboard usable. */toast('Notifications could not be marked read.','error')}});
+
+function initX(){
+  const saved=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||'[]');const box=$('xMessages');if(!box.children.length){if(saved.length)saved.forEach(m=>addXMessage(m.role,m.content));else addXMessage('x','Welcome to X. How can I assist you, Monarch?')}
+}
+function addXMessage(role,content){const el=document.createElement('div');el.className='msg '+(role==='user'?'user':'x');el.textContent=content;$('xMessages').appendChild(el);$('xMessages').scrollTop=$('xMessages').scrollHeight}
+function saveX(){const arr=[...$('xMessages').children].map(e=>({role:e.classList.contains('user')?'user':'x',content:e.textContent}));localStorage.setItem(X_HISTORY_KEY,JSON.stringify(arr.slice(-60)))}
+document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('xInput').value=b.dataset.prompt;$('xForm').requestSubmit()}));
+$('clearX').addEventListener('click',()=>{localStorage.removeItem(X_HISTORY_KEY);$('xMessages').innerHTML='';addXMessage('x','Conversation cleared. How can I help, Monarch?')});
+$('xForm').addEventListener('submit',async e=>{
+  e.preventDefault();const message=$('xInput').value.trim();if(!message)return;addXMessage('user',message);$('xInput').value='';saveX();
+  const pending=document.createElement('div');pending.className='msg x';pending.textContent='X is thinking…';$('xMessages').appendChild(pending);$('xMessages').scrollTop=$('xMessages').scrollHeight;
+  try{
+    const session=(await sb.auth.getSession()).data.session;if(!session)throw new Error('Session expired.');
+    const history=[...$('xMessages').children].filter(x=>x!==pending).slice(-20).map(x=>({role:x.classList.contains('user')?'user':'assistant',content:x.textContent}));
+    const res=await fetch(X_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({message,history,user_id:currentUser.id})});
+    if(!res.ok)throw new Error('X service returned an error.');
+    const data=await res.json();pending.remove();const reply=data.reply||data.message||data.content||data.response||'X did not return a response.';addXMessage('x',typeof reply==='string'?reply:JSON.stringify(reply));saveX();
+  }catch(err){pending.remove();addXMessage('x','X is temporarily unavailable. Please try again shortly.');console.error(err)}
+});
+
+$('logoutBtn').addEventListener('click',async()=>{try{await sb.auth.signOut()}finally{location.href='login.html'}});
+
+async function boot(){
+  try{
+    const {data:{session}}=await sb.auth.getSession();if(!session){location.href='login.html';return}currentUser=session.user;
+    const results=await Promise.allSettled([loadProfile(),loadOptional()]);
+    if(results[0].status==='rejected')throw results[0].reason;
+    renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
+    setLoading(false);$('app').classList.remove('hidden');
+  }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
+}
+sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
+boot();
 </script>
 </body>
 </html>
