@@ -130,27 +130,63 @@ function parseStorageReference(value){
       const rest=u.pathname.slice(idx+marker.length);
       const parts=rest.split("/").filter(Boolean);
       if(parts[0]==="public"||parts[0]==="sign"||parts[0]==="authenticated")parts.shift();
-      if(parts.length>=2)return {bucket:decodeURIComponent(parts.shift()),path:parts.map(decodeURIComponent).join("/")};
+      if(parts.length>=2){
+        const bucket=decodeURIComponent(parts.shift());
+        const path=parts.map(decodeURIComponent).join("/");
+        return {bucket,path,rawUrl:raw};
+      }
     }
   }catch(e){}
-  if(raw.startsWith("kyc-documents/"))return {bucket:"kyc-documents",path:raw.slice("kyc-documents/".length)};
-  return {bucket:"kyc-documents",path:raw.replace(/^\/+/,"")};
+  if(raw.startsWith("kyc-documents/"))return {bucket:"kyc-documents",path:raw.slice("kyc-documents/".length),rawUrl:raw};
+  if(raw.startsWith("kyc/"))return {bucket:"kyc-documents",path:raw.slice(4),rawUrl:raw};
+  return {bucket:"kyc-documents",path:raw.replace(/^\/+/,""),rawUrl:raw};
 }
-async function openKycDocument(value,label){
+
+async function openKycDocument(value,label,button){
   const ref=parseStorageReference(value);
   if(!ref)return toast(label+" document is unavailable.","error");
-  const btn=event?.currentTarget;
-  if(btn){btn.dataset.busy="1";btn.textContent="Opening…"}
+  const btn=button || null;
+  const originalText=btn?.textContent || ("↗ "+label);
+  if(btn){btn.dataset.busy="1";btn.disabled=true;btn.textContent="Opening…"}
   try{
-    const signed=await db.storage.from(ref.bucket).createSignedUrl(ref.path,300);
-    if(signed.error)throw signed.error;
-    if(!signed.data?.signedUrl)throw new Error("Supabase did not return a document URL.");
-    window.open(signed.data.signedUrl,"_blank","noopener,noreferrer");
+    /*
+      KYC files are stored in the dedicated kyc-documents bucket.
+      Older records may contain URLs pointing at a legacy bucket name,
+      so try the parsed bucket first and then the current KYC bucket.
+    */
+    const candidates=[];
+    const addCandidate=(bucket,path)=>{
+      const key=bucket+"|"+path;
+      if(bucket && path && !candidates.some(x=>x.key===key))candidates.push({key,bucket,path});
+    };
+    addCandidate(ref.bucket,ref.path);
+    addCandidate("kyc-documents",ref.path);
+    addCandidate("kyc",ref.path);
+
+    let lastError=null;
+    for(const candidate of candidates){
+      try{
+        const signed=await db.storage.from(candidate.bucket).createSignedUrl(candidate.path,300);
+        if(!signed.error && signed.data?.signedUrl){
+          window.open(signed.data.signedUrl,"_blank","noopener,noreferrer");
+          return;
+        }
+        if(signed.error)lastError=signed.error;
+      }catch(e){lastError=e;}
+    }
+
+    /* If the stored value is already a usable URL, try it as a final fallback. */
+    if(ref.rawUrl && /^https?:\/\//i.test(ref.rawUrl)){
+      const win=window.open(ref.rawUrl,"_blank","noopener,noreferrer");
+      if(win)return;
+    }
+
+    throw lastError || new Error("The KYC document could not be opened from Supabase Storage.");
   }catch(e){
     console.error("KYC document open failed:",e);
-    toast("Unable to open "+label+". Storage bucket/permissions need to be checked.","error");
+    toast("Unable to open "+label+". Please check the KYC Storage bucket and file permissions.","error");
   }finally{
-    if(btn){btn.dataset.busy="0";btn.textContent="↗ "+label}
+    if(btn){btn.dataset.busy="0";btn.disabled=false;btn.textContent=originalText;}
   }
 }
 async function kycLoad(){
@@ -256,7 +292,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(a==="member-status")return memberStatus(b.dataset.id,b.dataset.status);if(a==="kyc-approve")return kycApprove(b.dataset.id);if(a==="kyc-reject")return kycReject(b.dataset.id);if(a==="invest-status")return investSet(b.dataset.id,b.dataset.status);if(a==="withdraw-status")return withdrawSet(b.dataset.id,b.dataset.status);
   if(a==="edit-pkg")return editPkg(JSON.parse(b.dataset.pkg));if(a==="delete-pkg")return delPkg(b.dataset.id);if(a==="edit-pay")return editPay(JSON.parse(b.dataset.pay));if(a==="toggle-pay")return togglePay(b.dataset.id,b.dataset.active==="true");if(a==="delete-pay")return deletePay(b.dataset.id);
  }catch(err){toast(err.message||"Button action failed.","error")}});
- document.addEventListener("click",e=>{const b=e.target.closest("[data-kyc-doc]");if(!b)return;openKycDocument(b.dataset.kycDoc,b.dataset.kycLabel)});
+ document.addEventListener("click",e=>{const b=e.target.closest("[data-kyc-doc]");if(!b)return;openKycDocument(b.dataset.kycDoc,b.dataset.kycLabel,b)});
  boot();
 });
 </script>
