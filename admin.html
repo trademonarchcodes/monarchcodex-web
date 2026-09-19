@@ -37,7 +37,7 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 <div class="brand"><b>MONARCH CODEX</b><small>ADMIN KINGDOM</small></div>
 <div class="admin"><b>👑 Supreme Monarch</b><small id="adminEmail">Checking...</small></div>
 <nav>
-<button class="active" data-v="overview">⌂ &nbsp; Overview</button><button data-v="members">♔ &nbsp; Monarch Members</button><button data-v="kyc">✓ &nbsp; KYC Requests</button><button data-v="investments">◈ &nbsp; Investment Requests</button><button data-v="packages">▣ &nbsp; Investment Packages</button><button data-v="payments">₦ &nbsp; Payment Destinations</button><button data-v="earnings">↗ &nbsp; Monthly Profit</button><button data-v="capital">◈ &nbsp; Capital Management</button><button data-v="withdrawals">⇱ &nbsp; Withdrawals</button><button data-v="referrals">♙ &nbsp; Referrals</button><button data-v="transactions">▤ &nbsp; Transactions</button><button id="logout" class="logout">↪ &nbsp; Logout</button>
+<button class="active" data-v="overview">⌂ &nbsp; Overview</button><button data-v="members">♔ &nbsp; Monarch Members</button><button data-v="kyc">✓ &nbsp; KYC Requests</button><button data-v="investments">◈ &nbsp; Investment Requests</button><button data-v="packages">▣ &nbsp; Investment Packages</button><button data-v="payments">₦ &nbsp; Payment Destinations</button><button data-v="earnings">↗ &nbsp; Monthly Profit</button><button data-v="capital">◈ &nbsp; Capital Management</button><button data-v="withdrawals">⇱ &nbsp; Withdrawals</button><button data-v="referrals">♙ &nbsp; Referrals</button><button data-v="transactions">▤ &nbsp; Transactions</button><button type="button" onclick="window.location.href='sovereign_desk.html'">♛ &nbsp; SOVEREIGN DESK</button><button id="logout" class="logout">↪ &nbsp; Logout</button>
 </nav></aside>
 <main>
 <header><div style="display:flex;align-items:center;gap:12px"><button id="menu" class="menu">☰</button><div id="title" class="title">Admin Overview</div></div><span class="muted" style="font-size:10px">Admin access verified</span></header>
@@ -90,41 +90,7 @@ function badge(value){const x=String(value||"pending"),low=x.toLowerCase(),cls=[
 async function q(table,callback){if(!db)throw new Error("Supabase connection is not ready. Please refresh the page.");const result=await callback(db.from(table));return result}
 function adminOK(){return String(user?.email||"").toLowerCase()===ADMIN_EMAIL.toLowerCase()||String(profile?.role||"").toLowerCase().includes("admin")}
 function showError(id,error){if($(id))$(id).innerHTML=`<div class="empty">${esc(error?.message||error||"Something went wrong.")}</div>`}
-async function notifyMember(userId,title,message,type="info"){
- if(!userId)return {ok:false,error:new Error("Missing member id.")};
- const r=await q("notifications",x=>x.insert({user_id:userId,title,message,type,is_read:false}));
- if(r.error)throw r.error;
- return {ok:true};
-}
-function storagePathFromUrl(raw){
- const s=String(raw||"").trim();
- if(!s)return "";
- if(!/^https?:\/\//i.test(s))return decodeURIComponent(s).replace(/^\/+/,"").replace(/^kyc-documents\//i,"");
- try{
-  const u=new URL(s), marker="/storage/v1/object/", i=u.pathname.indexOf(marker);
-  if(i<0)return "";
-  let rest=u.pathname.slice(i+marker.length);
-  rest=rest.replace(/^public\//,"").replace(/^authenticated\//,"").replace(/^sign\//,"");
-  if(rest.toLowerCase().startsWith("kyc-documents/"))rest=rest.slice("kyc-documents/".length);
-  return decodeURIComponent(rest);
- }catch(e){return "";}
-}
-async function kycDocUrl(raw){
- const path=storagePathFromUrl(raw);
- if(!path)return "";
- const r=await db.storage.from("kyc-documents").createSignedUrl(path,600);
- if(r.error)throw r.error;
- return r.data?.signedUrl||"";
-}
-async function kycDocLink(label,raw){
- try{
-  const url=await kycDocUrl(raw);
-  return url?`<a class="doc-link" href="${esc(url)}" target="_blank" rel="noopener"><span>↗</span>${esc(label)}</a>`:`<span class="doc-link" style="opacity:.55"><span>↗</span>${esc(label)} unavailable</span>`;
- }catch(e){
-  console.warn("KYC document URL error:",label,e.message||e);
-  return `<span class="doc-link" style="opacity:.55"><span>↗</span>${esc(label)} unavailable</span>`;
- }
-}
+async function notifyMember(userId,title,message,type="info"){if(!userId)return;try{await q("notifications",x=>x.insert({user_id:userId,title,message,type,is_read:false}))}catch(e){console.warn("Notification error:",e.message||e)}}
 function memberName(id){const p=members.find(m=>m.id===id);return p?.full_name||p?.display_username||id||"Monarch"}
 function view(name){
  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.querySelectorAll("nav button[data-v]").forEach(x=>x.classList.remove("active"));
@@ -158,40 +124,15 @@ async function kycLoad(){
   const f=$("kycFilter").value,r=await q("profiles",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[];
   const under=all.filter(p=>["pending","submitted","under_review"].includes(String(p.kyc_status||"").toLowerCase()));$("statKyc").textContent=under.length;
   const a=all.filter(p=>{const k=String(p.kyc_status||"not_submitted").toLowerCase();return f==="all"?true:f==="under_review"?["pending","submitted","under_review"].includes(k):k===f});
-  const rows=await Promise.all(a.map(async p=>{
+  $("kyc").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${a.map(p=>{
    const k=String(p.kyc_status||"not_submitted").toLowerCase(),review=["pending","submitted","under_review"].includes(k),reason=typeof p.kyc_rejection_reason==="object"?JSON.stringify(p.kyc_rejection_reason):p.kyc_rejection_reason||"";
    const docs=[["Front",p.nin_front_url],["Back",p.nin_back_url],["Selfie",p.selfie_url]].filter(x=>x[1]);
-   const docLinks=docs.length?await Promise.all(docs.map(d=>kycDocLink(d[0],d[1]))):[];
-   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docLinks.join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
-  }));
-  $("kyc").innerHTML=rows.length?`<div class="table"><table><tr><th>Member</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${rows.join("")}</table></div>`:'<div class="empty">No matching KYC requests.</div>';
+   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<a class="doc-link" href="${esc(d[1])}" target="_blank" rel="noopener"><span>↗</span>${esc(d[0])}</a>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
+  }).join("")}</table></div>`:'<div class="empty">No matching KYC requests.</div>';
  }catch(e){showError("kyc",e);toast(e.message,"error")}
 }
-async function verifyKycUpdate(id,expected){
- const payload=expected.status==="approved"?{kyc_status:"approved",kyc_rejection_reason:null}:{kyc_status:"rejected",kyc_rejection_reason:expected.reason};
- const r=await q("profiles",x=>x.update(payload).eq("id",id));
- if(r.error)throw r.error;
- const check=await q("profiles",x=>x.select("id,kyc_status,kyc_rejection_reason").eq("id",id).maybeSingle());
- if(check.error)throw check.error;
- if(!check.data)throw new Error("KYC was changed, but the updated profile could not be read back. Check the profiles SELECT policy for the admin.");
- if(String(check.data.kyc_status||"").toLowerCase()!==expected.status)throw new Error(`KYC update did not persist. Database status is "${check.data.kyc_status||"empty"}".`);
- return check.data;
-}
-async function kycApprove(id){
- try{
-  await verifyKycUpdate(id,{status:"approved"});
-  let notificationError="";try{await notifyMember(id,"KYC Verified","Your identity verification has been approved. Your MONARCH CODEX KYC status is now verified.","success")}catch(e){notificationError=e.message||String(e)}
-  toast(notificationError?"KYC verified, but notification failed: "+notificationError:"KYC verified","success");await kycLoad();
- }catch(e){toast(e.message,"error")}
-}
-async function kycReject(id){
- const reason=prompt("Enter the rejection reason:");if(reason===null||!reason.trim())return toast("Rejection reason is required","warning");
- try{
-  await verifyKycUpdate(id,{status:"rejected",reason:reason.trim()});
-  let notificationError="";try{await notifyMember(id,"KYC Rejected",`Your KYC submission was rejected. Reason: ${reason.trim()}`,"warning")}catch(e){notificationError=e.message||String(e)}
-  toast(notificationError?"KYC rejected, but notification failed: "+notificationError:"KYC rejected","success");await kycLoad();
- }catch(e){toast(e.message,"error")}
-}
+async function kycApprove(id){try{const r=await q("profiles",x=>x.update({kyc_status:"approved"}).eq("id",id));if(r.error)throw r.error;await notifyMember(id,"KYC Verified","Your identity verification has been approved. Your MONARCH CODEX KYC status is now verified.","success");toast("KYC verified","success");await kycLoad()}catch(e){toast(e.message,"error")}}
+async function kycReject(id){const reason=prompt("Enter the rejection reason:");if(reason===null||!reason.trim())return toast("Rejection reason is required","warning");try{const r=await q("profiles",x=>x.update({kyc_status:"rejected",kyc_rejection_reason:reason.trim()}).eq("id",id));if(r.error)throw r.error;await notifyMember(id,"KYC Rejected",`Your KYC submission was rejected. Reason: ${reason.trim()}`,"warning");toast("KYC rejected","success");await kycLoad()}catch(e){toast(e.message,"error")}}
 async function investLoad(){
  try{
   const r=await q("investments",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[],f=$("investmentFilter").value,a=f==="all"?all:all.filter(x=>String(x.status||"pending").toLowerCase()===f);$("statInvestments").textContent=all.filter(x=>String(x.status||"pending").toLowerCase()==="pending").length;
