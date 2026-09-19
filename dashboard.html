@@ -639,7 +639,9 @@ const X_ENDPOINT='https://monarchcodex-web.trademonarchofficial.workers.dev/api/
 const X_HISTORY_KEY='monarch_x_chat_v1';
 const NGN_RATE=1400, BANK_FEE=2, WALLET_FEE=1, WITHDRAWAL_RATE=.01, MIN_EARNINGS=10, CAPITAL_LOCK_MONTHS=3;
 const KYC_PROTECTED_VIEWS=['x','investments','withdrawals','transactions','referrals','profile'];
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let sb=null;
+window.addEventListener('error',e=>{console.error('MONARCH DASHBOARD ERROR',e.error||e.message);try{setTimeout(()=>{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l&&!l.classList.contains('hidden')){l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Dashboard startup error.</strong><br>'+String(e.message||'Please refresh and try again.').replace(/[&<>]/g,'')+'</div></div>'; }},0)}catch(_){} });
+if(window.supabase&&typeof window.supabase.createClient==='function'){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}else{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l)l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Supabase could not be loaded.</strong><br>Please refresh the page and try again.</div></div>';}
 let currentUser=null,profile=null,packages=[],payments=[],notifications=[],investments=[],earnings=[],withdrawals=[],adjustments=[],referralLedger=[],referrals=[];
 let currentView='overview', selectedPayment=null;
 
@@ -671,8 +673,8 @@ function showView(view,force=false){
 }
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
-$('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
-$('notificationBtn').addEventListener('click',()=>{$('notificationPanel').classList.toggle('hidden');renderNotifications()});
+$('mobileMenu')?.addEventListener('click',()=>$('sidebar').classList.toggle('open'));
+$('notificationBtn')?.addEventListener('click',()=>{$('notificationPanel').classList.toggle('hidden');renderNotifications()});
 
 async function loadProfile(){
   const {data,error}=await sb.from('profiles').select('id,full_name,display_username,username_last_changed,phone,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,uid,role,status,kyc_status,kyc_rejection_reason,balance,total_invested,total_earnings,referral_code,referred_by,withdrawal_account_name,withdrawal_account_number,withdrawal_bank,created_at,updated_at,avatar_url,kyc_document_url').eq('id',currentUser.id).maybeSingle();
@@ -1015,7 +1017,7 @@ async function boot(){
     document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>'+esc(err?.message||'Please refresh the page or sign in again.')+'</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'
   }
 }
-sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
+sb?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
 boot();
   </script>
  </body>
