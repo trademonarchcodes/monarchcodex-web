@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070707">
+<title>MONARCH CODEX — KYC Verification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#f0d477;--bg:#070707;--card:#121212;--border:#292929;--text:#f5f5f5;--muted:#9b9b9b;--success:#7dcc91}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Poppins,Arial,sans-serif}
+body{padding:20px}button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.wrap{max-width:820px;margin:0 auto}.brand{text-align:center;padding:12px 0 24px}.brand h1{font:700 24px Cinzel,serif;letter-spacing:2px;color:var(--gold);margin:0}.brand p{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:15px}.hero{padding:26px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(120deg,#14120c,#111 45%,#0c0c0c);margin-bottom:15px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}.hero h2{font:600 clamp(24px,4vw,34px) Cinzel,serif;margin:8px 0}.hero p{margin:0;color:var(--muted);font-size:12px}
+.notice{padding:13px;border:1px solid #39301a;background:#151209;border-radius:9px;color:#d6c58e;font-size:12px;margin-bottom:15px}.success{border-color:#294a33;background:#0d1710;color:#9dd4aa}.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}.warning{border-color:#5a461d;background:#191408;color:#dfc17a}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:#bbb}.field input,.field select,.field textarea{width:100%;background:#0c0c0c;border:1px solid #303030;color:var(--text);padding:11px 12px;border-radius:8px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#8c742b}.field small{font-size:10px;color:var(--muted)}
+.btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:10px 14px;border-radius:9px;font-weight:600}.btn.primary{background:var(--gold);color:#080808;border-color:var(--gold)}.btn:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.divider{height:1px;background:#242424;margin:18px 0}.status{display:inline-flex;align-items:center;border:1px solid #39301a;border-radius:999px;padding:5px 9px;font-size:10px;text-transform:capitalize;color:#d6c58e}
+.file-note{font-size:10px;color:var(--muted);line-height:1.5}.footer-note{font-size:10px;color:var(--muted);text-align:center;margin:18px 0}
+@media(max-width:650px){body{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero{padding:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><h1>MONARCH CODEX</h1><p>The Inner Kingdom</p></div>
+
+  <div id="loading" class="card" style="text-align:center">Loading secure verification…</div>
+
+  <main id="app" class="hidden">
+    <section class="hero">
+      <div class="eyebrow">Identity Verification</div>
+      <h2>KYC Verification</h2>
+      <p>Complete your identity verification. Protected MONARCH CODEX sections remain locked until your KYC is approved.</p>
+    </section>
+
+    <div id="statusBox" class="notice">Loading your verification status…</div>
+
+    <section id="approvedCard" class="card hidden">
+      <div class="notice success"><strong>Identity verification complete.</strong><br>Your KYC has been approved and your protected dashboard sections are unlocked.</div>
+      <button class="btn primary" type="button" onclick="location.href='dashboard.html'">RETURN TO DASHBOARD</button>
+    </section>
+
+    <section id="formCard" class="card">
+      <div class="form-grid">
+        <div class="field"><label>Full Name</label><input id="fullName" autocomplete="name" required></div>
+        <div class="field"><label>Gender</label><select id="gender" required><option value="">Select gender</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+        <div class="field"><label>Phone Number</label><input id="phone" type="tel" autocomplete="tel" required></div>
+        <div class="field"><label>Country</label><input id="country" autocomplete="country-name" required></div>
+        <div class="field"><label>State</label><input id="state" autocomplete="address-level1" required></div>
+        <div class="field"><label>City</label><input id="city" autocomplete="address-level2" required></div>
+        <div class="field full"><label>Address</label><textarea id="address" rows="3" autocomplete="street-address" required></textarea></div>
+        <div class="field full"><label>NIN Number — exactly 11 digits</label><input id="ninNumber" inputmode="numeric" maxlength="11" pattern="[0-9]{11}" placeholder="Enter 11-digit NIN" required><small>Your NIN is stored with your KYC record.</small></div>
+        <div class="field"><label>NIN Front</label><input id="ninFront" type="file" accept="image/*,.pdf"><small>Upload the front of your NIN document.</small></div>
+        <div class="field"><label>NIN Back</label><input id="ninBack" type="file" accept="image/*,.pdf"><small>Upload the back of your NIN document.</small></div>
+        <div class="field full"><label>Selfie</label><input id="selfie" type="file" accept="image/*"><small>Use a clear recent selfie.</small></div>
+      </div>
+      <div class="divider"></div>
+      <div class="file-note">Your identity documents are private KYC records. Existing documents do not need to be uploaded again unless you are resubmitting verification.</div>
+      <div class="actions">
+        <button class="btn" type="button" onclick="location.href='dashboard.html'">BACK TO DASHBOARD</button>
+        <button class="btn primary" id="submitBtn" type="button">SUBMIT KYC FOR REVIEW</button>
+      </div>
+    </section>
+    <div class="footer-note">KYC approval is required before protected account features can be accessed.</div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co';
+const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let currentUser=null,profile=null;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+function isApproved(){return String(profile?.kyc_status||'').toLowerCase()==='approved'}
+function statusText(){
+  const st=String(profile?.kyc_status||'').toLowerCase();
+  if(isApproved())return '<div class="notice success"><strong>KYC approved.</strong> Your protected sections are unlocked.</div>';
+  if(st==='rejected')return '<div class="notice error"><strong>KYC rejected.</strong><br>'+esc(profile?.kyc_rejection_reason||'Please review your information and resubmit.')+'</div>';
+  if(st==='pending'||st==='submitted'||st==='under_review')return '<div class="notice warning"><strong>KYC under review.</strong> Protected sections remain locked until approval.</div>';
+  return '<div class="notice warning"><strong>KYC approval required.</strong> Complete and submit your verification below.</div>';
+}
+async function loadProfile(){
+  const {data,error}=await sb.from('profiles').select('id,full_name,phone,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,kyc_status,kyc_rejection_reason,gender').eq('id',currentUser.id).maybeSingle();
+  if(error)throw error;if(!data)throw new Error('Profile not found.');profile=data;
+}
+function fillForm(){
+  $('fullName').value=profile.full_name||'';
+  $('gender').value=profile.gender||'';
+  $('phone').value=profile.phone||'';
+  $('country').value=profile.country||'';
+  $('state').value=profile.state||'';
+  $('city').value=profile.city||'';
+  $('address').value=profile.address||'';
+  $('ninNumber').value=profile.nin_number||'';
+  $('ninFront').required=!profile.nin_front_url;
+  $('ninBack').required=!profile.nin_back_url;
+  $('selfie').required=!profile.selfie_url;
+}
+function storageName(prefix,file){return currentUser.id+'/'+prefix+'/'+Date.now()+'_'+String(file.name).replace(/[^a-zA-Z0-9._-]/g,'_')}
+async function uploadFile(bucket,path,file){
+  if(!file)throw new Error('File is required.');
+  const {error}=await sb.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type||undefined});
+  if(error)throw error;
+  const {data}=sb.storage.from(bucket).getPublicUrl(path);
+  if(!data?.publicUrl)throw new Error('Unable to create file URL.');
+  return data.publicUrl;
+}
+function setFormLocked(locked){
+  ['fullName','gender','phone','country','state','city','address','ninNumber','ninFront','ninBack','selfie','submitBtn'].forEach(id=>$(id).disabled=locked);
+}
+$('submitBtn').addEventListener('click',async()=>{
+  const fullName=$('fullName').value.trim(),gender=$('gender').value,phone=$('phone').value.trim(),country=$('country').value.trim(),state=$('state').value.trim(),city=$('city').value.trim(),address=$('address').value.trim(),nin=$('ninNumber').value.trim();
+  if(!fullName||!gender||!phone||!country||!state||!city||!address){$('statusBox').innerHTML='<div class="notice error">Please complete all identity and address fields.</div>';return}
+  if(!/^\d{11}$/.test(nin)){$('statusBox').innerHTML='<div class="notice error">NIN must contain exactly 11 digits.</div>';return}
+  const btn=$('submitBtn');btn.disabled=true;btn.textContent='SUBMITTING…';
+  try{
+    const updates={full_name:fullName,gender,phone,country,state,city,address,nin_number:nin,kyc_status:'pending'};
+    const files=[['ninFront','nin_front_url','kyc/nin-front'],['ninBack','nin_back_url','kyc/nin-back'],['selfie','selfie_url','kyc/selfie']];
+    for(const [input,col,prefix] of files){const f=$(input).files[0];if(f)updates[col]=await uploadFile('kyc-documents',storageName(prefix,f),f)}
+    const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
+    if(error)throw error;
+    await loadProfile();fillForm();
+    $('statusBox').innerHTML='<div class="notice success"><strong>KYC submitted successfully.</strong> Your verification is now awaiting review. Protected sections remain locked until approval.</div>';
+    if(isApproved()){$('approvedCard').classList.remove('hidden');$('formCard').classList.add('hidden')}
+  }catch(err){
+    console.error(err);$('statusBox').innerHTML='<div class="notice error"><strong>KYC submission failed.</strong><br>'+esc(err.message||'Please try again.')+'</div>';
+  }finally{btn.disabled=false;btn.textContent='SUBMIT KYC FOR REVIEW'}
+});
+async function boot(){
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){location.href='login.html';return}
+    currentUser=session.user;
+    await loadProfile();fillForm();
+    $('statusBox').innerHTML=statusText();
+    if(isApproved()){$('approvedCard').classList.remove('hidden');$('formCard').classList.add('hidden')}
+    $('loading').classList.add('hidden');$('app').classList.remove('hidden');
+  }catch(err){
+    console.error(err);$('loading').innerHTML='<div class="notice error"><strong>Unable to load KYC.</strong><br>'+esc(err.message||'Please sign in again.')+'</div><button class="btn primary" onclick="location.href=\'login.html\'">RETURN TO LOGIN</button>';
+  }
+}
+sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')location.href='login.html'});
+boot();
+</script>
+</body>
+</html>
