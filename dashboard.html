@@ -801,7 +801,7 @@ function renderInvestments(){
   $('investmentSummaryStatus').textContent=investments.length?String(investments[0].status||'pending').replaceAll('_',' '):'—';
   $('investmentHistory').innerHTML=investments.length?investments.map(x=>`<tr><td>${esc(x.package_name||'—')}</td><td>${fmt(x.amount)}</td><td>${fmt(x.fee)}</td><td>${esc(x.method||x.payment_method||'—')}</td><td>${status(x.status)}</td><td>${date(x.created_at)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No investments found.</td></tr>';
 }
-$('refreshInvestments').addEventListener('click',async()=>{try{await refreshInvestments();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
+$('refreshInvestments')?.addEventListener('click',async()=>{try{await refreshInvestments();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
 
 function renderWithdrawals(){
   const gate=!isApproved();$('withdrawalGate').classList.toggle('hidden',!gate);$('withdrawalArea').classList.toggle('hidden',gate);if(gate){$('withdrawalGate').innerHTML=kycMessage();return}
@@ -813,11 +813,11 @@ function updateWithdrawalPreview(){
   const a=safeNum($('withdrawalAmount').value),fee=a*WITHDRAWAL_RATE; $('withdrawRequest').textContent=fmt(a);$('withdrawFee').textContent=fmt(fee);$('withdrawNet').textContent=fmt(Math.max(0,a-fee));
   const crypto=$('withdrawalMethod').value==='crypto';$('cryptoDetails').classList.toggle('hidden',!crypto);$('withdrawalChainField').classList.toggle('hidden',!crypto);$('bankDetails').classList.toggle('hidden',crypto);$('withdrawalChain').required=crypto;$('withdrawalWallet').required=crypto;
 }
-$('withdrawalAmount').addEventListener('input',updateWithdrawalPreview);$('withdrawalMethod').addEventListener('change',updateWithdrawalPreview);
-$('withdrawalSource').addEventListener('change',()=>{const f=calculateFinance();if($('withdrawalSource').value==='earnings'&&f.profit<MIN_EARNINGS)toast('Available earnings are below the $10 minimum.','error')});
+$('withdrawalAmount')?.addEventListener('input',updateWithdrawalPreview);$('withdrawalMethod')?.addEventListener('change',updateWithdrawalPreview);
+$('withdrawalSource')?.addEventListener('change',()=>{const f=calculateFinance();if($('withdrawalSource').value==='earnings'&&f.profit<MIN_EARNINGS)toast('Available earnings are below the $10 minimum.','error')});
 async function refreshWithdrawals(){const {data,error}=await sb.from('withdrawals').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;withdrawals=data||[];renderWithdrawals();renderOverview();renderTransactions()}
-$('refreshWithdrawals').addEventListener('click',async()=>{try{await refreshWithdrawals();toast('Withdrawal history refreshed.')}catch(e){toast('Unable to load withdrawals.','error')}})
-$('withdrawalForm').addEventListener('submit',async e=>{
+$('refreshWithdrawals')?.addEventListener('click',async()=>{try{await refreshWithdrawals();toast('Withdrawal history refreshed.')}catch(e){toast('Unable to load withdrawals.','error')}})
+$('withdrawalForm')?.addEventListener('submit',async e=>{
   e.preventDefault();if(!isApproved()){showView('kyc');return}
   const source=$('withdrawalSource').value,method=$('withdrawalMethod').value,a=safeNum($('withdrawalAmount').value),f=calculateFinance();
   if(a<=0){toast('Enter a valid withdrawal amount.','error');return}
@@ -853,9 +853,9 @@ async function refreshReferrals(){
   if(ids.length){const {data:pub}=await sb.from('profiles').select('id,full_name,display_username,avatar_url,created_at,status,kyc_status').in('id',ids);const map=new Map((pub||[]).map(p=>[p.id,p]));referrals=referrals.map(r=>({...r,profile:map.get(r.user_id||r.referred_user_id)||null}))}
   renderReferrals();renderOverview()
 }
-$('refreshReferrals').addEventListener('click',async()=>{try{await refreshReferrals();toast('Referral network refreshed.')}catch(e){toast('Unable to load referrals.','error')}})
+$('refreshReferrals')?.addEventListener('click',async()=>{try{await refreshReferrals();toast('Referral network refreshed.')}catch(e){toast('Unable to load referrals.','error')}})
 async function copyText(v){try{await navigator.clipboard.writeText(v);toast('Copied.')}catch(e){toast('Copy failed.','error')}}
-$('copyRefCode').addEventListener('click',()=>copyText(profile.referral_code||''));$('copyRefLink').addEventListener('click',()=>copyText($('refLink').value));
+$('copyRefCode')?.addEventListener('click',()=>copyText(profile.referral_code||''));$('copyRefLink')?.addEventListener('click',()=>copyText($('refLink').value));
 
 function renderProfile(){
   const name=profile.full_name||'Monarch';$('profileName').textContent=name;$('profileUsername').textContent='@'+(profile.display_username||'—');$('profileStatus').outerHTML=`<span id="profileStatus" class="status">${esc(profile.status||'active')}</span>`;
@@ -863,9 +863,9 @@ function renderProfile(){
   $('bankAccountName').value=profile.full_name||'';$('bankName').value=profile.withdrawal_bank||'';$('bankAccountNumber').value=profile.withdrawal_account_number||'';
   $('profileBankAccountName').textContent=profile.withdrawal_account_name||profile.full_name||'—';$('profileBankAccountNumber').textContent=profile.withdrawal_account_number||'Not registered';$('profileBankName').textContent=profile.withdrawal_bank||'Not registered';
 }
-$('profileForm').addEventListener('submit',async e=>{e.preventDefault();const u=$('displayUsername').value.trim();if(!/^[A-Za-z0-9_-]{3,30}$/.test(u)){toast('Username must be 3–30 characters using letters, numbers, underscores or hyphens.','error');return}try{const {error}=await sb.from('profiles').update({display_username:u,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Username updated.')}catch(err){console.error(err);toast('Unable to update your username.','error')}})
-$('bankForm').addEventListener('submit',async e=>{e.preventDefault();const accountName=profile.full_name||'';const bankName=$('bankName').value.trim();const accountNumber=$('bankAccountNumber').value.trim();if(!accountName){toast('Your registered identity name is unavailable.','error');return}if(!bankName||!/^[0-9A-Za-z\s-]{6,30}$/.test(accountNumber)){toast('Enter a valid bank name and account number.','error');return}const btn=$('bankSave');btn.disabled=true;btn.textContent='Saving…';try{const {error}=await sb.from('profiles').update({withdrawal_account_name:accountName,withdrawal_account_number:accountNumber,withdrawal_bank:bankName,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderProfile();renderWithdrawals();toast('Bank details updated successfully.')}catch(err){console.error(err);toast('Unable to update your bank details.','error')}finally{btn.disabled=false;btn.textContent='Save Bank Details'}})
-$('avatarUpload').addEventListener('click',async()=>{const file=$('avatarInput').files[0];if(!file){toast('Choose an image first.','error');return}const btn=$('avatarUpload');btn.disabled=true;try{const url=await uploadFile('avatars',storageName('profile',file),file);const {error}=await sb.from('profiles').update({avatar_url:url,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Avatar updated.')}catch(e){console.error(e);toast('Avatar upload failed.','error')}finally{btn.disabled=false}})
+$('profileForm')?.addEventListener('submit',async e=>{e.preventDefault();const u=$('displayUsername').value.trim();if(!/^[A-Za-z0-9_-]{3,30}$/.test(u)){toast('Username must be 3–30 characters using letters, numbers, underscores or hyphens.','error');return}try{const {error}=await sb.from('profiles').update({display_username:u,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Username updated.')}catch(err){console.error(err);toast('Unable to update your username.','error')}})
+$('bankForm')?.addEventListener('submit',async e=>{e.preventDefault();const accountName=profile.full_name||'';const bankName=$('bankName').value.trim();const accountNumber=$('bankAccountNumber').value.trim();if(!accountName){toast('Your registered identity name is unavailable.','error');return}if(!bankName||!/^[0-9A-Za-z\s-]{6,30}$/.test(accountNumber)){toast('Enter a valid bank name and account number.','error');return}const btn=$('bankSave');btn.disabled=true;btn.textContent='Saving…';try{const {error}=await sb.from('profiles').update({withdrawal_account_name:accountName,withdrawal_account_number:accountNumber,withdrawal_bank:bankName,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderProfile();renderWithdrawals();toast('Bank details updated successfully.')}catch(err){console.error(err);toast('Unable to update your bank details.','error')}finally{btn.disabled=false;btn.textContent='Save Bank Details'}})
+$('avatarUpload')?.addEventListener('click',async()=>{const file=$('avatarInput').files[0];if(!file){toast('Choose an image first.','error');return}const btn=$('avatarUpload');btn.disabled=true;try{const url=await uploadFile('avatars',storageName('profile',file),file);const {error}=await sb.from('profiles').update({avatar_url:url,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Avatar updated.')}catch(e){console.error(e);toast('Avatar upload failed.','error')}finally{btn.disabled=false}})
 
 async function openPublicProfile(id){
   if(!id||id===currentUser.id)return showView('profile');
@@ -874,14 +874,14 @@ async function openPublicProfile(id){
   $('publicProfileContent').innerHTML=`<div style="text-align:center"><img class="profile-large avatar" src="${esc(data.avatar_url||avatarFallback(data.full_name||'Monarch'))}" onerror="this.onerror=null;this.src=avatarFallback(${JSON.stringify('Monarch')})" alt="Public Monarch avatar"><h3>${esc(data.full_name||'Monarch')}</h3><div class="gold">@${esc(data.display_username||'—')}</div><div style="margin:12px">${status(data.status||'active')} ${status(data.kyc_status||'pending')}</div><div class="notice">Monarch since ${date(data.created_at)}<br><span class="muted">Only public profile information is displayed.</span></div></div>`;
   $('profileModal').classList.remove('hidden')
 }
-$('closeProfileModal').addEventListener('click',()=>$('profileModal').classList.add('hidden'));$('profileModal').addEventListener('click',e=>{if(e.target.id==='profileModal')$('profileModal').classList.add('hidden')});
+$('closeProfileModal')?.addEventListener('click',()=>$('profileModal').classList.add('hidden'));$('profileModal')?.addEventListener('click',e=>{if(e.target.id==='profileModal')$('profileModal').classList.add('hidden')});
 
 function renderNotifications(){
   const unread=notifications.filter(n=>!n.read_at&&!n.is_read).length;$('notificationDot').classList.toggle('hidden',!unread);
   $('notificationList').innerHTML=notifications.length?notifications.map(n=>`<div class="notification ${(!n.read_at&&!n.is_read)?'unread':''}" data-notification="${esc(n.id||'')}"><strong>${esc(n.title||'Notification')}</strong><div>${esc(n.message||n.body||'')}</div><small>${date(n.created_at)}</small></div>`).join(''):'<div class="empty">No notifications.</div>';
   document.querySelectorAll('[data-notification]').forEach(el=>el.addEventListener('click',async()=>{const id=el.dataset.notification;if(!id)return;const now=new Date().toISOString();let result=await sb.from('notifications').update({read_at:now}).eq('id',id).eq('user_id',currentUser.id);if(result.error)result=await sb.from('notifications').update({is_read:true}).eq('id',id).eq('user_id',currentUser.id);if(!result.error){const n=notifications.find(x=>String(x.id)===String(id));if(n){n.read_at=now;n.is_read=true}renderNotifications()}}))
 }
-$('markAllRead').addEventListener('click',async()=>{try{const now=new Date().toISOString();let result=await sb.from('notifications').update({read_at:now}).eq('user_id',currentUser.id);if(result.error)result=await sb.from('notifications').update({is_read:true}).eq('user_id',currentUser.id);if(result.error)throw result.error;notifications.forEach(n=>{n.read_at=now;n.is_read=true});renderNotifications();toast('Notifications marked as read.')}catch(e){toast('Notifications could not be marked read.','error')}});
+$('markAllRead')?.addEventListener('click',async()=>{try{const now=new Date().toISOString();let result=await sb.from('notifications').update({read_at:now}).eq('user_id',currentUser.id);if(result.error)result=await sb.from('notifications').update({is_read:true}).eq('user_id',currentUser.id);if(result.error)throw result.error;notifications.forEach(n=>{n.read_at=now;n.is_read=true});renderNotifications();toast('Notifications marked as read.')}catch(e){toast('Notifications could not be marked read.','error')}});
 
 function initX(){
   let saved=[];try{saved=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||'[]');if(!Array.isArray(saved))saved=[]}catch(e){saved=[]}const box=$('xMessages');if(!box.children.length){if(saved.length)saved.forEach(m=>addXMessage(m.role,m.content));else addXMessage('x','Welcome to X. How can I assist you, Monarch?')}
@@ -889,8 +889,8 @@ function initX(){
 function addXMessage(role,content){const el=document.createElement('div');el.className='msg '+(role==='user'?'user':'x');el.textContent=content;$('xMessages').appendChild(el);$('xMessages').scrollTop=$('xMessages').scrollHeight}
 function saveX(){const arr=[...$('xMessages').children].map(e=>({role:e.classList.contains('user')?'user':'x',content:e.textContent}));localStorage.setItem(X_HISTORY_KEY,JSON.stringify(arr.slice(-60)))}
 document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('xInput').value=b.dataset.prompt;$('xForm').requestSubmit()}));
-$('clearX').addEventListener('click',()=>{localStorage.removeItem(X_HISTORY_KEY);$('xMessages').innerHTML='';addXMessage('x','Conversation cleared. How can I help, Monarch?')});
-$('xForm').addEventListener('submit',async e=>{
+$('clearX')?.addEventListener('click',()=>{localStorage.removeItem(X_HISTORY_KEY);$('xMessages').innerHTML='';addXMessage('x','Conversation cleared. How can I help, Monarch?')});
+$('xForm')?.addEventListener('submit',async e=>{
   e.preventDefault();const message=$('xInput').value.trim();if(!message)return;addXMessage('user',message);$('xInput').value='';saveX();
   const pending=document.createElement('div');pending.className='msg x';pending.textContent='X is thinking…';$('xMessages').appendChild(pending);$('xMessages').scrollTop=$('xMessages').scrollHeight;
   try{
@@ -902,7 +902,7 @@ $('xForm').addEventListener('submit',async e=>{
   }catch(err){pending.remove();addXMessage('x','X is temporarily unavailable. Please try again shortly.');console.error(err)}
 });
 
-$('logoutBtn').addEventListener('click',async()=>{try{await sb.auth.signOut()}finally{location.href='login.html'}});
+$('logoutBtn')?.addEventListener('click',async()=>{try{await sb.auth.signOut()}finally{location.href='login.html'}});
 
 
 let financialSyncTimer=null, financialSyncBusy=false;
