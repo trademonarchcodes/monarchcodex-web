@@ -19,6 +19,10 @@ body{padding:20px}button,input,select,textarea{font:inherit}button{cursor:pointe
 .btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:10px 14px;border-radius:9px;font-weight:600}.btn.primary{background:var(--gold);color:#080808;border-color:var(--gold)}.btn:disabled{opacity:.45;cursor:not-allowed}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.divider{height:1px;background:#242424;margin:18px 0}.status{display:inline-flex;align-items:center;border:1px solid #39301a;border-radius:999px;padding:5px 9px;font-size:10px;text-transform:capitalize;color:#d6c58e}
 .file-note{font-size:10px;color:var(--muted);line-height:1.5}.footer-note{font-size:10px;color:var(--muted);text-align:center;margin:18px 0}
 @media(max-width:650px){body{padding:12px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.hero{padding:20px}}
+
+.phone-row{display:grid;grid-template-columns:150px 1fr;gap:10px}
+.phone-help{font-size:11px;color:var(--muted);margin-top:6px}
+@media(max-width:700px){.phone-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -44,8 +48,30 @@ body{padding:20px}button,input,select,textarea{font:inherit}button{cursor:pointe
     <section id="formCard" class="card">
       <div class="form-grid">
         <div class="field"><label>Full Name</label><input id="fullName" autocomplete="name" required></div>
+        <div class="field"><label>Email Address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
         <div class="field"><label>Gender</label><select id="gender" required><option value="">Select gender</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
-        <div class="field"><label>Phone Number</label><input id="phone" type="tel" autocomplete="tel" required></div>
+        <div class="field"><label>Phone Number</label><div class="phone-row"><select id="phoneCountryCode" required aria-label="Country calling code">
+          <option value="+234" data-country="Nigeria" data-digits="10">Nigeria (+234)</option>
+          <option value="+233" data-country="Ghana" data-digits="9">Ghana (+233)</option>
+          <option value="+254" data-country="Kenya" data-digits="9">Kenya (+254)</option>
+          <option value="+27" data-country="South Africa" data-digits="9">South Africa (+27)</option>
+          <option value="+255" data-country="Tanzania" data-digits="9">Tanzania (+255)</option>
+          <option value="+256" data-country="Uganda" data-digits="9">Uganda (+256)</option>
+          <option value="+250" data-country="Rwanda" data-digits="9">Rwanda (+250)</option>
+          <option value="+1" data-country="United States / Canada" data-digits="10">United States / Canada (+1)</option>
+          <option value="+44" data-country="United Kingdom" data-digits="10">United Kingdom (+44)</option>
+          <option value="+91" data-country="India" data-digits="10">India (+91)</option>
+          <option value="+971" data-country="United Arab Emirates" data-digits="9">UAE (+971)</option>
+          <option value="+966" data-country="Saudi Arabia" data-digits="9">Saudi Arabia (+966)</option>
+          <option value="+49" data-country="Germany" data-digits="10">Germany (+49)</option>
+          <option value="+33" data-country="France" data-digits="9">France (+33)</option>
+          <option value="+39" data-country="Italy" data-digits="10">Italy (+39)</option>
+          <option value="+34" data-country="Spain" data-digits="9">Spain (+34)</option>
+          <option value="+81" data-country="Japan" data-digits="10">Japan (+81)</option>
+          <option value="+86" data-country="China" data-digits="11">China (+86)</option>
+          <option value="+61" data-country="Australia" data-digits="9">Australia (+61)</option>
+          <option value="+64" data-country="New Zealand" data-digits="9">New Zealand (+64)</option>
+        </select><input id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="8012345678" required></div><div id="phoneHelp" class="phone-help"></div></div>
         <div class="field"><label>Country</label><input id="country" autocomplete="country-name" required></div>
         <div class="field"><label>State</label><input id="state" autocomplete="address-level1" required></div>
         <div class="field"><label>City</label><input id="city" autocomplete="address-level2" required></div>
@@ -84,14 +110,21 @@ function statusText(){
   return '<div class="notice warning"><strong>KYC approval required.</strong> Complete and submit your verification below.</div>';
 }
 async function loadProfile(){
-  const {data,error}=await sb.from('profiles').select('id,full_name,phone,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,kyc_status,kyc_rejection_reason,gender').eq('id',currentUser.id).maybeSingle();
+  const {data,error}=await sb.from('profiles').select('id,full_name,email,phone,phone_country_code,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,kyc_status,kyc_rejection_reason,gender').eq('id',currentUser.id).maybeSingle();
   if(error)throw error;if(!data)throw new Error('Profile not found.');profile=data;
 }
 function fillForm(){
   $('fullName').value=profile.full_name||'';
+  $('email').value=profile.email||currentUser?.email||'';
   $('gender').value=profile.gender||'';
-  $('phone').value=profile.phone||'';
-  $('country').value=profile.country||'';
+  const storedCode=profile.phone_country_code||'+234';
+  $('phoneCountryCode').value=[...$('phoneCountryCode').options].some(o=>o.value===storedCode)?storedCode:'+234';
+  const code=$('phoneCountryCode').value;
+  let storedPhone=String(profile.phone||'').replace(/\D/g,'');
+  if(storedPhone.startsWith(code.replace('+','')))storedPhone=storedPhone.slice(code.replace('+','').length);
+  $('phone').value=storedPhone;
+  $('country').value=profile.country||$('phoneCountryCode').selectedOptions[0]?.dataset.country||'';
+  updatePhoneHelp();
   $('state').value=profile.state||'';
   $('city').value=profile.city||'';
   $('address').value=profile.address||'';
@@ -109,16 +142,22 @@ async function uploadFile(bucket,path,file){
   if(!data?.publicUrl)throw new Error('Unable to create file URL.');
   return data.publicUrl;
 }
+function updatePhoneHelp(){const o=$('phoneCountryCode').selectedOptions[0];const n=o?.dataset.digits||'';$('phone').maxLength=Number(n)||15;$('phone').minLength=Number(n)||1;$('phoneHelp').textContent=n?`Enter exactly ${n} digits after ${o.value}. Example: ${o.value} ${'0'.repeat(Math.max(0,Number(n)-1))}1`:'';}
+$('phoneCountryCode').addEventListener('change',()=>{const o=$('phoneCountryCode').selectedOptions[0];if(o?.dataset.country&&!$('country').value.trim())$('country').value=o.dataset.country;updatePhoneHelp();});
+$('phone').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'')});
 function setFormLocked(locked){
-  ['fullName','gender','phone','country','state','city','address','ninNumber','ninFront','ninBack','selfie','submitBtn'].forEach(id=>$(id).disabled=locked);
+  ['fullName','email','gender','phoneCountryCode','phone','country','state','city','address','ninNumber','ninFront','ninBack','selfie','submitBtn'].forEach(id=>$(id).disabled=locked);
 }
 $('submitBtn').addEventListener('click',async()=>{
-  const fullName=$('fullName').value.trim(),gender=$('gender').value,phone=$('phone').value.trim(),country=$('country').value.trim(),state=$('state').value.trim(),city=$('city').value.trim(),address=$('address').value.trim(),nin=$('ninNumber').value.trim();
-  if(!fullName||!gender||!phone||!country||!state||!city||!address){$('statusBox').innerHTML='<div class="notice error">Please complete all identity and address fields.</div>';return}
+  const fullName=$('fullName').value.trim(),email=$('email').value.trim(),gender=$('gender').value,code=$('phoneCountryCode').value,phoneLocal=$('phone').value.trim(),country=$('country').value.trim(),state=$('state').value.trim(),city=$('city').value.trim(),address=$('address').value.trim(),nin=$('ninNumber').value.trim();
+  const phoneDigits=Number($('phoneCountryCode').selectedOptions[0]?.dataset.digits||0);
+  if(!fullName||!email||!gender||!code||!phoneLocal||!country||!state||!city||!address){$('statusBox').innerHTML='<div class="notice error">Please complete all identity, contact and address fields.</div>';return}
+  if(!/^\S+@\S+\.\S+$/.test(email)){$('statusBox').innerHTML='<div class="notice error">Please enter a valid email address.</div>';return}
+  if(!phoneDigits||!new RegExp('^\\d{'+phoneDigits+'}$').test(phoneLocal)){$('statusBox').innerHTML=`<div class="notice error">Phone number must contain exactly ${phoneDigits} digits after ${code}.</div>`;return}
   if(!/^\d{11}$/.test(nin)){$('statusBox').innerHTML='<div class="notice error">NIN must contain exactly 11 digits.</div>';return}
   const btn=$('submitBtn');btn.disabled=true;btn.textContent='SUBMITTING…';
   try{
-    const updates={full_name:fullName,gender,phone,country,state,city,address,nin_number:nin,kyc_status:'pending'};
+    const updates={full_name:fullName,email,gender,phone:code+phoneLocal,phone_country_code:code,country,state,city,address,nin_number:nin,kyc_status:'pending'};
     const files=[['ninFront','nin_front_url','kyc/nin-front'],['ninBack','nin_back_url','kyc/nin-back'],['selfie','selfie_url','kyc/selfie']];
     for(const [input,col,prefix] of files){const f=$(input).files[0];if(f)updates[col]=await uploadFile('kyc-documents',storageName(prefix,f),f)}
     const {error}=await sb.from('profiles').update(updates).eq('id',currentUser.id);
@@ -135,7 +174,7 @@ async function boot(){
     const {data:{session}}=await sb.auth.getSession();
     if(!session){location.href='login.html';return}
     currentUser=session.user;
-    await loadProfile();fillForm();
+    await loadProfile();fillForm();updatePhoneHelp();
     $('statusBox').innerHTML=statusText();
     if(isApproved()){$('approvedCard').classList.remove('hidden');$('formCard').classList.add('hidden')}
     $('loading').classList.add('hidden');$('app').classList.remove('hidden');
