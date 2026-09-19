@@ -464,6 +464,23 @@ $('logoutBtn').addEventListener('click',async()=>{try{await sb.auth.signOut()}fi
 
 let financialSyncTimer=null, financialSyncBusy=false;
 
+
+async function refreshMemberNotifications(){
+  if(!currentUser?.id)return;
+  try{
+    const {data,error}=await sb.from('notifications')
+      .select('*')
+      .eq('user_id',currentUser.id)
+      .order('created_at',{ascending:false})
+      .limit(50);
+    if(error)throw error;
+    notifications=data||[];
+    renderNotifications();
+  }catch(err){
+    console.warn('Live notification refresh failed:',err);
+  }
+}
+
 async function refreshMemberFinancials(){
   if(!currentUser?.id || financialSyncBusy)return;
   financialSyncBusy=true;
@@ -497,11 +514,20 @@ async function refreshMemberFinancials(){
 function startFinancialSync(){
   if(!currentUser?.id)return;
   clearInterval(financialSyncTimer);
-  financialSyncTimer=setInterval(refreshMemberFinancials,5000);
+  financialSyncTimer=setInterval(()=>{
+    refreshMemberFinancials();
+    refreshMemberNotifications();
+  },5000);
   document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible')refreshMemberFinancials();
+    if(document.visibilityState==='visible'){
+      refreshMemberFinancials();
+      refreshMemberNotifications();
+    }
   });
-  window.addEventListener('focus',refreshMemberFinancials);
+  window.addEventListener('focus',()=>{
+    refreshMemberFinancials();
+    refreshMemberNotifications();
+  });
 }
 
 async function boot(){
@@ -510,7 +536,7 @@ async function boot(){
     const results=await Promise.allSettled([loadProfile(),loadOptional()]);
     if(results[0].status==='rejected')throw results[0].reason;
     renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
-    setLoading(false);$('app').classList.remove('hidden');startFinancialSync();
+    setLoading(false);$('app').classList.remove('hidden');await refreshMemberNotifications();startFinancialSync();
   }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
 }
 sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
