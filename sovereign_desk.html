@@ -104,7 +104,7 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
     <div class="field"><label>Adjustment</label><select id="profitType"><option value="amount_add">Add Amount</option><option value="amount_remove">Remove Amount</option><option value="percent_add">Add Percentage</option><option value="percent_remove">Remove Percentage</option></select></div>
     <div class="field"><label>Value</label><input id="profitValue" type="number" min="0.01" step=".01"></div>
     <div class="field"><label>Reason</label><input id="profitReason" placeholder="Required reason"></div>
-    <div class="full"><button class="btn" id="profitSubmit" disabled>Secure Profit Adjustment Not Connected</button></div>
+    <div class="full"><button class="btn" id="profitSubmit">Apply Secure Profit</button></div>
   </div></div>
 </div>
 
@@ -149,7 +149,7 @@ const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-let user=null,profile=null,members=[],activeView="overview";
+let user=null,profile=null,members=[],deskPermissions=[],activeView="overview";
 const permissionKeys=[
   ["can_view_members","View Members"],
   ["can_adjust_profit","Update Profits"],
@@ -172,14 +172,16 @@ function bootText(s){$("bootText").textContent=s}
 function roleName(){return String(profile?.role||"").toLowerCase()}
 function isDeskRole(){const r=roleName();return r==="sovereign_desk"||r==="sovereign-desk"||r.includes("sovereign_desk")}
 function isAdminRole(){return roleName().includes("admin")}
-let deskPermissions=[];
+function permissions(){ return deskPermissions; }
+
 async function loadPermissions(){
-  if(!user?.id){deskPermissions=[];return}
-  const {data,error}=await db.from("sovereign_desk_permissions").select("permission").eq("user_id",user.id);
+  if(!user?.id){deskPermissions=[];return;}
+  const {data,error}=await db.from("sovereign_desk_permissions")
+    .select("permission")
+    .eq("user_id",user.id);
   if(error)throw error;
-  deskPermissions=(data||[]).map(x=>String(x.permission||"")).filter(Boolean);
+  deskPermissions=(data||[]).map(x=>String(x.permission));
 }
-function permissions(){return deskPermissions;}
 function hasPermission(k){
   if(isAdminRole())return true;
   return permissions().includes(k);
@@ -247,6 +249,76 @@ function renderPermissions(){
     return `<div class="module"><h3>${esc(label)}</h3><p>${on?"Granted for this session.":"Not granted to this session."}</p><span class="lock">${on?"✓ GRANTED":"○ NOT GRANTED"}</span></div>`;
   }).join("");
 }
+async function submitProfitAdjustment(){
+  const btn=$("profitSubmit");
+  if(!canOperate("can_adjust_profit")){
+    toast("You do not have permission to adjust profit.","error");
+    return;
+  }
+
+  const uid=$("profitUser").value;
+  const type=$("profitType").value;
+  const value=Number($("profitValue").value);
+  const reason=$("profitReason").value.trim();
+
+  if(!uid){toast("Select a member.","error");return;}
+  if(!Number.isFinite(value)||value<=0){toast("Enter a valid profit value.","error");return;}
+  if(!reason){toast("A reason is required.","error");return;}
+
+  /*
+    The secure RPC currently accepts a positive profit addition.
+    Removal/percentage modes remain visible but are intentionally not
+    executed until their dedicated server-side calculations are added.
+  */
+  if(type!=="amount_add"){
+    toast("Only Add Amount is connected to the secure profit operation yet.","warning");
+    return;
+  }
+
+  const investmentCandidates=members.filter(m=>String(m.id)===String(uid));
+  if(!investmentCandidates.length){toast("Member not found.","error");return;}
+
+  const {data:investments,error:investmentError}=await db.from("investments")
+    .select("id,status,created_at")
+    .eq("user_id",uid)
+    .in("status",["approved","active","confirmed","completed"])
+    .order("created_at",{ascending:false})
+    .limit(1);
+
+  if(investmentError)throw investmentError;
+  const sourceInvestmentId=investments?.[0]?.id;
+  if(!sourceInvestmentId){
+    toast("This member has no approved investment available for the profit operation.","error");
+    return;
+  }
+
+  btn.disabled=true;
+  const oldText=btn.textContent;
+  btn.textContent="Processing Secure Profit...";
+
+  try{
+    const {data,error}=await db.rpc("sovereign_add_profit",{
+      p_user_id:uid,
+      p_source_investment_id:sourceInvestmentId,
+      p_amount:value,
+      p_description:reason,
+      p_profit_month:new Date().toISOString().slice(0,10)
+    });
+
+    if(error)throw error;
+
+    toast("Secure profit operation completed.","success");
+    $("profitValue").value="";
+    $("profitReason").value="";
+  }catch(e){
+    console.error(e);
+    toast(e.message||"Secure profit operation failed.","error");
+  }finally{
+    btn.disabled=false;
+    btn.textContent=oldText;
+  }
+}
+
 function setView(v){
   activeView=v;
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
@@ -267,12 +339,11 @@ async function start(){
     $("deskEmail").textContent=user.email||"Authenticated user";
     bootText("Loading authorization profile...");
     await loadProfile();
+    await loadPermissions();
     if(!isDeskRole()&&!isAdminRole()){
       $("boot").innerHTML='<div class="notice error" style="max-width:430px;margin:20px"><strong>SOVEREIGN DESK ACCESS DENIED</strong><br><br>Your authenticated profile is not authorized for this dashboard.<br><br><button class="btn" onclick="location.href=\'dashboard.html\'">Return to Member Dashboard</button></div>';
       return;
     }
-    if(isDeskRole()) await loadPermissions();
-    else deskPermissions=[];
     $("deskRole").textContent="Role: "+(profile.role||"unknown");
     renderPermissions();
     bootText("Loading member operations...");
@@ -293,6 +364,7 @@ $("refreshMembers").addEventListener("click",async()=>{try{await loadMembers();t
 $("signalSearch").addEventListener("input",renderSignals);
 $("refreshSignals").addEventListener("click",async()=>{try{await loadMembers();toast("Signal data refreshed.","success")}catch(e){toast(e.message,"error")}});
 $("refreshActivity").addEventListener("click",()=>toast("Audit backend is not connected yet.","warning"));
+$("profitSubmit").addEventListener("click",submitProfitAdjustment);
 $("members").addEventListener("click",e=>{const b=e.target.closest(".btn-view-member");if(b)renderMember(b.dataset.id)});
 $("logout").addEventListener("click",async()=>{await db.auth.signOut();location.href="login.html"});
 start();
