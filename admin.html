@@ -247,16 +247,79 @@ async function homepageSave(){
 function addHomepageEvent(){const title=$('eventTitle').value.trim(),details=$('eventDetails').value.trim(),date=$('eventDate').value;if(!title){toast('Enter an event or announcement title.','error');return}const item={title,details,date,active:true};if(homepageEdit.type==='events'&&homepage.events[homepageEdit.index])homepage.events[homepageEdit.index]={...homepage.events[homepageEdit.index],...item};else homepage.events.unshift(item);$('eventTitle').value='';$('eventDetails').value='';$('eventDate').value='';clearHomepageEdit();renderHomepageLists()}
 function addHomepageSocial(){const platform=$('socialPlatform').value.trim(),label=$('socialLabel').value.trim(),url=$('socialUrl').value.trim();if(!platform||!url){toast('Enter a platform and profile URL.','error');return}const item={platform,label,url,active:true};if(homepageEdit.type==='socials'&&homepage.socials[homepageEdit.index])homepage.socials[homepageEdit.index]={...homepage.socials[homepageEdit.index],...item};else homepage.socials.push(item);$('socialPlatform').value='';$('socialLabel').value='';$('socialUrl').value='';clearHomepageEdit();renderHomepageLists()}
 function addHomepageContact(){const label=$('contactLabel').value.trim(),type=$('contactType').value,value=$('contactValue').value.trim(),url=$('contactUrl').value.trim();if(!label||!value){toast('Enter a contact label and value.','error');return}const item={label,type,value,url,active:true};if(homepageEdit.type==='contacts'&&homepage.contacts[homepageEdit.index])homepage.contacts[homepageEdit.index]={...homepage.contacts[homepageEdit.index],...item};else homepage.contacts.push(item);$('contactLabel').value='';$('contactValue').value='';$('contactUrl').value='';clearHomepageEdit();renderHomepageLists()}
+async function withTimeout(promise, ms, message){
+  let timer;
+  try{
+    return await Promise.race([
+      promise,
+      new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(message)),ms)})
+    ]);
+  }finally{clearTimeout(timer)}
+}
+
 async function boot(){
  try{
   if(!window.supabase)throw new Error("Supabase failed to load. Check your internet connection or browser blocker.");
-  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-  const r=await db.auth.getSession();if(r.error)throw r.error;if(!r.data.session){window.location.replace("login.html");return}
-  user=r.data.session.user;const p=await q("profiles",x=>x.select("*").eq("id",user.id).maybeSingle());if(p.error)throw p.error;profile=p.data||null;
-  if(!adminOK()){toast("Admin access required","warning");setTimeout(()=>window.location.replace("dashboard.html"),900);return}
-  $("adminEmail").textContent=user.email||"";$("boot").style.display="none";await membersLoad();
-  await Promise.allSettled([kycLoad(),investLoad(),packagesLoad(),paymentsLoad(),earnLoad(),withdrawLoad(),refLoad(),capitalLoad(),transactionsLoad()]);
- }catch(e){$("bootText").textContent=e.message||"Unable to connect.";setTimeout(()=>{$("boot").style.display="none";toast(e.message||"Unable to connect to Supabase","error")},700)}
+
+  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+    auth:{
+      persistSession:true,
+      autoRefreshToken:true,
+      detectSessionInUrl:true,
+      flowType:"pkce"
+    }
+  });
+
+  // Never leave the admin screen frozen on the session loader.
+  const r=await withTimeout(
+    db.auth.getSession(),
+    9000,
+    "Admin session check timed out. Please refresh and sign in again."
+  );
+  if(r.error)throw r.error;
+  if(!r.data?.session){window.location.replace("login.html");return}
+
+  user=r.data.session.user;
+
+  // Profile lookup is also bounded so a slow/RLS request cannot freeze Admin.
+  const p=await withTimeout(
+    q("profiles",x=>x.select("*").eq("id",user.id).maybeSingle()),
+    9000,
+    "Your admin profile could not be loaded. Please refresh and try again."
+  );
+  if(p.error)throw p.error;
+  profile=p.data||null;
+
+  if(!adminOK()){
+    toast("Admin access required","warning");
+    setTimeout(()=>window.location.replace("dashboard.html"),900);
+    return;
+  }
+
+  $("adminEmail").textContent=user.email||"";
+  $("boot").style.display="none";
+
+  // Load the first screen immediately. Other admin sections load independently.
+  await membersLoad();
+  await Promise.allSettled([
+    kycLoad(),
+    investLoad(),
+    packagesLoad(),
+    paymentsLoad(),
+    earnLoad(),
+    withdrawLoad(),
+    refLoad(),
+    capitalLoad(),
+    transactionsLoad()
+  ]);
+ }catch(e){
+  console.error("Admin boot failed:",e);
+  $("bootText").textContent=e.message||"Unable to connect.";
+  setTimeout(()=>{
+    $("boot").style.display="none";
+    toast(e.message||"Unable to connect to Supabase","error");
+  },700);
+ }
 }
 document.addEventListener("DOMContentLoaded",()=>{
  document.querySelectorAll("nav button[data-v]").forEach(b=>{b.type="button";b.addEventListener("click",()=>view(b.dataset.v))});
