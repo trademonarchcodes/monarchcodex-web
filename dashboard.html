@@ -91,7 +91,7 @@
     <p>Complete your identity verification before accessing the protected MONARCH CODEX sections.</p>
   </div>
   <div id="kycStatusBox" class="notice">Loading KYC status…</div>
-  <div class="card" style="margin-top:15px">
+  <div class="card" id="kycVerifyCard" style="margin-top:15px">
     <div class="section-title" style="margin-top:0"><h3>Identity Verification</h3></div>
     <p class="muted" style="font-size:11px">Your KYC information is handled on a separate secure verification page.</p>
     <button class="btn primary" type="button" id="verifyNowBtn" onclick="window.location.href='kyc.html'">VERIFY NOW</button>
@@ -275,6 +275,7 @@ function renderTransactions(){
 function kycMessage(){if(isApproved())return '<div class="notice success"><strong>KYC approved.</strong> Protected financial sections are unlocked.</div>';if(String(profile.kyc_status).toLowerCase()==='rejected')return `<div class="notice error"><strong>KYC rejected.</strong><br>${esc(profile.kyc_rejection_reason||'Please review your documents and submit again.')}</div>`;return '<div class="notice warning"><strong>KYC approval required.</strong> Submit your NIN front, NIN back and selfie for review.</div>'}
 function renderKyc(){
   const approved=isApproved();
+  $('kycVerifyCard').classList.toggle('hidden',approved);
   const st=String(profile?.kyc_status||'').toLowerCase();
   const box=$('kycStatusBox');
   if(approved){
