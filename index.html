@@ -636,6 +636,9 @@
 }
 
 .public-update{padding:12px 0;border-bottom:1px solid #292929}.public-update:last-child{border-bottom:0}.public-update small{display:block;color:#807b69;font-size:9px;margin-bottom:4px}.public-update h4{margin:0;color:#f0d477;font:600 13px Cinzel,serif}.public-update p{margin:5px 0 0;color:#b9b9b9;font-size:11px;line-height:1.6}.public-chip{display:inline-flex;align-items:center;text-decoration:none;padding:8px 10px;border:1px solid rgba(212,175,55,.3);border-radius:999px;color:#f0d477;background:#11100b;font-size:10px}
+
+.public-updates-list{display:grid;gap:12px}.public-update{border:1px solid rgba(212,175,55,.12);border-radius:14px;background:linear-gradient(145deg,#121212,#0b0b0b);padding:14px;overflow:hidden}.public-update img{display:block;width:100%;max-height:260px;object-fit:cover;border-radius:10px;border:1px solid rgba(212,175,55,.16);margin-bottom:12px}.public-update small{display:block;color:#d4af37;font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}.public-update h4{font-family:Cinzel,serif;font-size:17px;margin:0 0 7px}.public-update p{margin:0;color:#8f8b84;font-size:11px;line-height:1.75}.public-chip{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border:1px solid rgba(212,175,55,.42);border-radius:999px;background:linear-gradient(145deg,#17140a,#0d0d0d);color:#f1d875;text-decoration:none;font-size:10px;box-shadow:0 4px 12px rgba(0,0,0,.16);transition:.18s}.public-chip:hover{border-color:rgba(212,175,55,.8);transform:translateY(-1px);box-shadow:0 7px 18px rgba(212,175,55,.10)}.testimony-home-link{display:inline-flex;margin-top:16px}.testimony-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.testimony-card{border:1px solid rgba(212,175,55,.14);border-radius:16px;background:linear-gradient(145deg,#111,#0b0b0b);padding:22px}.testimony-card img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:1px solid rgba(212,175,55,.38);margin-bottom:12px}.testimony-card blockquote{margin:0 0 14px;color:#d7d2c8;font-size:12px;line-height:1.8}.testimony-card strong{display:block;color:#f0d477;font-size:11px}.testimony-card small{color:#77736b;font-size:9px}.public-empty{line-height:1.7}
+@media(max-width:900px){.testimony-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.testimony-grid{grid-template-columns:1fr}}
 </style>
 </head>
 
@@ -657,6 +660,7 @@
         <a href="#company">Company</a>
         <a href="#how">How It Works</a>
         <a href="#trust">Trust</a>
+        <a href="testimonies.html">Testimonies</a>
         <a href="#support">Support</a>
       </nav>
 
@@ -812,29 +816,16 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="featuredEventSection" style="display:none">
       <div class="container">
-        <div class="partnership-feature">
+        <div class="partnership-feature" id="featuredEventCard">
           <div class="partner-copy">
-            <div class="kicker">Strategic Partnership</div>
-            <h2>MONARCH CODEX × SOVEREIGN DESK</h2>
-            <p>We are preparing a partnership with <strong>SOVEREIGN DESK</strong> focused on trading signals and market guidance for Monarchs who trade or want more structured support in their trading journey.</p>
-            <p>Whether you already trade or are still learning the market, the planned service is intended to add another layer of information and structure. <strong>No launch date has been announced yet.</strong></p>
-            <span class="coming-soon">COMING SOON</span>
+            <div class="kicker">Featured Codex Update</div>
+            <h2 id="featuredEventTitle"></h2>
+            <p id="featuredEventDetails"></p>
+            <span class="coming-soon" id="featuredEventDate"></span>
           </div>
-          <div class="partner-art">
-            <svg viewBox="0 0 620 390" role="img" aria-label="Sovereign Desk partnership illustration">
-              <defs><linearGradient id="p1" x1="0" x2="1"><stop stop-color="#d4af37"/><stop offset="1" stop-color="#f2d675"/></linearGradient></defs>
-              <rect width="620" height="390" fill="#090909"/>
-              <circle cx="310" cy="190" r="145" fill="#d4af37" fill-opacity=".045"/>
-              <g fill="none" stroke="#d4af37" stroke-opacity=".14"><circle cx="310" cy="190" r="145"/><circle cx="310" cy="190" r="105"/><circle cx="310" cy="190" r="65"/></g>
-              <path d="M65 300 L140 255 L205 275 L280 190 L345 225 L420 130 L555 160" fill="none" stroke="url(#p1)" stroke-width="5"/>
-              <path d="M65 300 L140 255 L205 275 L280 190 L345 225 L420 130 L555 160" fill="none" stroke="#d4af37" stroke-opacity=".13" stroke-width="22"/>
-              <text x="310" y="184" text-anchor="middle" fill="#f2d675" font-family="Cinzel,serif" font-size="27" letter-spacing="5">SOVEREIGN</text>
-              <text x="310" y="216" text-anchor="middle" fill="#d4af37" font-family="Poppins,Arial" font-size="14" letter-spacing="6">DESK</text>
-              <text x="310" y="350" text-anchor="middle" fill="#716d65" font-family="Poppins,Arial" font-size="10" letter-spacing="3">SIGNALS • MARKET GUIDANCE • COMING SOON</text>
-            </svg>
-          </div>
+          <div class="partner-art" id="featuredEventImageWrap"></div>
         </div>
       </div>
     </section>
@@ -876,7 +867,7 @@
       </div>
     </section>
 
-    <section class="section" id="updates"><div class="container"><div class="section-heading center"><div class="kicker">CODEX UPDATES</div><h2>Events, Announcements & Official Channels.</h2><p id="siteIntroPublic">Updates published by the MONARCH CODEX team.</p></div><div class="company-grid"><article class="company-card"><h3>Events & Announcements</h3><div id="publicEvents"><p class="muted">Loading updates…</p></div></article><article class="company-card"><h3>Official Social Channels</h3><div id="publicSocials" style="display:flex;flex-wrap:wrap;gap:8px"><p class="muted">Loading social channels…</p></div><div style="margin-top:18px"><h3 style="font-size:16px">Contact</h3><div id="publicContacts" style="display:flex;flex-wrap:wrap;gap:8px"><p class="muted">Loading contacts…</p></div></div></article></div></div></section>
+    <section class="section" id="updates"><div class="container"><div class="section-heading center"><div class="kicker">CODEX UPDATES</div><h2>Events, Announcements & Official Channels.</h2><p id="siteIntroPublic">Updates published by the MONARCH CODEX team.</p></div><div class="company-grid"><article class="company-card"><h3>Events & Announcements</h3><div id="publicEvents" class="public-updates-list"><p class="muted">Loading updates…</p></div></article><article class="company-card"><h3>Official Social Channels</h3><div id="publicSocials" style="display:flex;flex-wrap:wrap;gap:8px"><p class="muted">Loading social channels…</p></div><div style="margin-top:18px"><h3 style="font-size:16px">Contact</h3><div id="publicContacts" style="display:flex;flex-wrap:wrap;gap:8px"><p class="muted">Loading contacts…</p></div></div><a class="btn btn-outline testimony-home-link" href="testimonies.html">Read Monarch Testimonies →</a></article></div></div></section>
 
 <section class="section">
       <div class="container">
@@ -1534,6 +1525,117 @@
   </script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>(function(){const URL='https://avaworleivncevaoqeny.supabase.co',KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));const safeUrl=v=>{try{const u=new URL(String(v||''),location.href);return /^https?:$/.test(u.protocol)?u.href:'#'}catch{return '#'}};async function load(){try{const db=window.supabase.createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});const {data,error}=await db.from('site_content').select('homepage_title,homepage_intro,support_title,support_intro,events,socials,contacts,updated_at').eq('id',true).maybeSingle();if(error)throw error;if(data?.homepage_title)document.title=data.homepage_title+' — The Inner Kingdom';const intro=document.getElementById('siteIntroPublic');if(intro)intro.textContent=data?.homepage_intro||'Updates published by the MONARCH CODEX team.';const supportTitle=document.getElementById('publicSupportTitle');if(supportTitle)supportTitle.textContent=data?.support_title||'We’re Here To Help.';const supportIntro=document.getElementById('publicSupportIntro');if(supportIntro)supportIntro.textContent=data?.support_intro||'Reach MONARCH CODEX through the support channels below.';const events=Array.isArray(data?.events)?data.events.filter(x=>x&&x.active!==false):[],socials=Array.isArray(data?.socials)?data.socials.filter(x=>x&&x.active!==false):[],contacts=Array.isArray(data?.contacts)?data.contacts.filter(x=>x&&x.active!==false):[];const e=document.getElementById('publicEvents');if(e)e.innerHTML=events.length?events.map(x=>'<div class="public-update"><small>'+esc(x.date||'MONARCH CODEX')+'</small><h4>'+esc(x.title||'Event')+'</h4><p>'+esc(x.details||'')+'</p></div>').join(''):'<p class="muted">No new events or announcements at the moment.</p>';const so=document.getElementById('publicSocials');if(so)so.innerHTML=socials.length?socials.map(x=>'<a class="public-chip" href="'+safeUrl(x.url)+'" target="_blank" rel="noopener noreferrer">'+esc(x.platform||'Social')+' · '+esc(x.label||'Official')+'</a>').join(''):'<p class="muted">Official social channels will appear here.</p>';const c=document.getElementById('publicContacts');if(c)c.innerHTML=contacts.length?contacts.map(x=>{const value=String(x.value||''),type=String(x.type||'').toLowerCase();let href=x.url||'';if(!href&&type==='email')href='mailto:'+value;if(!href&&type==='phone')href='tel:'+value;return href?'<a class="public-chip" href="'+esc(href)+'">'+esc(x.label||'Contact')+' · '+esc(value)+'</a>':'<span class="public-chip">'+esc(x.label||'Contact')+' · '+esc(value)+'</span>'}).join(''):'<p class="muted">Contact details will appear here.</p>';const sc=document.getElementById('publicSupportChannels');if(sc)sc.innerHTML=contacts.length?contacts.map(x=>{const value=String(x.value||''),type=String(x.type||'').toLowerCase();let href=x.url||'';if(!href&&type==='email')href='mailto:'+value;if(!href&&type==='phone')href='tel:'+value;const icon=type==='email'?'✉':type==='phone'?'☎':type==='link'?'↗':'◆';const body='<span class="channel-icon">'+icon+'</span><span><strong>'+esc(x.label||'Support')+'</strong><span>'+esc(value)+'</span></span>';return href?'<a class="public-channel" href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+body+'</a>':'<div class="public-channel">'+body+'</div>'}).join(''):'<div class="public-empty">Support channels will appear here when the team adds them in Admin → Homepage Content.</div>'}catch(e){console.warn('Public homepage content unavailable:',e);const ebox=document.getElementById('publicEvents'),sbox=document.getElementById('publicSocials'),cbox=document.getElementById('publicContacts'),sc=document.getElementById('publicSupportChannels');if(ebox)ebox.innerHTML='<p class="muted">Updates are temporarily unavailable. Please check back shortly.</p>';if(sbox)sbox.innerHTML='<p class="muted">Official social channels are temporarily unavailable.</p>';if(cbox)cbox.innerHTML='<p class="muted">Contact details are temporarily unavailable.</p>';if(sc)sc.innerHTML='<div class="public-empty">Support channels are temporarily unavailable.</div>'}}load()})();</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const URL='https://avaworleivncevaoqeny.supabase.co';
+  const KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const safeUrl=v=>{
+    try{
+      let raw=String(v||'').trim();
+      if(!raw)return '#';
+      if(!/^(https?:|mailto:|tel:)/i.test(raw) && !raw.startsWith('#')) raw='https://'+raw.replace(/^\/\//,'');
+      const u=new URL(raw,location.href);
+      return /^(https?:|mailto:|tel:)$/.test(u.protocol)?u.href:'#';
+    }catch{return '#'}
+  };
+  const contactHref=(x)=>{
+    const value=String(x?.value||'').trim();
+    const type=String(x?.type||'').toLowerCase();
+    let href=String(x?.url||'').trim();
+    if(!href && type==='email') href='mailto:'+value;
+    if(!href && type==='phone') href='tel:'+value;
+    return href?safeUrl(href):'';
+  };
+  async function load(){
+    try{
+      const db=window.supabase.createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+      const {data,error}=await db.from('site_content').select('homepage_title,homepage_intro,support_title,support_intro,events,socials,contacts,updated_at').eq('id',true).maybeSingle();
+      if(error)throw error;
+      if(data?.homepage_title)document.title=data.homepage_title+' — The Inner Kingdom';
+
+      const intro=document.getElementById('siteIntroPublic');
+      if(intro)intro.textContent=data?.homepage_intro||'Updates published by the MONARCH CODEX team.';
+      const supportTitle=document.getElementById('publicSupportTitle');
+      if(supportTitle)supportTitle.textContent=data?.support_title||'We’re Here To Help.';
+      const supportIntro=document.getElementById('publicSupportIntro');
+      if(supportIntro)supportIntro.textContent=data?.support_intro||'Reach MONARCH CODEX through the support channels below.';
+
+      const events=Array.isArray(data?.events)?data.events.filter(x=>x&&x.active!==false):[];
+      const socials=Array.isArray(data?.socials)?data.socials.filter(x=>x&&x.active!==false):[];
+      const contacts=Array.isArray(data?.contacts)?data.contacts.filter(x=>x&&x.active!==false):[];
+
+      const eventsBox=document.getElementById('publicEvents');
+      if(eventsBox){
+        eventsBox.innerHTML=events.length
+          ?events.map(x=>`<article class="public-update">${x.image_url?`<img src="${esc(x.image_url)}" alt="${esc(x.title||'MONARCH CODEX event')}">`:''}<small>${esc(x.date||'MONARCH CODEX')}</small><h4>${esc(x.title||'Event')}</h4><p>${esc(x.details||'')}</p></article>`).join('')
+          :'<p class="muted">No new events or announcements at the moment.</p>';
+      }
+
+      const featured=events.find(x=>x.featured===true);
+      const featuredSection=document.getElementById('featuredEventSection');
+      if(featuredSection){
+        if(featured){
+          featuredSection.style.display='block';
+          const ft=document.getElementById('featuredEventTitle');
+          const fd=document.getElementById('featuredEventDetails');
+          const fdate=document.getElementById('featuredEventDate');
+          const fw=document.getElementById('featuredEventImageWrap');
+          if(ft)ft.textContent=featured.title||'Featured Update';
+          if(fd)fd.textContent=featured.details||'';
+          if(fdate)fdate.textContent=featured.date||'MONARCH CODEX UPDATE';
+          if(fw){
+            fw.innerHTML=featured.image_url
+              ?`<img src="${esc(featured.image_url)}" alt="${esc(featured.title||'Featured event')}" style="width:100%;height:100%;max-height:390px;object-fit:cover;border-radius:14px;border:1px solid rgba(212,175,55,.18)">`
+              :'<div style="height:100%;min-height:240px;display:grid;place-items:center;border:1px solid rgba(212,175,55,.14);border-radius:14px;background:#090909;color:#d4af37;font-family:Cinzel,serif;letter-spacing:3px;text-align:center;padding:30px">MONARCH CODEX<br>FEATURED UPDATE</div>';
+          }
+        }else{
+          featuredSection.style.display='none';
+        }
+      }
+
+      const socialBox=document.getElementById('publicSocials');
+      if(socialBox){
+        socialBox.innerHTML=socials.length
+          ?socials.map(x=>`<a class="public-chip" href="${safeUrl(x.url)}" target="_self" rel="noopener">${esc(x.platform||'Social')} · ${esc(x.label||'Official')}</a>`).join('')
+          :'<p class="muted">Official social channels will appear here.</p>';
+      }
+
+      const contactBox=document.getElementById('publicContacts');
+      if(contactBox){
+        contactBox.innerHTML=contacts.length
+          ?contacts.map(x=>{const href=contactHref(x);const label=`${esc(x.label||'Contact')} · ${esc(x.value||'')}`;return href?`<a class="public-chip" href="${esc(href)}" target="_self" rel="noopener">${label}</a>`:`<span class="public-chip">${label}</span>`}).join('')
+          :'<p class="muted">Contact details will appear here.</p>';
+      }
+
+      const supportBox=document.getElementById('publicSupportChannels');
+      if(supportBox){
+        supportBox.innerHTML=contacts.length
+          ?contacts.map(x=>{
+              const value=String(x.value||'');
+              const type=String(x.type||'').toLowerCase();
+              const icon=type==='email'?'✉':type==='phone'?'☎':type==='link'?'↗':'◆';
+              const body=`<span class="channel-icon">${icon}</span><span><strong>${esc(x.label||'Support')}</strong><span>${esc(value)}</span></span>`;
+              const href=contactHref(x);
+              return href?`<a class="public-channel" href="${esc(href)}" target="_self" rel="noopener">${body}</a>`:`<div class="public-channel">${body}</div>`;
+            }).join('')
+          :'<div class="public-empty">Support channels will appear here when the team adds them in Admin → Homepage Content.</div>';
+      }
+    }catch(e){
+      console.warn('Public homepage content unavailable:',e);
+      const ebox=document.getElementById('publicEvents');
+      const sbox=document.getElementById('publicSocials');
+      const cbox=document.getElementById('publicContacts');
+      const sc=document.getElementById('publicSupportChannels');
+      if(ebox)ebox.innerHTML='<p class="muted">Updates are temporarily unavailable. Please check back shortly.</p>';
+      if(sbox)sbox.innerHTML='<p class="muted">Official social channels are temporarily unavailable.</p>';
+      if(cbox)cbox.innerHTML='<p class="muted">Contact details are temporarily unavailable.</p>';
+      if(sc)sc.innerHTML='<div class="public-empty">Support channels are temporarily unavailable.</div>';
+    }
+  }
+  load();
+})();
+</script>
 </body>
 </html>
