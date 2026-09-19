@@ -49,6 +49,7 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 
 <div id="view-homepage" class="view"><div class="hero"><h1>Homepage Content</h1><p>Update MONARCH CODEX events, social channels and contact details without changing the website code.</p></div>
 <div class="card"><h2 class="section">Homepage Message</h2><div class="form-grid"><div class="field full"><label>Homepage Title</label><input id="siteTitle" placeholder="MONARCH CODEX"></div><div class="field full"><label>Homepage Introduction</label><textarea id="siteIntro" rows="3" placeholder="Updates, events and official channels from the MONARCH CODEX team."></textarea></div></div></div>
+<div class="card"><h2 class="section">Support Section</h2><div class="form-grid"><div class="field full"><label>Support Heading</label><input id="supportTitle" placeholder="We’re Here To Help."></div><div class="field full"><label>Support Introduction</label><textarea id="supportIntro" rows="3" placeholder="Reach MONARCH CODEX through the support channels below."></textarea></div></div><p class="muted" style="margin-top:10px">The support buttons on the public homepage use the Contact Details you add below. Add, edit or remove the team’s official support channels there.</p></div>
 <div class="card"><h2 class="section">Events & Announcements</h2><div class="form-grid"><div class="field"><label>Event / Announcement Title</label><input id="eventTitle" placeholder="New event or announcement"></div><div class="field"><label>Date</label><input id="eventDate" type="date"></div><div class="field full"><label>Details</label><textarea id="eventDetails" rows="3" placeholder="What should Monarchs know?"></textarea></div></div><div class="actions" style="margin-top:10px"><button id="addEvent" class="btn">Add Event</button></div><div id="eventList" style="margin-top:14px"></div></div>
 <div class="card"><h2 class="section">Social Media</h2><div class="form-grid"><div class="field"><label>Platform</label><input id="socialPlatform" placeholder="X, Instagram, Telegram"></div><div class="field"><label>Display Name / Handle</label><input id="socialLabel" placeholder="@MetaTron777X"></div><div class="field full"><label>Profile URL</label><input id="socialUrl" type="url" placeholder="https://x.com/MetaTron777X"></div></div><div class="actions" style="margin-top:10px"><button id="addSocial" class="btn">Add Social Account</button></div><div id="socialList" style="margin-top:14px"></div></div>
 <div class="card"><h2 class="section">Contact Details</h2><div class="form-grid"><div class="field"><label>Contact Label</label><input id="contactLabel" placeholder="Support Email"></div><div class="field"><label>Type</label><select id="contactType"><option value="email">Email</option><option value="phone">Phone</option><option value="link">Link</option><option value="text">Text</option></select></div><div class="field"><label>Value</label><input id="contactValue" placeholder="support@example.com"></div><div class="field"><label>Optional URL</label><input id="contactUrl" type="url" placeholder="https://..."></div></div><div class="actions" style="margin-top:10px"><button id="addContact" class="btn">Add Contact</button></div><div id="contactList" style="margin-top:14px"></div></div>
@@ -215,7 +216,7 @@ async function transactionsLoad(){
   $("transactions").innerHTML=rows.length?`<div class="table"><table><tr><th>Date</th><th>Member</th><th>Type</th><th>Amount</th><th>Status</th><th>Description</th><th>Record ID</th></tr>${rows.map(x=>`<tr><td>${dt(x.date)}</td><td>${esc(x.member)}</td><td>${badge(x.type)}</td><td>${x.amount<0?"-":""}${money(Math.abs(x.amount))}</td><td>${badge(x.status)}</td><td>${esc(x.description||"—")}</td><td><small>${esc(x.id)}</small></td></tr>`).join("")}</table></div>`:'<div class="empty">No transactions found.</div>';
  }catch(e){showError("transactions",e);toast(e.message,"error")}
 }
-let homepage={homepage_title:'MONARCH CODEX',homepage_intro:'Updates, events and official channels from the MONARCH CODEX team.',events:[],socials:[],contacts:[]};
+let homepage={homepage_title:'MONARCH CODEX',homepage_intro:'Updates, events and official channels from the MONARCH CODEX team.',support_title:'We’re Here To Help.',support_intro:'Reach MONARCH CODEX through the support channels below.',events:[],socials:[],contacts:[]};
 let homepageEdit={type:null,index:-1};
 function renderHomepageLists(){
  const e=$('eventList'),s=$('socialList'),c=$('contactList');
@@ -233,14 +234,14 @@ function editHomepageItem(type,index){
 }
 async function homepageLoad(){
  try{
-  const r=await q('site_content',x=>x.select('homepage_title,homepage_intro,events,socials,contacts,updated_at').eq('id',true).maybeSingle());if(r.error)throw r.error;
+  const r=await q('site_content',x=>x.select('homepage_title,homepage_intro,support_title,support_intro,events,socials,contacts,updated_at').eq('id',true).maybeSingle());if(r.error)throw r.error;
   if(r.data)homepage={...homepage,...r.data,events:Array.isArray(r.data.events)?r.data.events:[],socials:Array.isArray(r.data.socials)?r.data.socials:[],contacts:Array.isArray(r.data.contacts)?r.data.contacts:[]};
-  $('siteTitle').value=homepage.homepage_title||'MONARCH CODEX';$('siteIntro').value=homepage.homepage_intro||'';renderHomepageLists();
+  $('siteTitle').value=homepage.homepage_title||'MONARCH CODEX';$('siteIntro').value=homepage.homepage_intro||'';$('supportTitle').value=homepage.support_title||'We’re Here To Help.';$('supportIntro').value=homepage.support_intro||'Reach MONARCH CODEX through the support channels below.';renderHomepageLists();
  }catch(e){showError('eventList',e);toast(e.message,'error')}
 }
 async function homepageSave(){
  try{
-  const payload={id:true,homepage_title:$('siteTitle').value.trim()||'MONARCH CODEX',homepage_intro:$('siteIntro').value.trim()||'',events:homepage.events,socials:homepage.socials,contacts:homepage.contacts,updated_at:new Date().toISOString()};
+  const payload={id:true,homepage_title:$('siteTitle').value.trim()||'MONARCH CODEX',homepage_intro:$('siteIntro').value.trim()||'',support_title:$('supportTitle').value.trim()||'We’re Here To Help.',support_intro:$('supportIntro').value.trim()||'Reach MONARCH CODEX through the support channels below.',events:homepage.events,socials:homepage.socials,contacts:homepage.contacts,updated_at:new Date().toISOString()};
   const r=await q('site_content',x=>x.upsert(payload,{onConflict:'id'}));if(r.error)throw r.error;homepage={...homepage,...payload};renderHomepageLists();toast('Homepage content saved.','success');
  }catch(e){toast(e.message,'error')}
 }
