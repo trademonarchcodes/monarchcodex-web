@@ -134,7 +134,10 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 
 <div id="view-permissions" class="view">
   <div class="hero"><div class="eyebrow">Access Control</div><h1>My Permissions</h1><p>Permissions shown here must ultimately come from the database/server authorization layer.</p></div>
-  <div class="card"><div id="permissionsList" class="module-grid"></div></div>
+  <div class="card">
+    <div class="notice" style="margin-bottom:14px"><strong>Authorization boundary:</strong> Permissions shown here are advisory UI state. Sensitive actions will be accepted only by server-side authorization functions.</div>
+    <div id="permissionsList" class="module-grid"></div>
+  </div>
 </div>
 
 </section></main></div>
@@ -176,7 +179,15 @@ function permissions(){
   if(typeof p==="object")return Object.keys(p).filter(k=>p[k]);
   return [];
 }
-function hasPermission(k){return isAdminRole()||permissions().includes(k)}
+function hasPermission(k){
+  if(isAdminRole())return true;
+  return permissions().includes(k);
+}
+function canOperate(k){
+  if(isAdminRole())return true;
+  if(!isDeskRole())return false;
+  return hasPermission(k);
+}
 function memberName(id){const m=members.find(x=>String(x.id)===String(id));return m?.full_name||m?.display_username||m?.uid||"Unknown Monarch"}
 
 async function loadProfile(){
