@@ -720,20 +720,34 @@ async function loadOptional(){
   results.forEach((r,i)=>{const key=tasks[i][0];if(r.status==='fulfilled'&&!r.value.error){window[key]=r.value.data||[]}else window[key]=[]});
 }
 function calculateFinance(){
-  const approved=investments.filter(x=>String(x.status).toLowerCase()==='approved');
-  const invested=approved.reduce((s,x)=>s+safeNum(x.amount),0);
+  const approved=investments.filter(x=>['approved','active','confirmed','completed'].includes(String(x.status||'').toLowerCase()));
+  const originalInvested=approved.reduce((s,x)=>s+safeNum(x.amount),0);
   const earned=earnings.reduce((s,x)=>s+safeNum(x.amount??x.profit??x.earning??x.value),0);
   const refEarn=referralLedger.reduce((s,x)=>s+safeNum(x.amount??x.bonus),0);
-  const adj=adjustments.reduce((s,x)=>s+safeNum(x.amount??x.adjustment),0);
+  const adj=Math.max(0,adjustments.reduce((s,x)=>s+safeNum(x.amount??x.adjustment),0));
+  const invested=Math.max(0,originalInvested-adj);
   const paidWithdraw=withdrawals.filter(x=>['paid','approved','completed'].includes(String(x.status).toLowerCase())).reduce((s,x)=>s+safeNum(x.amount),0);
   const pendingWithdraw=withdrawals.filter(x=>String(x.status).toLowerCase()==='pending').reduce((s,x)=>s+safeNum(x.amount),0);
   const balance=Math.max(0,safeNum(profile.balance??0));
   const totalEarnings=(earnings.length||referralLedger.length)?Math.max(0,earned+refEarn):Math.max(0,safeNum(profile.total_earnings));
-  let profit=Math.max(0,totalEarnings-paidWithdraw-pendingWithdraw);
+  const profit=Math.max(0,totalEarnings-paidWithdraw-pendingWithdraw);
   let capitalLocked=0,capitalFree=0;
-  approved.forEach(i=>{const amount=safeNum(i.amount);const d=new Date(i.approved_at);if(!Number.isNaN(d.getTime())){const eligible=new Date(d);eligible.setMonth(eligible.getMonth()+CAPITAL_LOCK_MONTHS);if(Date.now()>=eligible.getTime())capitalFree+=amount;else capitalLocked+=amount}else capitalLocked+=amount});
+  approved.forEach(i=>{
+    const amount=safeNum(i.amount);
+    const d=new Date(i.approved_at);
+    if(!Number.isNaN(d.getTime())){
+      const eligible=new Date(d);eligible.setMonth(eligible.getMonth()+CAPITAL_LOCK_MONTHS);
+      if(Date.now()>=eligible.getTime())capitalFree+=amount;else capitalLocked+=amount;
+    }else capitalLocked+=amount;
+  });
+  // Capital reductions reduce the displayed capital immediately. Apply reductions
+  // to locked capital first, then to unlocked capital.
+  const lockedReduction=Math.min(adj,capitalLocked);
+  capitalLocked=Math.max(0,capitalLocked-lockedReduction);
+  const freeReduction=Math.max(0,adj-lockedReduction);
+  capitalFree=Math.max(0,capitalFree-freeReduction);
   const totalWithdrawable=Math.max(0,profit+capitalFree);
-  return {invested,earned,totalEarnings,balance,paidWithdraw,pendingWithdraw,profit,capitalFree,capitalLocked,totalWithdrawable,refEarn,adj};
+  return {invested,originalInvested,earned,totalEarnings,balance,paidWithdraw,pendingWithdraw,profit,capitalFree,capitalLocked,totalWithdrawable,refEarn,adj};
 }
 function renderOverview(){
   const f=calculateFinance();$('statBalance').textContent=fmt(f.balance);$('statInvested').textContent=fmt(f.invested||profile.total_invested);$('statEarnings').textContent=fmt(f.totalEarnings);$('statWithdrawable').textContent=fmt(f.totalWithdrawable);
@@ -997,14 +1011,14 @@ async function boot(){
     try{
       await loadOptional();
       renderOverview();
+      await refreshMemberNotifications();
+      startFinancialSync();
       if(isApproved()){
         renderInvestments();
         renderTransactions();
         renderReferrals();
         updateWithdrawalPreview();
         initX();
-        await refreshMemberNotifications();
-        startFinancialSync();
       }
     }catch(backgroundErr){
       console.warn('Optional dashboard data failed to load:',backgroundErr);
