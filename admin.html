@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MONARCH CODEX — Admin</title>
+<title>MONARCH CODEX — Admin</title><style id="critical-admin-render-fix">html,body{margin:0;background:#070707;color:#f5f5f5}body{min-height:100vh}#boot{display:grid!important;position:fixed!important;inset:0!important;z-index:99999!important;place-items:center!important;background:#050505!important}body.admin-ready #boot{display:none!important}</style>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#070707;color:#f5f5f5;font-family:Poppins,Arial,sans-serif}
@@ -27,7 +27,7 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 .empty{text-align:center;color:#777;padding:25px}.overlay{position:fixed;inset:0;background:#070707;display:flex;align-items:center;justify-content:center;z-index:100}.spin{width:32px;height:32px;border:3px solid #333;border-top-color:var(--g);border-radius:50%;animation:x 1s linear infinite;margin:auto auto 13px}@keyframes x{to{transform:rotate(360deg)}}
 #toast{display:none;position:fixed;right:16px;bottom:16px;z-index:200;background:#171717;border:1px solid #444;border-radius:9px;padding:11px 14px;font-size:11px;max-width:350px}#toast.show{display:block}.toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:#aaa}.toggle input{width:auto}
 @media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.packages,.payments-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){aside{transform:translateX(-100%);transition:.2s;width:275px}aside.open{transform:translateX(0)}main{margin-left:0;width:100%}.menu{display:block}.content{padding:17px 13px}.form,.packages,.payments-grid,.grid{grid-template-columns:1fr}.full{grid-column:auto}header{padding:0 13px}.title{font-size:15px}}
-</style>
+.content-manager-list{display:grid;gap:8px}.content-manager-item{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border:1px solid #292929;background:#0e0e0e;border-radius:10px;padding:10px}.content-manager-item strong{color:#f0d477;font-size:11px}.content-manager-item small{display:block;color:#8f8f8f;font-size:10px;margin-top:3px;word-break:break-word}.content-manager-item .btn{flex:0 0 auto}.actions{display:flex;gap:8px;flex-wrap:wrap}</style>
 </head>
 <body>
 <div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING THE ADMIN KINGDOM</div><div id="bootText" class="muted" style="font-size:11px;margin-top:6px">Checking your session...</div></div></div>
@@ -37,7 +37,7 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 <div class="brand"><b>MONARCH CODEX</b><small>ADMIN KINGDOM</small></div>
 <div class="admin"><b>👑 Supreme Monarch</b><small id="adminEmail">Checking...</small></div>
 <nav>
-<button class="active" data-v="overview">⌂ &nbsp; Overview</button><button data-v="members">♔ &nbsp; Monarch Members</button><button data-v="kyc">✓ &nbsp; KYC Requests</button><button data-v="investments">◈ &nbsp; Investment Requests</button><button data-v="packages">▣ &nbsp; Investment Packages</button><button data-v="payments">₦ &nbsp; Payment Destinations</button><button data-v="earnings">↗ &nbsp; Monthly Profit</button><button data-v="capital">◈ &nbsp; Capital Management</button><button data-v="withdrawals">⇱ &nbsp; Withdrawals</button><button data-v="referrals">♙ &nbsp; Referrals</button><button data-v="transactions">▤ &nbsp; Transactions</button><button type="button" onclick="window.location.href='sovereign_desk.html'">♛ &nbsp; SOVEREIGN DESK</button><button id="logout" class="logout">↪ &nbsp; Logout</button>
+<button class="active" data-v="overview">⌂ &nbsp; Overview</button><button data-v="members">♔ &nbsp; Monarch Members</button><button data-v="kyc">✓ &nbsp; KYC Requests</button><button data-v="investments">◈ &nbsp; Investment Requests</button><button data-v="packages">▣ &nbsp; Investment Packages</button><button data-v="payments">₦ &nbsp; Payment Destinations</button><button data-v="earnings">↗ &nbsp; Monthly Profit</button><button data-v="capital">◈ &nbsp; Capital Management</button><button data-v="withdrawals">⇱ &nbsp; Withdrawals</button><button data-v="referrals">♙ &nbsp; Referrals</button><button data-v="transactions">▤ &nbsp; Transactions</button><button data-v="homepage">✦ &nbsp; Homepage Content</button><button type="button" onclick="window.location.href='sovereign_desk.html'">♛ &nbsp; SOVEREIGN DESK</button><button id="logout" class="logout">↪ &nbsp; Logout</button>
 </nav></aside>
 <main>
 <header><div style="display:flex;align-items:center;gap:12px"><button id="menu" class="menu">☰</button><div id="title" class="title">Admin Overview</div></div><span class="muted" style="font-size:10px">Admin access verified</span></header>
@@ -46,6 +46,13 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 <div id="view-overview" class="view active"><div class="hero"><h1>Admin Kingdom</h1><p>Manage MONARCH CODEX members, requests, packages and financial records.</p></div>
 <div class="grid"><div class="card"><div class="label">Total Members</div><div id="statMembers" class="value">0</div></div><div class="card"><div class="label">KYC Under Review</div><div id="statKyc" class="value">0</div></div><div class="card"><div class="label">Pending Investments</div><div id="statInvestments" class="value">0</div></div><div class="card"><div class="label">Pending Withdrawals</div><div id="statWithdrawals" class="value">0</div></div></div>
 <div class="card"><h2 class="section">Control Center</h2><div class="notice">Your admin login routes here. This dashboard uses the same Supabase session as the member dashboard.</div><div class="actions"><button class="btn" data-go="members">Manage Members</button><button class="btn secondary" data-go="kyc">Review KYC</button><button class="btn secondary" data-go="investments">Review Investments</button></div></div></div>
+
+<div id="view-homepage" class="view"><div class="hero"><h1>Homepage Content</h1><p>Update MONARCH CODEX events, social channels and contact details without changing the website code.</p></div>
+<div class="card"><h2 class="section">Homepage Message</h2><div class="form-grid"><div class="field full"><label>Homepage Title</label><input id="siteTitle" placeholder="MONARCH CODEX"></div><div class="field full"><label>Homepage Introduction</label><textarea id="siteIntro" rows="3" placeholder="Updates, events and official channels from the MONARCH CODEX team."></textarea></div></div></div>
+<div class="card"><h2 class="section">Events & Announcements</h2><div class="form-grid"><div class="field"><label>Event / Announcement Title</label><input id="eventTitle" placeholder="New event or announcement"></div><div class="field"><label>Date</label><input id="eventDate" type="date"></div><div class="field full"><label>Details</label><textarea id="eventDetails" rows="3" placeholder="What should Monarchs know?"></textarea></div></div><div class="actions" style="margin-top:10px"><button id="addEvent" class="btn">Add Event</button></div><div id="eventList" style="margin-top:14px"></div></div>
+<div class="card"><h2 class="section">Social Media</h2><div class="form-grid"><div class="field"><label>Platform</label><input id="socialPlatform" placeholder="X, Instagram, Telegram"></div><div class="field"><label>Display Name / Handle</label><input id="socialLabel" placeholder="@MetaTron777X"></div><div class="field full"><label>Profile URL</label><input id="socialUrl" type="url" placeholder="https://x.com/MetaTron777X"></div></div><div class="actions" style="margin-top:10px"><button id="addSocial" class="btn">Add Social Account</button></div><div id="socialList" style="margin-top:14px"></div></div>
+<div class="card"><h2 class="section">Contact Details</h2><div class="form-grid"><div class="field"><label>Contact Label</label><input id="contactLabel" placeholder="Support Email"></div><div class="field"><label>Type</label><select id="contactType"><option value="email">Email</option><option value="phone">Phone</option><option value="link">Link</option><option value="text">Text</option></select></div><div class="field"><label>Value</label><input id="contactValue" placeholder="support@example.com"></div><div class="field"><label>Optional URL</label><input id="contactUrl" type="url" placeholder="https://..."></div></div><div class="actions" style="margin-top:10px"><button id="addContact" class="btn">Add Contact</button></div><div id="contactList" style="margin-top:14px"></div></div>
+<div class="actions"><button id="saveHomepage" class="btn primary">Save Homepage Content</button><button id="refreshHomepage" class="btn secondary">Reload</button></div></div>
 
 <div id="view-members" class="view"><div class="hero"><h1>Monarch Members</h1><p>Activate, block and review member accounts.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><input id="memberSearch" placeholder="Search name, username, phone or UID"><button id="refreshMembers" class="btn">Refresh</button></div><div id="members" class="empty">Loading...</div></div></div>
 
@@ -104,9 +111,9 @@ function memberName(id){const p=members.find(m=>m.id===id);return p?.full_name||
 function view(name){
  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.querySelectorAll("nav button[data-v]").forEach(x=>x.classList.remove("active"));
  $("view-"+name)?.classList.add("active");document.querySelector(`nav button[data-v="${name}"]`)?.classList.add("active");
- $("title").textContent=({overview:"Admin Overview",members:"Monarch Members",kyc:"KYC Requests",investments:"Investment Requests",packages:"Investment Packages",payments:"Payment Destinations",earnings:"Monthly Profit",capital:"Capital Management",withdrawals:"Withdrawals",referrals:"Referral Network",transactions:"Transactions"})[name]||"MONARCH CODEX";
+ $("title").textContent=({overview:"Admin Overview",members:"Monarch Members",kyc:"KYC Requests",investments:"Investment Requests",packages:"Investment Packages",payments:"Payment Destinations",earnings:"Monthly Profit",capital:"Capital Management",withdrawals:"Withdrawals",referrals:"Referral Network",transactions:"Transactions",homepage:"Homepage Content"})[name]||"MONARCH CODEX";
  $("side").classList.remove("open");
- const loaders={members:membersLoad,kyc:kycLoad,investments:investLoad,packages:packagesLoad,payments:paymentsLoad,withdrawals:withdrawLoad,referrals:refLoad,capital:capitalLoad,transactions:transactionsLoad};
+ const loaders={members:membersLoad,kyc:kycLoad,investments:investLoad,packages:packagesLoad,payments:paymentsLoad,withdrawals:withdrawLoad,referrals:refLoad,capital:capitalLoad,transactions:transactionsLoad,homepage:homepageLoad};
  if(loaders[name])loaders[name]();
  if(name==="earnings")membersLoad().then(earnLoad).catch(()=>{});
 }
@@ -208,6 +215,29 @@ async function transactionsLoad(){
   $("transactions").innerHTML=rows.length?`<div class="table"><table><tr><th>Date</th><th>Member</th><th>Type</th><th>Amount</th><th>Status</th><th>Description</th><th>Record ID</th></tr>${rows.map(x=>`<tr><td>${dt(x.date)}</td><td>${esc(x.member)}</td><td>${badge(x.type)}</td><td>${x.amount<0?"-":""}${money(Math.abs(x.amount))}</td><td>${badge(x.status)}</td><td>${esc(x.description||"—")}</td><td><small>${esc(x.id)}</small></td></tr>`).join("")}</table></div>`:'<div class="empty">No transactions found.</div>';
  }catch(e){showError("transactions",e);toast(e.message,"error")}
 }
+let homepage={homepage_title:'MONARCH CODEX',homepage_intro:'Updates, events and official channels from the MONARCH CODEX team.',events:[],socials:[],contacts:[]};
+function renderHomepageLists(){
+ const e=$('eventList'),s=$('socialList'),c=$('contactList');
+ if(e)e.innerHTML=homepage.events.length?'<div class="content-manager-list">'+homepage.events.map((x,i)=>`<div class="content-manager-item"><div><strong>${esc(x.title||'Event')}</strong><small>${esc(x.date||'No date')} · ${esc(x.details||'')}</small></div><button class="btn danger btn-sm" data-content-action="event-delete" data-index="${i}">Remove</button></div>`).join('')+'</div>':'<div class="empty">No events or announcements added.</div>';
+ if(s)s.innerHTML=homepage.socials.length?'<div class="content-manager-list">'+homepage.socials.map((x,i)=>`<div class="content-manager-item"><div><strong>${esc(x.platform||'Social')} · ${esc(x.label||'')}</strong><small>${esc(x.url||'')}</small></div><button class="btn danger btn-sm" data-content-action="social-delete" data-index="${i}">Remove</button></div>`).join('')+'</div>':'<div class="empty">No social accounts added.</div>';
+ if(c)c.innerHTML=homepage.contacts.length?'<div class="content-manager-list">'+homepage.contacts.map((x,i)=>`<div class="content-manager-item"><div><strong>${esc(x.label||'Contact')}</strong><small>${esc(x.value||'')}</small></div><button class="btn danger btn-sm" data-content-action="contact-delete" data-index="${i}">Remove</button></div>`).join('')+'</div>':'<div class="empty">No contact details added.</div>';
+}
+async function homepageLoad(){
+ try{
+  const r=await q('site_content',x=>x.select('homepage_title,homepage_intro,events,socials,contacts,updated_at').eq('id',true).maybeSingle());if(r.error)throw r.error;
+  if(r.data)homepage={...homepage,...r.data,events:Array.isArray(r.data.events)?r.data.events:[],socials:Array.isArray(r.data.socials)?r.data.socials:[],contacts:Array.isArray(r.data.contacts)?r.data.contacts:[]};
+  $('siteTitle').value=homepage.homepage_title||'MONARCH CODEX';$('siteIntro').value=homepage.homepage_intro||'';renderHomepageLists();
+ }catch(e){showError('eventList',e);toast(e.message,'error')}
+}
+async function homepageSave(){
+ try{
+  const payload={id:true,homepage_title:$('siteTitle').value.trim()||'MONARCH CODEX',homepage_intro:$('siteIntro').value.trim()||'',events:homepage.events,socials:homepage.socials,contacts:homepage.contacts,updated_at:new Date().toISOString()};
+  const r=await q('site_content',x=>x.upsert(payload,{onConflict:'id'}));if(r.error)throw r.error;homepage={...homepage,...payload};renderHomepageLists();toast('Homepage content saved.','success');
+ }catch(e){toast(e.message,'error')}
+}
+function addHomepageEvent(){const title=$('eventTitle').value.trim(),details=$('eventDetails').value.trim(),date=$('eventDate').value;if(!title){toast('Enter an event or announcement title.','error');return}homepage.events.unshift({title,details,date,active:true});$('eventTitle').value='';$('eventDetails').value='';$('eventDate').value='';renderHomepageLists()}
+function addHomepageSocial(){const platform=$('socialPlatform').value.trim(),label=$('socialLabel').value.trim(),url=$('socialUrl').value.trim();if(!platform||!url){toast('Enter a platform and profile URL.','error');return}homepage.socials.push({platform,label,url,active:true});$('socialPlatform').value='';$('socialLabel').value='';$('socialUrl').value='';renderHomepageLists()}
+function addHomepageContact(){const label=$('contactLabel').value.trim(),type=$('contactType').value,value=$('contactValue').value.trim(),url=$('contactUrl').value.trim();if(!label||!value){toast('Enter a contact label and value.','error');return}homepage.contacts.push({label,type,value,url,active:true});$('contactLabel').value='';$('contactValue').value='';$('contactUrl').value='';renderHomepageLists()}
 async function boot(){
  try{
   if(!window.supabase)throw new Error("Supabase failed to load. Check your internet connection or browser blocker.");
@@ -222,6 +252,7 @@ async function boot(){
 document.addEventListener("DOMContentLoaded",()=>{
  document.querySelectorAll("nav button[data-v]").forEach(b=>{b.type="button";b.addEventListener("click",()=>view(b.dataset.v))});
  document.querySelectorAll("[data-go]").forEach(b=>{b.type="button";b.addEventListener("click",()=>view(b.dataset.go))});
+ $('addEvent').onclick=addHomepageEvent;$('addSocial').onclick=addHomepageSocial;$('addContact').onclick=addHomepageContact;$('saveHomepage').onclick=homepageSave;$('refreshHomepage').onclick=homepageLoad;
  $("menu").onclick=()=>$("side").classList.toggle("open");$("logout").onclick=async()=>{try{await db?.auth.signOut()}catch(e){}try{localStorage.clear();sessionStorage.clear()}catch(e){}window.location.replace("login.html")};
  $("memberSearch").oninput=()=>{$("members").innerHTML=memberHTML()};$("refreshMembers").onclick=membersLoad;$("refreshKyc").onclick=kycLoad;$("kycFilter").onchange=kycLoad;$("refreshInvestments").onclick=investLoad;$("investmentFilter").onchange=investLoad;
  $("savePkg").onclick=savePkg;$("clearPkg").onclick=clearPkg;$("seedPkgs").onclick=seedPackages;$("payType").onchange=paymentFormToggle;$("savePay").onclick=savePay;$("clearPay").onclick=clearPay;$("refreshPay").onclick=paymentsLoad;
@@ -229,7 +260,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("refreshWithdrawals").onclick=withdrawLoad;$("withdrawalFilter").onchange=withdrawLoad;$("refreshTransactions").onclick=transactionsLoad;$("transactionFilter").onchange=transactionsLoad;
  document.addEventListener("click",async e=>{const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;try{
   if(a==="member-status")return memberStatus(b.dataset.id,b.dataset.status);if(a==="kyc-approve")return kycApprove(b.dataset.id);if(a==="kyc-reject")return kycReject(b.dataset.id);if(a==="invest-status")return investSet(b.dataset.id,b.dataset.status);if(a==="withdraw-status")return withdrawSet(b.dataset.id,b.dataset.status);
-  if(a==="edit-pkg")return editPkg(JSON.parse(b.dataset.pkg));if(a==="delete-pkg")return delPkg(b.dataset.id);if(a==="edit-pay")return editPay(JSON.parse(b.dataset.pay));if(a==="toggle-pay")return togglePay(b.dataset.id,b.dataset.active==="true");if(a==="delete-pay")return deletePay(b.dataset.id);
+  if(a==="edit-pkg")return editPkg(JSON.parse(b.dataset.pkg));if(a==="delete-pkg")return delPkg(b.dataset.id);if(a==="edit-pay")return editPay(JSON.parse(b.dataset.pay));if(a==="toggle-pay")return togglePay(b.dataset.id,b.dataset.active==="true");if(a==="delete-pay")return deletePay(b.dataset.id); if(a==="event-delete"){homepage.events.splice(Number(b.dataset.index),1);renderHomepageLists();return} if(a==="social-delete"){homepage.socials.splice(Number(b.dataset.index),1);renderHomepageLists();return} if(a==="contact-delete"){homepage.contacts.splice(Number(b.dataset.index),1);renderHomepageLists();return}
  }catch(err){toast(err.message||"Button action failed.","error")}});
  boot();
 });

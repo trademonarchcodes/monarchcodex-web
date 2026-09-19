@@ -7,6 +7,9 @@
   <title>
    MONARCH CODEX — The Inner Kingdom
   </title>
+  <style id="critical-render-fix">
+   html,body{margin:0;background:#070707;color:#f5f5f5}body{min-height:100vh;overflow-x:hidden}#loadingScreen{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#050505;color:#f5f5f5}#app{display:none}body.app-ready #app{display:block}body.app-ready #loadingScreen{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}.critical-loader{text-align:center;font-family:Arial,sans-serif}.critical-loader strong{display:block;margin-top:14px;font-size:16px;letter-spacing:2px;color:#D4AF37}.critical-spinner{width:42px;height:42px;margin:auto;border:2px solid #292929;border-top-color:#D4AF37;border-radius:50%;animation:criticalSpin .8s linear infinite}@keyframes criticalSpin{to{transform:rotate(360deg)}}
+  </style>
   <link href="https://fonts.googleapis.com" rel="preconnect"/>
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&amp;family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -21,6 +24,7 @@
 @media(max-width:760px){:root{--sidebar:0px}.sidebar{transform:translateX(-100%);width:270px;transition:.25s;box-shadow:15px 0 50px #000}.sidebar.open{transform:none}.main{margin-left:0}.topbar{padding:0 15px;height:64px}.mobile-menu{display:block}.content{padding:16px}.stats,.three,.form-grid,.profile-grid{grid-template-columns:1fr}.hero{padding:20px}.topbar h2{font-size:15px}.chat{height:calc(100vh - 190px)}.notification-panel{right:10px;top:60px}.table{min-width:620px}}
 
 .package-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:12px}.package-tile{text-align:left;cursor:pointer;width:100%;transition:transform .15s ease,border-color .15s ease}.package-tile:hover{transform:translateY(-2px)}.package-tile h3{font-family:Cinzel,serif}.package-tile .btn{pointer-events:none}
+.home-update{padding:12px 0;border-bottom:1px solid #242424}.home-update:last-child{border-bottom:0}.home-update h4{margin:0;color:#f0d477;font:600 13px Cinzel,serif}.home-update p{margin:5px 0 0;color:#b9b9b9;font-size:11px;line-height:1.6}.home-update small{color:#807b69;font-size:9px}.social-chip,.contact-chip{display:inline-flex;align-items:center;gap:6px;text-decoration:none}.copy-mini{padding:5px 8px;font-size:10px;border-radius:7px}.payment-copy-row{display:flex;align-items:center;gap:7px;margin:5px 0;flex-wrap:wrap}.payment-copy-row code{font-family:inherit;color:#ddd;word-break:break-all}.loading-fade{opacity:0;transition:opacity .2s ease}.loading-fade.ready{opacity:1}
   </style>
  </head>
  <body>
@@ -36,7 +40,7 @@
     </p>
    </div>
   </div>
-  <div class="hidden" id="app">
+  <div id="app">
    <aside class="sidebar" id="sidebar">
     <div class="brand">
      <h1>
@@ -269,6 +273,17 @@
        <div>
         <div class="section-title">
          <h3>
+          MONARCH CODEX Updates
+         </h3>
+        </div>
+        <div class="card" id="homepageUpdatesCard">
+         <div class="muted" id="homepageUpdates" style="font-size:11px">Loading updates…</div>
+         <div class="divider"></div>
+         <div id="homepageSocials" class="quick"></div>
+         <div id="homepageContacts" class="quick" style="margin-top:8px"></div>
+        </div>
+        <div class="section-title">
+         <h3>
           Recent Activity
          </h3>
         </div>
@@ -290,7 +305,7 @@
         Ask X
        </h1>
        <p>
-        Your AI assistant for the Inner Kingdom.
+        MONARCH CODEX intelligence for the Inner Kingdom.
        </p>
       </div>
       <div class="card chat">
@@ -643,7 +658,7 @@ let sb=null;
 window.addEventListener('error',e=>{console.error('MONARCH DASHBOARD ERROR',e.error||e.message);try{setTimeout(()=>{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l&&!l.classList.contains('hidden')){l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Dashboard startup error.</strong><br>'+String(e.message||'Please refresh and try again.').replace(/[&<>]/g,'')+'</div></div>'; }},0)}catch(_){} });
 if(window.supabase&&typeof window.supabase.createClient==='function'){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}else{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l)l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Supabase could not be loaded.</strong><br>Please refresh the page and try again.</div></div>';}
 let currentUser=null,profile=null,packages=[],payments=[],notifications=[],investments=[],earnings=[],withdrawals=[],adjustments=[],referralLedger=[],referrals=[];
-let currentView='overview', selectedPayment=null;
+let currentView='overview', selectedPayment=null, siteContent={homepage_title:'MONARCH CODEX',homepage_intro:'Updates, events and official channels from the MONARCH CODEX team.',events:[],socials:[],contacts:[]};
 
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -652,12 +667,34 @@ function fmt(n){const x=Number(n);return '$'+(Number.isFinite(x)?x:0).toLocaleSt
 function ngn(n){const x=Number(n);return '₦'+(Number.isFinite(x)?x:0).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
 function date(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
 function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast '+(type==='error'?'error':'');t.classList.remove('hidden');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.add('hidden'),4200)}
-function setLoading(on){$('loadingScreen').classList.toggle('hidden',!on)}
+function setLoading(on){const l=$('loadingScreen');if(l)l.classList.toggle('hidden',!on);if(!on)document.body.classList.add('app-ready')}
 function status(v){const s=String(v||'unknown').toLowerCase();return '<span class="status '+esc(s)+'">'+esc(s.replaceAll('_',' '))+'</span>'}
 function isApproved(){return String(profile?.kyc_status||'').toLowerCase()==='approved'}
 function safeNum(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function storageName(prefix,file){return prefix+'/'+currentUser.id+'/'+Date.now()+'_'+String(file.name).replace(/[^a-zA-Z0-9._-]/g,'_')}
 
+async function loadSiteContent(){
+  try{
+    const {data,error}=await sb.from('site_content').select('homepage_title,homepage_intro,events,socials,contacts,updated_at').eq('id',true).maybeSingle();
+    if(error)throw error;
+    if(data)siteContent={...siteContent,...data,events:Array.isArray(data.events)?data.events:[],socials:Array.isArray(data.socials)?data.socials:[],contacts:Array.isArray(data.contacts)?data.contacts:[]};
+    renderSiteContent();
+  }catch(e){
+    console.warn('Homepage content could not be loaded:',e);
+    const el=$('homepageUpdates');if(el)el.innerHTML='<div class="muted">MONARCH CODEX updates are temporarily unavailable.</div>';
+  }
+}
+function renderSiteContent(){
+  const events=Array.isArray(siteContent.events)?siteContent.events.filter(x=>x&&x.active!==false):[];
+  const socials=Array.isArray(siteContent.socials)?siteContent.socials.filter(x=>x&&x.active!==false):[];
+  const contacts=Array.isArray(siteContent.contacts)?siteContent.contacts.filter(x=>x&&x.active!==false):[];
+  const u=$('homepageUpdates');
+  if(u)u.innerHTML=events.length?events.map(e=>`<article class="home-update"><small>${esc(e.date||'MONARCH CODEX')}</small><h4>${esc(e.title||'MONARCH CODEX Event')}</h4><p>${esc(e.details||'')}</p></article>`).join(''):'<div class="muted">No new events or announcements at the moment.</div>';
+  const ss=$('homepageSocials');
+  if(ss)ss.innerHTML=socials.map(x=>`<a class="btn social-chip" href="${esc(x.url||'#')}" target="_blank" rel="noopener noreferrer">${esc(x.platform||'Social')} · ${esc(x.label||'Official')}</a>`).join('');
+  const cc=$('homepageContacts');
+  if(cc)cc.innerHTML=contacts.map(x=>{const value=String(x.value||'');const href=x.url||((String(x.type||'').toLowerCase()==='email')?'mailto:'+value:(String(x.type||'').toLowerCase()==='phone'?'tel:'+value:''));return href?`<a class="btn contact-chip" href="${esc(href)}">${esc(x.label||'Contact')} · ${esc(value)}</a>`:`<span class="btn contact-chip">${esc(x.label||'Contact')} · ${esc(value)}</span>`}).join('');
+}
 function showView(view,force=false){
   if(!view)return;
   if(KYC_PROTECTED_VIEWS.includes(view)&&!isApproved()&&!force){
@@ -984,6 +1021,7 @@ function startFinancialSync(){
   window.addEventListener('focus',()=>{
     refreshMemberFinancials();
     refreshMemberNotifications();
+    loadSiteContent();
   });
 }
 
@@ -1005,7 +1043,7 @@ async function boot(){
     renderKyc();
     renderOverview();
     setLoading(false);
-    $('app').classList.remove('hidden');
+    loadSiteContent();
 
     // Load the remaining dashboard data in the background.
     try{
