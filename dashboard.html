@@ -205,6 +205,53 @@ function setAvatar(el,src,name){
   el.src=src||avatarFallback(name);
   el.onerror=()=>{el.onerror=null;el.src=avatarFallback(name)};
 }
+
+let liveChannel=null, livePoll=null, liveRefreshBusy=false;
+
+async function refreshMemberLiveState(){
+  if(!currentUser || liveRefreshBusy) return;
+  liveRefreshBusy=true;
+  try{
+    const [{data:latestProfile,error:profileError},{data:latestNotifications,error:notifError}]=await Promise.all([
+      sb.from('profiles').select('id,full_name,display_username,username_last_changed,phone,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,uid,role,status,kyc_status,kyc_rejection_reason,balance,total_invested,total_earnings,referral_code,referred_by,withdrawal_account_name,withdrawal_account_number,withdrawal_bank,created_at,updated_at,avatar_url,kyc_document_url').eq('id',currentUser.id).maybeSingle(),
+      sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50)
+    ]);
+    if(!profileError && latestProfile){
+      const oldKyc=String(profile?.kyc_status||'').toLowerCase();
+      profile=latestProfile;
+      renderIdentity();
+      renderKyc();
+      renderOverview();
+      if(oldKyc!==String(profile.kyc_status||'').toLowerCase() && String(profile.kyc_status||'').toLowerCase()==='approved'){
+        toast('KYC has been approved. Your protected sections are now unlocked.');
+      }
+    }
+    if(!notifError && Array.isArray(latestNotifications)){
+      notifications=latestNotifications;
+      if(!$('notificationPanel').classList.contains('hidden')) renderNotifications();
+      else {
+        const unread=notifications.filter(n=>!n.read_at&&!n.is_read).length;
+        $('notificationDot').classList.toggle('hidden',!unread);
+      }
+    }
+  }catch(err){console.error('Live member refresh failed:',err)}
+  finally{liveRefreshBusy=false}
+}
+
+function startMemberLiveSync(){
+  if(!currentUser) return;
+  try{
+    if(liveChannel) sb.removeChannel(liveChannel);
+    liveChannel=sb.channel('member-live-'+currentUser.id)
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:'id=eq.'+currentUser.id},()=>refreshMemberLiveState())
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},()=>refreshMemberLiveState())
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},()=>refreshMemberLiveState())
+      .subscribe((status)=>{ if(status==='CHANNEL_ERROR'||status==='TIMED_OUT') console.warn('Member realtime unavailable:',status); });
+  }catch(err){console.error('Member realtime setup failed:',err)}
+  clearInterval(livePoll);
+  livePoll=setInterval(refreshMemberLiveState,15000);
+}
+
 function renderIdentity(){
   const name=profile.full_name||profile.display_username||'Monarch';
   $('sideName').textContent=name;$('sideUid').textContent=profile.uid||'UID unavailable';$('welcomeName').textContent=name;
@@ -219,46 +266,6 @@ async function uploadFile(bucket,path,file){
   if(!data?.publicUrl)throw new Error('Unable to create file URL.');
   return data.publicUrl;
 }
-async function loadNotifications(){
-  if(!currentUser)return;
-  const pageSize=100;
-  const all=[];
-  for(let from=0;;from+=pageSize){
-    const {data,error}=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).range(from,from+pageSize-1);
-    if(error)throw error;
-    all.push(...(data||[]));
-    if(!data||data.length<pageSize)break;
-    if(from>=1900)break; // safety cap; UI still remains usable on unusually large histories
-  }
-  notifications=all;
-  renderNotifications();
-  return notifications;
-}
-let notificationChannel=null,notificationPoll=null;
-function mergeNotification(row){
-  if(!row?.id)return;
-  const i=notifications.findIndex(n=>String(n.id)===String(row.id));
-  if(i>=0)notifications[i]={...notifications[i],...row};
-  else notifications.unshift(row);
-  notifications.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
-  renderNotifications();
-}
-function startNotificationSync(){
-  if(!currentUser)return;
-  if(notificationChannel){try{sb.removeChannel(notificationChannel)}catch(e){}}
-  notificationChannel=sb.channel('member-notifications-'+currentUser.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${currentUser.id}`},payload=>mergeNotification(payload.new))
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'notifications',filter:`user_id=eq.${currentUser.id}`},payload=>mergeNotification(payload.new))
-    .subscribe(status=>{
-      if(status==='SUBSCRIBED'){
-        if(notificationPoll){clearInterval(notificationPoll);notificationPoll=null}
-      }else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
-        if(!notificationPoll)notificationPoll=setInterval(()=>loadNotifications().catch(()=>{}),20000);
-      }
-    });
-  if(notificationPoll)clearInterval(notificationPoll);
-  notificationPoll=setInterval(()=>loadNotifications().catch(()=>{}),60000);
-}
 async function loadOptional(){
   const tasks=[
     ['investments',()=>sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})],
@@ -268,12 +275,11 @@ async function loadOptional(){
     ['referralLedger',()=>sb.from('referral_bonus_ledger').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})],
     ['referrals',()=>sb.from('referrals').select('*').or('referrer_id.eq.'+currentUser.id+',user_id.eq.'+currentUser.id).order('created_at',{ascending:false})],
     ['packages',()=>sb.from('packages').select('*').eq('active',true)],
-    ['payments',()=>sb.from('payment_details').select('title,payment_type,bank_name,account_name,account_number,crypto_name,crypto_network,wallet_address,active').eq('active',true)]
+    ['payments',()=>sb.from('payment_details').select('title,payment_type,bank_name,account_name,account_number,crypto_name,crypto_network,wallet_address,active').eq('active',true)],
+    ['notifications',()=>sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50)]
   ];
   const results=await Promise.allSettled(tasks.map(t=>t[1]()));
   results.forEach((r,i)=>{const key=tasks[i][0];if(r.status==='fulfilled'&&!r.value.error){window[key]=r.value.data||[]}else window[key]=[]});
-  await loadNotifications();
-  startNotificationSync();
 }
 function calculateFinance(){
   const approved=investments.filter(x=>String(x.status).toLowerCase()==='approved');
@@ -453,24 +459,9 @@ $('closeProfileModal').addEventListener('click',()=>$('profileModal').classList.
 function renderNotifications(){
   const unread=notifications.filter(n=>!n.read_at&&!n.is_read).length;$('notificationDot').classList.toggle('hidden',!unread);
   $('notificationList').innerHTML=notifications.length?notifications.map(n=>`<div class="notification ${(!n.read_at&&!n.is_read)?'unread':''}" data-notification="${esc(n.id||'')}"><strong>${esc(n.title||'Notification')}</strong><div>${esc(n.message||n.body||'')}</div><small>${date(n.created_at)}</small></div>`).join(''):'<div class="empty">No notifications.</div>';
-  document.querySelectorAll('[data-notification]').forEach(el=>el.addEventListener('click',async()=>{
-    const id=el.dataset.notification;if(!id)return;
-    const now=new Date().toISOString();
-    let result=await sb.from('notifications').update({read_at:now}).eq('id',id).eq('user_id',currentUser.id);
-    if(result.error)result=await sb.from('notifications').update({is_read:true}).eq('id',id).eq('user_id',currentUser.id);
-    if(!result.error){mergeNotification({...notifications.find(x=>String(x.id)===String(id)),id,read_at:now,is_read:true});}
-  }))
+  document.querySelectorAll('[data-notification]').forEach(el=>el.addEventListener('click',async()=>{const id=el.dataset.notification;if(!id)return;const now=new Date().toISOString();let result=await sb.from('notifications').update({read_at:now}).eq('id',id).eq('user_id',currentUser.id);if(result.error)result=await sb.from('notifications').update({is_read:true}).eq('id',id).eq('user_id',currentUser.id);if(!result.error){const n=notifications.find(x=>String(x.id)===String(id));if(n){n.read_at=now;n.is_read=true}renderNotifications()}}))
 }
-$('markAllRead').addEventListener('click',async()=>{
-  try{
-    const now=new Date().toISOString();
-    let result=await sb.from('notifications').update({read_at:now}).eq('user_id',currentUser.id);
-    if(result.error)result=await sb.from('notifications').update({is_read:true}).eq('user_id',currentUser.id);
-    if(result.error)throw result.error;
-    notifications=notifications.map(n=>({...n,read_at:now,is_read:true}));
-    renderNotifications();toast('Notifications marked as read');
-  }catch(e){toast('Notifications could not be marked read.','error')}
-});
+$('markAllRead').addEventListener('click',async()=>{try{const now=new Date().toISOString();let result=await sb.from('notifications').update({read_at:now}).eq('user_id',currentUser.id);if(result.error)result=await sb.from('notifications').update({is_read:true}).eq('user_id',currentUser.id);if(result.error)throw result.error;notifications.forEach(n=>{n.read_at=now;n.is_read=true});renderNotifications();toast('Notifications marked as read.')}catch(e){toast('Notifications could not be marked read.','error')}});
 
 function initX(){
   let saved=[];try{saved=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||'[]');if(!Array.isArray(saved))saved=[]}catch(e){saved=[]}const box=$('xMessages');if(!box.children.length){if(saved.length)saved.forEach(m=>addXMessage(m.role,m.content));else addXMessage('x','Welcome to X. How can I assist you, Monarch?')}
@@ -500,9 +491,17 @@ async function boot(){
     if(results[0].status==='rejected')throw results[0].reason;
     renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
     setLoading(false);$('app').classList.remove('hidden');
+    startMemberLiveSync();
   }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
 }
-sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==='SIGNED_OUT'){
+    if(liveChannel) sb.removeChannel(liveChannel);
+    clearInterval(livePoll);
+    location.href='login.html';
+  }
+  if(session&&currentUser&&session.user.id!==currentUser.id)location.reload();
+});
 boot();
 </script>
 </body>
