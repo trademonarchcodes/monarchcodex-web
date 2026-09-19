@@ -334,9 +334,28 @@ $('investmentForm').addEventListener('submit',async e=>{
   if(amount<=0||!method||!file||!selectedPayment||!pkg?.value){toast('Complete the package, amount, payment method, destination and receipt.','error');return}
   const btn=$('investmentSubmit');btn.disabled=true;btn.textContent='Submitting…';
   try{
-    const receipt=await uploadFile('payment-receipts',storageName('receipts',file),file);
-    const payload={user_id:currentUser.id,package_name:pkg.textContent.split(' — ')[0],amount,fee,method,payment_method:method,note:$('investmentNote').value.trim(),receipt_url:receipt,status:'pending'};
-    const {error}=await sb.from('investments').insert(payload);if(error)throw error;
+    let receipt;
+    try{
+      receipt=await uploadFile('payment-receipts',storageName('receipts',file),file);
+    }catch(firstReceiptError){
+      console.warn('payment-receipts upload failed; trying receipts bucket:',firstReceiptError);
+      receipt=await uploadFile('receipts',storageName('receipts',file),file);
+    }
+
+    const basePayload={user_id:currentUser.id,package_name:pkg.textContent.split(' — ')[0],amount,fee,note:$('investmentNote').value.trim(),receipt_url:receipt,status:'pending'};
+    let insertResult=await sb.from('investments').insert({...basePayload,method,payment_method:method});
+    if(insertResult.error){
+      const msg=String(insertResult.error.message||'').toLowerCase();
+      const code=String(insertResult.error.code||'');
+      if(code==='42703'||code==='PGRST204'||msg.includes('payment_method')||msg.includes('method')){
+        insertResult=await sb.from('investments').insert({...basePayload,method});
+        if(insertResult.error && (String(insertResult.error.message||'').toLowerCase().includes('method')||String(insertResult.error.code||'')==='42703'||String(insertResult.error.code||'')==='PGRST204')){
+          insertResult=await sb.from('investments').insert({...basePayload,payment_method:method});
+        }
+      }
+      if(insertResult.error)throw insertResult.error;
+    }
+
     $('investmentForm').reset();selectedPayment=null;renderPayments();await refreshInvestments();toast('Investment submitted and awaiting review.');
   }catch(err){console.error(err);toast('Investment submission failed.','error')}finally{btn.disabled=false;btn.textContent='Submit Investment'}
 });
