@@ -973,18 +973,47 @@ function startFinancialSync(){
 
 async function boot(){
   try{
-    const {data:{session}}=await sb.auth.getSession();if(!session){location.href='login.html';return}currentUser=session.user;
-    const results=await Promise.allSettled([loadProfile(),loadOptional()]);
-    if(results[0].status==='rejected')throw results[0].reason;
-    renderIdentity();renderKyc();renderOverview();
-    if(isApproved()){
+    const {data:{session},error:sessionError}=await sb.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!session){location.href='login.html';return}
+    currentUser=session.user;
+
+    // Load only the member profile before revealing the dashboard.
+    // Optional financial/package queries must never keep the whole dashboard on the splash screen.
+    await Promise.race([
+      loadProfile(),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Dashboard connection timed out. Please refresh and try again.')),12000))
+    ]);
+
+    renderIdentity();
+    renderKyc();
+    renderOverview();
+    setLoading(false);
+    $('app').classList.remove('hidden');
+
+    // Load the remaining dashboard data in the background.
+    try{
       await loadOptional();
-      renderInvestments();renderTransactions();renderReferrals();
-      updateWithdrawalPreview();initX();
-      await refreshMemberNotifications();startFinancialSync();
+      renderOverview();
+      if(isApproved()){
+        renderInvestments();
+        renderTransactions();
+        renderReferrals();
+        updateWithdrawalPreview();
+        initX();
+        await refreshMemberNotifications();
+        startFinancialSync();
+      }
+    }catch(backgroundErr){
+      console.warn('Optional dashboard data failed to load:',backgroundErr);
+      // The shell/profile/KYC page remains usable even if an optional table is unavailable.
     }
-    setLoading(false);$('app').classList.remove('hidden');
-  }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
+  }catch(err){
+    console.error(err);
+    setLoading(false);
+    $('app').classList.remove('hidden');
+    document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>'+esc(err?.message||'Please refresh the page or sign in again.')+'</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'
+  }
 }
 sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
 boot();
