@@ -275,22 +275,8 @@ async function submitProfitAdjustment(){
     return;
   }
 
-  const investmentCandidates=members.filter(m=>String(m.id)===String(uid));
-  if(!investmentCandidates.length){toast("Member not found.","error");return;}
-
-  const {data:investments,error:investmentError}=await db.from("investments")
-    .select("id,status,created_at")
-    .eq("user_id",uid)
-    .in("status",["approved","active","confirmed","completed"])
-    .order("created_at",{ascending:false})
-    .limit(1);
-
-  if(investmentError)throw investmentError;
-  const sourceInvestmentId=investments?.[0]?.id;
-  if(!sourceInvestmentId){
-    toast("This member has no approved investment available for the profit operation.","error");
-    return;
-  }
+  const selectedMember=members.find(m=>String(m.id)===String(uid));
+  if(!selectedMember){toast("Member not found.","error");return;}
 
   btn.disabled=true;
   const oldText=btn.textContent;
@@ -299,7 +285,6 @@ async function submitProfitAdjustment(){
   try{
     const {data,error}=await db.rpc("sovereign_add_profit",{
       p_user_id:uid,
-      p_source_investment_id:sourceInvestmentId,
       p_amount:value,
       p_description:reason,
       p_profit_month:new Date().toISOString().slice(0,10)
