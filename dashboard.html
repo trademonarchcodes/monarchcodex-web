@@ -381,7 +381,7 @@ $('withdrawalForm').addEventListener('submit',async e=>{
   const available=source==='earnings'?f.profit:f.capitalFree;
   if(source==='earnings'&&a<MIN_EARNINGS){toast('Minimum earnings withdrawal is $10.00.','error');return}
   if(a>available){toast('The requested amount exceeds your available balance for this source.','error');return}
-  if(source==='capital'&&a>f.capitalFree){toast('Capital remains locked until the 3-month eligibility period has passed.','error');return}
+  if(source==='capital'&&a>f.capitalFree){toast('Capital withdrawals are only available after your investment has completed the 3-month lock period.','error');return}
   let accountName='',accountNumber='',bankName='';
   if(method==='bank'){accountName=profile.withdrawal_account_name||profile.full_name;accountNumber=profile.withdrawal_account_number;bankName=profile.withdrawal_bank;if(accountName!==profile.full_name){toast('Your bank account name must match your registered identity.','error');return}if(!accountName||!accountNumber||!bankName){toast('Registered bank details are incomplete.','error');return}}
   else if(!$('withdrawalWallet').value.trim()||!$('withdrawalChain').value){toast('Enter a wallet address and choose a chain.','error');return}
