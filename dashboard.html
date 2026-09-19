@@ -461,13 +461,56 @@ $('xForm').addEventListener('submit',async e=>{
 
 $('logoutBtn').addEventListener('click',async()=>{try{await sb.auth.signOut()}finally{location.href='login.html'}});
 
+
+let financialSyncTimer=null, financialSyncBusy=false;
+
+async function refreshMemberFinancials(){
+  if(!currentUser?.id || financialSyncBusy)return;
+  financialSyncBusy=true;
+  try{
+    const [inv,earn,wd,adj,ref] = await Promise.all([
+      sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
+      sb.from('earnings').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
+      sb.from('withdrawals').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
+      sb.from('capital_adjustments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
+      sb.from('referral_bonus_ledger').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+    ]);
+
+    if(!inv.error)investments=inv.data||[];
+    if(!earn.error)earnings=earn.data||[];
+    if(!wd.error)withdrawals=wd.data||[];
+    if(!adj.error)adjustments=adj.data||[];
+    if(!ref.error)referralLedger=ref.data||[];
+
+    renderOverview();
+    renderInvestments();
+    renderWithdrawals();
+    renderTransactions();
+    renderReferrals();
+  }catch(err){
+    console.warn('Live financial refresh failed:',err);
+  }finally{
+    financialSyncBusy=false;
+  }
+}
+
+function startFinancialSync(){
+  if(!currentUser?.id)return;
+  clearInterval(financialSyncTimer);
+  financialSyncTimer=setInterval(refreshMemberFinancials,5000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')refreshMemberFinancials();
+  });
+  window.addEventListener('focus',refreshMemberFinancials);
+}
+
 async function boot(){
   try{
     const {data:{session}}=await sb.auth.getSession();if(!session){location.href='login.html';return}currentUser=session.user;
     const results=await Promise.allSettled([loadProfile(),loadOptional()]);
     if(results[0].status==='rejected')throw results[0].reason;
     renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
-    setLoading(false);$('app').classList.remove('hidden');
+    setLoading(false);$('app').classList.remove('hidden');startFinancialSync();
   }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
 }
 sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
