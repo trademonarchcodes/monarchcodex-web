@@ -887,6 +887,9 @@
 
             /* =================================================
                ADMIN
+               =================================================
+               admin / super_admin / configured admin email
+               keep the existing MAIN ADMIN route.
                ================================================= */
 
             if (isAdmin(profile, user)) {
@@ -908,6 +911,38 @@
 
             }
 
+
+
+            /* =================================================
+               ROLE-BASED ROUTING
+               ================================================= */
+
+            const profileRole =
+                String(profile.role || "")
+                    .toLowerCase()
+                    .trim();
+
+            if (
+                profileRole === "sovereign_desk" ||
+                profileRole === "sovereign-desk"
+            ) {
+
+                showLoginMessage(
+                    "SOVEREIGN DESK login successful. Loading SOVEREIGN DESK...",
+                    "success"
+                );
+
+                setTimeout(function () {
+
+                    window.location.replace(
+                        "sovereign_desk.html"
+                    );
+
+                }, 400);
+
+                return;
+
+            }
 
 
             /* =================================================
