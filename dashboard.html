@@ -38,6 +38,7 @@
     <button data-view="transactions"><span class="nav-icon">≡</span>Transactions</button>
     <button data-view="referrals"><span class="nav-icon">♧</span>Referrals</button>
     <button data-view="profile"><span class="nav-icon">◎</span>My Profile</button>
+    <button type="button" onclick="window.location.href='feeds.html'"><span class="nav-icon">◉</span>Market Feeds</button>
   </nav>
   <div class="side-bottom"><button class="logout" id="logoutBtn">↪ Logout</button></div>
 </aside>
@@ -196,6 +197,94 @@ async function loadProfile(){
   if(error)throw error;if(!data)throw new Error('Profile not found.');
   profile=data;
 }
+
+let profileRefreshBusy=false;
+let profileRealtimeChannel=null;
+let profileRefreshTimer=null;
+
+async function refreshMemberState(){
+  if(!currentUser || profileRefreshBusy)return;
+  profileRefreshBusy=true;
+  try{
+    const before=String(profile?.kyc_status||'').toLowerCase();
+    await loadProfile();
+    const after=String(profile?.kyc_status||'').toLowerCase();
+
+    // Always repaint the account/KYC UI after a fresh profile read.
+    renderIdentity();
+    renderKyc();
+    renderOverview();
+
+    // If the member has just been approved/rejected, refresh the notification
+    // list as well so the UI reflects the same database state.
+    if(before!==after){
+      const n=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
+      if(!n.error){
+        notifications=n.data||[];
+        renderNotifications();
+      }
+    }
+  }catch(err){
+    console.warn('Live member state refresh failed:',err);
+  }finally{
+    profileRefreshBusy=false;
+  }
+}
+
+function startMemberRealtime(){
+  if(!currentUser)return;
+
+  // Realtime is preferred when the Supabase project has Realtime enabled
+  // for profiles/notifications.
+  try{
+    profileRealtimeChannel=sb.channel('member-dashboard-'+currentUser.id)
+      .on('postgres_changes',{
+        event:'UPDATE',
+        schema:'public',
+        table:'profiles',
+        filter:'id=eq.'+currentUser.id
+      },()=>refreshMemberState())
+      .on('postgres_changes',{
+        event:'INSERT',
+        schema:'public',
+        table:'notifications',
+        filter:'user_id=eq.'+currentUser.id
+      },async()=>{
+        try{
+          const n=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
+          if(!n.error){
+            notifications=n.data||[];
+            renderNotifications();
+          }
+        }catch(err){console.warn('Notification refresh failed:',err)}
+        refreshMemberState();
+      })
+      .subscribe((status)=>{
+        console.info('Member dashboard realtime:',status);
+      });
+  }catch(err){
+    console.warn('Realtime subscription unavailable:',err);
+  }
+
+  // Reliable fallback: do not depend on Realtime being enabled.
+  clearInterval(profileRefreshTimer);
+  profileRefreshTimer=setInterval(refreshMemberState,5000);
+
+  // Immediately catch changes when the member returns to this tab.
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')refreshMemberState();
+  });
+  window.addEventListener('focus',refreshMemberState);
+}
+
+function stopMemberRealtime(){
+  if(profileRefreshTimer)clearInterval(profileRefreshTimer);
+  profileRefreshTimer=null;
+  if(profileRealtimeChannel){
+    try{sb.removeChannel(profileRealtimeChannel)}catch(e){}
+    profileRealtimeChannel=null;
+  }
+}
 function avatarFallback(name){
   const initial=(String(name||'M').trim()[0]||'M').toUpperCase();
   return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" fill="#151515"/><circle cx="80" cy="80" r="76" fill="none" stroke="#4c401f" stroke-width="2"/><text x="80" y="99" text-anchor="middle" fill="#D4AF37" font-family="Arial" font-size="58" font-weight="700">${initial}</text></svg>`);
@@ -205,53 +294,6 @@ function setAvatar(el,src,name){
   el.src=src||avatarFallback(name);
   el.onerror=()=>{el.onerror=null;el.src=avatarFallback(name)};
 }
-
-let liveChannel=null, livePoll=null, liveRefreshBusy=false;
-
-async function refreshMemberLiveState(){
-  if(!currentUser || liveRefreshBusy) return;
-  liveRefreshBusy=true;
-  try{
-    const [{data:latestProfile,error:profileError},{data:latestNotifications,error:notifError}]=await Promise.all([
-      sb.from('profiles').select('id,full_name,display_username,username_last_changed,phone,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,uid,role,status,kyc_status,kyc_rejection_reason,balance,total_invested,total_earnings,referral_code,referred_by,withdrawal_account_name,withdrawal_account_number,withdrawal_bank,created_at,updated_at,avatar_url,kyc_document_url').eq('id',currentUser.id).maybeSingle(),
-      sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50)
-    ]);
-    if(!profileError && latestProfile){
-      const oldKyc=String(profile?.kyc_status||'').toLowerCase();
-      profile=latestProfile;
-      renderIdentity();
-      renderKyc();
-      renderOverview();
-      if(oldKyc!==String(profile.kyc_status||'').toLowerCase() && String(profile.kyc_status||'').toLowerCase()==='approved'){
-        toast('KYC has been approved. Your protected sections are now unlocked.');
-      }
-    }
-    if(!notifError && Array.isArray(latestNotifications)){
-      notifications=latestNotifications;
-      if(!$('notificationPanel').classList.contains('hidden')) renderNotifications();
-      else {
-        const unread=notifications.filter(n=>!n.read_at&&!n.is_read).length;
-        $('notificationDot').classList.toggle('hidden',!unread);
-      }
-    }
-  }catch(err){console.error('Live member refresh failed:',err)}
-  finally{liveRefreshBusy=false}
-}
-
-function startMemberLiveSync(){
-  if(!currentUser) return;
-  try{
-    if(liveChannel) sb.removeChannel(liveChannel);
-    liveChannel=sb.channel('member-live-'+currentUser.id)
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:'id=eq.'+currentUser.id},()=>refreshMemberLiveState())
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},()=>refreshMemberLiveState())
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'notifications',filter:'user_id=eq.'+currentUser.id},()=>refreshMemberLiveState())
-      .subscribe((status)=>{ if(status==='CHANNEL_ERROR'||status==='TIMED_OUT') console.warn('Member realtime unavailable:',status); });
-  }catch(err){console.error('Member realtime setup failed:',err)}
-  clearInterval(livePoll);
-  livePoll=setInterval(refreshMemberLiveState,15000);
-}
-
 function renderIdentity(){
   const name=profile.full_name||profile.display_username||'Monarch';
   $('sideName').textContent=name;$('sideUid').textContent=profile.uid||'UID unavailable';$('welcomeName').textContent=name;
@@ -491,16 +533,19 @@ async function boot(){
     if(results[0].status==='rejected')throw results[0].reason;
     renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
     setLoading(false);$('app').classList.remove('hidden');
-    startMemberLiveSync();
+    startMemberRealtime();
   }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
 }
 sb.auth.onAuthStateChange((event,session)=>{
   if(event==='SIGNED_OUT'){
-    if(liveChannel) sb.removeChannel(liveChannel);
-    clearInterval(livePoll);
+    stopMemberRealtime();
     location.href='login.html';
+    return;
   }
-  if(session&&currentUser&&session.user.id!==currentUser.id)location.reload();
+  if(session&&currentUser&&session.user.id!==currentUser.id){
+    stopMemberRealtime();
+    location.reload();
+  }
 });
 boot();
 </script>
