@@ -64,9 +64,11 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 <div class="card"><h2 class="section">Send a Message</h2><div class="form-grid">
 <div class="field"><label>Channel</label><select id="commChannel"><option value="whatsapp">WhatsApp</option><option value="email">Email</option></select></div>
 <div class="field"><label>Member / Recipient</label><select id="commMember"><option value="">Select a member</option></select></div>
-<div class="field"><label>Recipient</label><input id="commRecipient" placeholder="Select a member above" readonly></div>
-<div class="field"><label>Sending Account</label><input id="commSender" value="trademonarchofficial@gmail.com" readonly></div>
-<div class="field full"><label>Email Subject <span class="muted">(email only)</span></label><input id="commSubject" placeholder="MONARCH CODEX — Account Update"></div>
+<div class="field" id="commEmailField"><label>Recipient Email</label><input id="commRecipient" type="email" placeholder="Enter recipient email"></div>
+<div class="field" id="commSenderField"><label>Sending Account</label><input id="commSender" type="email" value="trademonarchofficial@gmail.com" placeholder="Enter sending email account"></div>
+<div class="field" id="commCountryField"><label>Country Code</label><select id="commCountryCode"><option value="+234">Nigeria (+234)</option><option value="+1">United States / Canada (+1)</option><option value="+44">United Kingdom (+44)</option><option value="+233">Ghana (+233)</option><option value="+254">Kenya (+254)</option><option value="+27">South Africa (+27)</option><option value="+91">India (+91)</option><option value="+971">United Arab Emirates (+971)</option></select></div>
+<div class="field" id="commPhoneField"><label>WhatsApp Phone Number</label><input id="commPhone" inputmode="numeric" autocomplete="tel" placeholder="9131222752"></div>
+<div class="field full" id="commSubjectField"><label>Email Subject <span class="muted">(email only)</span></label><input id="commSubject" placeholder="MONARCH CODEX — Account Update"></div>
 <div class="field full"><label>Message</label><textarea id="commMessage" rows="7" placeholder="Write your message..."></textarea></div>
 </div><div class="notice" style="margin-top:12px">For WhatsApp, the button opens WhatsApp with the selected number and message ready. For email, it opens your device's email composer. The browser cannot choose the actual WhatsApp account or override the sender mailbox; that is controlled by the app/account you use.</div>
 <div class="actions" style="margin-top:12px"><button id="sendWhatsApp" class="btn primary">OPEN WHATSAPP</button><button id="sendEmail" class="btn secondary">OPEN EMAIL</button></div></div>
@@ -174,8 +176,28 @@ async function investLoad(){
  }catch(e){showError("investments",e);toast(e.message,"error")}
 }
 async function investSet(id,status){if(!confirm(`${status} investment?`))return;try{const r=await q("investments",x=>x.update({status, ...(status==="approved"?{approved_at:new Date().toISOString()}:{})}).eq("id",id));if(r.error)throw r.error;const inv=await q("investments",x=>x.select("user_id,amount,package_name").eq("id",id).maybeSingle());if(inv.data?.user_id)await notifyMember(inv.data.user_id,status==="approved"?"Investment Approved":"Investment Rejected",status==="approved"?`Your ${inv.data.package_name||"investment"} investment request for ${money(inv.data.amount)} has been approved.`:`Your ${inv.data.package_name||"investment"} investment request for ${money(inv.data.amount)} has been rejected.`,status==="approved"?"success":"warning");toast("Investment "+status,"success");await investLoad()}catch(e){toast(e.message,"error")}}
-function normalizedPhoneForWhatsApp(p){return String(p?.phone||'').replace(/\D/g,'')}
-function commRecipientValue(p){return String($('commChannel')?.value||'whatsapp')==='email'?(p?.email||''):(normalizedPhoneForWhatsApp(p))}
+function normalizeWhatsAppPhone(raw,code){
+  let digits=String(raw||'').replace(/\D/g,'');
+  const cc=String(code||'+234').replace(/\D/g,'');
+  if(digits.startsWith(cc))digits=digits.slice(cc.length);
+  if(digits.startsWith('0'))digits=digits.slice(1);
+  return digits;
+}
+function inferCountryCode(phone){
+  const d=String(phone||'').replace(/\D/g,'');
+  const known=['234','233','254','27','971','44','91','1'];
+  const hit=known.find(c=>d.startsWith(c));
+  return hit?'+'+hit:'+234';
+}
+function splitPhoneForForm(phone){
+  const raw=String(phone||'').trim();
+  let code=inferCountryCode(raw);
+  let digits=String(raw).replace(/\D/g,'');
+  const cc=code.replace(/\D/g,'');
+  if(digits.startsWith(cc))digits=digits.slice(cc.length);
+  if(digits.startsWith('0'))digits=digits.slice(1);
+  return {code,digits};
+}
 function communicationsLoad(){
   const select=$('commMember');if(!select)return;
   const current=select.value;
@@ -187,16 +209,36 @@ function communicationsLoad(){
   dir.innerHTML=rows||'<div class="empty">No member email or phone contacts have been captured yet.</div>';
 }
 function renderCommunicationRecipient(){
-  const p=members.find(x=>x.id===$('commMember')?.value);if(!$('commRecipient'))return;
-  $('commRecipient').value=p?commRecipientValue(p):'';
+  const p=members.find(x=>x.id===$('commMember')?.value);
   const email=$('commChannel')?.value==='email';
-  $('commSubject').closest('.field').style.display=email?'block':'none';
+  $('commEmailField').style.display=email?'block':'none';
+  $('commSenderField').style.display=email?'block':'none';
+  $('commCountryField').style.display=email?'none':'block';
+  $('commPhoneField').style.display=email?'none':'block';
+  $('commSubjectField').style.display=email?'block':'none';
   $('sendEmail').style.display=email?'inline-flex':'none';
   $('sendWhatsApp').style.display=email?'none':'inline-flex';
+  if(p){
+    if(email){$('commRecipient').value=p.email||'';}
+    else {const parts=splitPhoneForForm(p.phone||'');$('commCountryCode').value=parts.code;$('commPhone').value=parts.digits;}
+  } else if(email){$('commRecipient').value='';} else {$('commPhone').value='';}
 }
 function openMemberCommunication(id){if($('commMember')){$('commMember').value=id;renderCommunicationRecipient();view('communications')}}
-function openWhatsApp(){const p=members.find(x=>x.id===$('commMember').value),to=normalizedPhoneForWhatsApp(p),msg=$('commMessage').value.trim();if(!p||!to)return toast('Select a member with a phone number first.','warning');if(!msg)return toast('Write a message first.','warning');window.open('https://wa.me/'+to+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer')}
-function openEmail(){const p=members.find(x=>x.id===$('commMember').value),to=String(p?.email||'').trim(),msg=$('commMessage').value.trim(),subject=$('commSubject').value.trim();if(!p||!to)return toast('Select a member with an email address first.','warning');if(!msg)return toast('Write a message first.','warning');window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(msg)}
+function openWhatsApp(){
+  const code=$('commCountryCode').value,phone=normalizeWhatsAppPhone($('commPhone').value,code),msg=$('commMessage').value.trim();
+  if(!phone)return toast('Enter a WhatsApp phone number first.','warning');
+  if(code==='+234'&&phone.length!==10)return toast('Nigerian WhatsApp numbers must contain exactly 10 digits after +234.','warning');
+  if(phone.length<6||phone.length>15)return toast('Enter a valid international phone number.','warning');
+  if(!msg)return toast('Write a message first.','warning');
+  window.open('https://wa.me/'+code.replace(/\D/g,'')+phone+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+}
+function openEmail(){
+  const to=String($('commRecipient').value||'').trim(),msg=$('commMessage').value.trim(),subject=$('commSubject').value.trim();
+  if(!to)return toast('Enter a recipient email address first.','warning');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to))return toast('Enter a valid recipient email address.','warning');
+  if(!msg)return toast('Write a message first.','warning');
+  window.location.href='mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(msg);
+}
 
 const DEFAULT_PACKAGES=[{amount:30,name:"$30 Package",description:"Entry Monarch investment package"},{amount:50,name:"$50 Package",description:"Starter Monarch investment package"},{amount:100,name:"$100 Package",description:"Growth Monarch investment package"},{amount:300,name:"$300 Package",description:"Advanced Monarch investment package"},{amount:500,name:"$500 Package",description:"Premium Monarch investment package"},{amount:1000,name:"$1,000 Package",description:"Elite Monarch investment package"}];
 async function packagesLoad(){try{const r=await q("packages",x=>x.select("*").order("amount",{ascending:true}));if(r.error)throw r.error;const a=r.data||[];$("packageList").innerHTML=a.length?a.map(p=>`<div class="pkg"><h3>${esc(p.name||"Package")}</h3><strong>${money(p.amount)}</strong><p class="muted">${esc(p.description||"Monarch investment package")}</p><div class="actions"><button class="btn secondary" data-action="edit-pkg" data-pkg="${esc(JSON.stringify({id:p.id,n:p.name||"",a:p.amount??"",d:p.description||""}))}">Edit</button><button class="btn danger" data-action="delete-pkg" data-id="${esc(p.id)}">Remove</button></div></div>`).join(""):'<div class="empty">No packages configured.</div>'}catch(e){showError("packageList",e);toast(e.message,"error")}}
