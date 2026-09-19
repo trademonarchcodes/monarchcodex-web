@@ -297,6 +297,7 @@ async function boot(){
   }
 
   $("adminEmail").textContent=user.email||"";
+  document.body.classList.add("admin-ready");
   $("boot").style.display="none";
 
   // Load the first screen immediately. Other admin sections load independently.
@@ -315,6 +316,7 @@ async function boot(){
  }catch(e){
   console.error("Admin boot failed:",e);
   $("bootText").textContent=e.message||"Unable to connect.";
+  document.body.classList.add("admin-ready");
   setTimeout(()=>{
     $("boot").style.display="none";
     toast(e.message||"Unable to connect to Supabase","error");
