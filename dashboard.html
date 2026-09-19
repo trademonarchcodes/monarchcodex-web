@@ -215,21 +215,9 @@ async function uploadFile(bucket,path,file){
   if(!file)throw new Error('File is required.');
   const {error}=await sb.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type||undefined});
   if(error)throw error;
-  if(bucket==='kyc-documents')return SUPABASE_URL+'/storage/v1/object/authenticated/'+bucket+'/'+path;
   const {data}=sb.storage.from(bucket).getPublicUrl(path);
   if(!data?.publicUrl)throw new Error('Unable to create file URL.');
   return data.publicUrl;
-}
-async function refreshProfileAndNotifications(){
-  try{
-    const p=await sb.from('profiles').select('id,full_name,display_username,username_last_changed,phone,country,state,city,address,nin_number,nin_front_url,nin_back_url,selfie_url,uid,role,status,kyc_status,kyc_rejection_reason,balance,total_invested,total_earnings,referral_code,referred_by,withdrawal_account_name,withdrawal_account_number,withdrawal_bank,created_at,updated_at,avatar_url,kyc_document_url').eq('id',currentUser.id).maybeSingle();
-    if(p.error)throw p.error;
-    if(p.data){const oldKyc=String(profile?.kyc_status||'').toLowerCase();profile=p.data;renderIdentity();renderKyc();if(oldKyc!==String(profile.kyc_status||'').toLowerCase())renderOverview();}
-    const n=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
-    if(n.error)throw n.error;
-    notifications=n.data||[];
-    if(!$('notificationPanel').classList.contains('hidden'))renderNotifications();else $('notificationDot').classList.toggle('hidden',!notifications.some(x=>!x.read_at&&!x.is_read));
-  }catch(e){console.warn('Background profile/notification refresh failed:',e.message||e)}
 }
 async function loadOptional(){
   const tasks=[
@@ -323,11 +311,16 @@ function renderPaymentInstruction(){
   const p=selectedPayment;if(!p){$('paymentInstruction').textContent='Select a payment destination above.';return}
   $('paymentInstruction').innerHTML=`<strong>${esc(p.title||'Payment destination')}</strong><br><span class="muted">${esc(p.payment_type||'')}</span>${p.bank_name?`<br>Bank: ${esc(p.bank_name)}`:''}${p.account_name?`<br>Account: ${esc(p.account_name)}`:''}${p.account_number?`<br>Number: ${esc(p.account_number)}`:''}${p.crypto_network?`<br>Network: ${esc(p.crypto_network)}`:''}${p.wallet_address?`<br>Wallet: ${esc(p.wallet_address)}`:''}`;
 }
-$('investmentMethod').addEventListener('change',renderPayments);
-$('investmentAmount').addEventListener('input',()=>{
-  const a=safeNum($('investmentAmount').value),fee=selectedMethod()==='bank'?BANK_FEE:WALLET_FEE;
-  $('investmentFee').value=fmt(a?fee:0);$('investmentTotal').value=fmt(a+fee);$('investmentNgn').value=selectedMethod()==='bank'&&a?ngn((a+fee)*NGN_RATE):'—';
-});
+function updateInvestmentTotals(){
+  const a=safeNum($('investmentAmount').value);
+  const bank=selectedMethod()==='bank';
+  const fee=bank?BANK_FEE:WALLET_FEE;
+  $('investmentFee').value=fmt(a?fee:0);
+  $('investmentTotal').value=fmt(a+fee);
+  $('investmentNgn').value=bank&&a?ngn((a+fee)*NGN_RATE):'—';
+}
+$('investmentMethod').addEventListener('change',()=>{renderPayments();updateInvestmentTotals()});
+$('investmentAmount').addEventListener('input',updateInvestmentTotals);
 $('packageSelect').addEventListener('change',()=>{const o=$('packageSelect').selectedOptions[0];if(o?.dataset.amount&&safeNum(o.dataset.amount)>0){$('investmentAmount').value=o.dataset.amount;$('investmentAmount').dispatchEvent(new Event('input'))}});
 async function refreshInvestments(){const {data,error}=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;investments=data||[];renderInvestments();renderOverview();renderWithdrawals();renderTransactions()}
 function renderInvestments(){
@@ -341,7 +334,7 @@ $('investmentForm').addEventListener('submit',async e=>{
   if(amount<=0||!method||!file||!selectedPayment||!pkg?.value){toast('Complete the package, amount, payment method, destination and receipt.','error');return}
   const btn=$('investmentSubmit');btn.disabled=true;btn.textContent='Submitting…';
   try{
-    const receipt=await uploadFile('investment-receipts',storageName('receipts',file),file);
+    const receipt=await uploadFile('payment-receipts',storageName('receipts',file),file);
     const payload={user_id:currentUser.id,package_name:pkg.textContent.split(' — ')[0],amount,fee,method,payment_method:method,note:$('investmentNote').value.trim(),receipt_url:receipt,status:'pending'};
     const {error}=await sb.from('investments').insert(payload);if(error)throw error;
     $('investmentForm').reset();selectedPayment=null;renderPayments();await refreshInvestments();toast('Investment submitted and awaiting review.');
@@ -456,9 +449,6 @@ async function boot(){
     if(results[0].status==='rejected')throw results[0].reason;
     renderIdentity();renderKyc();renderOverview();renderInvestments();renderWithdrawals();renderTransactions();renderReferrals();renderProfile();await loadPackagesPayments();renderPayments();updateWithdrawalPreview();initX();
     setLoading(false);$('app').classList.remove('hidden');
-    await refreshProfileAndNotifications();
-    clearInterval(window.__monarchRefreshTimer);
-    window.__monarchRefreshTimer=setInterval(refreshProfileAndNotifications,8000);
   }catch(err){console.error(err);setLoading(false);$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>Please refresh the page or sign in again.</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'}
 }
 sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
