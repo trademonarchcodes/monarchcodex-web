@@ -172,13 +172,14 @@ function bootText(s){$("bootText").textContent=s}
 function roleName(){return String(profile?.role||"").toLowerCase()}
 function isDeskRole(){const r=roleName();return r==="sovereign_desk"||r==="sovereign-desk"||r.includes("sovereign_desk")}
 function isAdminRole(){return roleName().includes("admin")}
-function permissions(){
-  const p=profile?.permissions;
-  if(!p)return [];
-  if(Array.isArray(p))return p.map(String);
-  if(typeof p==="object")return Object.keys(p).filter(k=>p[k]);
-  return [];
+let deskPermissions=[];
+async function loadPermissions(){
+  if(!user?.id){deskPermissions=[];return}
+  const {data,error}=await db.from("sovereign_desk_permissions").select("permission").eq("user_id",user.id);
+  if(error)throw error;
+  deskPermissions=(data||[]).map(x=>String(x.permission||"")).filter(Boolean);
 }
+function permissions(){return deskPermissions;}
 function hasPermission(k){
   if(isAdminRole())return true;
   return permissions().includes(k);
@@ -270,6 +271,8 @@ async function start(){
       $("boot").innerHTML='<div class="notice error" style="max-width:430px;margin:20px"><strong>SOVEREIGN DESK ACCESS DENIED</strong><br><br>Your authenticated profile is not authorized for this dashboard.<br><br><button class="btn" onclick="location.href=\'dashboard.html\'">Return to Member Dashboard</button></div>';
       return;
     }
+    if(isDeskRole()) await loadPermissions();
+    else deskPermissions=[];
     $("deskRole").textContent="Role: "+(profile.role||"unknown");
     renderPermissions();
     bootText("Loading member operations...");
