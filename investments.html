@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070707">
+<title>MONARCH CODEX — Investments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#f0d477;--bg:#070707;--card:#121212;--card2:#181818;--border:#292929;--text:#f5f5f5;--muted:#9b9b9b;--danger:#d66;--success:#7dcc91;--sidebar:270px}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Poppins,Arial,sans-serif}body{overflow-x:hidden}button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+#loadingScreen{position:fixed;inset:0;z-index:9999;background:#050505;display:grid;place-items:center}.loader{text-align:center}.loader-mark{width:62px;height:62px;border:2px solid #333;border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 18px}.loader h1{font:600 22px Cinzel,serif;letter-spacing:3px;color:var(--gold)}.loader p{color:var(--muted);font-size:12px}@keyframes spin{to{transform:rotate(360deg)}}
+#app{min-height:100vh}.sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:var(--sidebar);background:#0b0b0b;border-right:1px solid var(--border);display:flex;flex-direction:column;padding:22px 16px}.brand{padding:4px 10px 24px;border-bottom:1px solid var(--border);margin-bottom:15px}.brand h1{font:700 21px Cinzel,serif;letter-spacing:2px;color:var(--gold);margin:0}.brand span{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}.side-profile{display:flex;gap:11px;align-items:center;padding:10px;border-radius:12px;background:#101010;margin-bottom:14px}.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#222;border:1px solid #4c401f}.avatar-fallback{display:grid;place-items:center;font-weight:700;color:var(--gold);background:#151515}.side-profile strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}.uid{font-size:10px;color:var(--muted)}.nav{display:grid;gap:5px;overflow:auto}.nav button{border:1px solid transparent;background:transparent;color:#bdbdbd;text-align:left;padding:11px 12px;border-radius:9px;transition:.2s}.nav button:hover,.nav button.active{color:var(--gold2);background:#15130d;border-color:#302a18}.nav-icon{display:inline-block;width:25px;color:var(--gold)}.side-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:12px}.logout{width:100%;border:1px solid #342a19;background:#12100b;color:#e8c75c;padding:11px;border-radius:9px}
+.main{margin-left:var(--sidebar);min-height:100vh}.topbar{height:72px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,7,7,.94);position:sticky;top:0;z-index:30;backdrop-filter:blur(10px)}.topbar h2{font:600 18px Cinzel,serif;margin:0}.top-actions{display:flex;gap:10px;align-items:center}.icon-btn{width:40px;height:40px;border-radius:9px;border:1px solid var(--border);background:#111;color:var(--gold);position:relative}.dot{position:absolute;right:7px;top:7px;width:7px;height:7px;background:#d55;border-radius:50%;border:1px solid #111}.mobile-menu{display:none}.content{padding:28px;max-width:1500px;margin:auto}.view{display:none;animation:fade .25s ease}.view.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.hero{padding:28px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(120deg,#14120c,#111 45%,#0c0c0c);margin-bottom:20px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}.hero h1{font:600 clamp(25px,4vw,38px) Cinzel,serif;margin:8px 0}.hero p{margin:0;color:var(--muted)}.grid{display:grid;gap:15px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:19px}.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.stat-value{font:600 25px Cinzel,serif;margin-top:7px;color:#f7e6a0}.stat-sub{font-size:10px;color:var(--muted);margin-top:4px}.two{grid-template-columns:1.25fr .75fr}.three{grid-template-columns:repeat(3,1fr)}.section-title{display:flex;justify-content:space-between;align-items:center;margin:25px 0 12px}.section-title h3{font:600 17px Cinzel,serif;margin:0}.btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:10px 14px;border-radius:9px;font-weight:600}.btn.primary{background:var(--gold);color:#080808;border-color:var(--gold)}.btn.danger{border-color:#593030;color:#e58d8d;background:#170e0e}.btn:disabled{opacity:.45;cursor:not-allowed}.btn-sm{padding:7px 10px;font-size:11px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:#bbb}.field input,.field select,.field textarea{width:100%;background:#0c0c0c;border:1px solid #303030;color:var(--text);padding:11px 12px;border-radius:8px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#8c742b}.field small{font-size:10px;color:var(--muted)}.notice{padding:12px;border:1px solid #39301a;background:#151209;border-radius:9px;color:#d6c58e;font-size:12px}.success{border-color:#294a33;background:#0d1710;color:#9dd4aa}.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}.warning{border-color:#5a461d;background:#191408;color:#dfc17a}.status{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:999px;padding:4px 9px;font-size:10px;text-transform:capitalize}.status.approved,.status.active{color:var(--success);border-color:#2c5136}.status.pending{color:#dfc17a}.status.rejected{color:#e39a9a;border-color:#553030}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}.table{width:100%;border-collapse:collapse;min-width:680px}.table th,.table td{padding:12px 13px;border-bottom:1px solid #222;text-align:left;font-size:11px}.table th{color:#a99b69;font-size:10px;text-transform:uppercase;letter-spacing:.7px;background:#15130e}.table tr:last-child td{border-bottom:0}.empty{text-align:center;color:var(--muted);padding:30px!important}.profile-head{display:flex;gap:18px;align-items:center}.profile-head .profile-meta{min-width:0}.profile-head .profile-meta h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profile-card-grid{display:grid;grid-template-columns:1fr;gap:15px}.bank-card{border:1px solid #3a321c;background:#121008;border-radius:12px;padding:16px}.bank-card h4{margin:0 0 10px;font:600 13px Cinzel,serif;color:#ecd271}.bank-identity{display:grid;gap:7px;margin-bottom:12px}.bank-identity span{font-size:10px;color:var(--muted)}.bank-identity strong{font-size:12px}.referral-link-card{position:relative;overflow:hidden;background:radial-gradient(circle at 90% 20%,#2a2411 0,#121212 36%,#101010 70%);border-color:#3d351d}.referral-link-card:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(212,175,55,.07),transparent);transform:translateX(-100%);animation:shine 5s ease-in-out infinite}@keyframes shine{0%,45%{transform:translateX(-100%)}70%,100%{transform:translateX(100%)}}.referral-link-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.referral-link-title{font:600 16px Cinzel,serif;color:#f0d477}.referral-link-sub{font-size:10px;color:var(--muted);margin-top:3px}.referral-link-row{display:flex;gap:9px;align-items:stretch;position:relative;z-index:1}.referral-link-row input{flex:1;min-width:0;background:#090909;border:1px solid #4a3c1d;color:#f5e7ac;padding:12px 13px;border-radius:9px;font-size:11px}.copy-link-btn{white-space:nowrap;min-width:105px}.referral-code-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border:1px solid #4b3e20;background:#0f0d08;border-radius:999px;color:#d9bf63;font-size:10px;margin-top:10px}@media(max-width:760px){.referral-link-row{flex-direction:column}.copy-link-btn{width:100%}.profile-head{align-items:flex-start}.profile-head .profile-meta{max-width:calc(100vw - 150px)}}.profile-large{width:78px;height:78px;border-radius:50%;object-fit:cover;border:1px solid #665525;background:#161616}.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-top:18px}.info{background:#0e0e0e;border:1px solid #242424;padding:12px;border-radius:9px}.info span{display:block;font-size:9px;color:var(--muted);text-transform:uppercase}.info strong{font-size:12px;display:block;margin-top:4px;word-break:break-word}.payment-list{display:grid;gap:10px}.payment{border:1px solid #2b2b2b;background:#0d0d0d;border-radius:10px;padding:12px}.payment.selected{border-color:#806a28;background:#151208}.payment h4{margin:0 0 6px;font-size:12px;color:#ecd271}.payment p{margin:3px 0;color:#aaa;font-size:10px;word-break:break-word}.radio-row{display:flex;gap:8px;flex-wrap:wrap}.radio{border:1px solid #303030;padding:9px 12px;border-radius:8px;font-size:11px;color:#aaa;cursor:pointer}.radio.selected{border-color:#8b722a;color:#f0d477;background:#151208}.chat{height:500px;display:flex;flex-direction:column}.messages{flex:1;overflow:auto;padding:8px;display:grid;align-content:start;gap:10px}.msg{max-width:82%;padding:11px 13px;border-radius:12px;font-size:12px;line-height:1.55;white-space:pre-wrap}.msg.x{background:#17140d;border:1px solid #3a311b}.msg.user{justify-self:end;background:#d4af37;color:#080808}.chat-form{display:flex;gap:8px;border-top:1px solid var(--border);padding-top:12px}.chat-form input{flex:1;background:#0c0c0c;border:1px solid #333;border-radius:9px;padding:11px;color:white}.suggestions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.suggestions button{background:#111;border:1px solid #292929;color:#bca85f;padding:7px 9px;border-radius:20px;font-size:10px}.ref-box{display:flex;gap:8px}.ref-box input{flex:1}.notification-panel{position:fixed;right:22px;top:64px;width:min(380px,calc(100vw - 30px));background:#101010;border:1px solid #34302a;border-radius:12px;z-index:80;box-shadow:0 20px 50px #000;max-height:70vh;overflow:auto}.notification-panel h3{font:600 14px Cinzel,serif;padding:14px;margin:0;border-bottom:1px solid #292929}.notification{padding:12px 14px;border-bottom:1px solid #222;font-size:11px}.notification.unread{background:#161309}.notification small{display:block;color:#777;margin-top:5px}.modal{position:fixed;inset:0;background:#000b;z-index:100;display:grid;place-items:center;padding:18px}.modal-box{width:min(560px,100%);max-height:90vh;overflow:auto;background:#111;border:1px solid #44391d;border-radius:15px;padding:20px}.modal-box h3{font:600 18px Cinzel,serif;margin-top:0;color:#efd36f}.toast{position:fixed;right:20px;bottom:20px;z-index:200;background:#151515;border:1px solid #3a3a3a;padding:12px 15px;border-radius:9px;font-size:11px;max-width:340px;box-shadow:0 10px 30px #000}.toast.error{background:#180d0d}.divider{height:1px;background:#252525;margin:18px 0}.muted{color:var(--muted)}.gold{color:var(--gold2)}.kpi{font-size:11px;color:#bbb}.progress{height:7px;background:#242424;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:var(--gold);width:0}.quick{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.three{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){:root{--sidebar:0px}.sidebar{transform:translateX(-100%);width:270px;transition:.25s;box-shadow:15px 0 50px #000}.sidebar.open{transform:none}.main{margin-left:0}.topbar{padding:0 15px;height:64px}.mobile-menu{display:block}.content{padding:16px}.stats,.three,.form-grid,.profile-grid{grid-template-columns:1fr}.hero{padding:20px}.topbar h2{font-size:15px}.chat{height:calc(100vh - 190px)}.notification-panel{right:10px;top:60px}.table{min-width:620px}}
+</style>
+</head>
+<body>
+<div id="loadingScreen" class="loading"><div class="loader-box"><div class="brand-mark">♛</div><div>Loading Investments…</div></div></div>
+<div class="app hidden" id="app">
+  <header class="topbar">
+    <div><div class="brand">MONARCH CODEX</div><div class="sub">Investment Management</div></div>
+    <div class="top-actions"><button class="btn btn-sm" type="button" onclick="window.location.href='dashboard.html'">Back to Dashboard</button></div>
+  </header>
+  <main class="content" style="max-width:1180px;margin:0 auto;padding:24px 18px 60px">
+    <div class="hero"><div class="eyebrow">Capital</div><h1>Investments</h1><p>Manage investment submissions separately from the main dashboard.</p></div>
+    <div id="investmentGate" class="notice hidden"></div>
+    <div id="investmentArea">
+      <div class="grid two">
+        <div class="card"><div class="section-title" style="margin-top:0"><h3>New Investment</h3></div>
+          <form id="investmentForm" class="form-grid">
+            <div class="field full"><label>Investment Package</label><select id="packageSelect" required><option value="">Loading packages…</option></select></div>
+            <div class="field"><label>Investment Amount (USD)</label><input id="investmentAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div>
+            <div class="field"><label>Payment Method</label><select id="investmentMethod" required><option value="">Choose method</option><option value="bank">Bank Transfer</option><option value="wallet">Crypto / Wallet</option></select></div>
+            <div class="field full"><label>Payment Destination</label><div id="paymentDestinations" class="payment-list"><div class="muted" style="font-size:11px">Choose a payment method.</div></div></div>
+            <div class="field"><label>Fee</label><input id="investmentFee" readonly value="$0.00"></div>
+            <div class="field"><label>Total USD</label><input id="investmentTotal" readonly value="$0.00"></div>
+            <div class="field"><label>Total NGN (bank only)</label><input id="investmentNgn" readonly value="—"></div>
+            <div class="field"><label>Receipt</label><input id="investmentReceipt" type="file" accept="image/*,.pdf" required></div>
+            <div class="field full"><label>Note (optional)</label><textarea id="investmentNote" rows="3" placeholder="Add a payment note if necessary"></textarea></div>
+            <div class="field full"><button class="btn primary" id="investmentSubmit" type="submit">Submit Investment</button></div>
+          </form>
+        </div>
+        <div class="card"><div class="section-title" style="margin-top:0"><h3>Payment Instructions</h3></div><div id="paymentInstruction" class="notice">Select Bank Transfer or Crypto / Wallet to see available destinations.</div><div class="divider"></div><div class="notice">Investment fee: Bank $2 · Wallet $1 · Bank conversion: $1 = ₦1,400.</div></div>
+      </div>
+      <div class="section-title"><h3>Investment History</h3><button class="btn btn-sm" id="refreshInvestments">Refresh</button></div>
+      <div class="table-wrap"><table class="table"><thead><tr><th>Package</th><th>Amount</th><th>Fee</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="investmentHistory"></tbody></table></div>
+    </div>
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co';
+const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
+const NGN_RATE=1400, BANK_FEE=2, WALLET_FEE=1;
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let currentUser=null,profile=null,packages=[],payments=[],investments=[],selectedPayment=null;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const fmt=n=>'$'+(Number.isFinite(Number(n))?Number(n):0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const ngn=n=>'₦'+(Number.isFinite(Number(n))?Number(n):0).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0});
+const date=v=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})};
+const safeNum=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+const status=v=>{const s=String(v||'unknown').toLowerCase();return '<span class="status '+esc(s)+'">'+esc(s.replaceAll('_',' '))+'</span>'};
+function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast '+(type==='error'?'error':'');t.classList.remove('hidden');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.add('hidden'),4200)}
+function isApproved(){return String(profile?.kyc_status||'').toLowerCase()==='approved'}
+function kycMessage(){if(isApproved())return '<div class="notice success"><strong>KYC approved.</strong> Investment management is unlocked.</div>';if(String(profile?.kyc_status||'').toLowerCase()==='rejected')return '<div class="notice error"><strong>KYC rejected.</strong><br>'+esc(profile?.kyc_rejection_reason||'Please review your information and submit again.')+'</div>';return '<div class="notice warning"><strong>KYC approval required.</strong> Complete KYC before creating or viewing investments.</div>'}
+function storageName(prefix,file){return prefix+'/'+currentUser.id+'/'+Date.now()+'_'+String(file.name).replace(/[^a-zA-Z0-9._-]/g,'_')}
+async function uploadFile(bucket,path,file){
+  const {error}=await sb.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type||undefined});
+  if(error)throw error;
+  const {data}=sb.storage.from(bucket).getPublicUrl(path);
+  if(!data?.publicUrl)throw new Error('Unable to create file URL.');
+  return data.publicUrl;
+}
+async function loadProfile(){
+  const {data,error}=await sb.from('profiles').select('id,full_name,kyc_status,kyc_rejection_reason').eq('id',currentUser.id).maybeSingle();
+  if(error)throw error;if(!data)throw new Error('Profile not found.');profile=data;
+}
+async function loadData(){
+  const [pkg,pay,inv]=await Promise.all([
+    sb.from('packages').select('*').eq('active',true),
+    sb.from('payment_details').select('title,payment_type,bank_name,account_name,account_number,crypto_name,crypto_network,wallet_address,active').eq('active',true),
+    sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+  ]);
+  if(pkg.error)throw pkg.error;if(pay.error)throw pay.error;if(inv.error)throw inv.error;
+  packages=pkg.data||[];payments=pay.data||[];investments=inv.data||[];
+}
+function renderGate(){
+  const approved=isApproved();
+  $('investmentGate').classList.toggle('hidden',approved);
+  $('investmentArea').classList.toggle('hidden',!approved);
+  if(!approved)$('investmentGate').innerHTML=kycMessage();
+}
+function renderPackages(){
+  $('packageSelect').innerHTML='<option value="">Choose package</option>'+packages.map(p=>{
+    const amount=p.amount??p.package_amount??p.price;
+    return '<option value="'+esc(p.id??p.name??p.package_name)+'" data-amount="'+safeNum(amount)+'">'+esc(p.name??p.package_name??p.title??'Package')+' — '+fmt(amount)+'</option>';
+  }).join('');
+}
+function selectedMethod(){return $('investmentMethod').value}
+function renderPayments(){
+  const method=selectedMethod();selectedPayment=null;
+  const list=payments.filter(p=>{const t=String(p.payment_type||'').toLowerCase();return method==='bank'?t.includes('bank'):t.includes('crypto')||t.includes('wallet')||!!p.wallet_address});
+  $('paymentDestinations').innerHTML=list.length?list.map((p,i)=>'<div class="payment" data-pay-index="'+i+'" tabindex="0"><h4>'+esc(p.title||p.payment_type||'Payment Destination')+'</h4>'+(p.bank_name?'<p>Bank: '+esc(p.bank_name)+'</p>':'')+(p.account_name?'<p>Account Name: '+esc(p.account_name)+'</p>':'')+(p.account_number?'<p>Account Number: '+esc(p.account_number)+'</p>':'')+(p.crypto_name?'<p>Asset: '+esc(p.crypto_name)+'</p>':'')+(p.crypto_network?'<p>Network: '+esc(p.crypto_network)+'</p>':'')+(p.wallet_address?'<p>Wallet: '+esc(p.wallet_address)+'</p>':'')+'</div>').join(''):'<div class="notice">No active payment destination is currently available for this method.</div>';
+  document.querySelectorAll('[data-pay-index]').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('[data-pay-index]').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');selectedPayment=list[Number(el.dataset.payIndex)];renderPaymentInstruction()}));
+  renderPaymentInstruction();
+}
+function renderPaymentInstruction(){
+  const p=selectedPayment;if(!p){$('paymentInstruction').textContent='Select a payment destination above.';return}
+  $('paymentInstruction').innerHTML='<strong>'+esc(p.title||'Payment destination')+'</strong><br><span class="muted">'+esc(p.payment_type||'')+'</span>'+(p.bank_name?'<br>Bank: '+esc(p.bank_name):'')+(p.account_name?'<br>Account: '+esc(p.account_name):'')+(p.account_number?'<br>Number: '+esc(p.account_number):'')+(p.crypto_network?'<br>Network: '+esc(p.crypto_network):'')+(p.wallet_address?'<br>Wallet: '+esc(p.wallet_address):'');
+}
+function updateInvestmentTotals(){
+  const a=safeNum($('investmentAmount').value),bank=selectedMethod()==='bank',fee=bank?BANK_FEE:WALLET_FEE;
+  $('investmentFee').value=fmt(a?fee:0);$('investmentTotal').value=fmt(a+fee);$('investmentNgn').value=bank&&a?ngn((a+fee)*NGN_RATE):'—';
+}
+function renderHistory(){
+  $('investmentHistory').innerHTML=investments.length?investments.map(x=>'<tr><td>'+esc(x.package_name||'—')+'</td><td>'+fmt(x.amount)+'</td><td>'+fmt(x.fee)+'</td><td>'+esc(x.method||x.payment_method||'—')+'</td><td>'+status(x.status)+'</td><td>'+date(x.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="empty">No investments found.</td></tr>';
+}
+$('investmentMethod').addEventListener('change',()=>{renderPayments();updateInvestmentTotals()});
+$('investmentAmount').addEventListener('input',updateInvestmentTotals);
+$('packageSelect').addEventListener('change',()=>{const o=$('packageSelect').selectedOptions[0];if(o?.dataset.amount&&safeNum(o.dataset.amount)>0){$('investmentAmount').value=o.dataset.amount;$('investmentAmount').dispatchEvent(new Event('input'))}});
+$('refreshInvestments').addEventListener('click',async()=>{try{const {data,error}=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;investments=data||[];renderHistory();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
+$('investmentForm').addEventListener('submit',async e=>{
+  e.preventDefault();if(!isApproved()){window.location.href='kyc.html';return}
+  const amount=safeNum($('investmentAmount').value),method=$('investmentMethod').value,fee=method==='bank'?BANK_FEE:WALLET_FEE,file=$('investmentReceipt').files[0],pkg=$('packageSelect').selectedOptions[0];
+  if(amount<=0||!method||!file||!selectedPayment||!pkg?.value){toast('Complete the package, amount, payment method, destination and receipt.','error');return}
+  const btn=$('investmentSubmit');btn.disabled=true;btn.textContent='Submitting…';
+  try{
+    let receipt;
+    try{receipt=await uploadFile('payment-receipts',storageName('receipts',file),file)}catch(firstReceiptError){console.warn('payment-receipts upload failed; trying receipts bucket:',firstReceiptError);receipt=await uploadFile('receipts',storageName('receipts',file),file)}
+    const basePayload={user_id:currentUser.id,package_name:pkg.textContent.split(' — ')[0],amount,fee,note:$('investmentNote').value.trim(),receipt_url:receipt,status:'pending'};
+    let insertResult=await sb.from('investments').insert({...basePayload,method,payment_method:method});
+    if(insertResult.error){
+      const msg=String(insertResult.error.message||'').toLowerCase(),code=String(insertResult.error.code||'');
+      if(code==='42703'||code==='PGRST204'||msg.includes('payment_method')||msg.includes('method')){
+        insertResult=await sb.from('investments').insert({...basePayload,method});
+        if(insertResult.error&&(String(insertResult.error.message||'').toLowerCase().includes('method')||String(insertResult.error.code||'')==='42703'||String(insertResult.error.code||'')==='PGRST204'))insertResult=await sb.from('investments').insert({...basePayload,payment_method:method});
+      }
+      if(insertResult.error)throw insertResult.error;
+    }
+    $('investmentForm').reset();selectedPayment=null;renderPayments();updateInvestmentTotals();
+    const {data,error}=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;investments=data||[];renderHistory();toast('Investment submitted and awaiting review.');
+  }catch(err){console.error(err);toast('Investment submission failed.','error')}finally{btn.disabled=false;btn.textContent='Submit Investment'}
+});
+async function boot(){
+  try{
+    const {data}=await sb.auth.getSession();currentUser=data?.session?.user||null;
+    if(!currentUser){window.location.replace('login.html');return}
+    await loadProfile();await loadData();renderGate();
+    if(isApproved()){renderPackages();renderPayments();updateInvestmentTotals();renderHistory()}
+    $('loadingScreen').classList.add('hidden');$('app').classList.remove('hidden');
+  }catch(err){console.error(err);$('loadingScreen').classList.add('hidden');$('app').classList.remove('hidden');document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load investments.</strong><br>Please refresh the page or return to the dashboard.</div><button class="btn primary" style="margin-top:12px" onclick="window.location.href=\'dashboard.html\'">Return to Dashboard</button></div>'}
+}
+sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')window.location.href='login.html'});
+boot();
+</script>
+</body>
+</html>
