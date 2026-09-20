@@ -721,7 +721,144 @@ h1,h2,h3,h4,.title,.brand-name,.brand b,.section,.hero h1,.loader h1{
   .card{border-radius:16px!important}
 }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style id="monarch-premium-theme-v2">
+:root{
+  --mc-gold:#D4AF37;--mc-gold2:#F4D66D;--mc-ink:#080808;--mc-paper:#FFFFFF;
+  --mc-text:#F8F6EF;--mc-muted:#A8A39A;--mc-line:rgba(212,175,55,.22);
+  --mc-shadow:0 24px 70px rgba(0,0,0,.28);
+}
+html,body{font-family:"Figtree",Arial,sans-serif!important}
+h1,h2,h3,h4,h5,h6,.brand h1,.brand-name,.section,.hero h1,.loader h1,.title,.quote,
+.stat-value,.section-title h3,.story-card h3,.feature h3,.step h3{
+  font-family:"Bricolage Grotesque",Arial,sans-serif!important;
+}
+h1,h2,h3{letter-spacing:-.035em!important}
+button,.btn,input,select,textarea{font-family:"Figtree",Arial,sans-serif!important}
+.mc-theme-toggle{
+  min-height:36px!important;padding:8px 13px!important;border-radius:999px!important;
+  border:1px solid rgba(212,175,55,.45)!important;background:linear-gradient(135deg,rgba(212,175,55,.18),rgba(212,175,55,.05))!important;
+  color:#F7D96D!important;font-weight:800!important;letter-spacing:.02em!important;
+  box-shadow:0 7px 24px rgba(212,175,55,.10)!important;
+}
+.mc-theme-toggle:hover{transform:translateY(-1px) scale(1.02)!important;box-shadow:0 10px 30px rgba(212,175,55,.20)!important}
+body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(212,175,55,.11),transparent 25%),
+    radial-gradient(circle at 92% 18%,rgba(212,175,55,.07),transparent 22%),
+    linear-gradient(rgba(212,175,55,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(212,175,55,.035) 1px,transparent 1px),
+    #070707!important;
+  background-size:auto,auto,32px 32px,32px 32px!important;
+}
+.card,.hero,.module,.feature,.story-card,.step,.market-card,.faq,.company-card,.support-card,.live-market-card,.package-tile{
+  box-shadow:0 18px 55px rgba(0,0,0,.20)!important;
+  border-radius:20px!important;
+}
+.card:hover,.feature:hover,.story-card:hover,.market-card:hover,.support-card:hover,.package-tile:hover{
+  border-color:rgba(212,175,55,.34)!important;
+  transform:translateY(-3px);
+}
+.hero{
+  background:
+    radial-gradient(circle at 90% 10%,rgba(212,175,55,.16),transparent 30%),
+    linear-gradient(135deg,#15130d,#0c0c0c 62%,#090909)!important;
+  border-color:rgba(212,175,55,.26)!important;
+}
+.btn-gold,.btn.primary,.btn.primary:hover{
+  background:linear-gradient(135deg,#F6DA73,#D4AF37 55%,#B99119)!important;
+  color:#111!important;border-color:#E0BC42!important;
+  box-shadow:0 12px 28px rgba(212,175,55,.20)!important;
+}
+.btn-gold:hover,.btn.primary:hover{filter:saturate(1.08);transform:translateY(-2px)!important}
+.eyebrow,.kicker{font-family:"Figtree",Arial,sans-serif!important;font-weight:800!important}
+.hero h1{font-weight:800!important}
+.hero h1 span,h1 span,.gold,.stat-value{color:#F0CA43!important}
+.nav-links a,.nav button{font-weight:600!important}
+
+/* Full white light mode — no grey canvas, no half-dark sections */
+html.mc-light,html.mc-light body{
+  background:#FFFFFF!important;color:#161616!important;
+}
+html.mc-light body{
+  background:
+    radial-gradient(circle at 8% 0%,rgba(212,175,55,.14),transparent 24%),
+    radial-gradient(circle at 94% 16%,rgba(212,175,55,.08),transparent 22%),
+    linear-gradient(rgba(18,18,18,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(18,18,18,.025) 1px,transparent 1px),
+    #FFFFFF!important;
+  background-size:auto,auto,32px 32px,32px 32px!important;
+}
+html.mc-light .nav,html.mc-light .topbar,html.mc-light header{
+  background:rgba(255,255,255,.96)!important;border-color:#E8E3D7!important;
+}
+html.mc-light .sidebar,html.mc-light aside{
+  background:#FFFFFF!important;border-color:#E6E0D3!important;
+}
+html.mc-light .brand h1,html.mc-light .brand-name{color:#9A7600!important}
+html.mc-light .brand span,html.mc-light .uid{color:#7A756B!important}
+html.mc-light .side-profile{background:#111!important;color:#fff!important;border-color:#111!important}
+html.mc-light .side-profile .uid{color:#BDBDBD!important}
+html.mc-light .nav button,html.mc-light nav button{color:#4B4B4B!important}
+html.mc-light .nav button:hover,html.mc-light .nav button.active,html.mc-light nav button:hover,html.mc-light nav button.active{
+  color:#725600!important;background:#FFF8DE!important;border-color:#E4C75C!important;
+}
+html.mc-light .main{background:#FFFFFF!important}
+html.mc-light .hero{
+  background:
+    radial-gradient(circle at 92% 8%,rgba(212,175,55,.15),transparent 30%),
+    linear-gradient(135deg,#FFFFFF,#FFFDF8 70%,#FFF9E6)!important;
+  color:#161616!important;border-color:#E5CF7A!important;
+}
+html.mc-light .hero p,html.mc-light .section-heading p,html.mc-light .hero-copy,
+html.mc-light .feature p,html.mc-light .step p,html.mc-light .story-card p,
+html.mc-light .market-card p,html.mc-light .support-card span,html.mc-light .faq-answer,
+html.mc-light .muted,html.mc-light .stat-sub{color:#5D6268!important}
+html.mc-light .card,html.mc-light .module,html.mc-light .notice,html.mc-light .chat,
+html.mc-light .table-wrap,html.mc-light .payment,html.mc-light .payment-card,
+html.mc-light .pkg,html.mc-light .package-tile,html.mc-light .feature,
+html.mc-light .story-card,html.mc-light .step,html.mc-light .market-card,
+html.mc-light .company-card,html.mc-light .support-card,html.mc-light .faq,
+html.mc-light .live-market-card,html.mc-light .live-stat,html.mc-light .live-mover,
+html.mc-light .live-news-item,html.mc-light .visual-panel,html.mc-light .partnership-banner,
+html.mc-light .partnership-feature,html.mc-light .cta,html.mc-light .numbers{
+  background:#FFFFFF!important;color:#161616!important;border-color:#E7E2D8!important;
+}
+html.mc-light .feature:hover,html.mc-light .support-card:hover,html.mc-light .package-tile:hover{
+  background:#FFFDF7!important;border-color:#D7B83F!important;
+}
+html.mc-light .table th,html.mc-light th{background:#FFF8DF!important;color:#795D00!important}
+html.mc-light .table td,html.mc-light td{border-color:#EEEAE2!important;color:#30343A!important}
+html.mc-light input,html.mc-light select,html.mc-light textarea,
+html.mc-light .field input,html.mc-light .field select,html.mc-light .field textarea,
+html.mc-light .chat-form input{
+  background:#FFFFFF!important;color:#161616!important;border-color:#D8D5CE!important;
+}
+html.mc-light input::placeholder,html.mc-light textarea::placeholder{color:#8B8D91!important}
+html.mc-light .msg.x{background:#FFF8DF!important;color:#29240F!important;border-color:#E9D681!important}
+html.mc-light .msg.user{background:#D4AF37!important;color:#111!important}
+html.mc-light .suggestions button{background:#FFF!important;color:#765A00!important;border-color:#E1D5A6!important}
+html.mc-light .logout{background:#FFF!important;color:#765A00!important;border-color:#DCCB91!important}
+html.mc-light .crest{background:#FFF!important;box-shadow:0 0 0 14px rgba(212,175,55,.07),0 0 70px rgba(212,175,55,.13),inset 0 0 60px rgba(212,175,55,.04)!important}
+html.mc-light .crest-sub,html.mc-light .visual-caption span{color:#777!important}
+html.mc-light .step-number{color:rgba(154,118,0,.28)!important}
+html.mc-light .quote,html.mc-light .quote-panel{color:#383838!important}
+html.mc-light footer{background:#FFFFFF!important;color:#6B6B6B!important;border-color:#E7E2D8!important}
+html.mc-light .company-vision,.mc-light .partner-art{background:#FFFFFF!important}
+html.mc-light .notification-panel,html.mc-light .modal-box,html.mc-light .toast{background:#FFFFFF!important;color:#161616!important;border-color:#DED8C8!important}
+html.mc-light .notice{background:#FFFCF3!important}
+html.mc-light .btn-outline,html.mc-light .btn.secondary,html.mc-light .btn-outline{
+  background:#FFFFFF!important;color:#765A00!important;border-color:#D8C47B!important;
+}
+html.mc-light .btn-gold,html.mc-light .btn.primary{color:#111!important}
+html.mc-light .live-feed-table td,html.mc-light .live-feed-table th{color:#333!important;border-color:#ECE8E0!important}
+html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D56!important}
+@media(max-width:760px){
+  html.mc-light .topbar{box-shadow:0 8px 25px rgba(0,0,0,.06)!important}
+}
+</style>
 </head>
 
 <body>
