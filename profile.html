@@ -214,7 +214,7 @@ function render(){
   setAvatar($('sideAvatar'),profile.avatar_url,name);setAvatar($('profileAvatar'),profile.avatar_url,name);setAvatar($('avatarPreview'),profile.avatar_url,name);
 }
 async function updateAllowed(fields){
-  const {data,error}=await sb.rpc('member_update_profile',{p_display_username:fields.display_username??null,p_phone:fields.phone??null,p_withdrawal_bank:fields.withdrawal_bank??null,p_withdrawal_account_number:fields.withdrawal_account_number??null,p_avatar_url:fields.avatar_url??null});
+  const {data,error}=await sb.rpc('update_my_profile',{p_display_username:fields.display_username??null,p_phone:fields.phone??null,p_avatar_url:fields.avatar_url??null,p_withdrawal_account_name:null,p_withdrawal_account_number:fields.withdrawal_account_number??null,p_withdrawal_bank:fields.withdrawal_bank??null});
   if(error)throw error;profile=data;render();
 }
 $('profileForm').addEventListener('submit',async e=>{
