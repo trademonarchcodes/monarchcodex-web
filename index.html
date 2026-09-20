@@ -859,6 +859,8 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
   html.mc-light .topbar{box-shadow:0 8px 25px rgba(0,0,0,.06)!important}
 }
 </style>
+<style id="monarch-market-readability">
+.live-coin-icon{background:#FFFDF7!important;overflow:hidden!important;color:#9A7200!important;font-weight:800!important}.live-coin-icon img{width:100%;height:100%;object-fit:contain}.live-coin-name strong{color:#222!important;font-weight:800!important}.live-coin-name span{color:#6E7378!important}.live-feed-table td{color:#30343A!important}.live-up{color:#138A4B!important;font-weight:800!important}.live-down{color:#C53B4D!important;font-weight:800!important}.live-feed-separation{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px;border:1px solid rgba(212,175,55,.22);border-radius:14px;background:#FFFDF7}.live-feed-separation p{margin:4px 0 0;color:#64696E;font-size:10px;line-height:1.6}.live-feed-separation a{white-space:nowrap;border:1px solid #D9C77F;color:#765A00;border-radius:999px;padding:9px 12px;font-size:9px;font-weight:800;background:#fff}@media(max-width:620px){.live-feed-separation{display:block}.live-feed-separation a{display:inline-flex;margin-top:9px}}</style>
 </head>
 
 <body>
@@ -1008,7 +1010,8 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
 
             <div class="live-market-actions">
               <button class="live-refresh" id="homeMarketRefresh" type="button">Refresh Market</button>
-              <a class="live-open-feeds" href="feeds.html">Open Full Live Feeds →</a>
+              <a class="live-open-feeds" href="markets.html">Open Live Markets →</a>
+              <a class="live-open-feeds" href="feed-center.html">Open Feed Center →</a>
             </div>
           </div>
 
@@ -1025,10 +1028,13 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
             </div>
 
             <div style="height:16px"></div>
-
-            <div class="live-mover-title"><h3>🔥 High-Impact News</h3><span>LIVE</span></div>
-            <div class="live-news-list" id="homeNews"><div class="live-home-loading">Loading market news…</div></div>
-
+            <div class="live-feed-separation">
+              <div>
+                <div class="live-mover-title"><h3>📰 Feeds are separate</h3><span>NEWS + CALENDAR</span></div>
+                <p>High-impact news and economic events now live in the dedicated Feed Center, away from live prices.</p>
+              </div>
+              <a href="feed-center.html">Open Feed Center →</a>
+            </div>
             <div class="live-home-note">Market information changes quickly and is provided for information and education. It is not investment advice or a guarantee of results.</div>
           </div>
         </div>
@@ -1288,7 +1294,7 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
         <tr data-home-symbol="${homeEscape(c.symbol)}">
           <td>
             <div class="live-coin-name">
-              <div class="live-coin-icon">${homeEscape(c.symbol.slice(0,3))}</div>
+              <div class="live-coin-icon"><img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@0.18.1/128/color/${homeEscape(c.symbol.toLowerCase())}.png" alt="" loading="lazy" onerror="this.style.display='none'">${homeEscape(c.symbol.slice(0,3))}</div>
               <div><strong>${homeEscape(c.name)}</strong><span>${homeEscape(c.symbol)}</span></div>
             </div>
           </td>
