@@ -30,6 +30,87 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 #toast{display:none;position:fixed;right:16px;bottom:16px;z-index:200;background:#171717;border:1px solid #444;border-radius:9px;padding:11px 14px;font-size:11px;max-width:350px}#toast.show{display:block}.toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:#aaa}.toggle input{width:auto}
 @media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}.packages,.payments-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){aside{transform:translateX(-100%);transition:.2s;width:275px}aside.open{transform:translateX(0)}main{margin-left:0;width:100%}.menu{display:block}.content{padding:17px 13px}.form,.packages,.payments-grid,.grid{grid-template-columns:1fr}.full{grid-column:auto}header{padding:0 13px}.title{font-size:15px}}
 .content-manager-list{display:grid;gap:8px}.content-manager-item{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border:1px solid #292929;background:#0e0e0e;border-radius:10px;padding:10px}.content-manager-item strong{color:#f0d477;font-size:11px}.content-manager-item small{display:block;color:#8f8f8f;font-size:10px;margin-top:3px;word-break:break-word}.content-manager-item .btn{flex:0 0 auto}.actions{display:flex;gap:8px;flex-wrap:wrap}</style>
+<style id="monarch-visual-refresh">
+/* MONARCH CODEX visual refresh — gold/black/white, playful-professional */
+:root{
+  --mc-gold:#D4AF37;
+  --mc-gold-bright:#F3D66B;
+  --mc-black:#070707;
+  --mc-ink:#111318;
+  --mc-white:#FAFAF7;
+  --mc-muted:#777C86;
+  --mc-line:rgba(212,175,55,.18);
+  --mc-radius:18px;
+}
+html{background:var(--mc-black)}
+body{
+  font-family:"Manrope",Poppins,Arial,sans-serif!important;
+  letter-spacing:.005em;
+  background:
+    radial-gradient(circle at 12% 8%,rgba(212,175,55,.09),transparent 24%),
+    radial-gradient(circle at 88% 18%,rgba(212,175,55,.055),transparent 22%),
+    linear-gradient(rgba(212,175,55,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(212,175,55,.025) 1px,transparent 1px),
+    var(--mc-black)!important;
+  background-size:auto,auto,28px 28px,28px 28px!important;
+}
+h1,h2,h3,h4,.title,.brand-name,.brand b,.section,.hero h1,.loader h1{
+  font-family:"Space Grotesk",Manrope,Poppins,Arial,sans-serif!important;
+  letter-spacing:-.02em;
+}
+.brand-name,.brand b,.loader h1{letter-spacing:.04em}
+.card,.module,.hero,.notice,.chat,.table-wrap,.payment,.payment-card,.pkg,.package-tile{
+  border-radius:var(--mc-radius)!important;
+  box-shadow:0 12px 35px rgba(0,0,0,.16);
+}
+.card,.module{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.card:hover,.module:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(0,0,0,.22)}
+.btn,.btn-primary,.btn-gold,.btn-outline,button{transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease}
+.btn:hover,.btn-primary:hover,.btn-gold:hover,.btn-outline:hover{transform:translateY(-1px)}
+.mc-theme-toggle{
+  display:inline-flex!important;align-items:center;justify-content:center;gap:7px;
+  min-height:38px;padding:8px 12px!important;border:1px solid var(--mc-line)!important;
+  border-radius:999px!important;background:rgba(212,175,55,.07)!important;
+  color:var(--mc-gold-bright)!important;font:700 11px Manrope,sans-serif!important;
+}
+.mc-theme-toggle:hover{box-shadow:0 8px 22px rgba(212,175,55,.12)}
+.mc-light{
+  --mc-bg:#F7F5EE;
+  --mc-surface:#FFFFFF;
+  --mc-surface2:#F0EEE7;
+  --mc-text:#15171B;
+  --mc-muted:#626873;
+  --mc-border:rgba(20,22,26,.12);
+  color:var(--mc-text)!important;
+  background:
+    radial-gradient(circle at 12% 8%,rgba(212,175,55,.13),transparent 24%),
+    radial-gradient(circle at 88% 18%,rgba(212,175,55,.08),transparent 22%),
+    linear-gradient(rgba(20,22,26,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(20,22,26,.025) 1px,transparent 1px),
+    var(--mc-bg)!important;
+  background-size:auto,auto,28px 28px,28px 28px!important;
+}
+.mc-light .sidebar,.mc-light aside{background:rgba(255,255,255,.92)!important;border-color:var(--mc-border)!important}
+.mc-light .topbar,.mc-light header{background:rgba(255,255,255,.86)!important;border-color:var(--mc-border)!important}
+.mc-light .card,.mc-light .module,.mc-light .table-wrap,.mc-light .chat,.mc-light .payment-card,.mc-light .pkg,.mc-light .notice{background:rgba(255,255,255,.92)!important;border-color:var(--mc-border)!important;color:var(--mc-text)!important}
+.mc-light .hero{background:linear-gradient(135deg,rgba(212,175,55,.12),rgba(255,255,255,.92) 55%)!important;border-color:rgba(212,175,55,.24)!important}
+.mc-light .nav button,.mc-light nav button{color:#555A63!important}
+.mc-light .nav button:hover,.mc-light .nav button.active,.mc-light nav button:hover,.mc-light nav button.active{color:#8B6B00!important;background:rgba(212,175,55,.10)!important;border-color:rgba(212,175,55,.30)!important}
+.mc-light .field input,.mc-light .field select,.mc-light .field textarea,.mc-light input,.mc-light select,.mc-light textarea{background:#fff!important;color:var(--mc-text)!important;border-color:var(--mc-border)!important}
+.mc-light .table th,.mc-light th{background:#F1EEE4!important;color:#8B6B00!important}
+.mc-light .table td,.mc-light td{border-color:rgba(20,22,26,.08)!important}
+.mc-light .muted,.mc-light .hero p,.mc-light .sub,.mc-light .stat-sub{color:var(--mc-muted)!important}
+.mc-light .btn.secondary,.mc-light .btn-outline{background:#fff!important;color:#5D4A00!important;border-color:rgba(212,175,55,.35)!important}
+.mc-light .btn-gold,.mc-light .btn.primary{color:#111!important}
+.mc-light .msg.x{background:#FFF8E4!important;border-color:rgba(212,175,55,.25)!important;color:#27230F!important}
+.mc-light .msg.user{color:#111!important}
+.mc-light .logout{background:#fff!important;color:#7A5D00!important;border-color:rgba(212,175,55,.30)!important}
+@media(max-width:760px){
+  .content{padding:14px!important}
+  .hero{border-radius:20px!important}
+  .card{border-radius:16px!important}
+}
+</style>
 </head>
 <body>
 <div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING THE ADMIN KINGDOM</div><div id="bootText" class="muted" style="font-size:11px;margin-top:6px">Checking your session...</div></div></div>
@@ -42,7 +123,7 @@ input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border
 <button class="active" data-v="overview">⌂ &nbsp; Overview</button><button data-v="members">♔ &nbsp; Monarch Members</button><button data-v="kyc">✓ &nbsp; KYC Requests</button><button data-v="investments">◈ &nbsp; Investment Requests</button><button data-v="packages">▣ &nbsp; Investment Packages</button><button data-v="payments">₦ &nbsp; Payment Destinations</button><button data-v="earnings">↗ &nbsp; Monthly Profit</button><button data-v="capital">◈ &nbsp; Capital Management</button><button data-v="withdrawals">⇱ &nbsp; Withdrawals</button><button data-v="referrals">♙ &nbsp; Referrals</button><button data-v="transactions">▤ &nbsp; Transactions</button><button data-v="homepage">✦ &nbsp; Homepage Content</button><button data-v="testimonies">✧ &nbsp; Testimonies</button><button data-v="communications">✉ &nbsp; Communications</button><button type="button" onclick="window.location.href='sovereign_desk.html'">♛ &nbsp; SOVEREIGN DESK</button><button id="logout" class="logout">↪ &nbsp; Logout</button>
 </nav></aside>
 <main>
-<header><div style="display:flex;align-items:center;gap:12px"><button id="menu" class="menu">☰</button><div id="title" class="title">Admin Overview</div></div><span class="muted" style="font-size:10px">Admin access verified</span></header>
+<header><button type="button" id="mcThemeToggle" class="mc-theme-toggle" aria-label="Toggle light and dark mode">☀ Light</button><div style="display:flex;align-items:center;gap:12px"><button id="menu" class="menu">☰</button><div id="title" class="title">Admin Overview</div></div><span class="muted" style="font-size:10px">Admin access verified</span></header>
 <section class="content">
 
 <div id="view-overview" class="view active"><div class="hero"><h1>Admin Kingdom</h1><p>Manage MONARCH CODEX members, requests, packages and financial records.</p></div>
@@ -441,5 +522,25 @@ document.addEventListener("DOMContentLoaded",()=>{
  boot();
 });
 </script>
+
+<script>
+(function(){
+  const KEY='monarch_codex_theme_v1';
+  function applyTheme(theme){
+    const root=document.documentElement;
+    root.classList.toggle('mc-light',theme==='light');
+    const b=document.getElementById('mcThemeToggle');
+    if(b)b.textContent=theme==='light'?'☾ Dark':'☀ Light';
+  }
+  const saved=localStorage.getItem(KEY)||'dark';
+  applyTheme(saved);
+  document.addEventListener('click',function(e){
+    const b=e.target.closest('#mcThemeToggle'); if(!b)return;
+    const next=document.documentElement.classList.contains('mc-light')?'dark':'light';
+    localStorage.setItem(KEY,next); applyTheme(next);
+  });
+})();
+</script>
+
 </body>
 </html>
