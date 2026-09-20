@@ -70,6 +70,47 @@ async function authenticateUser(request) {
   }
 }
 
+function buildLocalXReply(messages, user) {
+  const latest = String(messages[messages.length - 1]?.content || "").trim();
+  const q = latest.toLowerCase();
+
+  if (/^(hi|hello|hey|yo|good morning|good afternoon|good evening)\\b/.test(q)) {
+    return `Welcome back, Monarch. I’m X — your MONARCH CODEX dashboard intelligence. Ask me about your dashboard, KYC, investments, withdrawals, referrals, signals, or trading concepts.`;
+  }
+  if (/balance|available balance|account balance/.test(q)) {
+    return `Monarch, your current balance is shown in the Overview section of your dashboard. I won’t invent a balance here. If you want, I can explain what Available Balance, Total Invested, Total Earnings and Withdrawable mean.`;
+  }
+  if (/withdraw|withdrawal/.test(q)) {
+    return `Withdrawals are handled through the Withdrawals section of your member dashboard. The amount you can withdraw depends on the account rules shown there. I can explain the withdrawal process step by step.`;
+  }
+  if (/kyc|verification|verify|identity/.test(q)) {
+    return `KYC is the identity-verification stage of MONARCH CODEX. Open KYC Verification to see your current status and any required action. I can explain what each KYC status means.`;
+  }
+  if (/invest|investment|portfolio/.test(q)) {
+    return `The Investments section is where investment activity and its status are presented. I can explain the difference between a request, an approved investment, earnings and withdrawal eligibility without making up account data.`;
+  }
+  if (/referr|monarch.*invite|invite.*monarch/.test(q)) {
+    return `Your Referrals section tracks your referral activity. I can explain referral codes, invited members and referral earnings based on the information visible in your account.`;
+  }
+  if (/signal|trade alert|entry|stop loss|take profit/.test(q)) {
+    return `Trading Signals are shown to members with active signal access after a signal has been published. I can explain entries, stop loss, take-profit levels, direction and risk management.`;
+  }
+  if (/telegram/.test(q)) {
+    return `Telegram is connected from My Profile. Once your Telegram account is linked, eligible signal access can be associated with that Telegram identity. I can help explain the connection flow.`;
+  }
+  if (/risk|risk management|position size|stop.?loss/.test(q)) {
+    return `A disciplined risk framework starts with defining the amount you are willing to lose before entering a trade, placing the stop where the trade thesis is invalidated, and sizing the position from that risk. Never assume a setup is guaranteed.`;
+  }
+  if (/technical analysis|support|resistance|trend|market structure/.test(q)) {
+    return `For technical analysis, start with market structure, key support/resistance areas, trend context and invalidation. Then define the entry and risk before thinking about the target.`;
+  }
+  if (/what can you do|help|what do you know|who are you/.test(q)) {
+    return `I’m X, the MONARCH CODEX dashboard intelligence. I can explain dashboard features, KYC, investments, withdrawals, referrals and signals, and I can teach trading concepts such as market structure, risk management and technical analysis. I will not invent private account data.`;
+  }
+
+  return `Monarch, I’m ready to help. I can answer MONARCH CODEX dashboard questions and explain trading, investing, risk management and market concepts. For live account values or private records, I will only use information actually available in your dashboard — never guess.\\n\\nYour question was: “${latest}”`;
+}
+
 function buildSystemPrompt(user) {
   return `
 You are X, the private AI intelligence assistant of MONARCH CODEX.
@@ -115,17 +156,6 @@ async function handleX(request, env) {
         error: authentication.error
       },
       401
-    );
-  }
-
-  if (!env.OPENAI_API_KEY) {
-    return json(
-      {
-        ok: false,
-        error:
-          "X AI is not configured yet. OPENAI_API_KEY is missing from the Cloudflare Worker."
-      },
-      500
     );
   }
 
@@ -192,6 +222,16 @@ async function handleX(request, env) {
     },
     ...messages
   ];
+
+  if (!env.OPENAI_API_KEY) {
+    const localReply = buildLocalXReply(messages, authentication.user);
+    return json({
+      ok: true,
+      text: localReply,
+      assistant: localReply,
+      model: "MONARCH-CODEX-X-local"
+    });
+  }
 
   try {
 
@@ -344,8 +384,8 @@ export default {
       return json({
         ok: true,
         service: "MONARCH CODEX X",
-        status: "online",
-        model: OPENAI_MODEL,
+        status: env.OPENAI_API_KEY ? "online" : "local-fallback",
+        model: env.OPENAI_API_KEY ? OPENAI_MODEL : "MONARCH-CODEX-X-local",
         timestamp:
           new Date().toISOString()
       });
