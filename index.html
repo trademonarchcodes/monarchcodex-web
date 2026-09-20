@@ -1294,7 +1294,7 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
         <tr data-home-symbol="${homeEscape(c.symbol)}">
           <td>
             <div class="live-coin-name">
-              <div class="live-coin-icon"><img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@0.18.1/128/color/${homeEscape(c.symbol.toLowerCase())}.png" alt="" loading="lazy" onerror="this.style.display='none'">${homeEscape(c.symbol.slice(0,3))}</div>
+              <div class="live-coin-icon"><img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@0.18.1/128/color/${homeEscape(c.symbol.toLowerCase())}.png" alt="" loading="lazy" onerror="this.remove();this.parentElement.textContent='${homeEscape(c.symbol.slice(0,3))}'"></div>
               <div><strong>${homeEscape(c.name)}</strong><span>${homeEscape(c.symbol)}</span></div>
             </div>
           </td>
