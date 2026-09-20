@@ -266,7 +266,24 @@ html.mc-light .btn-gold,html.mc-light .btn-primary{background:linear-gradient(13
 html.mc-light .mc-theme-toggle{background:#fff!important;color:#765A00!important;border-color:#D9C77F!important}
 html.mc-light .table th,html.mc-light th{background:#FFF8DF!important;color:#765A00!important}
 html.mc-light .live-feed-separation{background:#FFFDF7!important}
-</style>
+
+/* Mobile KYC table: keep the review workflow readable without horizontal clipping. */
+@media(max-width:760px){
+  .kyc-table{overflow:visible!important}
+  .kyc-table table{min-width:0!important;width:100%!important;table-layout:fixed}
+  .kyc-table th,.kyc-table td{padding:9px 7px!important;font-size:10px!important;word-break:break-word}
+  .kyc-table th:nth-child(2),.kyc-table td:nth-child(2),
+  .kyc-table th:nth-child(3),.kyc-table td:nth-child(3),
+  .kyc-table th:nth-child(4),.kyc-table td:nth-child(4),
+  .kyc-table th:nth-child(7),.kyc-table td:nth-child(7){display:none}
+  .kyc-table th:nth-child(1),.kyc-table td:nth-child(1){width:30%}
+  .kyc-table th:nth-child(5),.kyc-table td:nth-child(5){width:24%}
+  .kyc-table th:nth-child(6),.kyc-table td:nth-child(6){width:28%}
+  .kyc-table th:nth-child(8),.kyc-table td:nth-child(8){width:18%}
+  .kyc-table .doc-links{min-width:0!important;display:grid;gap:5px}
+  .kyc-table .doc-link{justify-content:center;padding:6px 5px;font-size:9px}
+  .kyc-table .btn{padding:6px 7px;font-size:9px;white-space:nowrap}
+}</style>
 </head>
 <body>
 <div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING THE ADMIN KINGDOM</div><div id="bootText" class="muted" style="font-size:11px;margin-top:6px">Checking your session...</div></div></div>
@@ -397,7 +414,7 @@ async function kycLoad(){
   const f=$("kycFilter").value,r=await q("profiles",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[];
   const under=all.filter(p=>["pending","submitted","under_review"].includes(String(p.kyc_status||"").toLowerCase()));$("statKyc").textContent=under.length;
   const a=all.filter(p=>{const k=String(p.kyc_status||"not_submitted").toLowerCase();return f==="all"?true:f==="under_review"?["pending","submitted","under_review"].includes(k):k===f});
-  $("kyc").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>Email</th><th>Phone</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${a.map(p=>{
+  $("kyc").innerHTML=a.length?`<div class="table kyc-table"><table><tr><th>Member</th><th>Email</th><th>Phone</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${a.map(p=>{
    const k=String(p.kyc_status||"not_submitted").toLowerCase(),review=["pending","submitted","under_review"].includes(k),reason=typeof p.kyc_rejection_reason==="object"?JSON.stringify(p.kyc_rejection_reason):p.kyc_rejection_reason||"";
    const docs=[["Front",p.nin_front_url],["Back",p.nin_back_url],["Selfie",p.selfie_url]].filter(x=>x[1]);
    return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.email||"—")}</td><td>${esc(p.phone||"—")}</td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<a class="doc-link" href="${esc(d[1])}" target="_blank" rel="noopener"><span>↗</span>${esc(d[0])}</a>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
