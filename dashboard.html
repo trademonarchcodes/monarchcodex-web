@@ -1038,7 +1038,7 @@ function showView(view,force=false){
   currentView=view;
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+view));
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
-  const titles={overview:'Overview',x:'X AI',kyc:'KYC Verification',investments:'Investments',withdrawals:'Withdrawals',transactions:'Transactions',referrals:'Referrals',profile:'My Profile'};
+  const titles={overview:'Overview',x:'X AI',kyc:'KYC Verification',investments:'Investments',withdrawals:'Withdrawals',transactions:'Transactions',signals:'Signals',referrals:'Referrals',profile:'My Profile'};
   $('pageTitle').textContent=titles[view]||'Overview';
   $('sidebar').classList.remove('open');$('notificationPanel').classList.add('hidden');
   if(view==='signals')loadMemberSignals();
