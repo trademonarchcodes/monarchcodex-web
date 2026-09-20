@@ -432,11 +432,18 @@ function kycDocumentPath(raw){
 async function openKycDocument(raw){
   const path=kycDocumentPath(raw);
   if(!path)throw new Error("KYC document path is invalid.");
-  const {data,error}=await db.storage.from("kyc-documents").createSignedUrl(path,900);
-  if(error)throw error;
-  const url=data?.signedUrl;
-  if(!url)throw new Error("Unable to create a secure KYC document link.");
-  window.open(url,"_blank","noopener,noreferrer");
+  const tab=window.open("about:blank","_blank");
+  try{
+    const {data,error}=await db.storage.from("kyc-documents").createSignedUrl(path,900);
+    if(error)throw error;
+    const url=data?.signedUrl;
+    if(!url)throw new Error("Unable to create a secure KYC document link.");
+    if(tab)tab.location.href=url;
+    else window.location.href=url;
+  }catch(error){
+    try{if(tab)tab.close()}catch(e){}
+    throw error;
+  }
 }
 async function kycLoad(){
  try{
