@@ -12,7 +12,7 @@
 :root{--g:#D4AF37;--c:#121212;--l:#292929;--m:#999;--r:#f87171;--s:#4ade80}
 button,input,select,textarea{font:inherit}button{cursor:pointer}.app{min-height:100vh;display:flex}
 aside{position:fixed;inset:0 auto 0 0;width:250px;background:#0c0c0c;border-right:1px solid var(--l);padding:22px 14px;z-index:20;overflow:auto}
-.brand{text-align:center;border-bottom:1px solid var(--l);padding:5px 0 22px}.brand b{font-family:Cinzel,serif;color:var(--g);font-size:19px}.brand small{display:block;color:#777;letter-spacing:2px;font-size:9px}
+.mc-brand-logo{width:42px;height:34px;object-fit:contain;display:block;margin:0 auto 7px}.brand{text-align:center;border-bottom:1px solid var(--l);padding:5px 0 22px}.brand b{font-family:Cinzel,serif;color:var(--g);font-size:19px}.brand small{display:block;color:#777;letter-spacing:2px;font-size:9px}
 .admin{background:#171717;border:1px solid #333;border-radius:12px;padding:14px;margin:17px 0}.admin b{color:var(--g);font-family:Cinzel,serif}.admin small{display:block;color:#777;font-size:10px;word-break:break-all;margin-top:4px}
 nav{display:grid;gap:6px}nav button{background:transparent;color:#aaa;border:1px solid transparent;border-radius:9px;padding:11px;text-align:left}nav button:hover,nav button.active{background:#181818;border-color:#333;color:var(--g)}nav .logout{color:#f88;margin-top:10px}
 main{margin-left:250px;width:calc(100% - 250px)}header{height:68px;position:sticky;top:0;background:rgba(7,7,7,.95);border-bottom:1px solid var(--l);display:flex;align-items:center;justify-content:space-between;padding:0 25px;z-index:10}
@@ -290,7 +290,7 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
 <div id="toast"></div>
 <div class="app">
 <aside id="side">
-<div class="brand"><b>MONARCH CODEX</b><small>ADMIN KINGDOM</small></div>
+<div class="brand"><img class="mc-brand-logo" src="assets/monarch-mark.svg" alt="MONARCH CODEX logo"><b>MONARCH CODEX</b><small>ADMIN KINGDOM</small></div>
 <div class="admin"><b>👑 Supreme Monarch</b><small id="adminEmail">Checking...</small></div>
 <nav>
 <button class="active" data-v="overview">⌂ &nbsp; Overview</button><button data-v="members">♔ &nbsp; Monarch Members</button><button data-v="kyc">✓ &nbsp; KYC Requests</button><button data-v="investments">◈ &nbsp; Investment Requests</button><button data-v="packages">▣ &nbsp; Investment Packages</button><button data-v="payments">₦ &nbsp; Payment Destinations</button><button data-v="earnings">↗ &nbsp; Monthly Profit</button><button data-v="capital">◈ &nbsp; Capital Management</button><button data-v="withdrawals">⇱ &nbsp; Withdrawals</button><button data-v="referrals">♙ &nbsp; Referrals</button><button data-v="transactions">▤ &nbsp; Transactions</button><button type="button" onclick="window.location.href='feed-center.html'">📰 &nbsp; Feeds</button><button type="button" onclick="window.location.href='markets.html'">📈 &nbsp; Live Markets</button><button data-v="homepage">✦ &nbsp; Homepage Content</button><button data-v="testimonies">✧ &nbsp; Testimonies</button><button data-v="communications">✉ &nbsp; Communications</button><button type="button" onclick="window.location.href='sovereign_desk.html'">♛ &nbsp; SOVEREIGN DESK</button><button id="logout" class="logout">↪ &nbsp; Logout</button>
