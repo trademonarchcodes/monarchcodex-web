@@ -33,7 +33,7 @@ function showStatus(m){$("error").style.display="none";$("error").textContent=""
 function showError(m){$("status").style.display="none";$("status").textContent="";$("error").textContent=m;$("error").style.display="block"}
 function clearMessages(){["status","error"].forEach(id=>{$(id).textContent="";$(id).style.display="none"})}
 function withTimeout(p,ms){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error("Request timed out. Please check your internet connection and try again.")),ms))])}
-function friendlyError(e){let m=e&&e.message?e.message:"Registration failed.";if(/user already registered|already registered/i.test(m))return"This email is already registered. Please log in instead.";if(/password/i.test(m)&&/6|weak|short/i.test(m))return"Password must be at least 6 characters.";if(/failed to fetch|networkerror|load failed/i.test(m))return"Could not reach Supabase. Check your internet connection and try again.";if(e&&e.status===429)return"Too many attempts. Please wait a few minutes and try again.";return m}
+function friendlyError(e){let m=e&&e.message?e.message:"Registration failed.";if(/user already registered|already registered/i.test(m))return"This email is already registered. Please log in instead.";if(/over_email_send_rate_limit|email.*rate limit|rate limit.*email|email.*too many/i.test(m))return"Registration email delivery is temporarily rate-limited. Please try again later, or contact MONARCH CODEX support to restore registration capacity.";if(/over_request_rate_limit|too many requests|too many attempts/i.test(m))return"Registration traffic is temporarily rate-limited. Please wait a few minutes before trying again.";if(/password/i.test(m)&&/6|weak|short/i.test(m))return"Password must be at least 6 characters.";if(/failed to fetch|networkerror|load failed/i.test(m))return"Could not reach Supabase. Check your internet connection and try again.";if(e&&e.status===429)return"Registration is temporarily rate-limited. Please wait a few minutes and try again.";return m}
 async function connect(){
  if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("Supabase library failed to load.");
  client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
@@ -42,6 +42,7 @@ async function connect(){
 }
 async function register(){
  if(registering)return;
+ const cooldownUntil=Number(sessionStorage.getItem("monarch_signup_cooldown_until")||0);if(Date.now()<cooldownUntil){const seconds=Math.ceil((cooldownUntil-Date.now())/1000);return showError("Please wait "+seconds+" seconds before trying registration again.")}
  clearMessages();
  const fullName=$("fullName").value.trim().replace(/\s+/g," "),phone=$("phone").value.trim().replace(/\s+/g,""),email=$("email").value.trim().toLowerCase(),password=$("password").value,referral=$("referral").value.trim().toUpperCase(),terms=$("terms").checked,btn=$("registerBtn");
  if(fullName.length<3)return showError("Please enter your full name.");
@@ -59,7 +60,7 @@ async function register(){
   localStorage.setItem("monarch_last_email",email);
   if(r.data.session){showStatus("Account created successfully. Opening your Monarch dashboard...");setTimeout(()=>location.replace("dashboard.html"),700)}
   else{showStatus("Account created successfully. Check your email to confirm your account, then log in.");setTimeout(()=>location.replace("login.html"),3000)}
- }catch(e){console.error("MONARCH CODEX REGISTRATION ERROR:",e);showError(friendlyError(e))}
+ }catch(e){console.error("MONARCH CODEX REGISTRATION ERROR:",e);if(e&&e.status===429)sessionStorage.setItem("monarch_signup_cooldown_until",String(Date.now()+60000));showError(friendlyError(e))}
  finally{registering=false;btn.disabled=false;btn.textContent="CREATE MONARCH ACCOUNT"}
 }
 document.addEventListener("DOMContentLoaded",async()=>{
