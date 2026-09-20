@@ -12,7 +12,7 @@
 :root{--gold:#D4AF37;--gold2:#f0d477;--bg:#070707;--card:#121212;--border:#292929;--text:#f5f5f5;--muted:#9b9b9b;--success:#7dcc91}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Poppins,Arial,sans-serif}
 body{padding:20px}button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-.wrap{max-width:820px;margin:0 auto}.brand{text-align:center;padding:12px 0 24px}.brand h1{font:700 24px Cinzel,serif;letter-spacing:2px;color:var(--gold);margin:0}.brand p{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+.wrap{max-width:820px;margin:0 auto}.mc-brand-logo{width:54px;height:44px;object-fit:contain;display:block;margin:0 auto 8px}.brand{text-align:center;padding:12px 0 24px}.brand h1{font:700 24px Cinzel,serif;letter-spacing:2px;color:var(--gold);margin:0}.brand p{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:15px}.hero{padding:26px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(120deg,#14120c,#111 45%,#0c0c0c);margin-bottom:15px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase}.hero h2{font:600 clamp(24px,4vw,34px) Cinzel,serif;margin:8px 0}.hero p{margin:0;color:var(--muted);font-size:12px}
 .notice{padding:13px;border:1px solid #39301a;background:#151209;border-radius:9px;color:#d6c58e;font-size:12px;margin-bottom:15px}.success{border-color:#294a33;background:#0d1710;color:#9dd4aa}.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}.warning{border-color:#5a461d;background:#191408;color:#dfc17a}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:#bbb}.field input,.field select,.field textarea{width:100%;background:#0c0c0c;border:1px solid #303030;color:var(--text);padding:11px 12px;border-radius:8px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#8c742b}.field small{font-size:10px;color:var(--muted)}
@@ -27,7 +27,7 @@ body{padding:20px}button,input,select,textarea{font:inherit}button{cursor:pointe
 </head>
 <body>
 <div class="wrap">
-  <div class="brand"><h1>MONARCH CODEX</h1><p>The Inner Kingdom</p></div>
+  <div class="brand"><img class="mc-brand-logo" src="assets/monarch-mark.svg" alt="MONARCH CODEX logo"><h1>MONARCH CODEX</h1><p>The Inner Kingdom</p></div>
 
   <div id="loading" class="card" style="text-align:center">Loading secure verification…</div>
 
