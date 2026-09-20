@@ -100,6 +100,12 @@
       </span>
       Transactions
      </button>
+     <button data-view="signals" type="button">
+      <span class="nav-icon">
+       ✈
+      </span>
+      Signals
+     </button>
      <button data-view="referrals" type="button">
       <span class="nav-icon">
        ♧
@@ -518,6 +524,36 @@
        </div>
       </div>
      </div>
+     <!-- SIGNALS -->
+     <div class="view" id="view-signals">
+      <div class="hero">
+       <div class="eyebrow">Private Signal Access</div>
+       <h1>Trading Signals</h1>
+       <p>Published MONARCH CODEX signals are available here to active signal subscribers.</p>
+      </div>
+      <div id="signalAccessNotice" class="notice">Checking signal subscription…</div>
+      <div class="card" id="signalSubscriptionCard">
+       <div class="section-title" style="margin-top:0">
+        <h3>Signal Subscription</h3>
+        <button class="btn btn-sm" id="refreshMemberSignals" type="button">Refresh</button>
+       </div>
+       <div class="grid three">
+        <div><div class="stat-label">Access</div><div class="stat-value" id="signalAccessStatus" style="font-size:19px">—</div></div>
+        <div><div class="stat-label">Subscription</div><div class="stat-value" id="signalSubscriptionPrice" style="font-size:19px">—</div></div>
+        <div><div class="stat-label">Expires</div><div class="stat-value" id="signalAccessExpiry" style="font-size:19px">—</div></div>
+       </div>
+       <div class="readonly-note" style="margin-top:12px">Only published MONARCH CODEX signals are shown here. Pending or unpublished signals remain restricted to SOVEREIGN DESK operations.</div>
+      </div>
+      <div id="signalMemberArea" class="card">
+       <div class="section-title" style="margin-top:0"><h3>Published Signals</h3></div>
+       <div class="table-wrap">
+        <table class="table">
+         <thead><tr><th>Signal</th><th>Market</th><th>Direction</th><th>Entry</th><th>Stop Loss</th><th>Take Profit</th><th>Status</th><th>Published</th></tr></thead>
+         <tbody id="memberSignalHistory"></tbody>
+        </table>
+       </div>
+      </div>
+     </div>
      <!-- REFERRALS -->
      <div class="view" id="view-referrals">
       <div class="hero">
@@ -651,6 +687,7 @@
 const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co';
 const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
 const X_ENDPOINT='https://monarchcodex-web.trademonarchofficial.workers.dev/api/x';
+const SIGNAL_MEMBER_ENDPOINT='https://monarch-codex-telegram.trademonarchofficial.workers.dev/telegram/member-signals';
 const X_HISTORY_KEY='monarch_x_chat_v1';
 const NGN_RATE=1400, BANK_FEE=2, WALLET_FEE=1, WITHDRAWAL_RATE=.01, MIN_EARNINGS=10, CAPITAL_LOCK_MONTHS=3;
 const KYC_PROTECTED_VIEWS=['x','investments','withdrawals','transactions','referrals','profile'];
@@ -658,6 +695,7 @@ let sb=null;
 window.addEventListener('error',e=>{console.error('MONARCH DASHBOARD ERROR',e.error||e.message);try{setTimeout(()=>{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l&&!l.classList.contains('hidden')){l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Dashboard startup error.</strong><br>'+String(e.message||'Please refresh and try again.').replace(/[&<>]/g,'')+'</div></div>'; }},0)}catch(_){} });
 if(window.supabase&&typeof window.supabase.createClient==='function'){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}else{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l)l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Supabase could not be loaded.</strong><br>Please refresh the page and try again.</div></div>';}
 let currentUser=null,profile=null,packages=[],payments=[],notifications=[],investments=[],earnings=[],withdrawals=[],adjustments=[],referralLedger=[],referrals=[];
+let memberSignalData={connected:false,access:{active:false,expires_at:null,subscription_price:null,subscription_currency:null},signals:[]};
 let currentView='overview', selectedPayment=null, siteContent={homepage_title:'MONARCH CODEX',homepage_intro:'Updates, events and official channels from the MONARCH CODEX team.',events:[],socials:[],contacts:[]};
 
 const $=id=>document.getElementById(id);
@@ -672,6 +710,58 @@ function status(v){const s=String(v||'unknown').toLowerCase();return '<span clas
 function isApproved(){return String(profile?.kyc_status||'').toLowerCase()==='approved'}
 function safeNum(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function storageName(prefix,file){return prefix+'/'+currentUser.id+'/'+Date.now()+'_'+String(file.name).replace(/[^a-zA-Z0-9._-]/g,'_')}
+
+function renderMemberSignals(){
+  const accessBox=$('signalAccessNotice'), accessStatus=$('signalAccessStatus'), price=$('signalSubscriptionPrice'), expiry=$('signalAccessExpiry'), tbody=$('memberSignalHistory');
+  if(!accessBox||!accessStatus||!price||!expiry||!tbody)return;
+  const access=memberSignalData?.access||{};
+  const currency=String(access.subscription_currency||'USD').toUpperCase();
+  const amount=Number(access.subscription_price);
+  price.textContent=Number.isFinite(amount)?currency+' '+amount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  expiry.textContent=access.expires_at?date(access.expires_at):'No expiry';
+  if(!memberSignalData?.connected){
+    accessStatus.textContent='NOT CONNECTED';
+    accessBox.className='notice warning';
+    accessBox.innerHTML='<strong>Telegram connection required.</strong><br>Connect your MONARCH CODEX account to Telegram from My Profile before signal access can be used.';
+    $('signalMemberArea')?.classList.add('hidden'); return;
+  }
+  if(!access.active){
+    accessStatus.textContent='INACTIVE';
+    accessBox.className='notice warning';
+    accessBox.innerHTML='<strong>Signal subscription inactive.</strong><br>Your account is connected to Telegram, but active signal access has not been approved yet.';
+    $('signalMemberArea')?.classList.add('hidden'); return;
+  }
+  accessStatus.textContent='ACTIVE';
+  accessBox.className='notice success';
+  accessBox.innerHTML='<strong>Signal access active.</strong><br>Published signals are available to your account.';
+  $('signalMemberArea')?.classList.remove('hidden');
+  const rows=Array.isArray(memberSignalData.signals)?memberSignalData.signals:[];
+  tbody.innerHTML=rows.length?rows.map(s=>{
+    const tp=[s.take_profit_1,s.take_profit_2,s.take_profit_3].filter(v=>v!==null&&v!==undefined&&String(v)!=='').join(' / ')||'—';
+    return '<tr><td><strong>'+esc(s.signal_code||'—')+'</strong><br><span class="muted">'+esc(s.symbol||'—')+'</span></td><td>'+esc(s.market||'—')+'</td><td>'+esc(s.direction||'—')+'</td><td>'+esc(s.entry||'—')+'</td><td>'+esc(s.stop_loss||'—')+'</td><td>'+esc(tp)+'</td><td>'+status(s.status||'published')+'</td><td>'+date(s.published_at||s.created_at)+'</td></tr>';
+  }).join(''):'<tr><td colspan="8" class="empty">No published signals are available yet.</td></tr>';
+}
+
+async function loadMemberSignals(){
+  if(!currentUser?.id)return;
+  const accessBox=$('signalAccessNotice');
+  if(accessBox){accessBox.className='notice';accessBox.textContent='Checking signal subscription…';}
+  try{
+    const {data:{session},error:sessionError}=await sb.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!session?.access_token)throw new Error('Session expired.');
+    const response=await fetch(SIGNAL_MEMBER_ENDPOINT,{method:'GET',headers:{Authorization:'Bearer '+session.access_token}});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data.ok)throw new Error(data.error||'Unable to load signal access.');
+    memberSignalData={connected:Boolean(data.connected),access:data.access||{},signals:Array.isArray(data.signals)?data.signals:[]};
+    renderMemberSignals();
+  }catch(error){
+    console.error('Member signal load error:',error);
+    memberSignalData={connected:false,access:{active:false},signals:[]};
+    if(accessBox){accessBox.className='notice error';accessBox.textContent='Unable to check signal access right now.';}
+    $('signalMemberArea')?.classList.add('hidden');
+  }
+}
 
 async function loadSiteContent(){
   try{
@@ -706,6 +796,7 @@ function showView(view,force=false){
   const titles={overview:'Overview',x:'X AI',kyc:'KYC Verification',investments:'Investments',withdrawals:'Withdrawals',transactions:'Transactions',referrals:'Referrals',profile:'My Profile'};
   $('pageTitle').textContent=titles[view]||'Overview';
   $('sidebar').classList.remove('open');$('notificationPanel').classList.add('hidden');
+  if(view==='signals')loadMemberSignals();
   if(view==='x')initX(); if(view==='investments')renderInvestments(); if(view==='withdrawals')renderWithdrawals();if(view==='transactions')renderTransactions();if(view==='referrals')renderReferrals();if(view==='profile')renderProfile();
 }
 document.querySelectorAll('#nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
@@ -852,6 +943,7 @@ function renderInvestments(){
   $('investmentSummaryStatus').textContent=investments.length?String(investments[0].status||'pending').replaceAll('_',' '):'—';
   $('investmentHistory').innerHTML=investments.length?investments.map(x=>`<tr><td>${esc(x.package_name||'—')}</td><td>${fmt(x.amount)}</td><td>${fmt(x.fee)}</td><td>${esc(x.method||x.payment_method||'—')}</td><td>${status(x.status)}</td><td>${date(x.created_at)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No investments found.</td></tr>';
 }
+$('refreshMemberSignals')?.addEventListener('click',()=>loadMemberSignals());
 $('refreshInvestments')?.addEventListener('click',async()=>{try{await refreshInvestments();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
 
 function renderWithdrawals(){
