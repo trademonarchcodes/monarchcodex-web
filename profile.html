@@ -64,6 +64,13 @@
 
   <div id="pageNotice" class="notice hidden"></div>
 
+  <div class="card" style="margin-bottom:15px">
+    <div class="section-title" style="margin-top:0"><h3>Telegram Connection</h3></div>
+    <div id="telegramLinkStatus" class="notice">Checking Telegram connection…</div>
+    <button class="btn primary" id="connectTelegramBtn" type="button" style="margin-top:10px">CONNECT TELEGRAM</button>
+    <div class="readonly-note">The connection link expires after 10 minutes. You will be taken to the MONARCH CODEX Telegram bot to complete the connection.</div>
+  </div>
+
   <div class="profile-card-grid">
     <div class="card">
       <div class="section-title" style="margin-top:0"><h3>Profile Identity</h3></div>
@@ -177,6 +184,7 @@
 const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co';
 const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const TELEGRAM_LINK_ENDPOINT='https://monarch-codex-telegram.trademonarchofficial.workers.dev/telegram/link-token';
 let currentUser=null,profile=null;
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -239,6 +247,56 @@ $('avatarUpload').addEventListener('click',async()=>{
 });
 $('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
 $('logoutBtn').addEventListener('click',async()=>{try{await sb.auth.signOut()}finally{location.href='login.html'}});
+async function refreshTelegramLinkStatus(){
+  const box=$('telegramLinkStatus');
+  if(!box||!currentUser?.id)return;
+  try{
+    const {data,error}=await sb.from('telegram_account_links').select('telegram_user_id,linked_at,unlinked_at').eq('website_user_id',currentUser.id).is('unlinked_at',null).maybeSingle();
+    if(error)throw error;
+    if(data){
+      box.className='notice success';
+      box.innerHTML='<strong>Telegram Connected.</strong><br>Your MONARCH CODEX account is linked to Telegram.';
+      $('connectTelegramBtn').textContent='TELEGRAM CONNECTED';
+      $('connectTelegramBtn').disabled=true;
+    }else{
+      box.className='notice';
+      box.textContent='Telegram is not connected to this account.';
+      $('connectTelegramBtn').disabled=false;
+      $('connectTelegramBtn').textContent='CONNECT TELEGRAM';
+    }
+  }catch(error){
+    console.error('Telegram connection status error:',error);
+    box.className='notice error';
+    box.textContent='Unable to check Telegram connection right now.';
+  }
+}
+
+$('connectTelegramBtn')?.addEventListener('click',async()=>{
+  const btn=$('connectTelegramBtn');
+  if(!currentUser?.id||btn.disabled)return;
+  btn.disabled=true;
+  btn.textContent='GENERATING LINK…';
+  try{
+    const {data:{session},error:sessionError}=await sb.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!session?.access_token)throw new Error('Your session has expired. Please sign in again.');
+    const response=await fetch(TELEGRAM_LINK_ENDPOINT,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'}});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data.ok||!data.deep_link)throw new Error(data.error||'Unable to create Telegram connection link.');
+    window.location.href=data.deep_link;
+  }catch(error){
+    console.error('Telegram connect error:',error);
+    btn.disabled=false;
+    btn.textContent='CONNECT TELEGRAM';
+    if(typeof toast==='function')toast(error.message||'Unable to connect Telegram.','error');
+    else{
+      box=$('telegramLinkStatus');
+      box.className='notice error';
+      box.textContent=error.message||'Unable to connect Telegram.';
+    }
+  }
+});
+
 async function boot(){
   try{
     const {data:{session}}=await sb.auth.getSession();
@@ -251,7 +309,8 @@ async function boot(){
   }
 }
 sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')location.href='login.html'});
-boot();
+boot().then(()=>refreshTelegramLinkStatus()).catch(()=>{});
+
 </script>
 </body>
 </html>
