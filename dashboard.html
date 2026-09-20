@@ -1143,7 +1143,8 @@ function calculateFinance(){
   capitalLocked=Math.max(0,capitalLocked-lockedReduction);
   const freeReduction=Math.max(0,adj-lockedReduction);
   capitalFree=Math.max(0,capitalFree-freeReduction);
-  const totalWithdrawable=Math.max(0,profit+capitalFree);
+  const withdrawableReferral=referralEarnings>=10?referralEarnings:0;
+  const totalWithdrawable=Math.max(0,monthlyEarnings+withdrawableReferral+capitalFree);
   return {invested,originalInvested,earned,monthlyEarnings,referralEarnings,totalEarnings,balance,paidWithdraw,pendingWithdraw,profit,capitalFree,capitalLocked,totalWithdrawable,refEarn,adj};
 }
 function renderOverview(){
