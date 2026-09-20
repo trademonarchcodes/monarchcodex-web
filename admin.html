@@ -409,6 +409,35 @@ function memberHTML(){
  }).join("")}</table></div>`;
 }
 async function memberStatus(id,status){if(!confirm(`Set member to ${status}?`))return;try{const r=await q("profiles",x=>x.update({status}).eq("id",id));if(r.error)throw r.error;await notifyMember(id,status==="blocked"?"Account Restricted":"Account Activated",status==="blocked"?"Your MONARCH CODEX account has been blocked by the administrator.":"Your MONARCH CODEX account has been activated. Welcome back, Monarch.",status==="blocked"?"warning":"success");toast("Member updated","success");await membersLoad()}catch(e){toast(e.message,"error")}}
+function kycDocumentPath(raw){
+  const value=String(raw||"").trim();
+  if(!value)return "";
+  try{
+    if(/^https?:\/\//i.test(value)){
+      const u=new URL(value);
+      const markers=[
+        "/storage/v1/object/public/kyc-documents/",
+        "/storage/v1/object/authenticated/kyc-documents/",
+        "/storage/v1/object/sign/kyc-documents/"
+      ];
+      for(const marker of markers){
+        const i=u.pathname.indexOf(marker);
+        if(i>=0)return decodeURIComponent(u.pathname.slice(i+marker.length));
+      }
+      return "";
+    }
+  }catch(e){return ""}
+  return value.replace(/^kyc-documents\//,"").replace(/^\/+/, "");
+}
+async function openKycDocument(raw){
+  const path=kycDocumentPath(raw);
+  if(!path)throw new Error("KYC document path is invalid.");
+  const {data,error}=await db.storage.from("kyc-documents").createSignedUrl(path,900);
+  if(error)throw error;
+  const url=data?.signedUrl;
+  if(!url)throw new Error("Unable to create a secure KYC document link.");
+  window.open(url,"_blank","noopener,noreferrer");
+}
 async function kycLoad(){
  try{
   const f=$("kycFilter").value,r=await q("profiles",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[];
