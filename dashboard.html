@@ -1114,8 +1114,10 @@ async function loadOptional(){
 }
 function calculateFinance(){
   const approved=investments.filter(x=>['approved','active','confirmed','completed'].includes(String(x.status||'').toLowerCase()));
+  const validInvestmentIds=new Set(approved.map(x=>String(x.id)));
+  const validEarnings=earnings.filter(x=>x.source_investment_id&&validInvestmentIds.has(String(x.source_investment_id)));
   const originalInvested=approved.reduce((s,x)=>s+safeNum(x.amount),0);
-  const earned=earnings.reduce((s,x)=>s+safeNum(x.amount??x.profit??x.earning??x.value),0);
+  const earned=validEarnings.reduce((s,x)=>s+safeNum(x.amount??x.profit??x.earning??x.value),0);
   const refEarn=referralLedger.reduce((s,x)=>s+safeNum(x.amount??x.bonus),0);
   const adj=Math.max(0,adjustments.reduce((s,x)=>s+safeNum(x.amount??x.adjustment),0));
   const invested=Math.max(0,originalInvested-adj);
@@ -1124,7 +1126,7 @@ function calculateFinance(){
   const monthlyWithdraw=withdrawals.filter(x=>['monthly_earnings','earnings'].includes(String(x.source_type||'').toLowerCase())).reduce((s,x)=>s+safeNum(x.amount),0);
   const referralWithdraw=withdrawals.filter(x=>['referral_earnings','referral'].includes(String(x.source_type||'').toLowerCase())).reduce((s,x)=>s+safeNum(x.amount),0);
   const balance=Math.max(0,safeNum(profile.balance??0));
-  const monthlyEarnings=(earnings.length||referralLedger.length)?Math.max(0,earned-monthlyWithdraw):Math.max(0,safeNum(profile.total_earnings)-refEarn-monthlyWithdraw);
+  const monthlyEarnings=Math.max(0,earned-monthlyWithdraw);
   const referralEarnings=Math.max(0,refEarn-referralWithdraw);
   const totalEarnings=Math.max(0,monthlyEarnings+referralEarnings);
   const profit=totalEarnings;
