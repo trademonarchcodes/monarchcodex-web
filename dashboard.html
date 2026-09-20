@@ -1120,9 +1120,10 @@ $('xForm')?.addEventListener('submit',async e=>{
   try{
     const session=(await sb.auth.getSession()).data.session;if(!session)throw new Error('Session expired.');
     const history=[...$('xMessages').children].filter(x=>x!==pending).slice(-20).map(x=>({role:x.classList.contains('user')?'user':'assistant',content:x.textContent}));
-    const res=await fetch(X_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({message,history,user_id:currentUser.id})});
-    if(!res.ok)throw new Error('X service returned an error.');
-    const data=await res.json();pending.remove();const reply=data.reply||data.message||data.content||data.response||'X did not return a response.';addXMessage('x',typeof reply==='string'?reply:JSON.stringify(reply));saveX();
+    const res=await fetch(X_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({messages:history,user_id:currentUser.id})});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||data.ok===false)throw new Error(data.error||'X service returned an error.');
+    pending.remove();const reply=data.text||data.assistant||data.reply||data.message||data.content||data.response||'X did not return a response.';addXMessage('x',typeof reply==='string'?reply:JSON.stringify(reply));saveX();
   }catch(err){pending.remove();addXMessage('x','X is temporarily unavailable. Please try again shortly.');console.error(err)}
 });
 
