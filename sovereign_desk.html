@@ -202,8 +202,28 @@ h1,h2,h3,h4,.title,.brand-name,.brand b,.section,.hero h1,.loader h1{
 
 <div id="view-signals" class="view">
   <div class="hero"><div class="eyebrow">Telegram Operations</div><h1>Telegram Signal Membership</h1><p>View signal membership state and prepare controlled add/remove operations.</p></div>
-  <div class="notice warning"><strong>Telegram integration is not assumed.</strong> Adding/removing a member must be confirmed by the Telegram Bot API with the required channel permissions. A UI click alone will never report success.</div>
-  <div class="card"><div class="form" style="grid-template-columns:1fr auto;margin-bottom:13px"><div class="field"><label>Search Member</label><input id="signalSearch" placeholder="MONARCH UID, name, email or Telegram username"></div><div style="align-self:end"><button id="refreshSignals" class="btn">Refresh</button></div></div><div id="signals" class="empty">Loading...</div></div>
+  <div class="notice warning"><strong>Telegram control bridge.</strong> SOVEREIGN DESK actions are authenticated by the website session and executed by the MONARCH CODEX Telegram bot. The bot must be an administrator in the target group/supergroup/channel with the specific right required by the selected action.</div>
+  <div class="card">
+    <div class="form" style="grid-template-columns:1fr auto;margin-bottom:13px">
+      <div class="field"><label>Search Member</label><input id="signalSearch" placeholder="MONARCH UID, name, email or Telegram username"></div>
+      <div style="align-self:end"><button id="refreshSignals" class="btn">Refresh</button></div>
+    </div>
+    <div id="signals" class="empty">Loading...</div>
+  </div>
+  <div class="card">
+    <h2 class="section">Telegram Bot Control</h2>
+    <div class="form">
+      <div class="field"><label>Target Chat ID / @username</label><input id="tgActionChat" placeholder="-1001234567890 or @channelusername"></div>
+      <div class="field"><label>Action</label><select id="tgAction"><option value="send_message">Send Message</option><option value="edit_message">Edit Message</option><option value="delete_message">Delete Message</option><option value="pin_message">Pin Message</option><option value="unpin_message">Unpin Message</option><option value="set_chat_title">Change Chat Title</option><option value="set_chat_description">Change Chat Description</option><option value="approve_join_request">Approve Join Request</option><option value="decline_join_request">Decline Join Request</option><option value="ban_member">Ban Member</option><option value="unban_member">Unban Member</option><option value="restrict_member">Restrict Member</option></select></div>
+      <div class="field" id="tgMessageIdField"><label>Message ID</label><input id="tgActionMessageId" inputmode="numeric" placeholder="12345"></div>
+      <div class="field" id="tgUserIdField"><label>Telegram User ID</label><input id="tgActionUserId" inputmode="numeric" placeholder="123456789"></div>
+      <div class="field full" id="tgTextField"><label>Message / Text</label><textarea id="tgActionText" rows="4" placeholder="Write the message the bot should send or the new message text."></textarea></div>
+      <div class="field full" id="tgTitleField"><label>Chat Title</label><input id="tgActionTitle" placeholder="New Telegram group/channel title"></div>
+      <div class="field full" id="tgDescriptionField"><label>Chat Description</label><textarea id="tgActionDescription" rows="3" placeholder="New group/channel description"></textarea></div>
+    </div>
+    <div class="notice" style="margin-top:12px">The bot reports the actual Telegram API result. A successful browser click alone is never treated as success.</div>
+    <div class="actions"><button id="tgActionRun" class="btn" type="button">EXECUTE TELEGRAM ACTION</button></div>
+  </div>
 </div>
 
 <div id="view-activity" class="view">
@@ -227,6 +247,7 @@ h1,h2,h3,h4,.title,.brand-name,.brand b,.section,.hero h1,.loader h1{
 "use strict";
 const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const TELEGRAM_ADMIN_ACTION_ENDPOINT="https://monarch-codex-telegram.trademonarchofficial.workers.dev/telegram/admin-action";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
 let user=null,profile=null,members=[],deskPermissions=[],activeView="overview";
@@ -428,6 +449,55 @@ $("memberSearch").addEventListener("input",renderMembers);
 $("refreshMembers").addEventListener("click",async()=>{try{await loadMembers();toast("Members refreshed.","success")}catch(e){toast(e.message,"error")}});
 $("signalSearch").addEventListener("input",renderSignals);
 $("refreshSignals").addEventListener("click",async()=>{try{await loadMembers();toast("Signal data refreshed.","success")}catch(e){toast(e.message,"error")}});
+
+function updateTelegramActionFields(){
+  const action=$("tgAction")?.value||"send_message";
+  const needsMessage=["edit_message","delete_message","pin_message","unpin_message"].includes(action);
+  const needsUser=["approve_join_request","decline_join_request","ban_member","unban_member","restrict_member"].includes(action);
+  const needsText=["send_message","edit_message"].includes(action);
+  const needsTitle=action==="set_chat_title";
+  const needsDescription=action==="set_chat_description";
+  $("tgMessageIdField")?.classList.toggle("hidden",!needsMessage);
+  $("tgUserIdField")?.classList.toggle("hidden",!needsUser);
+  $("tgTextField")?.classList.toggle("hidden",!needsText);
+  $("tgTitleField")?.classList.toggle("hidden",!needsTitle);
+  $("tgDescriptionField")?.classList.toggle("hidden",!needsDescription);
+}
+
+async function executeTelegramAction(){
+  if(!canOperate("can_manage_signals")){
+    toast("You do not have permission to manage Telegram signals.","error");
+    return;
+  }
+  const action=$("tgAction").value;
+  const chatId=$("tgActionChat").value.trim();
+  if(!chatId)return toast("Enter the target Telegram chat ID or @username.","error");
+  const payload={action,chat_id:chatId};
+  if(["edit_message","delete_message","pin_message","unpin_message"].includes(action))payload.message_id=Number($("tgActionMessageId").value);
+  if(["approve_join_request","decline_join_request","ban_member","unban_member","restrict_member"].includes(action))payload.user_id=Number($("tgActionUserId").value);
+  if(["send_message","edit_message"].includes(action))payload.text=$("tgActionText").value.trim();
+  if(action==="set_chat_title")payload.title=$("tgActionTitle").value.trim();
+  if(action==="set_chat_description")payload.description=$("tgActionDescription").value.trim();
+
+  if((payload.message_id!==undefined&&!Number.isInteger(payload.message_id))||(payload.user_id!==undefined&&!Number.isInteger(payload.user_id)))return toast("Enter a valid numeric Telegram ID.","error");
+  if(["send_message","edit_message"].includes(action)&&!payload.text)return toast("Enter the message text.","error");
+  if(action==="set_chat_title"&&!payload.title)return toast("Enter the new chat title.","error");
+
+  const btn=$("tgActionRun");btn.disabled=true;const old=btn.textContent;btn.textContent="EXECUTING…";
+  try{
+    const session=(await db.auth.getSession()).data.session;
+    if(!session?.access_token)throw new Error("Session expired. Please sign in again.");
+    const res=await fetch(TELEGRAM_ADMIN_ACTION_ENDPOINT,{method:"POST",headers:{"Authorization":"Bearer "+session.access_token,"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.ok)throw new Error(data.error||"Telegram action failed.");
+    toast("Telegram action completed and confirmed by the bot.","success");
+  }catch(e){console.error(e);toast(e.message||"Telegram action failed.","error")}
+  finally{btn.disabled=false;btn.textContent=old}
+}
+$("tgAction")?.addEventListener("change",updateTelegramActionFields);
+$("tgActionRun")?.addEventListener("click",executeTelegramAction);
+updateTelegramActionFields();
+
 $("refreshActivity").addEventListener("click",()=>toast("Audit backend is not connected yet.","warning"));
 $("profitSubmit").addEventListener("click",submitProfitAdjustment);
 $("members").addEventListener("click",e=>{const b=e.target.closest(".btn-view-member");if(b)renderMember(b.dataset.id)});
