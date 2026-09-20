@@ -108,7 +108,7 @@ function buildLocalXReply(messages, user) {
     return `I’m Monarch Xavier, but you can call me X. I’m the public MONARCH CODEX information assistant. I can explain registration, KYC, investments, withdrawals, referrals, signals, SOVEREIGN DESK, markets, and trading concepts. I do not provide private or internal information, and I will not invent account data.`;
   }
 
-  return `Monarch, I’m ready to help. I can answer MONARCH CODEX dashboard questions and explain trading, investing, risk management and market concepts. For live account values or private records, I will only use information actually available in your dashboard — never guess.\\n\\nYour question was: “${latest}”`;
+  return `Monarch, I’m Monarch Xavier — you can call me X. I’m here to provide public MONARCH CODEX information and explain investing, withdrawals, referrals, signals, SOVEREIGN DESK, markets and trading concepts. I will not guess private account information.\n\nYour question was: “${latest}”`;
 }
 
 function buildSystemPrompt(user) {
