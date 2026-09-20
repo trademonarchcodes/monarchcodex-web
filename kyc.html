@@ -138,9 +138,7 @@ async function uploadFile(bucket,path,file){
   if(!file)throw new Error('File is required.');
   const {error}=await sb.storage.from(bucket).upload(path,file,{upsert:false,contentType:file.type||undefined});
   if(error)throw error;
-  const {data}=sb.storage.from(bucket).getPublicUrl(path);
-  if(!data?.publicUrl)throw new Error('Unable to create file URL.');
-  return data.publicUrl;
+  return path;
 }
 function updatePhoneHelp(){const o=$('phoneCountryCode').selectedOptions[0];const n=o?.dataset.digits||'';$('phone').maxLength=Number(n)||15;$('phone').minLength=Number(n)||1;$('phoneHelp').textContent=n?`Enter exactly ${n} digits after ${o.value}. Example: ${o.value} ${'0'.repeat(Math.max(0,Number(n)-1))}1`:'';}
 $('phoneCountryCode').addEventListener('change',()=>{const o=$('phoneCountryCode').selectedOptions[0];if(o?.dataset.country&&!$('country').value.trim())$('country').value=o.dataset.country;updatePhoneHelp();});
