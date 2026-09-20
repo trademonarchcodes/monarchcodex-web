@@ -11,7 +11,7 @@
 button,input,select,textarea{font:inherit}button{cursor:pointer}
 .app{min-height:100vh;display:flex}
 aside{position:fixed;inset:0 auto 0 0;width:260px;background:#0b0b0b;border-right:1px solid var(--line);padding:22px 14px;z-index:30;overflow:auto}
-.brand{text-align:center;border-bottom:1px solid var(--line);padding:5px 0 20px}.brand b{font:600 19px Cinzel,serif;color:var(--gold)}.brand small{display:block;color:#777;letter-spacing:2px;font-size:9px;margin-top:4px}
+.mc-brand-logo{width:42px;height:34px;object-fit:contain;display:block;margin:0 auto 7px}.brand{text-align:center;border-bottom:1px solid var(--line);padding:5px 0 20px}.brand b{font:600 19px Cinzel,serif;color:var(--gold)}.brand small{display:block;color:#777;letter-spacing:2px;font-size:9px;margin-top:4px}
 .desk-card{background:#171717;border:1px solid #353535;border-radius:12px;padding:13px;margin:16px 0}.desk-card b{display:block;color:var(--gold2);font:600 13px Cinzel,serif}.desk-card small{display:block;color:#777;font-size:10px;word-break:break-all;margin-top:5px}
 nav{display:grid;gap:6px}nav button{background:transparent;color:#aaa;border:1px solid transparent;border-radius:9px;padding:11px;text-align:left}nav button:hover,nav button.active{background:#181818;border-color:#333;color:var(--gold2)}
 nav .logout{color:#f88;margin-top:10px}
@@ -281,7 +281,7 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
 
 <div class="app">
 <aside id="side">
-  <div class="brand"><b>MONARCH CODEX</b><small>SOVEREIGN DESK</small></div>
+  <div class="brand"><img class="mc-brand-logo" src="assets/monarch-mark.svg" alt="MONARCH CODEX logo"><b>MONARCH CODEX</b><small>SOVEREIGN DESK</small></div>
   <div class="desk-card"><b>♛ SOVEREIGN DESK</b><small id="deskEmail">Checking...</small><small id="deskRole" style="color:#c7a93d;margin-top:6px">Role: checking...</small></div>
   <nav>
     <button class="active" data-v="overview">⌂ &nbsp; Desk Overview</button>
