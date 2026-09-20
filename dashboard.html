@@ -1297,6 +1297,26 @@ $('logoutBtn')?.addEventListener('click',async()=>{try{await sb.auth.signOut()}f
 let financialSyncTimer=null, financialSyncBusy=false;
 
 
+let notificationRealtimeChannel=null;
+
+function startNotificationRealtime(){
+  if(!currentUser?.id || !sb?.channel)return;
+  if(notificationRealtimeChannel){
+    try{sb.removeChannel(notificationRealtimeChannel)}catch(e){}
+    notificationRealtimeChannel=null;
+  }
+  notificationRealtimeChannel=sb.channel('member-notifications-'+currentUser.id)
+    .on('postgres_changes',{
+      event:'*',
+      schema:'public',
+      table:'notifications',
+      filter:'user_id=eq.'+currentUser.id
+    },()=>refreshMemberNotifications())
+    .subscribe((status)=>{
+      if(status==='CHANNEL_ERROR' || status==='TIMED_OUT') console.warn('Notification realtime status:',status);
+    });
+}
+
 async function refreshMemberNotifications(){
   if(!currentUser?.id)return;
   try{
@@ -1388,6 +1408,7 @@ async function boot(){
       await loadOptional();
       renderOverview();
       await refreshMemberNotifications();
+      startNotificationRealtime();
       startFinancialSync();
       if(isApproved()){
         renderInvestments();
