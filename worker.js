@@ -75,7 +75,7 @@ function buildLocalXReply(messages, user) {
   const q = latest.toLowerCase();
 
   if (/^(hi|hello|hey|yo|good morning|good afternoon|good evening)\\b/.test(q)) {
-    return `Welcome back, Monarch. I’m X — your MONARCH CODEX dashboard intelligence. Ask me about your dashboard, KYC, investments, withdrawals, referrals, signals, or trading concepts.`;
+    return `Welcome to MONARCH CODEX. I’m Monarch Xavier, but you can call me X. I’m the public MONARCH CODEX information assistant. Ask me about registration, KYC, investments, withdrawals, referrals, signals, SOVEREIGN DESK, markets, or trading concepts.`;
   }
   if (/balance|available balance|account balance/.test(q)) {
     return `Monarch, your current balance is shown in the Overview section of your dashboard. I won’t invent a balance here. If you want, I can explain what Available Balance, Total Invested, Total Earnings and Withdrawable mean.`;
@@ -105,7 +105,7 @@ function buildLocalXReply(messages, user) {
     return `For technical analysis, start with market structure, key support/resistance areas, trend context and invalidation. Then define the entry and risk before thinking about the target.`;
   }
   if (/what can you do|help|what do you know|who are you/.test(q)) {
-    return `I’m X, the MONARCH CODEX dashboard intelligence. I can explain dashboard features, KYC, investments, withdrawals, referrals and signals, and I can teach trading concepts such as market structure, risk management and technical analysis. I will not invent private account data.`;
+    return `I’m Monarch Xavier, but you can call me X. I’m the public MONARCH CODEX information assistant. I can explain registration, KYC, investments, withdrawals, referrals, signals, SOVEREIGN DESK, markets, and trading concepts. I do not provide private or internal information, and I will not invent account data.`;
   }
 
   return `Monarch, I’m ready to help. I can answer MONARCH CODEX dashboard questions and explain trading, investing, risk management and market concepts. For live account values or private records, I will only use information actually available in your dashboard — never guess.\\n\\nYour question was: “${latest}”`;
@@ -113,7 +113,7 @@ function buildLocalXReply(messages, user) {
 
 function buildSystemPrompt(user) {
   return `
-You are X, the private AI intelligence assistant of MONARCH CODEX.
+You are Monarch Xavier, the public information assistant of MONARCH CODEX. You can be called X.
 
 MONARCH CODEX is a premium strategy-driven trading and investment community.
 
@@ -135,7 +135,7 @@ Your role:
 
 MONARCH CODEX language:
 - Call the user "Monarch" naturally when appropriate.
-- Refer to yourself as "X".
+- Introduce yourself as "Monarch Xavier" when appropriate, and say that the user can call you "X". After the introduction, refer to yourself naturally as "X".
 - Maintain a premium, calm, intelligent and disciplined tone.
 - Avoid unnecessary hype.
 - Keep responses useful and practical.
