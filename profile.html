@@ -251,9 +251,16 @@ async function refreshTelegramLinkStatus(){
   const box=$('telegramLinkStatus');
   if(!box||!currentUser?.id)return;
   try{
-    const {data,error}=await sb.from('telegram_account_links').select('telegram_user_id,linked_at,unlinked_at').eq('website_user_id',currentUser.id).is('unlinked_at',null).maybeSingle();
-    if(error)throw error;
-    if(data){
+    const {data:{session},error:sessionError}=await sb.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!session?.access_token)throw new Error('Session expired.');
+    const response=await fetch(TELEGRAM_LINK_ENDPOINT.replace('/link-token','/link-status'),{
+      method:'GET',
+      headers:{'Authorization':'Bearer '+session.access_token}
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||!data.ok)throw new Error(data.error||'Unable to check Telegram connection.');
+    if(data.connected){
       box.className='notice success';
       box.innerHTML='<strong>Telegram Connected.</strong><br>Your MONARCH CODEX account is linked to Telegram.';
       $('connectTelegramBtn').textContent='TELEGRAM CONNECTED';
@@ -290,7 +297,7 @@ $('connectTelegramBtn')?.addEventListener('click',async()=>{
     btn.textContent='CONNECT TELEGRAM';
     if(typeof toast==='function')toast(error.message||'Unable to connect Telegram.','error');
     else{
-      box=$('telegramLinkStatus');
+      const box=$('telegramLinkStatus');
       box.className='notice error';
       box.textContent=error.message||'Unable to connect Telegram.';
     }
@@ -310,6 +317,8 @@ async function boot(){
 }
 sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')location.href='login.html'});
 boot().then(()=>refreshTelegramLinkStatus()).catch(()=>{});
+window.addEventListener('focus',refreshTelegramLinkStatus);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshTelegramLinkStatus()});
 
 </script>
 </body>
