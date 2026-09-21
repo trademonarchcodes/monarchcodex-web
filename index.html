@@ -1841,14 +1841,14 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
       const socialBox=document.getElementById('publicSocials');
       if(socialBox){
         socialBox.innerHTML=socials.length
-          ?socials.map(x=>`<a class="public-chip" href="${safeUrl(x.url)}" target="_self" rel="noopener">${esc(x.platform||'Social')} · ${esc(x.label||'Official')}</a>`).join('')
+          ?socials.map(x=>`<a class="public-chip" href="${safeUrl(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.platform||'Social')} · ${esc(x.label||'Official')}</a>`).join('')
           :'<p class="muted">Official social channels will appear here.</p>';
       }
 
       const contactBox=document.getElementById('publicContacts');
       if(contactBox){
         contactBox.innerHTML=contacts.length
-          ?contacts.map(x=>{const href=contactHref(x);const label=`${esc(x.label||'Contact')} · ${esc(x.value||'')}`;return href?`<a class="public-chip" href="${esc(href)}" target="_self" rel="noopener">${label}</a>`:`<span class="public-chip">${label}</span>`}).join('')
+          ?contacts.map(x=>{const href=contactHref(x);const label=`${esc(x.label||'Contact')} · ${esc(x.value||'')}`;return href?`<a class="public-chip" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${label}</a>`:`<span class="public-chip">${label}</span>`}).join('')
           :'<p class="muted">Contact details will appear here.</p>';
       }
 
@@ -1861,7 +1861,7 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
               const icon=type==='email'?'✉':type==='phone'?'☎':type==='link'?'↗':'◆';
               const body=`<span class="channel-icon">${icon}</span><span><strong>${esc(x.label||'Support')}</strong><span>${esc(value)}</span></span>`;
               const href=contactHref(x);
-              return href?`<a class="public-channel" href="${esc(href)}" target="_self" rel="noopener">${body}</a>`:`<div class="public-channel">${body}</div>`;
+              return href?`<a class="public-channel" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${body}</a>`:`<div class="public-channel">${body}</div>`;
             }).join('')
           :'<div class="public-empty">Support channels will appear here when the team adds them in Admin → Homepage Content.</div>';
       }
