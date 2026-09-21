@@ -909,15 +909,60 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
 
         try {
 
-            const {
-                data,
-                error
-            } =
+            let authResult =
                 await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
 
+            let data = authResult.data;
+            let error = authResult.error;
+
+            /*
+             * If the browser cannot reach Supabase Auth directly,
+             * retry once through the MONARCH CODEX Worker.
+             * Invalid credentials are NOT proxied twice.
+             */
+            const directNetworkFailure =
+                !!error &&
+                /failed to fetch|networkerror|load failed|fetch failed/i.test(
+                    String(error.message || "")
+                );
+
+            if (directNetworkFailure) {
+                try {
+                    const proxyResponse = await fetch(
+                        "https://monarchcodex-web.trademonarchofficial.workers.dev/api/auth/login",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email, password })
+                        }
+                    );
+
+                    const proxyPayload = await proxyResponse.json().catch(() => null);
+
+                    if (proxyResponse.ok && proxyPayload?.access_token && proxyPayload?.refresh_token) {
+                        const sessionResult = await supabase.auth.setSession({
+                            access_token: proxyPayload.access_token,
+                            refresh_token: proxyPayload.refresh_token
+                        });
+
+                        data = sessionResult.data;
+                        error = sessionResult.error;
+                    } else {
+                        error = new Error(
+                            proxyPayload?.error ||
+                            "MONARCH CODEX authentication could not be reached."
+                        );
+                    }
+                } catch (proxyError) {
+                    console.error("MONARCH CODEX AUTH PROXY ERROR:", proxyError);
+                    error = new Error(
+                        "MONARCH CODEX authentication could not be reached from this browser."
+                    );
+                }
+            }
 
             if (error) {
 
