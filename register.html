@@ -65,6 +65,16 @@ async function register(){
 }
 document.addEventListener("DOMContentLoaded",async()=>{
  $("registerForm").addEventListener("submit",e=>{e.preventDefault();e.stopPropagation();register();return false});
+ try{
+  const ref=new URLSearchParams(window.location.search).get("ref");
+  if(ref){
+   const code=String(ref).trim();
+   if(code && code.length<=120){
+    $("referral").value=code;
+    $("referral").setAttribute("readonly","readonly");
+   }
+  }
+ }catch(e){console.warn("Referral link parameter could not be read:",e)}
  try{await connect();showStatus("Registration service connected.");setTimeout(()=>{if($("status").textContent==="Registration service connected.")$("status").style.display="none"},1500)}
  catch(e){console.error("MONARCH CODEX CONNECTION ERROR:",e);showError("Registration service connection failed. "+friendlyError(e))}
 });
