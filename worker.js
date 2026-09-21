@@ -444,6 +444,10 @@ export default {
       request.method === "POST" &&
       url.pathname === "/api/auth/login"
     ) {
+      const origin = request.headers.get("Origin") || "";
+      if (origin !== "https://monarchcodex.pages.dev") {
+        return json({ ok: false, error: "Unauthorized authentication origin." }, 403);
+      }
       return proxyPasswordLogin(request);
     }
 
