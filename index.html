@@ -1776,11 +1776,15 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   const safeUrl=v=>{
     try{
-      let raw=String(v||'').trim();
+      let raw=String(v??'').trim();
       if(!raw)return '#';
-      if(!/^(https?:|mailto:|tel:)/i.test(raw) && !raw.startsWith('#')) raw='https://'+raw.replace(/^\/\//,'');
-      const u=new URL(raw,location.href);
-      return /^(https?:|mailto:|tel:)$/.test(u.protocol)?u.href:'#';
+      if(raw.startsWith('//'))raw='https:'+raw;
+      if(/^https?:\/\/[^\s"'<>]+$/i.test(raw))return raw;
+      if(/^mailto:[^\s"'<>]+$/i.test(raw))return raw;
+      if(/^tel:[^\s"'<>]+$/i.test(raw))return raw;
+      if(raw.startsWith('#'))return raw;
+      if(/^[^\s"'<>]+\.[^\s"'<>]+$/i.test(raw))return 'https://'+raw;
+      return '#';
     }catch{return '#'}
   };
   const contactHref=(x)=>{
