@@ -218,6 +218,10 @@
         box-shadow:0 0 0 3px rgba(212,175,55,.09) !important;
     }
 
+    .password-wrap{position:relative}
+    .password-wrap input{padding-right:58px !important}
+    .password-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:40px;height:38px;padding:0;border:1px solid rgba(212,175,55,.3);border-radius:9px;background:rgba(212,175,55,.06);color:#D4AF37;cursor:pointer;font-size:16px}
+    .password-toggle:hover{background:rgba(212,175,55,.14);border-color:rgba(212,175,55,.55)}
     .auth-submit{
         width:100% !important;
         min-height:52px;
@@ -548,14 +552,10 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
                     Password
                 </label>
 
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
+                <div class="password-wrap">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                    <button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password" aria-pressed="false">◉</button>
+                </div>
 
             </div>
 
@@ -1277,7 +1277,19 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
             }
 
 
-            if (loginForm) {
+            const passwordInput = document.getElementById("password");
+        const passwordToggle = document.getElementById("passwordToggle");
+        if (passwordInput && passwordToggle) {
+            passwordToggle.addEventListener("click", function () {
+                const showing = passwordInput.type === "text";
+                passwordInput.type = showing ? "password" : "text";
+                passwordToggle.textContent = showing ? "◉" : "○";
+                passwordToggle.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+                passwordToggle.setAttribute("aria-pressed", String(!showing));
+            });
+        }
+
+        if (loginForm) {
 
                 loginForm.addEventListener(
                     "submit",
