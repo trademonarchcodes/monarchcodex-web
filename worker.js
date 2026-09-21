@@ -70,6 +70,71 @@ async function authenticateUser(request) {
   }
 }
 
+async function proxyPasswordLogin(request) {
+  let body;
+  try {
+    body = await request.json();
+  } catch (error) {
+    return json({ ok: false, error: "Invalid login request." }, 400);
+  }
+
+  const email = String(body?.email || "").trim().toLowerCase();
+  const password = String(body?.password || "");
+
+  if (!email || !password) {
+    return json({ ok: false, error: "Email and password are required." }, 400);
+  }
+
+  try {
+    const response = await fetch(
+      SUPABASE_URL + "/auth/v1/token?grant_type=password",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_KEY
+        },
+        body: JSON.stringify({ email, password })
+      }
+    );
+
+    const text = await response.text();
+    let payload = null;
+    try { payload = JSON.parse(text); } catch (error) {}
+
+    if (!response.ok) {
+      return json(
+        {
+          ok: false,
+          error: payload?.msg || payload?.error_description || payload?.message || "Login failed."
+        },
+        response.status
+      );
+    }
+
+    if (!payload?.access_token || !payload?.refresh_token) {
+      return json({ ok: false, error: "Authentication service returned an incomplete session." }, 502);
+    }
+
+    return json({
+      ok: true,
+      access_token: payload.access_token,
+      refresh_token: payload.refresh_token,
+      expires_in: payload.expires_in,
+      token_type: payload.token_type || "bearer",
+      user: payload.user || null
+    });
+  } catch (error) {
+    return json(
+      {
+        ok: false,
+        error: "Authentication proxy could not reach MONARCH CODEX."
+      },
+      502
+    );
+  }
+}
+
 function buildLocalXReply(messages, user) {
   const latest = String(messages[messages.length - 1]?.content || "").trim();
   const q = latest.toLowerCase();
@@ -368,6 +433,19 @@ export default {
 
     const url =
       new URL(request.url);
+
+    /*
+     * AUTHENTICATION FALLBACK
+     *
+     * Used only when a browser cannot reach Supabase Auth directly.
+     * The worker forwards the credentials to Supabase Auth and does not store them.
+     */
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/auth/login"
+    ) {
+      return proxyPasswordLogin(request);
+    }
 
     /*
      * X HEALTH CHECK
