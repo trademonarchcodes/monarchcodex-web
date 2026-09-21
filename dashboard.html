@@ -558,6 +558,11 @@ html.mc-light #homepageUpdatesCard .divider{background:#E6DDC9!important}
          <div class="divider"></div>
          <div id="homepageSocials" class="quick"></div>
          <div id="homepageContacts" class="quick" style="margin-top:8px"></div>
+         <div class="notice" style="margin-top:12px">
+          <strong>Member Support &amp; Guidance</strong><br>
+          X (Monarch Xavier) is available exclusively inside your member dashboard for MONARCH CODEX support and guidance.
+          <div style="margin-top:9px"><button class="btn" type="button" onclick="showView('x')">✦ Ask X</button></div>
+         </div>
         </div>
         <div class="section-title">
          <h3>
@@ -582,7 +587,7 @@ html.mc-light #homepageUpdatesCard .divider{background:#E6DDC9!important}
         Ask X
        </h1>
        <p>
-        MONARCH CODEX intelligence for the Inner Kingdom.
+        Your MONARCH CODEX member support and guidance assistant. X operates exclusively inside the member dashboard.
        </p>
       </div>
       <div class="card chat">
@@ -1305,7 +1310,7 @@ function renderNotifications(){
 $('markAllRead')?.addEventListener('click',async()=>{try{const result=await sb.from('notifications').update({is_read:true}).eq('user_id',currentUser.id);if(result.error)throw result.error;notifications.forEach(n=>{n.is_read=true});renderNotifications();toast('Notifications marked as read.')}catch(e){toast('Notifications could not be marked read.','error')}});
 
 function initX(){
-  let saved=[];try{saved=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||'[]');if(!Array.isArray(saved))saved=[]}catch(e){saved=[]}const box=$('xMessages');if(!box.children.length){if(saved.length)saved.forEach(m=>addXMessage(m.role,m.content));else addXMessage('x','Welcome to X. How can I assist you, Monarch?')}
+  let saved=[];try{saved=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||'[]');if(!Array.isArray(saved))saved=[]}catch(e){saved=[]}const box=$('xMessages');if(!box.children.length){if(saved.length)saved.forEach(m=>addXMessage(m.role,m.content));else addXMessage('x','Welcome to X. I’m Monarch Xavier, your MONARCH CODEX member support and guidance assistant. How can I assist you, Monarch?')}
 }
 function addXMessage(role,content){const el=document.createElement('div');el.className='msg '+(role==='user'?'user':'x');el.textContent=content;$('xMessages').appendChild(el);$('xMessages').scrollTop=$('xMessages').scrollHeight}
 function saveX(){const arr=[...$('xMessages').children].map(e=>({role:e.classList.contains('user')?'user':'x',content:e.textContent}));localStorage.setItem(X_HISTORY_KEY,JSON.stringify(arr.slice(-60)))}
