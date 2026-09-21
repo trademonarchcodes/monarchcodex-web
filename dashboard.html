@@ -1044,7 +1044,7 @@ function renderSiteContent(){
   const socials=Array.isArray(siteContent.socials)?siteContent.socials.filter(x=>x&&x.active!==false):[];
   const contacts=Array.isArray(siteContent.contacts)?siteContent.contacts.filter(x=>x&&x.active!==false):[];
   const u=$('homepageUpdates');
-  if(u)u.innerHTML=events.length?events.map(e=>`<article class="home-update"><small>${esc(e.date||'MONARCH CODEX')}</small><h4>${esc(e.title||'MONARCH CODEX Event')}</h4><p>${esc(e.details||'')}</p></article>`).join(''):'<div class="muted">No new events or announcements at the moment.</div>';
+  if(u)u.innerHTML=events.length?events.map(e=>`<article class="home-update">${e.image_url?`<img src="${esc(e.image_url)}" alt="${esc(e.title||'MONARCH CODEX event')}" style="width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-bottom:10px">`:''}<small>${esc(e.date||'COMING SOON')}</small><h4>${esc(e.title||'MONARCH CODEX Event')}</h4><p>${esc(e.details||'')}</p></article>`).join(''):'<div class="muted">No new events or announcements at the moment.</div>';
   const ss=$('homepageSocials');
   if(ss)ss.innerHTML=socials.map(x=>`<a class="btn social-chip" href="${esc(x.url||'#')}" target="_blank" rel="noopener noreferrer">${esc(x.platform||'Social')} · ${esc(x.label||'Official')}</a>`).join('');
   const cc=$('homepageContacts');
