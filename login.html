@@ -632,7 +632,7 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
      SUPABASE
      ===================================================== -->
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
 
 
 <!-- =====================================================
@@ -1170,9 +1170,18 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
             );
 
 
+            const networkFailure =
+                /failed to fetch|networkerror|load failed|fetch failed/i.test(
+                    String(error?.message || "")
+                );
+
             showLoginMessage(
-                error?.message ||
-                "Unable to login. Please try again.",
+                networkFailure
+                    ? "Connection to MONARCH CODEX authentication failed. Please check your internet connection and try again."
+                    : (
+                        error?.message ||
+                        "Unable to login. Please try again."
+                    ),
                 "error"
             );
 
