@@ -274,6 +274,15 @@ html.mc-light .mc-theme-toggle{background:#fff!important;color:#765A00!important
 html.mc-light .table th,html.mc-light th{background:#FFF8DF!important;color:#765A00!important}
 html.mc-light .live-feed-separation{background:#FFFDF7!important}
 </style>
+<style id="mc-sidebar-mobile-fix">
+@media(max-width:950px){
+  #mcSidebarBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.58);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease,visibility .2s ease;z-index:55}
+  #mcSidebarBackdrop.open{opacity:1;visibility:visible;pointer-events:auto}
+  #sidebar,#side{z-index:60!important}
+  #mcSidebarClose{position:absolute;right:10px;top:10px;width:38px;height:38px;border:1px solid rgba(212,175,55,.35);background:#14120d;color:#F3D66B;border-radius:9px;font-size:24px;line-height:1;display:grid;place-items:center;z-index:70}
+}
+@media(min-width:951px){#mcSidebarBackdrop,#mcSidebarClose{display:none!important}}
+</style>
 </head>
 <body>
 <div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING SOVEREIGN DESK</div><div id="bootText" style="color:#999;font-size:11px;margin-top:6px">Checking your session...</div></div></div>
@@ -683,5 +692,46 @@ start();
 })();
 </script>
 
+<script id="mc-sidebar-mobile-fix-script">
+(function(){
+  const sidebar=document.getElementById('sidebar')||document.getElementById('side');
+  const menu=document.getElementById('mobileMenu')||document.getElementById('menu');
+  if(!sidebar||!menu)return;
+  let backdrop=document.getElementById('mcSidebarBackdrop');
+  if(!backdrop){
+    backdrop=document.createElement('div');
+    backdrop.id='mcSidebarBackdrop';
+    document.body.appendChild(backdrop);
+  }
+  let close=document.getElementById('mcSidebarClose');
+  if(!close){
+    close=document.createElement('button');
+    close.id='mcSidebarClose';
+    close.type='button';
+    close.setAttribute('aria-label','Close menu');
+    close.textContent='×';
+    sidebar.insertBefore(close,sidebar.firstChild);
+  }
+  function sync(){
+    const open=sidebar.classList.contains('open');
+    backdrop.classList.toggle('open',open);
+    close.style.display=open?'grid':'none';
+    document.body.style.overflow=open?'hidden':'';
+  }
+  function closeMenu(){
+    sidebar.classList.remove('open');
+    sync();
+  }
+  // Existing page handlers may toggle the sidebar first; sync after them.
+  menu.addEventListener('click',()=>setTimeout(sync,0));
+  close.addEventListener('click',closeMenu);
+  backdrop.addEventListener('click',closeMenu);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+  sidebar.addEventListener('click',e=>{
+    if(e.target.closest('nav button'))setTimeout(closeMenu,0);
+  });
+  sync();
+})();
+</script>
 </body>
 </html>
