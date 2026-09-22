@@ -27,6 +27,15 @@
 /* Profile page sidebar — matched to the MONARCH CODEX dashboard */
 .mc-brand-logo{width:27px;height:22px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:7px;filter:drop-shadow(0 3px 10px rgba(212,175,55,.14))}.brand-title{display:inline-block;vertical-align:middle}.brand-block{padding:4px 10px 24px;border-bottom:1px solid var(--border);margin-bottom:15px}.brand-title{font:700 21px Cinzel,serif;letter-spacing:2px;color:var(--gold);line-height:1.08}.brand-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:9px}.side-user{display:flex;gap:11px;align-items:center;padding:10px;border-radius:12px;background:#101010;margin-bottom:14px;min-width:0}.side-user .avatar{flex:0 0 44px;width:44px!important;height:44px!important;border-radius:50%;object-fit:cover;background:#222;border:1px solid #4c401f}.side-user strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}.side-user small{display:block;font-size:10px;color:var(--muted);margin-top:2px}.sidebar #nav{display:grid;gap:5px;overflow:auto}.sidebar #nav button{width:100%;border:1px solid transparent;background:transparent;color:#bdbdbd;text-align:left;padding:11px 12px;border-radius:9px;transition:.2s;font:inherit;font-size:12px}.sidebar #nav button:hover,.sidebar #nav button.active{color:var(--gold2);background:#15130d;border-color:#302a18}.sidebar #nav button.active{box-shadow:inset 2px 0 0 var(--gold)}
 </style>
+<style id="mc-sidebar-mobile-fix">
+@media(max-width:950px){
+  #mcSidebarBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.58);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s ease,visibility .2s ease;z-index:55}
+  #mcSidebarBackdrop.open{opacity:1;visibility:visible;pointer-events:auto}
+  #sidebar,#side{z-index:60!important}
+  #mcSidebarClose{position:absolute;right:10px;top:10px;width:38px;height:38px;border:1px solid rgba(212,175,55,.35);background:#14120d;color:#F3D66B;border-radius:9px;font-size:24px;line-height:1;display:grid;place-items:center;z-index:70}
+}
+@media(min-width:951px){#mcSidebarBackdrop,#mcSidebarClose{display:none!important}}
+</style>
 </head>
 <body>
 <div id="loadingScreen" class="loading-screen">
@@ -321,6 +330,47 @@ boot().then(()=>refreshTelegramLinkStatus()).catch(()=>{});
 window.addEventListener('focus',refreshTelegramLinkStatus);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshTelegramLinkStatus()});
 
+</script>
+<script id="mc-sidebar-mobile-fix-script">
+(function(){
+  const sidebar=document.getElementById('sidebar')||document.getElementById('side');
+  const menu=document.getElementById('mobileMenu')||document.getElementById('menu');
+  if(!sidebar||!menu)return;
+  let backdrop=document.getElementById('mcSidebarBackdrop');
+  if(!backdrop){
+    backdrop=document.createElement('div');
+    backdrop.id='mcSidebarBackdrop';
+    document.body.appendChild(backdrop);
+  }
+  let close=document.getElementById('mcSidebarClose');
+  if(!close){
+    close=document.createElement('button');
+    close.id='mcSidebarClose';
+    close.type='button';
+    close.setAttribute('aria-label','Close menu');
+    close.textContent='×';
+    sidebar.insertBefore(close,sidebar.firstChild);
+  }
+  function sync(){
+    const open=sidebar.classList.contains('open');
+    backdrop.classList.toggle('open',open);
+    close.style.display=open?'grid':'none';
+    document.body.style.overflow=open?'hidden':'';
+  }
+  function closeMenu(){
+    sidebar.classList.remove('open');
+    sync();
+  }
+  // Existing page handlers may toggle the sidebar first; sync after them.
+  menu.addEventListener('click',()=>setTimeout(sync,0));
+  close.addEventListener('click',closeMenu);
+  backdrop.addEventListener('click',closeMenu);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+  sidebar.addEventListener('click',e=>{
+    if(e.target.closest('nav button'))setTimeout(closeMenu,0);
+  });
+  sync();
+})();
 </script>
 </body>
 </html>
