@@ -61,7 +61,8 @@
 'use strict';
 
 const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co';
-const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';\nlet sbClient=null;
+const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
+let sbClient=null;
 
 const $=id=>document.getElementById(id);
 const money=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -86,7 +87,8 @@ function loadSupabase(){
 async function run(){
   try{
     const lib=await Promise.race([loadSupabase(),timeout(11000)]);
-    const sb=lib.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});\n    sbClient=sb;
+    const sb=lib.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    sbClient=sb;
 
     const sessionResult=await Promise.race([sb.auth.getSession(),timeout(12000)]);
     if(sessionResult.error)throw sessionResult.error;
