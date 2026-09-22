@@ -42,17 +42,18 @@
 const URL='https://avaworleivncevaoqeny.supabase.co',KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
 const sb=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id), money=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+function withTimeout(promise,ms=12000){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Online Cooperative connection timed out. Please refresh the page and try again.')),ms))])}
 async function boot(){
  try{
-  const {data,error}=await sb.auth.getSession();if(error)throw error;if(!data.session){location.replace('login.html');return}
+  const {data,error}=await withTimeout(sb.auth.getSession());if(error)throw error;if(!data.session){location.replace('login.html');return}
   const u=data.session.user;
-  const p=await sb.from('profiles').select('id,full_name,display_username,uid,avatar_url').eq('id',u.id).maybeSingle();if(p.error)throw p.error;
+  const p=await withTimeout(sb.from('profiles').select('id,full_name,display_username,uid,avatar_url').eq('id',u.id).maybeSingle());if(p.error)throw p.error;
   $('name').textContent=p.data?.display_username||p.data?.full_name||'Member';$('uid').textContent=p.data?.uid||u.id;
   if(p.data?.avatar_url)$('avatar').src=p.data.avatar_url;
-  const a=await sb.from('online_cooperative_accounts').select('*').eq('user_id',u.id).eq('visible_to_member',true).maybeSingle();if(a.error)throw a.error;
-  const alloc=await sb.from('online_cooperative_allocations').select('investment_id,allocated_amount,status,created_at').eq('user_id',u.id).order('created_at',{ascending:false});if(alloc.error)throw alloc.error;
+  const a=await withTimeout(sb.from('online_cooperative_accounts').select('*').eq('user_id',u.id).eq('visible_to_member',true).maybeSingle());if(a.error)throw a.error;
+  const alloc=await withTimeout(sb.from('online_cooperative_allocations').select('investment_id,allocated_amount,status,created_at').eq('user_id',u.id).order('created_at',{ascending:false}));if(alloc.error)throw alloc.error;
   render(a.data,alloc.data||[]);
- }catch(e){$('notice').innerHTML='<div class="notice" style="border-color:#4e2929;background:#180d0d;color:#e2a0a0">'+esc(e.message||'Unable to load cooperative information.')+'</div>'}
+ }catch(e){console.error('Online Cooperative load failed:',e);$('notice').innerHTML='<div class="notice" style="border-color:#4e2929;background:#180d0d;color:#e2a0a0"><strong>Unable to load cooperative information.</strong><br>'+esc(e.message||'Please refresh and try again.')+'</div>'}
  finally{$('loading').style.display='none';$('app').style.display='flex'}
 }
 function render(a,alloc){
