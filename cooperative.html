@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070707">
+<title>MONARCH CODEX — Online Cooperative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#F3D66B;--bg:#070707;--card:#121212;--line:#292929;--muted:#999;--text:#f7f5ef;--green:#7dcc91}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0%,rgba(212,175,55,.1),transparent 25%),#070707;color:var(--text);font-family:Figtree,Arial,sans-serif}button{font:inherit;cursor:pointer}.app{min-height:100vh;display:flex}aside{position:fixed;inset:0 auto 0 0;width:270px;background:#0b0b0b;border-right:1px solid var(--line);padding:22px 16px;z-index:20}.brand{padding:4px 10px 22px;border-bottom:1px solid var(--line);margin-bottom:14px}.brand h1{font:800 21px 'Bricolage Grotesque';letter-spacing:.02em;color:var(--gold);margin:0}.brand span{display:block;font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:5px}.side-profile{display:flex;gap:10px;align-items:center;background:#101010;padding:10px;border-radius:12px;margin-bottom:14px}.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;background:#222;border:1px solid #4c401f}.side-profile strong{display:block;font-size:12px;max-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.uid{font-size:9px;color:var(--muted)}nav{display:grid;gap:5px}nav button{border:1px solid transparent;background:transparent;color:#bdbdbd;text-align:left;padding:11px 12px;border-radius:9px}nav button:hover,nav button.active{color:var(--gold2);background:#15130d;border-color:#302a18}.nav-icon{display:inline-block;width:25px;color:var(--gold)}.logout{position:absolute;left:16px;right:16px;bottom:22px;border:1px solid #342a19;background:#12100b;color:#e8c75c;padding:11px;border-radius:9px}.main{margin-left:270px;min-height:100vh;width:calc(100% - 270px)}header{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;background:rgba(7,7,7,.95);z-index:10}.title{font:700 18px 'Bricolage Grotesque'}.sub{font-size:10px;color:var(--muted);margin-top:2px}.btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:9px 13px;border-radius:9px;font-weight:700}.content{padding:28px;max-width:1200px;margin:auto}.hero{padding:28px;border:1px solid rgba(212,175,55,.25);border-radius:20px;background:linear-gradient(135deg,#15130d,#0c0c0c);margin-bottom:18px}.eyebrow{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:800}.hero h1{font:800 clamp(27px,4vw,40px) 'Bricolage Grotesque';margin:8px 0}.hero p{margin:0;color:var(--muted);max-width:720px;line-height:1.6}.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,1fr)}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}.label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.value{font:700 23px 'Bricolage Grotesque';margin-top:7px;color:#f5e39a}.small{font-size:10px;color:var(--muted);margin-top:4px}.two{grid-template-columns:1fr 1fr}.section{font:700 17px 'Bricolage Grotesque';margin:24px 0 11px}.notice{padding:12px;border:1px solid #39301a;background:#151209;border-radius:10px;color:#d6c58e;font-size:11px;line-height:1.6}.status{display:inline-flex;border:1px solid #2c5136;color:var(--green);border-radius:999px;padding:4px 9px;font-size:9px;text-transform:capitalize}.progress{height:8px;background:#252525;border-radius:99px;overflow:hidden;margin-top:9px}.progress i{display:block;height:100%;background:var(--gold);width:0}.rows{display:grid;gap:9px}.row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #242424;font-size:11px}.row:last-child{border-bottom:0}.row span{color:var(--muted)}.empty{text-align:center;color:var(--muted);padding:30px}.loading{position:fixed;inset:0;display:grid;place-items:center;background:#050505;z-index:99;color:var(--gold)}@media(max-width:850px){aside{transform:translateX(-100%);transition:.2s;width:270px}aside.open{transform:none}.main{margin-left:0;width:100%}.menu{display:inline-flex}.stats,.two{grid-template-columns:1fr}.content{padding:16px}header{padding:0 15px}.logout{position:static;margin-top:25px;width:100%}.side-bottom{position:absolute;left:16px;right:16px;bottom:18px}.sidebar nav{max-height:calc(100vh - 190px);overflow:auto}.mobile-only{display:inline-flex}}@media(min-width:851px){.menu,.mobile-only{display:none}}
+</style>
+</head>
+<body>
+<div id="loading" class="loading">Loading Online Cooperative…</div>
+<div id="app" class="app" style="display:none">
+<aside id="side">
+  <div class="brand"><h1>MONARCH CODEX</h1><span>THE INNER KINGDOM</span></div>
+  <div class="side-profile"><img id="avatar" class="avatar" alt=""><div><strong id="name">Member</strong><div id="uid" class="uid">—</div></div></div>
+  <nav>
+    <button onclick="location.href='dashboard.html'"><span class="nav-icon">◇</span>Dashboard</button>
+    <button onclick="location.href='kyc.html'"><span class="nav-icon">◇</span>KYC</button>
+    <button onclick="location.href='investments.html'"><span class="nav-icon">◆</span>Investments</button>
+    <button class="active"><span class="nav-icon">♙</span>Online Cooperative</button>
+    <button onclick="location.href='withdrawals.html'"><span class="nav-icon">↗</span>Withdrawals</button>
+    <button onclick="location.href='profile.html'"><span class="nav-icon">◎</span>Profile</button>
+  </nav>
+  <div class="side-bottom"><button class="logout" id="logout">↪ Logout</button></div>
+</aside>
+<main class="main">
+<header><div style="display:flex;align-items:center;gap:12px"><button class="btn menu" id="menu">☰</button><div><div class="title">ONLINE COOPERATIVE</div><div class="sub">Partner programme account</div></div></div><button class="btn" onclick="location.href='dashboard.html'">Back to Dashboard</button></header>
+<main class="content">
+<section class="hero"><div class="eyebrow">Partner Module</div><h1>Online Cooperative</h1><p>This is your MONARCH CODEX view of the cooperative account information recorded by the MONARCH CODEX team. It is view-only; cooperative figures are maintained by authorized administrators.</p></section>
+<div id="notice"></div>
+<div id="accountArea"></div>
+</main></main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+const URL='https://avaworleivncevaoqeny.supabase.co',KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
+const sb=supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const $=id=>document.getElementById(id), money=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+async function boot(){
+ try{
+  const {data,error}=await sb.auth.getSession();if(error)throw error;if(!data.session){location.replace('login.html');return}
+  const u=data.session.user;
+  const p=await sb.from('profiles').select('id,full_name,display_username,uid,avatar_url').eq('id',u.id).maybeSingle();if(p.error)throw p.error;
+  $('name').textContent=p.data?.display_username||p.data?.full_name||'Member';$('uid').textContent=p.data?.uid||u.id;
+  if(p.data?.avatar_url)$('avatar').src=p.data.avatar_url;
+  const a=await sb.from('online_cooperative_accounts').select('*').eq('user_id',u.id).eq('visible_to_member',true).maybeSingle();if(a.error)throw a.error;
+  const alloc=await sb.from('online_cooperative_allocations').select('investment_id,allocated_amount,status,created_at').eq('user_id',u.id).order('created_at',{ascending:false});if(alloc.error)throw alloc.error;
+  render(a.data,alloc.data||[]);
+ }catch(e){$('notice').innerHTML='<div class="notice" style="border-color:#4e2929;background:#180d0d;color:#e2a0a0">'+esc(e.message||'Unable to load cooperative information.')+'</div>'}
+ finally{$('loading').style.display='none';$('app').style.display='flex'}
+}
+function render(a,alloc){
+ if(!a){$('notice').innerHTML='<div class="notice">No Online Cooperative account has been recorded for this member yet. Once the team creates the cooperative account record, it will appear here.</div>';return}
+ const total=Number(a.current_earnings||0),target=Number(a.target_amount||0),pct=target>0?Math.min(100,(total/target)*100):0;
+ const allEarnings=Number(a.current_earnings||0);
+ $('accountArea').innerHTML=
+ '<div class="grid stats">'+
+ '<div class="card"><div class="label">Package</div><div class="value" style="font-size:20px">'+esc(a.package||'Not set')+'</div><div class="small"><span class="status">'+esc((a.status||'pending_setup').replaceAll('_',' '))+'</span></div></div>'+
+ '<div class="card"><div class="label">Initial Contribution</div><div class="value">'+money(a.initial_contribution)+'</div><div class="small">Recorded in MONARCH CODEX</div></div>'+
+ '<div class="card"><div class="label">Cooperative Earnings</div><div class="value">'+money(allEarnings)+'</div><div class="small">Admin-maintained account figure</div></div>'+
+ '<div class="card"><div class="label">Target</div><div class="value">'+money(target)+'</div><div class="small">'+(target?'Progress '+pct.toFixed(1)+'%':'Target not set')+'</div></div></div>'+
+ '<div class="section">Account Overview</div><div class="grid two">'+
+ '<div class="card"><div class="rows">'+
+ '<div class="row"><span>External account reference</span><strong>'+esc(a.external_account_reference||'Not added')+'</strong></div>'+
+ '<div class="row"><span>Direct referral earnings</span><strong>'+money(a.direct_referral_earnings)+'</strong></div>'+
+ '<div class="row"><span>Placement earnings</span><strong>'+money(a.placement_earnings)+'</strong></div>'+
+ '<div class="row"><span>Network earnings</span><strong>'+money(a.network_earnings)+'</strong></div>'+
+ '</div></div>'+
+ '<div class="card"><div class="label">Target Progress</div><div class="progress"><i style="width:'+pct+'%"></i></div><div class="small">'+money(total)+' of '+money(target)+' recorded</div><div style="height:12px"></div><div class="notice">Cooperative account details shown here are maintained manually by MONARCH CODEX administrators. This page does not connect to or log into the partner website.</div></div></div>'+
+ '<div class="section">MONARCH CODEX Allocation</div><div class="card">'+(alloc.length?alloc.map(x=>'<div class="row"><span>Investment '+esc(x.investment_id)+' · '+new Date(x.created_at).toLocaleDateString()+'</span><strong>'+money(x.allocated_amount)+' · '+esc(x.status)+'</strong></div>').join(''):'<div class="empty">No cooperative allocation record found.</div>')+'</div>'+
+ (a.admin_note?'<div class="section">Account Note</div><div class="card"><div class="notice">'+esc(a.admin_note)+'</div></div>':'');
+}
+$('menu').onclick=()=>$('side').classList.toggle('open');$('logout').onclick=async()=>{await sb.auth.signOut();location.replace('login.html')};boot();
+</script>
+</body></html>
