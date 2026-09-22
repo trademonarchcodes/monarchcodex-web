@@ -61,7 +61,7 @@
 'use strict';
 
 const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co';
-const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
+const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';\nlet sbClient=null;
 
 const $=id=>document.getElementById(id);
 const money=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -86,7 +86,7 @@ function loadSupabase(){
 async function run(){
   try{
     const lib=await Promise.race([loadSupabase(),timeout(11000)]);
-    const sb=lib.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const sb=lib.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});\n    sbClient=sb;
 
     const sessionResult=await Promise.race([sb.auth.getSession(),timeout(12000)]);
     if(sessionResult.error)throw sessionResult.error;
@@ -166,7 +166,7 @@ function render(a,alloc){
 }
 
 $('menu').onclick=()=>$('sidebar').classList.toggle('open');
-$('logout').onclick=async()=>{try{if(window.supabase?.createClient){/* client created inside run; sign-out is handled below when available */}}finally{location.replace('login.html')}};
+$('logout').onclick=async()=>{try{if(sbClient)await sbClient.auth.signOut()}catch(e){console.warn(e)}finally{location.replace('login.html')}};
 
 run();
 </script>
