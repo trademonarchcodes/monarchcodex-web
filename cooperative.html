@@ -15,13 +15,15 @@
 .logout{margin-top:auto;border:1px solid #342a19;background:#12100b;color:#e8c75c;padding:11px;border-radius:9px}
 .main{margin-left:270px;min-height:100vh}.topbar{height:70px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(7,7,7,.96);position:sticky;top:0;z-index:20}.title{font-weight:700;font-size:18px}.sub{font-size:10px;color:var(--muted);margin-top:2px}.topbar .btn{white-space:nowrap}
 .content{padding:28px;max-width:1200px;margin:auto}.hero{padding:28px;border:1px solid rgba(212,175,55,.25);border-radius:20px;background:linear-gradient(135deg,#15130d,#0c0c0c);margin-bottom:18px}.eyebrow{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:800}.hero h1{font-size:38px;margin:8px 0}.hero p{margin:0;color:var(--muted);max-width:760px;line-height:1.6}
-.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1fr 1fr}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}.label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.value{font-size:23px;font-weight:700;margin-top:7px;color:#f5e39a}.small{font-size:10px;color:var(--muted);margin-top:4px}.section{font-size:17px;font-weight:700;margin:24px 0 11px}.notice{padding:12px;border:1px solid #39301a;background:#151209;border-radius:10px;color:#d6c58e;font-size:11px;line-height:1.6}.notice.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}.status{display:inline-flex;border:1px solid #2c5136;color:var(--green);border-radius:999px;padding:4px 9px;font-size:9px;text-transform:capitalize}.progress{height:8px;background:#252525;border-radius:99px;overflow:hidden;margin-top:9px}.progress i{display:block;height:100%;background:var(--gold);width:0}.rows{display:grid}.row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #242424;font-size:11px}.row:last-child{border-bottom:0}.row span{color:var(--muted)}.empty{text-align:center;color:var(--muted);padding:30px}.btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:9px 13px;border-radius:9px;font-weight:700}.menu{display:none}.connection{margin-bottom:14px}.hidden{display:none!important}
-@media(max-width:850px){.sidebar{transform:translateX(-100%);transition:.2s;width:270px;box-shadow:20px 0 50px #000}.sidebar.open{transform:none}.main{margin-left:0}.menu{display:inline-flex}.topbar{padding:0 15px}.content{padding:16px}.stats,.two{grid-template-columns:1fr}.hero{padding:21px}.hero h1{font-size:29px}}
+.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1fr 1fr}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}.label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.value{font-size:23px;font-weight:700;margin-top:7px;color:#f5e39a}.small{font-size:10px;color:var(--muted);margin-top:4px}.section{font-size:17px;font-weight:700;margin:24px 0 11px}.notice{padding:12px;border:1px solid #39301a;background:#151209;border-radius:10px;color:#d6c58e;font-size:11px;line-height:1.6}.notice.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}.status{display:inline-flex;border:1px solid #2c5136;color:var(--green);border-radius:999px;padding:4px 9px;font-size:9px;text-transform:capitalize}.progress{height:8px;background:#252525;border-radius:99px;overflow:hidden;margin-top:9px}.progress i{display:block;height:100%;background:var(--gold);width:0}.rows{display:grid}.row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #242424;font-size:11px}.row:last-child{border-bottom:0}.row span{color:var(--muted)}.empty{text-align:center;color:var(--muted);padding:30px}.btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:9px 13px;border-radius:9px;font-weight:700}.menu{display:none}.sidebar-close{display:none}.sidebar-backdrop{display:none}.connection{margin-bottom:14px}.hidden{display:none!important}
+@media(max-width:850px){.sidebar{transform:translateX(-100%);transition:.2s;width:270px;box-shadow:20px 0 50px #000}.sidebar.open{transform:none}.sidebar-close{display:block;position:absolute;right:10px;top:10px;width:36px;height:36px;border:1px solid #3a321d;background:#14120d;color:var(--gold2);border-radius:9px;font-size:24px;line-height:1;z-index:2}.sidebar-backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,.58);opacity:0;visibility:hidden;pointer-events:none;transition:.2s;z-index:40}.sidebar-backdrop.open{opacity:1;visibility:visible;pointer-events:auto}.main{margin-left:0}.menu{display:inline-flex}.topbar{padding:0 15px}.content{padding:16px}.stats,.two{grid-template-columns:1fr}.hero{padding:21px}.hero h1{font-size:29px}}
 </style>
 </head>
 <body>
 <div id="app" class="app">
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
 <aside id="sidebar" class="sidebar">
+  <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Close menu">×</button>
   <div class="brand"><h1>MONARCH CODEX</h1><span>THE INNER KINGDOM</span></div>
   <div class="identity"><img id="avatar" class="avatar" alt=""><div><strong id="memberName">Member</strong><div id="memberUid" class="uid">—</div></div></div>
   <nav class="nav">
@@ -167,7 +169,13 @@ function render(a,alloc){
     (a.admin_note?'<div class="section">Account Note</div><div class="card"><div class="notice">'+esc(a.admin_note)+'</div></div>':'');
 }
 
-$('menu').onclick=()=>$('sidebar').classList.toggle('open');
+function closeSidebar(){ $('sidebar').classList.remove('open'); $('sidebarBackdrop').classList.remove('open'); }
+function openSidebar(){ $('sidebar').classList.add('open'); $('sidebarBackdrop').classList.add('open'); }
+$('menu').onclick=()=>{ $('sidebar').classList.contains('open') ? closeSidebar() : openSidebar(); };
+$('sidebarClose').onclick=closeSidebar;
+$('sidebarBackdrop').onclick=closeSidebar;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSidebar();});
+document.querySelectorAll('#sidebar .nav button').forEach(b=>b.addEventListener('click',closeSidebar));
 $('logout').onclick=async()=>{try{if(sbClient)await sbClient.auth.signOut()}catch(e){console.warn(e)}finally{location.replace('login.html')}};
 
 run();
