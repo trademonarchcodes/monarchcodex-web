@@ -181,7 +181,6 @@ function updateInvestmentTotals(){renderWalletPurchase()}
 function renderHistory(){
   $('investmentHistory').innerHTML=investments.length?investments.map(x=>'<tr><td>'+esc(x.package_name||'—')+'</td><td>'+fmt(x.amount)+'</td><td>'+fmt(x.fee)+'</td><td>'+esc(x.method||x.payment_method||'—')+'</td><td>'+status(x.status)+'</td><td>'+date(x.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="empty">No investments found.</td></tr>';
 }
-$('investmentMethod').addEventListener('change',()=>{renderPayments();updateInvestmentTotals()});
 $('investmentAmount').addEventListener('input',updateInvestmentTotals);
 $('packageSelect').addEventListener('change',()=>{const o=$('packageSelect').selectedOptions[0];if(o?.dataset.amount&&safeNum(o.dataset.amount)>0){$('investmentAmount').value=o.dataset.amount;$('investmentAmount').dispatchEvent(new Event('input'))}});
 $('refreshInvestments').addEventListener('click',async()=>{try{const {data,error}=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;investments=data||[];renderHistory();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
@@ -206,7 +205,7 @@ async function boot(){
     if(error)throw error;currentUser=data?.session?.user||null;if(!currentUser){window.location.replace('login.html');return}
     await Promise.race([loadProfile(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Profile loading timed out. Please refresh and try again.')),10000))]);
     renderSidebar();renderGate();$('loadingScreen').classList.add('hidden');$('app').classList.remove('hidden');
-    try{await loadData();if(isApproved()){renderPackages();renderWalletPurchase();renderHistory()}}catch(backgroundErr){console.warn('Investment data failed to load:',backgroundErr);const box=$('paymentDestinations');if(box)box.innerHTML='<div class="notice warning">Investment data is taking longer than expected. Use Refresh to try again.</div>'}
+    try{await loadData();if(isApproved()){renderPackages();renderWalletPurchase();renderHistory()}}catch(backgroundErr){console.warn('Investment data failed to load:',backgroundErr);const box=$('walletPurchaseNotice');if(box)box.innerHTML='<div class="notice warning">Investment data is taking longer than expected. Please refresh the page.</div>'}
   }catch(err){console.error(err);$('loadingScreen').classList.add('hidden');$('app').classList.remove('hidden');const area=document.querySelector('main');if(area)area.insertAdjacentHTML('afterbegin','<div class="notice error" style="margin:16px"><strong>Unable to load investments.</strong><br>'+esc(err?.message||'Please refresh the page.')+'</div>')}
 }
 sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')window.location.href='login.html'});
