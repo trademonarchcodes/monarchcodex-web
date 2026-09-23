@@ -1034,7 +1034,34 @@ function storageName(prefix,file){return prefix+'/'+currentUser.id+'/'+Date.now(
 /* Wallet display currency — kept independent from the member's USD base balance. */
 let balanceCurrency=localStorage.getItem('monarch_balance_currency')||'USD';
 let balanceRates={USD:1,NGN:1400,EUR:0.85,GBP:0.75};
-const currencyMeta={USD:{symbol:'
+const currencyMeta={USD:{symbol:String.fromCharCode(36),digits:2},NGN:{symbol:'₦',digits:0},EUR:{symbol:'€',digits:2},GBP:{symbol:'£',digits:2}};
+function moneyDisplay(value,currency=balanceCurrency){
+  const meta=currencyMeta[currency]||currencyMeta.USD;
+  const n=Number(value);
+  return meta.symbol+(Number.isFinite(n)?n:0).toLocaleString(undefined,{minimumFractionDigits:meta.digits,maximumFractionDigits:meta.digits});
+}
+function renderBalance(){
+  const base=Math.max(0,safeNum(profile?.balance));
+  const rate=Number(balanceRates[balanceCurrency])||1;
+  const display=$('totalBalanceDisplay'),usd=$('totalBalanceUsd'),select=$('balanceCurrency');
+  if(display)display.textContent=moneyDisplay(base*rate,balanceCurrency);
+  if(usd)usd.textContent='USD base balance: '+moneyDisplay(base,'USD');
+  if(select)select.value=balanceCurrency;
+}
+async function loadBalanceRates(){
+  try{
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),5000);
+    try{
+      const response=await fetch('https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR,GBP,NGN',{cache:'no-store',signal:controller.signal});
+      if(response.ok){
+        const data=await response.json();
+        if(data?.rates)balanceRates={...balanceRates,...data.rates,USD:1};
+      }
+    }finally{clearTimeout(timer)}
+  }catch(e){console.warn('Balance exchange rates unavailable; using fallback rates.',e)}
+  return balanceRates;
+}
 function renderMemberSignals(){
   const accessBox=$('signalAccessNotice'), accessStatus=$('signalAccessStatus'), price=$('signalSubscriptionPrice'), expiry=$('signalAccessExpiry'), tbody=$('memberSignalHistory');
   if(!accessBox||!accessStatus||!price||!expiry||!tbody)return;
