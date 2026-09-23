@@ -27,7 +27,7 @@
 <div class="table"><table><thead><tr><th>Member</th><th>Package</th><th>Contribution</th><th>Earnings</th><th>Target</th><th>Status</th><th>Updated</th></tr></thead><tbody id="tableBody"><tr><td colspan="7">Loading…</td></tr></tbody></table></div>
 </div></div></main></div>
 <div id="toast" class="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__supabaseLoadError=true"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0" onerror="window.__supabaseLoadError=true"></script>
 <script>
 'use strict';
 const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co'; const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh'; const ADMIN_EMAIL='trademonarchofficial@gmail.com'; let sb=null;
@@ -38,7 +38,7 @@ async function withTimeout(p,ms,msg){let t;try{return await Promise.race([p,new 
 async function boot(){
  try{
   if(!window.supabase) throw new Error(window.__supabaseLoadError?'Supabase could not be loaded. Check your internet connection or browser blocker.':'Supabase is still loading. Please refresh and try again.');
-  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  sb=window.supabase.createClient('https://avaworleivncevaoqeny.supabase.co','sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const s=await withTimeout(sb.auth.getSession(),9000,'Administrator session check timed out. Please refresh and sign in again.');
   if(s.error)throw s.error;if(!s.data?.session){location.replace('login.html');return}user=s.data.session.user;
   const p=await withTimeout(sb.from('profiles').select('id,full_name,display_username,uid,role').eq('id',user.id).maybeSingle(),9000,'Administrator profile check timed out. Please refresh and try again.');
@@ -49,7 +49,7 @@ async function boot(){
   $('gate').style.display='none';$('workspace').style.display='block';
   await withTimeout(load(),12000,'Cooperative management data could not be loaded. Please refresh and try again.');
   $('search').oninput=renderMembers;
- }catch(e){console.error('Cooperative admin boot failed:',e);$('gate').textContent=e.message||'Administrator access could not be verified.'}
+ }catch(e){console.error('Cooperative admin boot failed:',e);const msg=String(e?.message||e||'Administrator access could not be verified.');$('gate').innerHTML='<strong>Online Cooperative admin connection failed.</strong><br>'+esc(msg)+'<br><br><small>Supabase itself is online. If your main dashboard works but this page does not, refresh this page after deployment. If the error says “Failed to fetch”, the browser/network is currently unable to reach the Supabase API.</small>'}
 }
 async function load(){const [m,a]=await Promise.all([sb.from('profiles').select('id,full_name,display_username,uid,email,role').order('created_at',{ascending:false}),sb.from('online_cooperative_accounts').select('*').order('updated_at',{ascending:false})]);if(m.error)throw m.error;if(a.error)throw a.error;members=m.data||[];accounts=a.data||[];renderMembers();renderTable()}
 function renderMembers(){const q=($('search').value||'').toLowerCase().trim();const list=members.filter(x=>!q||[x.full_name,x.display_username,x.uid,x.email].some(v=>String(v||'').toLowerCase().includes(q)));$('members').innerHTML=list.length?list.map(x=>'<div class="member '+(selected?.id===x.id?'active':'')+'" onclick="selectMember(\''+x.id+'\')"><strong>'+esc(x.display_username||x.full_name||'Member')+'</strong><small>'+esc(x.uid||x.email||x.id)+'</small></div>').join(''):'<div class="notice">No matching members.</div>'}
