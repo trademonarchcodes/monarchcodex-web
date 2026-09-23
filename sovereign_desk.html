@@ -283,7 +283,9 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
 }
 @media(min-width:951px){#mcSidebarBackdrop,#mcSidebarClose{display:none!important}}
 </style>
-</head>
+<style id="online-cooperative-brand-fix">
+.coop-nav-mark{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;min-width:24px;margin-right:7px;color:#D4AF37;vertical-align:middle}.coop-nav-mark svg{width:22px;height:22px;display:block}.coop-nav-label{color:#D4AF37;font-weight:800}.coop-brand-banner{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 18px;padding:14px 18px;border:1px solid rgba(212,175,55,.25);border-radius:14px;background:linear-gradient(180deg,rgba(212,175,55,.08),rgba(212,175,55,.025));color:#D4AF37;font-weight:800;font-size:22px}.coop-brand-banner svg{width:34px;height:34px;flex:0 0 34px}.coop-brand-banner small{display:block;font-size:9px;color:#9d9378;font-weight:600;margin-top:3px;letter-spacing:.08em;text-transform:uppercase}
+</style></head>
 <body>
 <div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING SOVEREIGN DESK</div><div id="bootText" style="color:#999;font-size:11px;margin-top:6px">Checking your session...</div></div></div>
 <div id="toast"></div>
@@ -300,7 +302,7 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
     <button data-v="signals">✈ &nbsp; Telegram Signals</button>
     <button type="button" onclick="window.location.href='feed-center.html'">📰 &nbsp; Feeds</button>
     <button type="button" onclick="window.location.href='markets.html'">📈 &nbsp; Live Markets</button>
-    <button type="button" onclick="window.location.href='cooperative-admin.html'">♙ &nbsp; Online Cooperative</button>
+    <button type="button" onclick="window.location.href='cooperative-admin.html'"><span class="coop-nav-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path fill="currentColor" d="M40.8 7.2C28.5 7.1 16.8 10.4 11 18.1c-3.2 4.2-3.5 8.9-2.2 12.8 2.6-4.8 6.5-7.9 12-9.7-3.8 2.9-6.2 6.8-6.9 11.2 4.8-.5 9.4-2.7 12.5-6.5 3.9-4.8 5.1-10.5 4.8-14.3 3.1-.8 6.2-2.2 9.6-4.4Z"/><path fill="currentColor" d="M10.2 39.7c4.2-9.1 10.1-14.9 19-19.2-7.3 6.5-11.7 12.6-14.6 20.1l-4.4-.9Z"/></svg></span><span class="coop-nav-label">Online Cooperative</span></button>
     <button data-v="activity">▤ &nbsp; Activity & Audit</button>
     <button data-v="permissions">⚿ &nbsp; My Permissions</button>
     <button type="button" onclick="window.location.href='admin.html'">♛ &nbsp; Main Admin</button>
