@@ -12,14 +12,27 @@ html.mc-light,html.mc-light body{background:#fff!important;color:#171717!importa
 <script>
 const DATA_BASES=['https://api.binance.com/api/v3','https://api1.binance.com/api/v3','https://api2.binance.com/api/v3','https://api3.binance.com/api/v3','https://api4.binance.com/api/v3','https://data-api.binance.vision/api/v3'];
 const FX_BASE='https://api.frankfurter.dev/v2';
+const TV_SCRIPT='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+const crypto=[
+ ['BTCUSDT','Bitcoin','BTC','BINANCE:BTCUSDT'],['ETHUSDT','Ethereum','ETH','BINANCE:ETHUSDT'],['SOLUSDT','Solana','SOL','BINANCE:SOLUSDT'],
+ ['BNBUSDT','BNB','BNB','BINANCE:BNBUSDT'],['XRPUSDT','XRP','XRP','BINANCE:XRPUSDT'],['ADAUSDT','Cardano','ADA','BINANCE:ADAUSDT'],
+ ['DOGEUSDT','Dogecoin','DOGE','BINANCE:DOGEUSDT'],['AVAXUSDT','Avalanche','AVAX','BINANCE:AVAXUSDT'],['LINKUSDT','Chainlink','LINK','BINANCE:LINKUSDT'],
+ ['SUIUSDT','Sui','SUI','BINANCE:SUIUSDT'],['DOTUSDT','Polkadot','DOT','BINANCE:DOTUSDT']
+];
+const forex=[
+ ['EURUSD','Euro / US Dollar','EUR','EUR','USD','OANDA:EURUSD'],['GBPUSD','British Pound / US Dollar','GBP','GBP','USD','OANDA:GBPUSD'],
+ ['USDJPY','US Dollar / Japanese Yen','USD','USD','JPY','OANDA:USDJPY'],['USDCHF','US Dollar / Swiss Franc','USD','USD','CHF','OANDA:USDCHF'],
+ ['AUDUSD','Australian Dollar / US Dollar','AUD','AUD','USD','OANDA:AUDUSD'],['USDCAD','US Dollar / Canadian Dollar','USD','USD','CAD','OANDA:USDCAD'],
+ ['NZDUSD','New Zealand Dollar / US Dollar','NZD','NZD','USD','OANDA:NZDUSD'],['USDNGN','US Dollar / Nigerian Naira','USD','USD','NGN','FX_IDC:USDNGN']
+];
+let mode='crypto',pair='BTCUSDT',interval='60';
+
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 async function getMarketJSON(path){
   let last=null;
   for(const base of DATA_BASES){
-    try{
-      const r=await fetch(base+path,{cache:'no-store'});
-      if(r.ok)return await r.json();
-      last=new Error('HTTP '+r.status);
-    }catch(e){last=e}
+    try{const r=await fetch(base+path,{cache:'no-store'});if(r.ok)return await r.json();last=new Error('HTTP '+r.status)}catch(e){last=e}
   }
   throw last||new Error('Market data unavailable');
 }
@@ -28,28 +41,15 @@ async function getFXJSON(path){
   if(!r.ok)throw new Error('Forex HTTP '+r.status);
   return await r.json();
 }
-const crypto=[
- ['BTCUSDT','Bitcoin','BTC'],['ETHUSDT','Ethereum','ETH'],['SOLUSDT','Solana','SOL'],
- ['BNBUSDT','BNB','BNB'],['XRPUSDT','XRP','XRP'],['ADAUSDT','Cardano','ADA'],
- ['DOGEUSDT','Dogecoin','DOGE'],['AVAXUSDT','Avalanche','AVAX'],['LINKUSDT','Chainlink','LINK'],
- ['SUIUSDT','Sui','SUI'],['DOTUSDT','Polkadot','DOT']
-];
-const forex=[
- ['EURUSD','Euro / US Dollar','EUR','EUR','USD'],['GBPUSD','British Pound / US Dollar','GBP','GBP','USD'],
- ['USDJPY','US Dollar / Japanese Yen','USD','USD','JPY'],['USDCHF','US Dollar / Swiss Franc','USD','USD','CHF'],
- ['AUDUSD','Australian Dollar / US Dollar','AUD','AUD','USD'],['USDCAD','US Dollar / Canadian Dollar','USD','USD','CAD'],
- ['NZDUSD','New Zealand Dollar / US Dollar','NZD','NZD','USD'],['USDNGN','US Dollar / Nigerian Naira','USD','USD','NGN']
-];
-let mode='crypto',pair='BTCUSDT',interval='60',data=[],fxMeta=null;
-
-const $=id=>document.getElementById(id);
-function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function logo(sym){
-  return '<img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@0.18.1/128/color/'+sym.toLowerCase()+'.png" alt="" onerror="this.style.display=\'none\'">';
+function getItem(){
+  const list=mode==='crypto'?crypto:forex;
+  return list.find(x=>x[0]===pair)||list[0];
 }
-function fmt(n){
-  const v=Number(n);
-  return Number.isFinite(v)?v.toLocaleString('en-US',{maximumFractionDigits:v>=100?2:v>=1?4:8}):'—';
+function tvSymbol(){
+  return getItem()[mode==='crypto'?3:5];
+}
+function tvInterval(){
+  return interval;
 }
 function renderSymbols(){
   const list=mode==='crypto'?crypto:forex;
@@ -57,133 +57,85 @@ function renderSymbols(){
   document.querySelectorAll('[data-pair]').forEach(b=>b.onclick=()=>{pair=b.dataset.pair;loadChart();loadTable()});
 }
 function setIntervalControls(){
-  const controls=document.querySelectorAll('[data-int]');
-  controls.forEach(b=>{
-    const daily=b.dataset.int==='D';
-    b.disabled=mode==='forex'&&!daily;
-    b.style.opacity=b.disabled?'.45':'1';
-    b.classList.toggle('active',mode==='forex'?daily:b.dataset.int===interval);
+  document.querySelectorAll('[data-int]').forEach(b=>{
+    b.disabled=false;
+    b.style.opacity='1';
+    b.classList.toggle('active',b.dataset.int===interval);
   });
-  if(mode==='forex')interval='D';
+}
+function mountTradingView(){
+  const wrap=$('chartWrap');
+  wrap.innerHTML='<div id="tvChart" class="tradingview-widget-container" style="height:100%;width:100%"><div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div><div class="tradingview-widget-copyright" style="height:32px;padding:5px 10px;font-size:9px;text-align:center;color:#777"><a href="https://www.tradingview.com/" target="_blank" rel="noopener nofollow" style="color:#888">Charts by TradingView</a></div></div>';
+  const host=$('tvChart');
+  const script=document.createElement('script');
+  script.type='text/javascript';
+  script.src=TV_SCRIPT;
+  script.async=true;
+  script.textContent=JSON.stringify({
+    autosize:true,
+    symbol:tvSymbol(),
+    interval:tvInterval(),
+    timezone:'exchange',
+    theme:document.documentElement.classList.contains('mc-light')?'light':'dark',
+    backgroundColor:document.documentElement.classList.contains('mc-light')?'#ffffff':'#080808',
+    style:'1',
+    withdateranges:true,
+    hide_side_toolbar:false,
+    allow_symbol_change:true,
+    save_image:false,
+    calendar:false,
+    support_host:'https://www.tradingview.com',
+    locale:'en',
+    show_popup_button:true,
+    popup_width:'1000',
+    popup_height:'650'
+  });
+  host.appendChild(script);
 }
 async function loadCryptoTable(){
-  const list=crypto;
   try{
-    const a=await getMarketJSON('/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(list.map(x=>x[0]))));
+    const a=await getMarketJSON('/ticker/24hr?symbols='+encodeURIComponent(JSON.stringify(crypto.map(x=>x[0]))));
     const m=new Map(a.map(x=>[x.symbol,x]));
-    $('body').innerHTML=list.map(x=>{
+    $('body').innerHTML=crypto.map(x=>{
       const q=m.get(x[0])||{},ch=Number(q.priceChangePercent);
-      return '<tr><td><div class="asset"><div class="logo">'+logo(x[2])+'</div><div class="name"><strong>'+esc(x[1])+'</strong><span>'+x[0]+'</span></div></div></td><td>'+fmt(q.lastPrice)+'</td><td class="'+(ch>=0?'up':'down')+'">'+(ch>=0?'+':'')+(Number.isFinite(ch)?ch.toFixed(2):'—')+'%</td><td>'+fmt(q.highPrice)+'</td><td>'+fmt(q.lowPrice)+'</td></tr>';
+      return '<tr><td><div class="asset"><div class="logo">'+x[2]+'</div><div class="name"><strong>'+esc(x[1])+'</strong><span>'+x[0]+'</span></div></div></td><td>'+fmt(q.lastPrice)+'</td><td class="'+(ch>=0?'up':'down')+'">'+(ch>=0?'+':'')+(Number.isFinite(ch)?ch.toFixed(2):'—')+'%</td><td>'+fmt(q.highPrice)+'</td><td>'+fmt(q.lowPrice)+'</td></tr>';
     }).join('');
-  }catch(e){
-    $('body').innerHTML='<tr><td colspan="5">Live crypto prices are temporarily unavailable. Tap Refresh to retry.</td></tr>';
-  }
+  }catch(e){$('body').innerHTML='<tr><td colspan="5">Live crypto prices are temporarily unavailable. Tap Refresh to retry.</td></tr>'}
 }
 async function loadForexTable(){
   try{
     const currencies=['EUR','GBP','JPY','CHF','AUD','CAD','NZD','NGN'].join(',');
     const d=await getFXJSON('/rates?base=USD&quotes='+currencies);
-    const rates={USD:1};
-    (d||[]).forEach(x=>rates[x.quote]=Number(x.rate));
-    const rows=forex.map(x=>{
+    const rates={USD:1};(d||[]).forEach(x=>rates[x.quote]=Number(x.rate));
+    $('body').innerHTML=forex.map(x=>{
       const base=x[3],quote=x[4],rate=base==='USD'?rates[quote]:rates[base]?(rates[quote]||1)/rates[base]:null;
-      return {x,rate};
-    });
-    $('body').innerHTML=rows.map(({x,rate})=>{
-      const price=rate;
-      return '<tr><td><div class="asset"><div class="logo">'+x[2]+'</div><div class="name"><strong>'+esc(x[1])+'</strong><span>'+x[0]+'</span></div></div></td><td>'+fmt(price)+'</td><td>—</td><td>—</td><td>—</td></tr>';
+      return '<tr><td><div class="asset"><div class="logo">'+x[2]+'</div><div class="name"><strong>'+esc(x[1])+'</strong><span>'+x[0]+'</span></div></div></td><td>'+fmt(rate)+'</td><td>—</td><td>—</td><td>—</td></tr>';
     }).join('');
-    fxMeta='Reference rates from public FX data';
-  }catch(e){
-    $('body').innerHTML='<tr><td colspan="5">Forex reference rates are temporarily unavailable. Tap Refresh to retry.</td></tr>';
-    fxMeta=null;
-  }
+  }catch(e){$('body').innerHTML='<tr><td colspan="5">Forex reference rates are temporarily unavailable. Tap Refresh to retry.</td></tr>'}
+}
+function fmt(n){
+  const v=Number(n);
+  return Number.isFinite(v)?v.toLocaleString('en-US',{maximumFractionDigits:v>=100?2:v>=1?4:8}):'—';
 }
 async function loadTable(){return mode==='crypto'?loadCryptoTable():loadForexTable()}
-
-async function loadCryptoChart(){
-  $('symbolName').textContent=pair.slice(0,-4)+' / USDT';
-  $('symbolMeta').textContent=(interval==='D'?'1 day':interval+' minute')+' candles • live exchange data';
-  try{
-    data=await getMarketJSON('/klines?symbol='+pair+'&interval='+(interval==='D'?'1d':interval+'m')+'&limit=120');
-    const last=data[data.length-1],prev=data[data.length-2];
-    const p=Number(last[4]),pc=(p/Number(prev[4])-1)*100;
-    $('quote').textContent=fmt(p);
-    $('change').textContent=(pc>=0?'+':'')+pc.toFixed(2)+'%';
-    $('change').className='change '+(pc>=0?'up':'down');
-    draw();
-  }catch(e){
-    $('quote').textContent='—';
-    $('change').textContent='Live crypto data unavailable — tap Refresh';
-    $('change').className='change down';
-    data=[];draw();
-  }
+function loadChart(){
+  renderSymbols();
+  setIntervalControls();
+  $('symbolName').textContent=mode==='crypto'?pair.slice(0,-4)+' / USDT':getItem()[3]+' / '+getItem()[4];
+  $('symbolMeta').textContent=mode==='crypto'?'TradingView live exchange chart':'TradingView live/reference FX chart';
+  mountTradingView();
 }
-async function loadForexChart(){
-  const item=forex.find(x=>x[0]===pair)||forex[0];
-  const base=item[3],quote=item[4];
-  $('symbolName').textContent=base+' / '+quote;
-  $('symbolMeta').textContent='Daily reference rate • public FX data';
-  try{
-    const today=new Date(),from=new Date(today);from.setDate(today.getDate()-45);
-    const iso=d=>d.toISOString().slice(0,10);
-    const rows=await getFXJSON('/rates?from='+iso(from)+'&to='+iso(today)+'&base='+base+'&quotes='+quote);
-    data=(rows||[]).map(r=>[Date.parse(r.date),Number(r.rate),Number(r.rate),Number(r.rate),Number(r.rate)]).sort((a,b)=>a[0]-b[0]);
-    const last=data[data.length-1],prev=data[data.length-2];
-    const p=Number(last?.[4]),pc=prev?((p/Number(prev[4]))-1)*100:0;
-    $('quote').textContent=fmt(p);
-    $('change').textContent=(pc>=0?'+':'')+pc.toFixed(2)+'% vs previous reference';
-    $('change').className='change '+(pc>=0?'up':'down');
-    draw();
-  }catch(e){
-    $('quote').textContent='—';
-    $('change').textContent='Forex reference data unavailable — tap Refresh';
-    $('change').className='change down';
-    data=[];draw();
-  }
-}
-async function loadChart(){
-  renderSymbols();setIntervalControls();
-  if(mode==='forex')return loadForexChart();
-  return loadCryptoChart();
-}
-function draw(){
-  const cv=$('chart'),box=$('chartWrap'),dpr=devicePixelRatio||1,w=box.clientWidth,h=box.clientHeight;
-  cv.width=w*dpr;cv.height=h*dpr;
-  const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
-  const dark=!document.documentElement.classList.contains('mc-light');
-  const fg=dark?'#A9A49B':'#6A6D72',grid=dark?'rgba(255,255,255,.08)':'rgba(20,20,20,.08)',green='#19A765',red='#E14B5A';
-  x.font='10px Figtree';
-  for(let i=1;i<7;i++){const yy=30+i*(h-60)/7;x.strokeStyle=grid;x.beginPath();x.moveTo(0,yy);x.lineTo(w,yy);x.stroke()}
-  for(let i=1;i<8;i++){const xx=i*w/8;x.strokeStyle=grid;x.beginPath();x.moveTo(xx,0);x.lineTo(xx,h);x.stroke()}
-  if(!data.length){x.fillStyle=fg;x.fillText('Live market data is loading…',20,h/2);return}
-  const highs=data.map(d=>+d[2]),lows=data.map(d=>+d[3]),hi=Math.max(...highs),lo=Math.min(...lows),pad=(hi-lo)*.08||1,top=28,bottom=h-45,min=lo-pad,max=hi+pad,step=w/data.length,scale=v=>top+(max-v)/(max-min)*(bottom-top);
-  if(mode==='forex'){
-    x.strokeStyle=green;x.lineWidth=2;x.beginPath();
-    data.forEach((d,i)=>{const xx=(i+.5)*step,yy=scale(+d[4]);i?x.lineTo(xx,yy):x.moveTo(xx,yy)});x.stroke();
-    x.fillStyle=fg;x.textAlign='right';
-    for(let j=0;j<5;j++){const v=max-j*(max-min)/4;x.fillText(fmt(v),w-8,scale(v))}
-    return;
-  }
-  data.forEach((d,i)=>{
-    const o=+d[1],hh=+d[2],ll=+d[3],cl=+d[4],xx=(i+.5)*step,up=cl>=o,col=up?green:red;
-    x.strokeStyle=col;x.lineWidth=1;x.beginPath();x.moveTo(xx,scale(hh));x.lineTo(xx,scale(ll));x.stroke();
-    const bw=Math.max(2,step*.58),y1=scale(Math.max(o,cl)),y2=scale(Math.min(o,cl));
-    x.fillStyle=col;x.fillRect(xx-bw/2,y1,bw,Math.max(1,y2-y1));
-  });
-  x.fillStyle=fg;x.textAlign='right';
-  for(let j=0;j<5;j++){const v=max-j*(max-min)/4;x.fillText(fmt(v),w-8,scale(v))}
-}
-$('cryptoTab').onclick=()=>{mode='crypto';pair='BTCUSDT';$('cryptoTab').classList.add('active');$('forexTab').classList.remove('active');loadChart();loadTable()};
-$('forexTab').onclick=()=>{mode='forex';pair='EURUSD';$('forexTab').classList.add('active');$('cryptoTab').classList.remove('active');loadChart();loadTable()};
-document.querySelectorAll('[data-int]').forEach(b=>b.onclick=()=>{if(b.disabled)return;interval=b.dataset.int;loadChart()});
+$('cryptoTab').onclick=()=>{mode='crypto';pair='BTCUSDT';interval='60';$('cryptoTab').classList.add('active');$('forexTab').classList.remove('active');loadChart();loadTable()};
+$('forexTab').onclick=()=>{mode='forex';pair='EURUSD';interval='60';$('forexTab').classList.add('active');$('cryptoTab').classList.remove('active');loadChart();loadTable()};
+document.querySelectorAll('[data-int]').forEach(b=>b.onclick=()=>{interval=b.dataset.int;loadChart()});
 $('refresh').onclick=()=>{loadChart();loadTable()};
 $('full').onclick=()=>{$('chartWrap').requestFullscreen?.()||$('chartWrap').webkitRequestFullscreen?.()};
-window.addEventListener('resize',draw);
 const KEY='monarch_theme_v3';
-function applyTheme(t){document.documentElement.classList.toggle('mc-light',t==='light');$('theme').textContent=t==='light'?'☾ Dark':'☀ Light';draw()}
-const saved=localStorage.getItem(KEY)||'dark';applyTheme(saved);
+function applyTheme(t){document.documentElement.classList.toggle('mc-light',t==='light');$('theme').textContent=t==='light'?'☾ Dark':'☀ Light';loadChart()}
+const saved=localStorage.getItem(KEY)||'dark';
+applyTheme(saved);
 $('theme').onclick=()=>{const n=document.documentElement.classList.contains('mc-light')?'dark':'light';localStorage.setItem(KEY,n);applyTheme(n)};
-renderSymbols();setIntervalControls();loadChart();loadTable();
-setInterval(()=>{loadTable();if(mode==='crypto')loadChart();else loadChart()},30000);
-</script></script></body></html>
+loadChart();
+loadTable();
+setInterval(()=>{loadTable()},30000);
+</script></body></html>
