@@ -73,23 +73,25 @@
     <div id="investmentGate" class="notice hidden"></div>
     <div id="investmentArea">
       <div class="grid two">
-        <div class="card"><div class="section-title" style="margin-top:0"><h3>New Investment</h3></div>
+        <div class="card"><div class="section-title" style="margin-top:0"><h3>Buy From Wallet</h3></div>
+          <div class="notice" style="margin-bottom:13px">Choose an investment package and purchase it directly from your funded available balance. Wallet Transfer charge: <strong>$1</strong>.</div>
           <form id="investmentForm" class="form-grid">
             <div class="field full"><label>Investment Package</label><select id="packageSelect" required><option value="">Loading packages…</option></select></div>
-            <div class="field"><label>Investment Amount (USD)</label><input id="investmentAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div>
-            <div class="field"><label>Payment Method</label><select id="investmentMethod" required><option value="">Choose method</option><option value="bank">Bank Transfer</option><option value="wallet">Crypto / Wallet</option></select></div>
-            <div class="field full"><label>Payment Destination</label><div id="paymentDestinations" class="payment-list"><div class="muted" style="font-size:11px">Choose a payment method.</div></div></div>
-            <div class="field"><label>Fee</label><input id="investmentFee" readonly value="$0.00"></div>
-            <div class="field"><label>Total USD</label><input id="investmentTotal" readonly value="$0.00"></div>
-            <div class="field"><label>Total NGN (bank only)</label><input id="investmentNgn" readonly value="—"></div>
-            <div class="field"><label>Receipt</label><input id="investmentReceipt" type="file" accept="image/*,.pdf" required></div>
-            <div class="field full"><label>Note (optional)</label><textarea id="investmentNote" rows="3" placeholder="Add a payment note if necessary"></textarea></div>
-            <div class="field full"><button class="btn primary" id="investmentSubmit" type="submit">Submit Investment</button></div>
+            <div class="field"><label>Package Amount (USD)</label><input id="investmentAmount" readonly value="$0.00"></div>
+            <div class="field"><label>Wallet Transfer Charge</label><input id="investmentFee" readonly value="$1.00"></div>
+            <div class="field"><label>Total From Wallet</label><input id="investmentTotal" readonly value="$0.00"></div>
+            <div class="field"><label>Available Wallet Balance</label><input id="walletBalance" readonly value="$0.00"></div>
+            <div class="field full"><div id="walletPurchaseNotice" class="notice">Select a package to continue.</div></div>
+            <div class="field full"><button class="btn primary" id="investmentSubmit" type="submit">Buy Package From Wallet</button></div>
           </form>
         </div>
-        <div class="card"><div class="section-title" style="margin-top:0"><h3>Payment Instructions</h3></div><div id="paymentInstruction" class="notice">Select Bank Transfer or Crypto / Wallet to see available destinations.</div><div class="divider"></div><div class="notice">Investment fee: Bank $2 · Wallet $1 · Bank conversion: $1 = ₦1,400.</div></div>
+        <div class="card"><div class="section-title" style="margin-top:0"><h3>One Wallet For The Codex</h3></div>
+          <div class="notice">Your funded wallet is becoming the central payment source for supported MONARCH CODEX services. The same balance can be used as future features are connected, including Academy courses and signal subscriptions.</div>
+          <div class="divider"></div>
+          <button class="btn" type="button" onclick="window.location.href='wallet.html'">Open Wallet →</button>
+        </div>
       </div>
-      <div class="section-title"><h3>Investment History</h3><button class="btn btn-sm" id="refreshInvestments">Refresh</button></div>
+<div class="section-title"><h3>Investment History</h3><button class="btn btn-sm" id="refreshInvestments">Refresh</button></div>
       <div class="table-wrap"><table class="table"><thead><tr><th>Package</th><th>Amount</th><th>Fee</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="investmentHistory"></tbody></table></div>
     </div>
   </main>
@@ -144,13 +146,13 @@ async function loadProfile(){
 }
 
 async function loadData(){
-  const [pkg,pay,inv]=await Promise.all([
+  const [pkg,inv,prof]=await Promise.all([
     sb.from('packages').select('*').eq('active',true),
-    sb.from('payment_details').select('title,payment_type,bank_name,account_name,account_number,crypto_name,crypto_network,wallet_address,active').eq('active',true),
-    sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
+    sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
+    sb.from('profiles').select('balance').eq('id',currentUser.id).maybeSingle()
   ]);
-  if(pkg.error)throw pkg.error;if(pay.error)throw pay.error;if(inv.error)throw inv.error;
-  packages=pkg.data||[];payments=pay.data||[];investments=inv.data||[];
+  if(pkg.error)throw pkg.error;if(inv.error)throw inv.error;if(prof.error)throw prof.error;
+  packages=pkg.data||[];investments=inv.data||[];profile.balance=prof.data?.balance??profile.balance??0;
 }
 function renderGate(){
   const approved=isApproved();
@@ -164,28 +166,18 @@ function renderPackages(){
     return '<option value="'+esc(p.id??p.name??p.package_name)+'" data-amount="'+safeNum(amount)+'">'+esc(p.name??p.package_name??p.title??'Package')+' — '+fmt(amount)+'</option>';
   }).join('');
 }
-function selectedMethod(){return $('investmentMethod').value}
-function copyText(value){
-  return navigator.clipboard?.writeText(String(value)).catch(()=>{
-    const ta=document.createElement('textarea');ta.value=String(value);document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
-  });
+function renderWalletPurchase(){
+  const opt=$('packageSelect').selectedOptions[0],amount=safeNum(opt?.dataset.amount),fee=amount?1:0,total=amount+fee,balance=safeNum(profile?.balance);
+  $('investmentAmount').value=fmt(amount);$('investmentFee').value=fmt(fee);$('investmentTotal').value=fmt(total);$('walletBalance').value=fmt(balance);
+  $('walletPurchaseNotice').textContent=!amount?'Select an investment package to continue.':balance>=total?'Ready — the package and $1 wallet transfer charge will be deducted from your funded balance.':'Insufficient wallet balance. Fund your wallet before purchasing this package.';
+  $('investmentSubmit').disabled=!amount||balance<total;
 }
-function renderPayments(){
-  const method=selectedMethod();selectedPayment=null;
-  const list=payments.filter(p=>{const t=String(p.payment_type||'').toLowerCase();return method==='bank'?t.includes('bank'):t.includes('crypto')||t.includes('wallet')||!!p.wallet_address});
-  $('paymentDestinations').innerHTML=list.length?list.map((p,i)=>'<div class="payment" data-pay-index="'+i+'" tabindex="0"><h4>'+esc(p.title||p.payment_type||'Payment Destination')+'</h4>'+(p.bank_name?'<p>Bank: '+esc(p.bank_name)+'</p>':'')+(p.account_name?'<p>Account Name: '+esc(p.account_name)+'</p>':'')+(p.account_number?'<p class="payment-copy-row"><span>Account Number: <code>'+esc(p.account_number)+'</code></span><button type="button" class="btn btn-sm copy-mini" data-copy-field="account_number" data-pay-index="'+i+'">Copy</button></p>':'')+(p.crypto_name?'<p>Asset: '+esc(p.crypto_name)+'</p>':'')+(p.crypto_network?'<p>Network: '+esc(p.crypto_network)+'</p>':'')+(p.wallet_address?'<p class="payment-copy-row"><span>Wallet Address: <code>'+esc(p.wallet_address)+'</code></span><button type="button" class="btn btn-sm copy-mini" data-copy-field="wallet_address" data-pay-index="'+i+'">Copy</button></p>':'')+'</div>').join(''):'<div class="notice">No active payment destination is currently available for this method.</div>';
-  document.querySelectorAll('[data-pay-index]').forEach(el=>el.addEventListener('click',()=>{if(el.closest('[data-copy-field]'))return;document.querySelectorAll('[data-pay-index]').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');selectedPayment=list[Number(el.dataset.payIndex)];renderPaymentInstruction()}));
-  document.querySelectorAll('[data-copy-field]').forEach(btn=>btn.addEventListener('click',async e=>{e.stopPropagation();const item=list[Number(btn.dataset.payIndex)];const value=item?.[btn.dataset.copyField];if(!value)return;try{await copyText(value);btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy',1200)}catch{toast('Copy failed.','error')}}));
-  renderPaymentInstruction();
-}
+function copyText(value){return navigator.clipboard?.writeText(String(value))}
 function renderPaymentInstruction(){
   const p=selectedPayment;if(!p){$('paymentInstruction').textContent='Select a payment destination above.';return}
   $('paymentInstruction').innerHTML='<strong>'+esc(p.title||'Payment destination')+'</strong><br><span class="muted">'+esc(p.payment_type||'')+'</span>'+(p.bank_name?'<br>Bank: '+esc(p.bank_name):'')+(p.account_name?'<br>Account: '+esc(p.account_name):'')+(p.account_number?'<br>Number: '+esc(p.account_number):'')+(p.crypto_network?'<br>Network: '+esc(p.crypto_network):'')+(p.wallet_address?'<br>Wallet: '+esc(p.wallet_address):'');
 }
-function updateInvestmentTotals(){
-  const a=safeNum($('investmentAmount').value),bank=selectedMethod()==='bank',fee=bank?BANK_FEE:WALLET_FEE;
-  $('investmentFee').value=fmt(a?fee:0);$('investmentTotal').value=fmt(a+fee);$('investmentNgn').value=bank&&a?ngn((a+fee)*NGN_RATE):'—';
-}
+function updateInvestmentTotals(){renderWalletPurchase()}
 function renderHistory(){
   $('investmentHistory').innerHTML=investments.length?investments.map(x=>'<tr><td>'+esc(x.package_name||'—')+'</td><td>'+fmt(x.amount)+'</td><td>'+fmt(x.fee)+'</td><td>'+esc(x.method||x.payment_method||'—')+'</td><td>'+status(x.status)+'</td><td>'+date(x.created_at)+'</td></tr>').join(''):'<tr><td colspan="6" class="empty">No investments found.</td></tr>';
 }
@@ -195,25 +187,15 @@ $('packageSelect').addEventListener('change',()=>{const o=$('packageSelect').sel
 $('refreshInvestments').addEventListener('click',async()=>{try{const {data,error}=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;investments=data||[];renderHistory();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
 $('investmentForm').addEventListener('submit',async e=>{
   e.preventDefault();if(!isApproved()){window.location.href='kyc.html';return}
-  const amount=safeNum($('investmentAmount').value),method=$('investmentMethod').value,fee=method==='bank'?BANK_FEE:WALLET_FEE,file=$('investmentReceipt').files[0],pkg=$('packageSelect').selectedOptions[0];
-  if(amount<=0||!method||!file||!selectedPayment||!pkg?.value){toast('Complete the package, amount, payment method, destination and receipt.','error');return}
-  const btn=$('investmentSubmit');btn.disabled=true;btn.textContent='Submitting…';
+  const pkgId=Number($('packageSelect').value);
+  if(!pkgId)return toast('Choose an investment package.','error');
+  const btn=$('investmentSubmit');btn.disabled=true;btn.textContent='Processing…';
   try{
-    let receipt;
-    try{receipt=await uploadFile('payment-receipts',storageName('receipts',file),file)}catch(firstReceiptError){console.warn('payment-receipts upload failed; trying receipts bucket:',firstReceiptError);receipt=await uploadFile('receipts',storageName('receipts',file),file)}
-    const basePayload={user_id:currentUser.id,package_name:pkg.textContent.split(' — ')[0],amount,fee,note:$('investmentNote').value.trim(),receipt_url:receipt,status:'pending'};
-    let insertResult=await sb.from('investments').insert({...basePayload,method,payment_method:method});
-    if(insertResult.error){
-      const msg=String(insertResult.error.message||'').toLowerCase(),code=String(insertResult.error.code||'');
-      if(code==='42703'||code==='PGRST204'||msg.includes('payment_method')||msg.includes('method')){
-        insertResult=await sb.from('investments').insert({...basePayload,method});
-        if(insertResult.error&&(String(insertResult.error.message||'').toLowerCase().includes('method')||String(insertResult.error.code||'')==='42703'||String(insertResult.error.code||'')==='PGRST204'))insertResult=await sb.from('investments').insert({...basePayload,payment_method:method});
-      }
-      if(insertResult.error)throw insertResult.error;
-    }
-    $('investmentForm').reset();selectedPayment=null;renderPayments();updateInvestmentTotals();
-    const {data,error}=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(error)throw error;investments=data||[];renderHistory();toast('Investment submitted and awaiting review.');
-  }catch(err){console.error(err);toast('Investment submission failed.','error')}finally{btn.disabled=false;btn.textContent='Submit Investment'}
+    const {data,error}=await sb.rpc('purchase_investment_from_wallet',{p_package_id:pkgId});
+    if(error)throw error;
+    profile.balance=Number(data?.balance??profile.balance);
+    const q=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(q.error)throw q.error;investments=q.data||[];renderHistory();renderWalletPurchase();$('packageSelect').value='';renderWalletPurchase();toast('Investment purchased from your wallet.','success');
+  }catch(err){console.error(err);toast(err.message||'Wallet purchase failed.','error')}finally{btn.disabled=false;btn.textContent='Buy Package From Wallet'}
 });
 $('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
 $('sidebarLogout').addEventListener('click',async()=>{await sb.auth.signOut();window.location.href='login.html'});
@@ -224,7 +206,7 @@ async function boot(){
     if(error)throw error;currentUser=data?.session?.user||null;if(!currentUser){window.location.replace('login.html');return}
     await Promise.race([loadProfile(),new Promise((_,reject)=>setTimeout(()=>reject(new Error('Profile loading timed out. Please refresh and try again.')),10000))]);
     renderSidebar();renderGate();$('loadingScreen').classList.add('hidden');$('app').classList.remove('hidden');
-    try{await loadData();if(isApproved()){renderPackages();renderPayments();updateInvestmentTotals();renderHistory()}}catch(backgroundErr){console.warn('Investment data failed to load:',backgroundErr);const box=$('paymentDestinations');if(box)box.innerHTML='<div class="notice warning">Investment data is taking longer than expected. Use Refresh to try again.</div>'}
+    try{await loadData();if(isApproved()){renderPackages();renderWalletPurchase();renderHistory()}}catch(backgroundErr){console.warn('Investment data failed to load:',backgroundErr);const box=$('paymentDestinations');if(box)box.innerHTML='<div class="notice warning">Investment data is taking longer than expected. Use Refresh to try again.</div>'}
   }catch(err){console.error(err);$('loadingScreen').classList.add('hidden');$('app').classList.remove('hidden');const area=document.querySelector('main');if(area)area.insertAdjacentHTML('afterbegin','<div class="notice error" style="margin:16px"><strong>Unable to load investments.</strong><br>'+esc(err?.message||'Please refresh the page.')+'</div>')}
 }
 sb.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT')window.location.href='login.html'});
