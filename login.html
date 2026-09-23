@@ -953,11 +953,27 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
 
         try {
 
-            let authResult =
-                await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+            let authResult;
+
+            // Do not leave the login button spinning forever if the browser's
+            // direct Supabase connection stalls. After 12s the existing
+            // same-origin auth fallback is allowed to take over.
+            try {
+                authResult = await Promise.race([
+                    supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    }),
+                    new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error("Authentication request timed out.")), 12000)
+                    )
+                ]);
+            } catch (authTimeoutError) {
+                authResult = {
+                    data: { user: null, session: null },
+                    error: new Error("Failed to fetch")
+                };
+            }
 
             let data = authResult.data;
             let error = authResult.error;
@@ -1064,10 +1080,12 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
             }
 
 
-            const profile =
-                await getCurrentProfile(
-                    user.id
-                );
+            const profile = await Promise.race([
+                getCurrentProfile(user.id),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Member profile loading timed out. Please refresh and try again.")), 12000)
+                )
+            ]);
 
 
             if (!profile) {
