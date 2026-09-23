@@ -975,8 +975,7 @@ html.mc-light #homepageUpdatesCard .divider{background:#E6DDC9!important}
   </div>
   <div class="toast hidden" id="toast">
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
   <script>
    'use strict';
 
@@ -988,8 +987,33 @@ const X_HISTORY_KEY='monarch_x_chat_v1';
 const NGN_RATE=1400, BANK_FEE=2, WALLET_FEE=1, WITHDRAWAL_RATE=.01, MIN_EARNINGS=10, CAPITAL_LOCK_MONTHS=3;
 const KYC_PROTECTED_VIEWS=['x','investments','withdrawals','transactions','referrals','profile'];
 let sb=null;
-window.addEventListener('error',e=>{console.error('MONARCH DASHBOARD ERROR',e.error||e.message);try{setTimeout(()=>{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l&&!l.classList.contains('hidden')){l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Dashboard startup error.</strong><br>'+String(e.message||'Please refresh and try again.').replace(/[&<>]/g,'')+'</div></div>'; }},0)}catch(_){} });
-if(window.supabase&&typeof window.supabase.createClient==='function'){sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}else{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l)l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Supabase could not be loaded.</strong><br>Please refresh the page and try again.</div></div>';}
+function showDashboardStartupError(message){
+  const l=document.getElementById('loadingScreen'),a=document.getElementById('app'),c=document.querySelector('.content');
+  if(l&&!l.classList.contains('hidden')){
+    l.classList.add('hidden');
+    if(a)a.classList.remove('hidden');
+    if(c)c.innerHTML='<div class="card"><div class="notice error"><strong>Dashboard startup error.</strong><br>'+String(message||'Please refresh the page and try again.').replace(/[&<>]/g,'')+'</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>';
+  }
+}
+function initSupabaseClient(){
+  if(sb)return true;
+  if(window.supabase&&typeof window.supabase.createClient==='function'){
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    return true;
+  }
+  return false;
+}
+async function waitForSupabase(timeoutMs=10000){
+  const started=Date.now();
+  while(!initSupabaseClient()){
+    if(Date.now()-started>=timeoutMs)throw new Error('Supabase client could not be loaded. Please refresh and try again.');
+    await new Promise(resolve=>setTimeout(resolve,100));
+  }
+}
+window.addEventListener('error',e=>{
+  console.error('MONARCH DASHBOARD ERROR',e.error||e.message);
+  if(e?.message)showDashboardStartupError(e.message);
+});
 let currentUser=null,profile=null,packages=[],payments=[],notifications=[],investments=[],earnings=[],withdrawals=[],adjustments=[],referralLedger=[],referrals=[];
 let memberSignalData={connected:false,access:{active:false,expires_at:null,subscription_price:null,subscription_currency:null},signals:[]};
 let currentView='overview', selectedPayment=null, siteContent={homepage_title:'MONARCH CODEX',homepage_intro:'Updates, events and official channels from the MONARCH CODEX team.',events:[],socials:[],contacts:[]};
@@ -997,7 +1021,7 @@ let currentView='overview', selectedPayment=null, siteContent={homepage_title:'M
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 /* Currency helpers */
-function fmt(n){const x=Number(n);return '
+function fmt(n){const x=Number(n);return '$'+(Number.isFinite(x)?x:0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
 function ngn(n){const x=Number(n);return '₦'+(Number.isFinite(x)?x:0).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
 function date(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
 function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast '+(type==='error'?'error':'');t.classList.remove('hidden');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.add('hidden'),4200)}
@@ -1487,8 +1511,16 @@ async function boot(){
     document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>'+esc(err?.message||'Please refresh the page or sign in again.')+'</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'
   }
 }
-sb?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
-boot();
+waitForSupabase().then(()=>{
+  sb.auth.onAuthStateChange((event,session)=>{
+    if(event==='SIGNED_OUT')location.href='login.html';
+    if(session&&currentUser&&session.user.id!==currentUser.id)location.reload();
+  });
+  boot();
+}).catch(err=>{
+  console.error('MONARCH DASHBOARD SUPABASE LOAD ERROR',err);
+  showDashboardStartupError(err?.message||'Supabase client could not be loaded.');
+});
   </script>
  
 <script>
@@ -2398,274 +2430,3 @@ $('withdrawalForm')?.addEventListener('submit',async e=>{
     const payload={user_id:currentUser.id,amount:a,account_name:method==='bank'?accountName:profile.full_name,account_number:method==='bank'?accountNumber:$('withdrawalWallet').value.trim(),bank_name:method==='bank'?bankName:`Crypto — ${$('withdrawalChain').value}`,status:'pending',source_type:source,fee:a*WITHDRAWAL_RATE};
     const {error}=await sb.from('withdrawals').insert(payload);if(error)throw error;
     $('withdrawalForm').reset();updateWithdrawalPreview();await refreshWithdrawals();toast('Withdrawal request submitted and is pending review.');
-  }catch(err){console.error(err);toast('Withdrawal could not be submitted.','error')}finally{btn.disabled=false;btn.textContent='Submit Withdrawal Request'}
-});
-
-function renderReferrals(){
-  const gate=!isApproved();$('referralGate').classList.toggle('hidden',!gate);$('referralArea').classList.toggle('hidden',gate);if(gate){$('referralGate').innerHTML=kycMessage();return}
-  const f=calculateFinance();$('refCode').textContent=profile.referral_code||'—';$('refCodeChip').textContent=profile.referral_code||'—';$('refEarnings').textContent=fmt(f.refEarn);$('refCount').textContent=referrals.length;
-  const link=new URL('register.html',location.href).href+'?ref='+encodeURIComponent(profile.referral_code||'');$('refLink').value=link;
-  $('referralHistory').innerHTML=referrals.length?referrals.map(r=>{const p=r.profile||{};return `<tr><td>${esc(r.full_name||r.name||p.full_name||'Monarch')}</td><td>${esc(r.display_username||p.display_username||'—')}</td><td>${status(r.status||p.status||'active')}</td><td>${date(r.created_at)}</td><td><button class="btn btn-sm public-profile" data-id="${esc(r.user_id||r.referred_user_id||r.id||'')}">View</button></td></tr>`}).join(''):'<tr><td colspan="5" class="empty">No referrals found.</td></tr>';
-  document.querySelectorAll('.public-profile').forEach(b=>b.addEventListener('click',()=>openPublicProfile(b.dataset.id)));
-}
-async function refreshReferrals(){
-  const {data,error}=await sb.from('referrals').select('*').or('referrer_id.eq.'+currentUser.id+',user_id.eq.'+currentUser.id).order('created_at',{ascending:false});
-  if(error)throw error;referrals=data||[];
-  /* Enrich only with public fields, never private profile data. */
-  const ids=referrals.map(r=>r.user_id||r.referred_user_id).filter(Boolean).filter(id=>id!==currentUser.id);
-  if(ids.length){const {data:pub}=await sb.from('profiles').select('id,full_name,display_username,avatar_url,created_at,status,kyc_status').in('id',ids);const map=new Map((pub||[]).map(p=>[p.id,p]));referrals=referrals.map(r=>({...r,profile:map.get(r.user_id||r.referred_user_id)||null}))}
-  renderReferrals();renderOverview()
-}
-$('refreshReferrals')?.addEventListener('click',async()=>{try{await refreshReferrals();toast('Referral network refreshed.')}catch(e){toast('Unable to load referrals.','error')}})
-async function copyText(v){try{await navigator.clipboard.writeText(v);toast('Copied.')}catch(e){toast('Copy failed.','error')}}
-$('copyRefCode')?.addEventListener('click',()=>copyText(profile.referral_code||''));$('copyRefLink')?.addEventListener('click',()=>copyText($('refLink').value));
-
-function renderProfile(){
-  const name=profile.full_name||'Monarch';$('profileName').textContent=name;$('profileUsername').textContent='@'+(profile.display_username||'—');$('profileStatus').outerHTML=`<span id="profileStatus" class="status">${esc(profile.status||'active')}</span>`;
-  $('displayUsername').value=profile.display_username||'';$('profileFullName').value=profile.full_name||'';$('profileEmail').value=currentUser.email||'';$('profilePhone').value=profile.phone||'';$('profileUid').value=profile.uid||'';$('profileCountry').value=profile.country||'';$('profileState').value=profile.state||'';$('profileCity').value=profile.city||'';$('profileKyc').value=profile.kyc_status||'pending';
-  $('bankAccountName').value=profile.full_name||'';$('bankName').value=profile.withdrawal_bank||'';$('bankAccountNumber').value=profile.withdrawal_account_number||'';
-  $('profileBankAccountName').textContent=profile.withdrawal_account_name||profile.full_name||'—';$('profileBankAccountNumber').textContent=profile.withdrawal_account_number||'Not registered';$('profileBankName').textContent=profile.withdrawal_bank||'Not registered';
-}
-$('profileForm')?.addEventListener('submit',async e=>{e.preventDefault();const u=$('displayUsername').value.trim();if(!/^[A-Za-z0-9_-]{3,30}$/.test(u)){toast('Username must be 3–30 characters using letters, numbers, underscores or hyphens.','error');return}try{const {error}=await sb.from('profiles').update({display_username:u,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Username updated.')}catch(err){console.error(err);toast('Unable to update your username.','error')}})
-$('bankForm')?.addEventListener('submit',async e=>{e.preventDefault();const accountName=profile.full_name||'';const bankName=$('bankName').value.trim();const accountNumber=$('bankAccountNumber').value.trim();if(!accountName){toast('Your registered identity name is unavailable.','error');return}if(!bankName||!/^[0-9A-Za-z\s-]{6,30}$/.test(accountNumber)){toast('Enter a valid bank name and account number.','error');return}const btn=$('bankSave');btn.disabled=true;btn.textContent='Saving…';try{const {error}=await sb.from('profiles').update({withdrawal_account_name:accountName,withdrawal_account_number:accountNumber,withdrawal_bank:bankName,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderProfile();renderWithdrawals();toast('Bank details updated successfully.')}catch(err){console.error(err);toast('Unable to update your bank details.','error')}finally{btn.disabled=false;btn.textContent='Save Bank Details'}})
-$('avatarUpload')?.addEventListener('click',async()=>{const file=$('avatarInput').files[0];if(!file){toast('Choose an image first.','error');return}const btn=$('avatarUpload');btn.disabled=true;try{const url=await uploadFile('avatars',storageName('profile',file),file);const {error}=await sb.from('profiles').update({avatar_url:url,updated_at:new Date().toISOString()}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderIdentity();renderProfile();toast('Avatar updated.')}catch(e){console.error(e);toast('Avatar upload failed.','error')}finally{btn.disabled=false}})
-
-async function openPublicProfile(id){
-  if(!id||id===currentUser.id)return showView('profile');
-  const {data,error}=await sb.from('profiles').select('id,full_name,display_username,avatar_url,created_at,status,kyc_status').eq('id',id).maybeSingle();
-  if(error||!data){toast('Public profile could not be loaded.','error');return}
-  $('publicProfileContent').innerHTML=`<div style="text-align:center"><img class="profile-large avatar" src="${esc(data.avatar_url||avatarFallback(data.full_name||'Monarch'))}" onerror="this.onerror=null;this.src=avatarFallback(${JSON.stringify('Monarch')})" alt="Public Monarch avatar"><h3>${esc(data.full_name||'Monarch')}</h3><div class="gold">@${esc(data.display_username||'—')}</div><div style="margin:12px">${status(data.status||'active')} ${status(data.kyc_status||'pending')}</div><div class="notice">Monarch since ${date(data.created_at)}<br><span class="muted">Only public profile information is displayed.</span></div></div>`;
-  $('profileModal').classList.remove('hidden')
-}
-$('closeProfileModal')?.addEventListener('click',()=>$('profileModal').classList.add('hidden'));$('profileModal')?.addEventListener('click',e=>{if(e.target.id==='profileModal')$('profileModal').classList.add('hidden')});
-
-function renderNotifications(){
-  const unread=notifications.filter(n=>!n.is_read).length;$('notificationDot').classList.toggle('hidden',!unread);
-  $('notificationList').innerHTML=notifications.length?notifications.map(n=>`<div class="notification ${(!n.read_at&&!n.is_read)?'unread':''}" data-notification="${esc(n.id||'')}"><strong>${esc(n.title||'Notification')}</strong><div>${esc(n.message||n.body||'')}</div><small>${date(n.created_at)}</small></div>`).join(''):'<div class="empty">No notifications.</div>';
-  document.querySelectorAll('[data-notification]').forEach(el=>el.addEventListener('click',async()=>{const id=el.dataset.notification;if(!id)return;const result=await sb.from('notifications').update({is_read:true}).eq('id',id).eq('user_id',currentUser.id);if(!result.error){const n=notifications.find(x=>String(x.id)===String(id));if(n)n.is_read=true;renderNotifications()}}))
-}
-$('markAllRead')?.addEventListener('click',async()=>{try{const result=await sb.from('notifications').update({is_read:true}).eq('user_id',currentUser.id);if(result.error)throw result.error;notifications.forEach(n=>{n.is_read=true});renderNotifications();toast('Notifications marked as read.')}catch(e){toast('Notifications could not be marked read.','error')}});
-
-function initX(){
-  let saved=[];try{saved=JSON.parse(localStorage.getItem(X_HISTORY_KEY)||'[]');if(!Array.isArray(saved))saved=[]}catch(e){saved=[]}const box=$('xMessages');if(!box.children.length){if(saved.length)saved.forEach(m=>addXMessage(m.role,m.content));else addXMessage('x','Welcome to X. I’m Monarch Xavier, your MONARCH CODEX member support and guidance assistant. How can I assist you, Monarch?')}
-}
-function addXMessage(role,content){const el=document.createElement('div');el.className='msg '+(role==='user'?'user':'x');el.textContent=content;$('xMessages').appendChild(el);$('xMessages').scrollTop=$('xMessages').scrollHeight}
-function saveX(){const arr=[...$('xMessages').children].map(e=>({role:e.classList.contains('user')?'user':'x',content:e.textContent}));localStorage.setItem(X_HISTORY_KEY,JSON.stringify(arr.slice(-60)))}
-document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>{$('xInput').value=b.dataset.prompt;$('xForm').requestSubmit()}));
-$('clearX')?.addEventListener('click',()=>{localStorage.removeItem(X_HISTORY_KEY);$('xMessages').innerHTML='';addXMessage('x','Conversation cleared. How can I help, Monarch?')});
-$('xForm')?.addEventListener('submit',async e=>{
-  e.preventDefault();const message=$('xInput').value.trim();if(!message)return;addXMessage('user',message);$('xInput').value='';saveX();
-  const pending=document.createElement('div');pending.className='msg x';pending.textContent='X is thinking…';$('xMessages').appendChild(pending);$('xMessages').scrollTop=$('xMessages').scrollHeight;
-  try{
-    const session=(await sb.auth.getSession()).data.session;if(!session)throw new Error('Session expired.');
-    const history=[...$('xMessages').children].filter(x=>x!==pending).slice(-20).map(x=>({role:x.classList.contains('user')?'user':'assistant',content:x.textContent}));
-    const res=await fetch(X_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({messages:history,user_id:currentUser.id})});
-    const data=await res.json().catch(()=>({}));
-    if(!res.ok||data.ok===false)throw new Error(data.error||'X service returned an error.');
-    pending.remove();const reply=data.text||data.assistant||data.reply||data.message||data.content||data.response||'X did not return a response.';addXMessage('x',typeof reply==='string'?reply:JSON.stringify(reply));saveX();
-  }catch(err){pending.remove();addXMessage('x','X is temporarily unavailable. Please try again shortly.');console.error(err)}
-});
-
-$('logoutBtn')?.addEventListener('click',async()=>{try{await sb.auth.signOut()}finally{location.href='login.html'}});
-
-
-let financialSyncTimer=null, financialSyncBusy=false;
-
-
-let notificationRealtimeChannel=null;
-
-function startNotificationRealtime(){
-  if(!currentUser?.id || !sb?.channel)return;
-  if(notificationRealtimeChannel){
-    try{sb.removeChannel(notificationRealtimeChannel)}catch(e){}
-    notificationRealtimeChannel=null;
-  }
-  notificationRealtimeChannel=sb.channel('member-notifications-'+currentUser.id)
-    .on('postgres_changes',{
-      event:'*',
-      schema:'public',
-      table:'notifications',
-      filter:'user_id=eq.'+currentUser.id
-    },()=>refreshMemberNotifications())
-    .subscribe((status)=>{
-      if(status==='CHANNEL_ERROR' || status==='TIMED_OUT') console.warn('Notification realtime status:',status);
-    });
-}
-
-async function refreshMemberNotifications(){
-  if(!currentUser?.id)return;
-  try{
-    const {data,error}=await sb.from('notifications')
-      .select('*')
-      .eq('user_id',currentUser.id)
-      .order('created_at',{ascending:false})
-      .limit(50);
-    if(error)throw error;
-    notifications=data||[];
-    renderNotifications();
-  }catch(err){
-    console.warn('Live notification refresh failed:',err);
-  }
-}
-
-async function refreshMemberFinancials(){
-  if(!currentUser?.id || financialSyncBusy)return;
-  financialSyncBusy=true;
-  try{
-    const [inv,earn,wd,adj,ref] = await Promise.all([
-      sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
-      sb.from('earnings').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
-      sb.from('withdrawals').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
-      sb.from('capital_adjustments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}),
-      sb.from('referral_bonus_ledger').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false})
-    ]);
-
-    if(!inv.error)investments=inv.data||[];
-    if(!earn.error)earnings=earn.data||[];
-    if(!wd.error)withdrawals=wd.data||[];
-    if(!adj.error)adjustments=adj.data||[];
-    if(!ref.error)referralLedger=ref.data||[];
-
-    renderOverview();
-    renderInvestments();
-    renderWithdrawals();
-    renderTransactions();
-    renderReferrals();
-  }catch(err){
-    console.warn('Live financial refresh failed:',err);
-  }finally{
-    financialSyncBusy=false;
-  }
-}
-
-function startFinancialSync(){
-  if(!currentUser?.id)return;
-  clearInterval(financialSyncTimer);
-  financialSyncTimer=setInterval(()=>{
-    refreshMemberFinancials();
-    refreshMemberNotifications();
-  },5000);
-  document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible'){
-      refreshMemberFinancials();
-      refreshMemberNotifications();
-    }
-  });
-  window.addEventListener('focus',()=>{
-    refreshMemberFinancials();
-    refreshMemberNotifications();
-    loadSiteContent();
-  });
-}
-
-async function boot(){
-  try{
-    const {data:{session},error:sessionError}=await sb.auth.getSession();
-    if(sessionError)throw sessionError;
-    if(!session){location.href='login.html';return}
-    currentUser=session.user;
-
-    // Load only the member profile before revealing the dashboard.
-    // Optional financial/package queries must never keep the whole dashboard on the splash screen.
-    await Promise.race([
-      loadProfile(),
-      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Dashboard connection timed out. Please refresh and try again.')),12000))
-    ]);
-
-    renderIdentity();
-    renderKyc();
-    renderOverview();
-    setLoading(false);
-    loadSiteContent();
-
-    // Load the remaining dashboard data in the background.
-    try{
-      await loadOptional();
-      renderOverview();
-      await refreshMemberNotifications();
-      startNotificationRealtime();
-      startFinancialSync();
-      if(isApproved()){
-        renderInvestments();
-        renderTransactions();
-        renderReferrals();
-        updateWithdrawalPreview();
-        initX();
-      }
-    }catch(backgroundErr){
-      console.warn('Optional dashboard data failed to load:',backgroundErr);
-      // The shell/profile/KYC page remains usable even if an optional table is unavailable.
-    }
-  }catch(err){
-    console.error(err);
-    setLoading(false);
-    $('app').classList.remove('hidden');
-    document.querySelector('.content').innerHTML='<div class="card"><div class="notice error"><strong>Unable to load your dashboard.</strong><br>'+esc(err?.message||'Please refresh the page or sign in again.')+'</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>'
-  }
-}
-sb?.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')location.href='login.html';if(session&&currentUser&&session.user.id!==currentUser.id)location.reload()});
-boot();
-  </script>
- 
-<script>
-(function(){
-  const KEY='monarch_codex_theme_v1';
-  function applyTheme(theme){
-    const root=document.documentElement;
-    root.classList.toggle('mc-light',theme==='light');
-    const b=document.getElementById('mcThemeToggle');
-    if(b)b.textContent=theme==='light'?'☾ Dark':'☀ Light';
-  }
-  const saved=localStorage.getItem(KEY)||'dark';
-  applyTheme(saved);
-  document.addEventListener('click',function(e){
-    const b=e.target.closest('#mcThemeToggle'); if(!b)return;
-    const next=document.documentElement.classList.contains('mc-light')?'dark':'light';
-    localStorage.setItem(KEY,next); applyTheme(next);
-  });
-})();
-</script>
-
-<script id="mc-sidebar-mobile-fix-script">
-(function(){
-  const sidebar=document.getElementById('sidebar')||document.getElementById('side');
-  const menu=document.getElementById('mobileMenu')||document.getElementById('menu');
-  if(!sidebar||!menu)return;
-  let backdrop=document.getElementById('mcSidebarBackdrop');
-  if(!backdrop){
-    backdrop=document.createElement('div');
-    backdrop.id='mcSidebarBackdrop';
-    document.body.appendChild(backdrop);
-  }
-  let close=document.getElementById('mcSidebarClose');
-  if(!close){
-    close=document.createElement('button');
-    close.id='mcSidebarClose';
-    close.type='button';
-    close.setAttribute('aria-label','Close menu');
-    close.textContent='×';
-    sidebar.insertBefore(close,sidebar.firstChild);
-  }
-  function sync(){
-    const open=sidebar.classList.contains('open');
-    backdrop.classList.toggle('open',open);
-    close.style.display=open?'grid':'none';
-    document.body.style.overflow=open?'hidden':'';
-  }
-  function closeMenu(){
-    sidebar.classList.remove('open');
-    sync();
-  }
-  // Existing page handlers may toggle the sidebar first; sync after them.
-  menu.addEventListener('click',()=>setTimeout(sync,0));
-  close.addEventListener('click',closeMenu);
-  backdrop.addEventListener('click',closeMenu);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
-  sidebar.addEventListener('click',e=>{
-    if(e.target.closest('nav button'))setTimeout(closeMenu,0);
-  });
-  sync();
-})();
-</script>
-</body>
-</html>
