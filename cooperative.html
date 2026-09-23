@@ -18,7 +18,9 @@
 .grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,1fr)}.two{grid-template-columns:1fr 1fr}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}.label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.value{font-size:23px;font-weight:700;margin-top:7px;color:#f5e39a}.small{font-size:10px;color:var(--muted);margin-top:4px}.section{font-size:17px;font-weight:700;margin:24px 0 11px}.notice{padding:12px;border:1px solid #39301a;background:#151209;border-radius:10px;color:#d6c58e;font-size:11px;line-height:1.6}.notice.error{border-color:#4e2929;background:#180d0d;color:#e2a0a0}.status{display:inline-flex;border:1px solid #2c5136;color:var(--green);border-radius:999px;padding:4px 9px;font-size:9px;text-transform:capitalize}.progress{height:8px;background:#252525;border-radius:99px;overflow:hidden;margin-top:9px}.progress i{display:block;height:100%;background:var(--gold);width:0}.rows{display:grid}.row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid #242424;font-size:11px}.row:last-child{border-bottom:0}.row span{color:var(--muted)}.empty{text-align:center;color:var(--muted);padding:30px}.btn{border:1px solid #5b4b1f;background:#18140a;color:var(--gold2);padding:9px 13px;border-radius:9px;font-weight:700}.menu{display:none}.sidebar-close{display:none}.sidebar-backdrop{display:none}.connection{margin-bottom:14px}.hidden{display:none!important}
 @media(max-width:850px){.sidebar{transform:translateX(-100%);transition:.2s;width:270px;box-shadow:20px 0 50px #000}.sidebar.open{transform:none}.sidebar-close{display:block;position:absolute;right:10px;top:10px;width:36px;height:36px;border:1px solid #3a321d;background:#14120d;color:var(--gold2);border-radius:9px;font-size:24px;line-height:1;z-index:2}.sidebar-backdrop{display:block;position:fixed;inset:0;background:rgba(0,0,0,.58);opacity:0;visibility:hidden;pointer-events:none;transition:.2s;z-index:40}.sidebar-backdrop.open{opacity:1;visibility:visible;pointer-events:auto}.main{margin-left:0}.menu{display:inline-flex}.topbar{padding:0 15px}.content{padding:16px}.stats,.two{grid-template-columns:1fr}.hero{padding:21px}.hero h1{font-size:29px}}
 .coop-logo{display:flex;align-items:center;justify-content:center;gap:10px;color:#D4AF37;font-weight:800;letter-spacing:.2px}.coop-logo svg{width:38px;height:38px;flex:0 0 38px}.coop-logo-text{font-family:Figtree,Arial,sans-serif;font-size:26px;line-height:1.05;color:#D4AF37}.coop-logo-wrap{display:flex;justify-content:center;margin:4px 0 18px}</style>
-</head>
+<style id="online-cooperative-brand-fix">
+.coop-nav-mark{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;min-width:24px;margin-right:7px;color:#D4AF37;vertical-align:middle}.coop-nav-mark svg{width:22px;height:22px;display:block}.coop-nav-label{color:#D4AF37;font-weight:800}.coop-brand-banner{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 18px;padding:14px 18px;border:1px solid rgba(212,175,55,.25);border-radius:14px;background:linear-gradient(180deg,rgba(212,175,55,.08),rgba(212,175,55,.025));color:#D4AF37;font-weight:800;font-size:22px}.coop-brand-banner svg{width:34px;height:34px;flex:0 0 34px}.coop-brand-banner small{display:block;font-size:9px;color:#9d9378;font-weight:600;margin-top:3px;letter-spacing:.08em;text-transform:uppercase}
+</style></head>
 <body>
 <div id="app" class="app">
 <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
@@ -30,7 +32,7 @@
     <button onclick="location.href='dashboard.html'"><span class="nav-icon">◇</span>Dashboard</button>
     <button onclick="location.href='kyc.html'"><span class="nav-icon">◇</span>KYC</button>
     <button onclick="location.href='investments.html'"><span class="nav-icon">◆</span>Investments</button>
-    <button class="active"><span class="nav-icon">♙</span>Online Cooperative</button>
+    <button class="active"><span class="coop-nav-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path fill="currentColor" d="M40.8 7.2C28.5 7.1 16.8 10.4 11 18.1c-3.2 4.2-3.5 8.9-2.2 12.8 2.6-4.8 6.5-7.9 12-9.7-3.8 2.9-6.2 6.8-6.9 11.2 4.8-.5 9.4-2.7 12.5-6.5 3.9-4.8 5.1-10.5 4.8-14.3 3.1-.8 6.2-2.2 9.6-4.4Z"/><path fill="currentColor" d="M10.2 39.7c4.2-9.1 10.1-14.9 19-19.2-7.3 6.5-11.7 12.6-14.6 20.1l-4.4-.9Z"/></svg></span><span class="coop-nav-label">Online Cooperative</span></button>
     <button onclick="location.href='withdrawals.html'"><span class="nav-icon">↗</span>Withdrawals</button>
     <button onclick="location.href='profile.html'"><span class="nav-icon">◎</span>Profile</button>
   </nav>
@@ -46,7 +48,7 @@
   <button class="btn" onclick="location.href='dashboard.html'">Back to Dashboard</button>
 </header>
 
-<section class="content">
+<section class="content"><div class="coop-brand-banner"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="currentColor" d="M40.8 7.2C28.5 7.1 16.8 10.4 11 18.1c-3.2 4.2-3.5 8.9-2.2 12.8 2.6-4.8 6.5-7.9 12-9.7-3.8 2.9-6.2 6.8-6.9 11.2 4.8-.5 9.4-2.7 12.5-6.5 3.9-4.8 5.1-10.5 4.8-14.3 3.1-.8 6.2-2.2 9.6-4.4Z"/><path fill="currentColor" d="M10.2 39.7c4.2-9.1 10.1-14.9 19-19.2-7.3 6.5-11.7 12.6-14.6 20.1l-4.4-.9Z"/></svg><div>Online Cooperative<small>MONARCH CODEX • PARTNER PROGRAMME</small></div></div>
   <div class="hero">
     <div class="eyebrow">Partner Module</div>
     <h1>Online Cooperative</h1>
