@@ -841,6 +841,18 @@ export default {
       new URL(request.url);
 
     /*
+     * TELEGRAM ADMIN PROXY
+     * Keeps Telegram admin operations same-origin with the MONARCH CODEX site.
+     */
+    if (
+      url.pathname === "/api/telegram-admin/admin-chats" ||
+      url.pathname === "/api/telegram-admin/admin-chat-assignment" ||
+      url.pathname === "/api/telegram-admin/admin-action"
+    ) {
+      return proxyTelegramAdmin(request, env, url.pathname);
+    }
+
+    /*
      * AUTHENTICATION FALLBACK
      *
      * Used only when a browser cannot reach Supabase Auth directly.
