@@ -30,13 +30,17 @@ export async function onRequest(context) {
   }
 
   const authorization = request.headers.get("Authorization");
+  const userId = new URL(request.url).searchParams.get("id");
   if (!authorization) {
     return json({ ok: false, error: "Missing authorization." }, 401);
+  }
+  if (!userId) {
+    return json({ ok: false, error: "Missing user id." }, 400);
   }
 
   try {
     const upstream = await fetch(
-      SUPABASE_URL + "/rest/v1/profiles?select=*&id=eq." + encodeURIComponent(authorization.split(" ")[1] ? "" : ""),
+      SUPABASE_URL + "/rest/v1/profiles?select=*&id=eq." + encodeURIComponent(userId),
       {
         method: "GET",
         headers: {
