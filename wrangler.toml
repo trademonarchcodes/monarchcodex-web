@@ -4,3 +4,8 @@ compatibility_date = "2026-09-17"
 
 [assets]
 directory = "."
+
+# Internal Worker-to-Worker path for Telegram admin operations.
+[[services]]
+binding = "TELEGRAM_SERVICE"
+service = "monarch-codex-telegram"
