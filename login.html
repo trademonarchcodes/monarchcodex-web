@@ -934,7 +934,7 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
             if (directNetworkFailure) {
                 try {
                     const proxyResponse = await fetch(
-                        "https://monarchcodex-web.trademonarchofficial.workers.dev/api/auth/login",
+                        "/api/auth/login",
                         {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
