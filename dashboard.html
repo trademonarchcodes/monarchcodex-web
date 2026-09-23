@@ -421,6 +421,20 @@ html.mc-light #homepageUpdatesCard .divider{background:#E6DDC9!important}
     <section class="content">
      <!-- OVERVIEW -->
      <div class="view active" id="view-overview">
+      <div class="wallet-balance-card" id="walletBalanceCard">
+       <div>
+        <div class="wallet-balance-label">TOTAL AVAILABLE BALANCE</div>
+        <div class="wallet-balance-value" id="totalBalanceDisplay">$0.00</div>
+        <div class="wallet-balance-usd" id="totalBalanceUsd">USD base balance: $0.00</div>
+       </div>
+       <div class="wallet-currency">
+        <label for="balanceCurrency">Display currency</label>
+        <select id="balanceCurrency" aria-label="Display balance currency">
+         <option value="USD">USD — Dollar</option><option value="NGN">NGN — Naira</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound</option>
+        </select>
+       </div>
+       <a class="btn primary" href="wallet.html">Open Wallet</a>
+      </div>
       <div class="hero">
        <div class="eyebrow">
         Private Member Area
@@ -435,20 +449,6 @@ html.mc-light #homepageUpdatesCard .divider{background:#E6DDC9!important}
        <p>
         Your Inner Kingdom dashboard for managing your membership, investments, earnings and referrals.
        </p>
-      </div>
-      <div class="wallet-balance-card" id="walletBalanceCard">
-       <div>
-        <div class="wallet-balance-label">TOTAL AVAILABLE BALANCE</div>
-        <div class="wallet-balance-value" id="totalBalanceDisplay">$0.00</div>
-        <div class="wallet-balance-usd" id="totalBalanceUsd">USD base balance: $0.00</div>
-       </div>
-       <div class="wallet-currency">
-        <label for="balanceCurrency">Display currency</label>
-        <select id="balanceCurrency" aria-label="Display balance currency">
-         <option value="USD">USD — Dollar</option><option value="NGN">NGN — Naira</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound</option>
-        </select>
-       </div>
-       <a class="btn primary" href="wallet.html">Open Wallet</a>
       </div>
       <div class="grid stats">
        <div class="card">
