@@ -805,6 +805,23 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
             return null;
         }
 
+        /*
+         * Primary path: read the member's own profile directly through
+         * Supabase. The profiles RLS policy permits a signed-in user to
+         * read their own row. This works on both Cloudflare Pages and
+         * static hosts such as GitHub Pages.
+         */
+        const directResult = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", userId)
+            .maybeSingle();
+
+        if (!directResult.error && directResult.data) {
+            return directResult.data;
+        }
+
+        /* Same-origin fallback for environments that cannot reach Supabase directly. */
         const sessionResult =
             await supabase.auth.getSession();
 
@@ -812,36 +829,36 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
             sessionResult?.data?.session?.access_token;
 
         if (!accessToken) {
-            throw new Error("Your login session could not be established.");
+            throw directResult.error || new Error("Your login session could not be established.");
         }
 
-        const response =
-            await fetch(
-                "/api/auth/profile?id=" +
-                encodeURIComponent(userId),
-                {
-                    method: "GET",
-                    headers: {
-                        "Authorization":
-                            "Bearer " + accessToken
+        try {
+            const response =
+                await fetch(
+                    "/api/auth/profile?id=" +
+                    encodeURIComponent(userId),
+                    {
+                        method: "GET",
+                        headers: {
+                            "Authorization":
+                                "Bearer " + accessToken
+                        }
                     }
-                }
-            );
+                );
 
-        const payload =
-            await response.json().catch(() => null);
+            const payload =
+                await response.json().catch(() => null);
 
-        if (!response.ok) {
-            throw new Error(
-                payload?.message ||
-                payload?.error ||
-                "Your member profile could not be loaded."
-            );
+            if (response.ok) {
+                return Array.isArray(payload)
+                    ? (payload[0] || null)
+                    : (payload?.data || null);
+            }
+        } catch (fallbackError) {
+            console.warn("Same-origin profile fallback unavailable:", fallbackError);
         }
 
-        return Array.isArray(payload)
-            ? (payload[0] || null)
-            : (payload?.data || null);
+        throw directResult.error || new Error("Your member profile could not be loaded.");
 
     }
 
