@@ -1435,7 +1435,11 @@ function startFinancialSync(){
 
 async function boot(){
   try{
-    const {data:{session},error:sessionError}=await sb.auth.getSession();
+    const sessionResult=await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Authentication session loading timed out. Please refresh and sign in again.')),12000))
+    ]);
+    const {data:{session},error:sessionError}=sessionResult;
     if(sessionError)throw sessionError;
     if(!session){location.href='login.html';return}
     currentUser=session.user;
