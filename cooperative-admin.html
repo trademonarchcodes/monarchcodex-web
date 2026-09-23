@@ -30,7 +30,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__supabaseLoadError=true"></script>
 <script>
 'use strict';
-const URL='https://avaworleivncevaoqeny.supabase.co',KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh',ADMIN_EMAIL='trademonarchofficial@gmail.com'; let sb=null;
+const SUPABASE_URL='https://avaworleivncevaoqeny.supabase.co'; const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh'; const ADMIN_EMAIL='trademonarchofficial@gmail.com'; let sb=null;
 const $=id=>document.getElementById(id),money=n=>'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 let user=null,members=[],accounts=[],selected=null;
 function toast(m){$('toast').textContent=m;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2500)}
@@ -38,7 +38,7 @@ async function withTimeout(p,ms,msg){let t;try{return await Promise.race([p,new 
 async function boot(){
  try{
   if(!window.supabase) throw new Error(window.__supabaseLoadError?'Supabase could not be loaded. Check your internet connection or browser blocker.':'Supabase is still loading. Please refresh and try again.');
-  sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const s=await withTimeout(sb.auth.getSession(),9000,'Administrator session check timed out. Please refresh and sign in again.');
   if(s.error)throw s.error;if(!s.data?.session){location.replace('login.html');return}user=s.data.session.user;
   const p=await withTimeout(sb.from('profiles').select('id,full_name,display_username,uid,role').eq('id',user.id).maybeSingle(),9000,'Administrator profile check timed out. Please refresh and try again.');
