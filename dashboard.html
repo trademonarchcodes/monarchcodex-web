@@ -1236,6 +1236,7 @@ function calculateFinance(){
   return {invested,originalInvested,earned,monthlyEarnings,referralEarnings,totalEarnings,balance,paidWithdraw,pendingWithdraw,profit,capitalFree,capitalLocked,totalWithdrawable,refEarn,adj};
 }
 function renderOverview(){
+  if(!document.getElementById('view-overview'))return;
   const f=calculateFinance();
   renderBalance();
   const setText=(id,value)=>{const el=$(id);if(el)el.textContent=value};
@@ -1314,12 +1315,15 @@ $('refreshMemberSignals')?.addEventListener('click',()=>loadMemberSignals());
 $('refreshInvestments')?.addEventListener('click',async()=>{try{await refreshInvestments();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
 
 function renderWithdrawals(){
+  // Withdrawals has its own page; keep dashboard runtime isolated from it.
+  if(!document.getElementById('view-withdrawals'))return;
   const gate=!isApproved();$('withdrawalGate').classList.toggle('hidden',!gate);$('withdrawalArea').classList.toggle('hidden',gate);if(gate){$('withdrawalGate').innerHTML=kycMessage();return}
   const f=calculateFinance();$('profitAvailable').textContent=fmt(f.profit);$('capitalAvailable').textContent=fmt(f.capitalFree);$('capitalLocked').textContent=fmt(f.capitalLocked);
   const bname=profile.withdrawal_account_name||profile.full_name||'Not registered';$('registeredBank').innerHTML=`Account Name: <strong>${esc(bname)}</strong><br>Account Number: <strong>${esc(profile.withdrawal_account_number||'Not registered')}</strong><br>Bank: <strong>${esc(profile.withdrawal_bank||'Not registered')}</strong>`;
   $('withdrawalHistory').innerHTML=withdrawals.length?withdrawals.map(x=>`<tr><td>${esc(x.source_type||'—')}</td><td>${fmt(x.amount)}</td><td>${fmt(x.fee)}</td><td>${esc(x.wallet_address?x.wallet_address:(x.bank_name||'Bank'))}</td><td>${status(x.status)}</td><td>${date(x.created_at)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No withdrawal requests found.</td></tr>';
 }
 function updateWithdrawalPreview(){
+  if(!document.getElementById('withdrawalAmount'))return;
   const a=safeNum($('withdrawalAmount').value),fee=a*WITHDRAWAL_RATE; $('withdrawRequest').textContent=fmt(a);$('withdrawFee').textContent=fmt(fee);$('withdrawNet').textContent=fmt(Math.max(0,a-fee));
   const crypto=$('withdrawalMethod').value==='crypto';$('cryptoDetails').classList.toggle('hidden',!crypto);$('withdrawalChainField').classList.toggle('hidden',!crypto);$('bankDetails').classList.toggle('hidden',crypto);$('withdrawalChain').required=crypto;$('withdrawalWallet').required=crypto;
 }
@@ -1368,6 +1372,8 @@ async function copyText(v){try{await navigator.clipboard.writeText(v);toast('Cop
 $('copyRefCode')?.addEventListener('click',()=>copyText(profile.referral_code||''));$('copyRefLink')?.addEventListener('click',()=>copyText($('refLink').value));
 
 function renderProfile(){
+  // Profile has its own page; never let stale dashboard handlers touch absent profile DOM.
+  if(!document.getElementById('view-profile'))return;
   const name=profile.full_name||'Monarch';$('profileName').textContent=name;$('profileUsername').textContent='@'+(profile.display_username||'—');$('profileStatus').outerHTML=`<span id="profileStatus" class="status">${esc(profile.status||'active')}</span>`;
   $('displayUsername').value=profile.display_username||'';$('profileFullName').value=profile.full_name||'';$('profileEmail').value=currentUser.email||'';$('profilePhone').value=profile.phone||'';$('profileUid').value=profile.uid||'';$('profileCountry').value=profile.country||'';$('profileState').value=profile.state||'';$('profileCity').value=profile.city||'';$('profileKyc').value=profile.kyc_status||'pending';
   $('bankAccountName').value=profile.full_name||'';$('bankName').value=profile.withdrawal_bank||'';$('bankAccountNumber').value=profile.withdrawal_account_number||'';
@@ -1825,6 +1831,7 @@ function calculateFinance(){
   return {invested,originalInvested,earned,monthlyEarnings,referralEarnings,totalEarnings,balance,paidWithdraw,pendingWithdraw,profit,capitalFree,capitalLocked,totalWithdrawable,refEarn,adj};
 }
 function renderOverview(){
+  if(!document.getElementById('view-overview'))return;
   const f=calculateFinance();renderBalance();$('statInvested').textContent=fmt(f.invested||profile.total_invested);$('statMonthlyEarnings').textContent=fmt(f.monthlyEarnings);$('statReferralEarnings').textContent=fmt(f.referralEarnings);$('statEarnings').textContent=fmt(f.totalEarnings);$('statWithdrawable').textContent=fmt(f.totalWithdrawable);
   const count=referrals.length;$('refProgress').style.width=Math.min(100,count*10)+'%';$('refProgressText').textContent=count+' referral'+(count===1?'':'s');
   const rows=buildTransactions().slice(0,5);$('recentActivity').innerHTML=rows.length?rows.map(r=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222"><span>${esc(r.desc)}</span><strong>${esc(r.amount)}</strong></div>`).join(''):'No recent financial activity.';
@@ -1894,12 +1901,15 @@ $('refreshMemberSignals')?.addEventListener('click',()=>loadMemberSignals());
 $('refreshInvestments')?.addEventListener('click',async()=>{try{await refreshInvestments();toast('Investments refreshed.')}catch(e){toast('Unable to load investments.','error')}})
 
 function renderWithdrawals(){
+  // Withdrawals has its own page; keep dashboard runtime isolated from it.
+  if(!document.getElementById('view-withdrawals'))return;
   const gate=!isApproved();$('withdrawalGate').classList.toggle('hidden',!gate);$('withdrawalArea').classList.toggle('hidden',gate);if(gate){$('withdrawalGate').innerHTML=kycMessage();return}
   const f=calculateFinance();$('profitAvailable').textContent=fmt(f.profit);$('capitalAvailable').textContent=fmt(f.capitalFree);$('capitalLocked').textContent=fmt(f.capitalLocked);
   const bname=profile.withdrawal_account_name||profile.full_name||'Not registered';$('registeredBank').innerHTML=`Account Name: <strong>${esc(bname)}</strong><br>Account Number: <strong>${esc(profile.withdrawal_account_number||'Not registered')}</strong><br>Bank: <strong>${esc(profile.withdrawal_bank||'Not registered')}</strong>`;
   $('withdrawalHistory').innerHTML=withdrawals.length?withdrawals.map(x=>`<tr><td>${esc(x.source_type||'—')}</td><td>${fmt(x.amount)}</td><td>${fmt(x.fee)}</td><td>${esc(x.wallet_address?x.wallet_address:(x.bank_name||'Bank'))}</td><td>${status(x.status)}</td><td>${date(x.created_at)}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No withdrawal requests found.</td></tr>';
 }
 function updateWithdrawalPreview(){
+  if(!document.getElementById('withdrawalAmount'))return;
   const a=safeNum($('withdrawalAmount').value),fee=a*WITHDRAWAL_RATE; $('withdrawRequest').textContent=fmt(a);$('withdrawFee').textContent=fmt(fee);$('withdrawNet').textContent=fmt(Math.max(0,a-fee));
   const crypto=$('withdrawalMethod').value==='crypto';$('cryptoDetails').classList.toggle('hidden',!crypto);$('withdrawalChainField').classList.toggle('hidden',!crypto);$('bankDetails').classList.toggle('hidden',crypto);$('withdrawalChain').required=crypto;$('withdrawalWallet').required=crypto;
 }
@@ -1948,6 +1958,8 @@ async function copyText(v){try{await navigator.clipboard.writeText(v);toast('Cop
 $('copyRefCode')?.addEventListener('click',()=>copyText(profile.referral_code||''));$('copyRefLink')?.addEventListener('click',()=>copyText($('refLink').value));
 
 function renderProfile(){
+  // Profile has its own page; never let stale dashboard handlers touch absent profile DOM.
+  if(!document.getElementById('view-profile'))return;
   const name=profile.full_name||'Monarch';$('profileName').textContent=name;$('profileUsername').textContent='@'+(profile.display_username||'—');$('profileStatus').outerHTML=`<span id="profileStatus" class="status">${esc(profile.status||'active')}</span>`;
   $('displayUsername').value=profile.display_username||'';$('profileFullName').value=profile.full_name||'';$('profileEmail').value=currentUser.email||'';$('profilePhone').value=profile.phone||'';$('profileUid').value=profile.uid||'';$('profileCountry').value=profile.country||'';$('profileState').value=profile.state||'';$('profileCity').value=profile.city||'';$('profileKyc').value=profile.kyc_status||'pending';
   $('bankAccountName').value=profile.full_name||'';$('bankName').value=profile.withdrawal_bank||'';$('bankAccountNumber').value=profile.withdrawal_account_number||'';
