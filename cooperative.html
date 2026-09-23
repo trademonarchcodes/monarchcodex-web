@@ -20,7 +20,7 @@
 .coop-logo{display:flex;align-items:center;justify-content:center;gap:10px;color:#D4AF37;font-weight:800;letter-spacing:.2px}.coop-logo svg{width:38px;height:38px;flex:0 0 38px}.coop-logo-text{font-family:Figtree,Arial,sans-serif;font-size:26px;line-height:1.05;color:#D4AF37}.coop-logo-wrap{display:flex;justify-content:center;margin:4px 0 18px}</style>
 <style id="online-cooperative-brand-fix">
 .coop-nav-mark{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;min-width:24px;margin-right:7px;color:#D4AF37;vertical-align:middle}.coop-nav-mark svg{width:22px;height:22px;display:block}.coop-nav-label{color:#D4AF37;font-weight:800}.coop-brand-banner{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 18px;padding:14px 18px;border:1px solid rgba(212,175,55,.25);border-radius:14px;background:linear-gradient(180deg,rgba(212,175,55,.08),rgba(212,175,55,.025));color:#D4AF37;font-weight:800;font-size:22px}.coop-brand-banner svg{width:34px;height:34px;flex:0 0 34px}.coop-brand-banner small{display:block;font-size:9px;color:#9d9378;font-weight:600;margin-top:3px;letter-spacing:.08em;text-transform:uppercase}
-</style></head>
+.coop-program-card{padding:28px 24px;margin:0 auto 18px;max-width:530px;border:1px solid rgba(212,175,55,.24);border-radius:20px;background:#111528;box-shadow:0 14px 45px rgba(0,0,0,.24)}.coop-program-logo{display:flex;align-items:center;gap:12px;color:#D4AF37}.coop-program-logo svg{width:42px;height:42px;flex:0 0 42px}.coop-program-logo strong{display:block;font-size:28px;line-height:1.08;font-weight:800}.coop-program-logo small{display:block;margin-top:7px;font-size:9px;letter-spacing:1.5px;color:#aaa38d;font-weight:700}.hero{background:#111528;border-color:rgba(212,175,55,.18)}@media(max-width:600px){.coop-program-card{padding:22px 18px}.coop-program-logo strong{font-size:24px}}</style></head>
 <body>
 <div id="app" class="app">
 <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
@@ -48,8 +48,13 @@
   <button class="btn" onclick="location.href='dashboard.html'">Back to Dashboard</button>
 </header>
 
-<section class="content"><div class="coop-brand-banner"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="currentColor" d="M40.8 7.2C28.5 7.1 16.8 10.4 11 18.1c-3.2 4.2-3.5 8.9-2.2 12.8 2.6-4.8 6.5-7.9 12-9.7-3.8 2.9-6.2 6.8-6.9 11.2 4.8-.5 9.4-2.7 12.5-6.5 3.9-4.8 5.1-10.5 4.8-14.3 3.1-.8 6.2-2.2 9.6-4.4Z"/><path fill="currentColor" d="M10.2 39.7c4.2-9.1 10.1-14.9 19-19.2-7.3 6.5-11.7 12.6-14.6 20.1l-4.4-.9Z"/></svg><div>Online Cooperative<small>MONARCH CODEX • PARTNER PROGRAMME</small></div></div>
-  <div class="hero">
+<section class="content"><div class="coop-program-card">
+  <div class="coop-program-logo" aria-label="Online Cooperative">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="currentColor" d="M40.8 7.2C28.5 7.1 16.8 10.4 11 18.1c-3.2 4.2-3.5 8.9-2.2 12.8 2.6-4.8 6.5-7.9 12-9.7-3.8 2.9-6.2 6.8-6.9 11.2 4.8-.5 9.4-2.7 12.5-6.5 3.9-4.8 5.1-10.5 4.8-14.3 3.1-.8 6.2-2.2 9.6-4.4Z"/><path fill="currentColor" d="M10.2 39.7c4.2-9.1 10.1-14.9 19-19.2-7.3 6.5-11.7 12.6-14.6 20.1l-4.4-.9Z"/></svg>
+    <div><strong>Online Cooperative</strong><small>MONARCH CODEX • PARTNER PROGRAMME</small></div>
+  </div>
+</div>
+<div class="hero">
     <div class="eyebrow">Partner Module</div>
     <h1>Online Cooperative</h1>
     <p>Your MONARCH CODEX view of cooperative information recorded by authorized administrators. This page is view-only and does not log into or connect to the partner website.</p>
@@ -135,7 +140,7 @@ async function run(){
 
 function render(a,alloc){
   if(!a){
-    $('accountArea').innerHTML='<div class="card empty">No Online Cooperative account has been recorded for this member yet.<br><br>Once the team creates the cooperative account record, it will appear here.</div>';
+    $('accountArea').innerHTML='<div class="card empty"><strong style="display:block;color:#f5e39a;font-size:14px;margin-bottom:10px">No Online Cooperative account has been recorded for this member yet.</strong>Once the team creates the cooperative account record, it will appear here.</div>';
     return;
   }
 
