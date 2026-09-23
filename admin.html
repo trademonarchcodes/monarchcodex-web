@@ -24,7 +24,7 @@ main{margin-left:250px;width:calc(100% - 250px)}header{height:68px;position:stic
 input,select,textarea{background:#0d0d0d;color:#eee;border:1px solid #333;border-radius:8px;padding:10px;outline:none;width:100%}input:focus,select:focus,textarea:focus{border-color:var(--g)}textarea{min-height:75px}
 .actions{display:flex;gap:7px;flex-wrap:wrap}.btn{background:var(--g);color:#090909;border:1px solid var(--g);border-radius:8px;padding:8px 12px;font-weight:700;font-size:11px}.btn.secondary{background:#171717;color:#ddd;border-color:#444}.btn.danger{background:#281111;color:#ffaaaa;border-color:#662626}.btn.success{background:#102416;color:#9af2b2;border-color:#285d38}
 .table{overflow:auto;border:1px solid var(--l);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:760px}th,td{padding:10px;border-bottom:1px solid #252525;text-align:left;font-size:11px;vertical-align:top}th{background:#171717;color:var(--g);font-size:9px;text-transform:uppercase}tr:last-child td{border:0}
-.badge{display:inline-block;border:1px solid #444;background:#202020;border-radius:99px;padding:4px 7px;font-size:9px;text-transform:uppercase}.doc-links{display:flex;flex-wrap:wrap;gap:6px;min-width:150px}.doc-link{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border:1px solid #4a4a4a;border-radius:7px;background:#101010;color:#ddd!important;text-decoration:none!important;font-size:10px;font-weight:600;transition:.18s}.doc-link:hover{border-color:var(--g);background:#1b1b1b;color:#fff!important;transform:translateY(-1px)}.doc-link span{font-size:11px;color:var(--g)}.ok{color:#8ee8a7;border-color:#28613b;background:#102216}.bad{color:#ff9999;border-color:#662626;background:#251010}.wait{color:#f4d66b;border-color:#66551b;background:#211d0c}
+.badge{display:inline-block;border:1px solid #444;background:#202020;border-radius:99px;padding:4px 7px;font-size:9px;text-transform:uppercase}.doc-links{display:flex;flex-wrap:wrap;gap:6px;min-width:150px}.doc-link{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border:1px solid #4a4a4a;border-radius:7px;background:#101010;color:#ddd!important;text-decoration:none!important;font-size:10px;font-weight:600;transition:.18s}.doc-link:hover{border-color:var(--g);background:#1b1b1b;color:#fff!important;transform:translateY(-1px)}.doc-link span{font-size:11px;color:var(--g)}.kyc-viewer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}.kyc-viewer-backdrop.open{display:flex}.kyc-viewer{width:min(920px,96vw);height:min(88vh,900px);background:#0b0b0b;border:1px solid rgba(212,175,55,.35);border-radius:18px;box-shadow:0 25px 90px rgba(0,0,0,.65);display:flex;flex-direction:column;overflow:hidden}.kyc-viewer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #292929}.kyc-viewer-title{font-weight:800;color:#f0d477;font-size:13px}.kyc-viewer-close{width:38px;height:38px;border-radius:10px;border:1px solid #444;background:#171717;color:#fff;font-size:23px;line-height:1}.kyc-viewer-body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:#050505}.kyc-viewer-body img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:8px}.kyc-viewer-body iframe{width:100%;height:100%;border:0;border-radius:8px;background:#fff}.kyc-viewer-loading{color:#aaa;font-size:12px;text-align:center}.kyc-viewer-error{color:#ffaaa0;background:#251010;border:1px solid #662626;border-radius:10px;padding:12px;font-size:12px;text-align:center;max-width:500px}.kyc-viewer-meta{padding:9px 14px;border-top:1px solid #292929;color:#777;font-size:10px}@media(max-width:700px){.kyc-viewer-backdrop{padding:8px}.kyc-viewer{width:100%;height:92vh;border-radius:14px}.kyc-viewer-body{padding:8px}.kyc-viewer-head{padding:10px}.kyc-viewer-meta{font-size:9px}}.ok{color:#8ee8a7;border-color:#28613b;background:#102216}.bad{color:#ff9999;border-color:#662626;background:#251010}.wait{color:#f4d66b;border-color:#66551b;background:#211d0c}
 .packages,.payments-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.pkg,.payment-card{background:#171717;border:1px solid #2c2c2c;border-radius:11px;padding:14px}.pkg h3{font:600 16px Cinzel,serif;color:var(--g);margin:0 0 4px}.pkg strong{font-size:22px}.muted{color:var(--m)}
 .empty{text-align:center;color:#777;padding:25px}.overlay{position:fixed;inset:0;background:#070707;display:flex;align-items:center;justify-content:center;z-index:100}.spin{width:32px;height:32px;border:3px solid #333;border-top-color:var(--g);border-radius:50%;animation:x 1s linear infinite;margin:auto auto 13px}@keyframes x{to{transform:rotate(360deg)}}
 #toast{display:none;position:fixed;right:16px;bottom:16px;z-index:200;background:#171717;border:1px solid #444;border-radius:9px;padding:11px 14px;font-size:11px;max-width:350px}#toast.show{display:block}.toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:#aaa}.toggle input{width:auto}
@@ -442,19 +442,53 @@ function kycDocumentPath(raw){
   }catch(e){return ""}
   return value.replace(/^kyc-documents\//,"").replace(/^\/+/, "");
 }
-async function openKycDocument(raw){
+function ensureKycViewer(){
+  let wrap=document.getElementById("kycViewerBackdrop");
+  if(wrap)return wrap;
+  wrap=document.createElement("div");
+  wrap.id="kycViewerBackdrop";
+  wrap.className="kyc-viewer-backdrop";
+  wrap.innerHTML=`<div class="kyc-viewer" role="dialog" aria-modal="true" aria-label="KYC document viewer">
+    <div class="kyc-viewer-head"><div class="kyc-viewer-title" id="kycViewerTitle">KYC document</div><button type="button" class="kyc-viewer-close" id="kycViewerClose" aria-label="Close document viewer">×</button></div>
+    <div class="kyc-viewer-body" id="kycViewerBody"><div class="kyc-viewer-loading">Loading secure document…</div></div>
+    <div class="kyc-viewer-meta">Secure preview. This private KYC document is not made public.</div>
+  </div>`;
+  document.body.appendChild(wrap);
+  const close=()=>{wrap.classList.remove("open");$("kycViewerBody").innerHTML="";};
+  $("kycViewerClose").onclick=close;
+  wrap.addEventListener("click",e=>{if(e.target===wrap)close()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&wrap.classList.contains("open"))close()});
+  return wrap;
+}
+async function openKycDocument(raw,label){
   const path=kycDocumentPath(raw);
   if(!path)throw new Error("KYC document path is invalid.");
-  const tab=window.open("about:blank","_blank");
+  const wrap=ensureKycViewer(),body=$("kycViewerBody");
+  $("kycViewerTitle").textContent=(label||"KYC document")+" — secure preview";
+  body.innerHTML='<div class="kyc-viewer-loading">Loading secure document…</div>';
+  wrap.classList.add("open");
   try{
     const {data,error}=await db.storage.from("kyc-documents").createSignedUrl(path,900);
     if(error)throw error;
     const url=data?.signedUrl;
     if(!url)throw new Error("Unable to create a secure KYC document link.");
-    if(tab)tab.location.href=url;
-    else window.location.href=url;
+    if(/\.pdf$/i.test(path)){
+      const frame=document.createElement("iframe");
+      frame.title=label||"KYC document";
+      frame.src=url;
+      body.innerHTML="";
+      body.appendChild(frame);
+    }else{
+      const img=document.createElement("img");
+      img.alt=label||"KYC document";
+      img.src=url;
+      img.onload=()=>{body.innerHTML="";body.appendChild(img)};
+      img.onerror=()=>{body.innerHTML='<div class="kyc-viewer-error">This document could not be displayed in the preview.</div>'};
+      body.innerHTML="";
+      body.appendChild(img);
+    }
   }catch(error){
-    try{if(tab)tab.close()}catch(e){}
+    body.innerHTML='<div class="kyc-viewer-error">'+esc(error.message||"Unable to open KYC document.")+'</div>';
     throw error;
   }
 }
@@ -466,7 +500,7 @@ async function kycLoad(){
   $("kyc").innerHTML=a.length?`<div class="table kyc-table"><table><tr><th>Member</th><th>Email</th><th>Phone</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${a.map(p=>{
    const k=String(p.kyc_status||"not_submitted").toLowerCase(),review=["pending","submitted","under_review"].includes(k),reason=typeof p.kyc_rejection_reason==="object"?JSON.stringify(p.kyc_rejection_reason):p.kyc_rejection_reason||"";
    const docs=[["Front",p.nin_front_url],["Back",p.nin_back_url],["Selfie",p.selfie_url]].filter(x=>x[1]);
-   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.email||"—")}</td><td>${esc(p.phone||"—")}</td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<a class="doc-link" href="#" data-kyc-document="${esc(d[1])}"><span>↗</span>${esc(d[0])}</a>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
+   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.email||"—")}</td><td>${esc(p.phone||"—")}</td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<button type="button" class="doc-link" data-kyc-document="${esc(d[1])}" data-kyc-label="${esc(d[0])}"><span>VIEW</span>${esc(d[0])}</button>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
   }).join("")}</table></div>`:'<div class="empty">No matching KYC requests.</div>';
  }catch(e){showError("kyc",e);toast(e.message,"error")}
 }
@@ -744,7 +778,7 @@ document.addEventListener("DOMContentLoaded",()=>{
  $("savePkg").onclick=savePkg;$("clearPkg").onclick=clearPkg;$("seedPkgs").onclick=seedPackages;$("payType").onchange=paymentFormToggle;$("savePay").onclick=savePay;$("clearPay").onclick=clearPay;$("refreshPay").onclick=paymentsLoad;
  $("addEarning").onclick=earnAdd;$("earningUser").onchange=()=>loadInvestorInvestments($("earningUser").value);$("capitalUser").onchange=updateCapitalPreview;$("capitalType").onchange=()=>{$("capitalValueLabel").textContent=$("capitalType").value==="percent"?"Reduction Percentage (%)":"Reduction Amount (USD)"};$("capitalValue").oninput=updateCapitalPreview;$("reduceCapitalBtn").onclick=reduceCapital;
  $("refreshWithdrawals").onclick=withdrawLoad;$("withdrawalFilter").onchange=withdrawLoad;$("refreshTransactions").onclick=transactionsLoad;$("transactionFilter").onchange=transactionsLoad;
- document.addEventListener("click",async e=>{const doc=e.target.closest("[data-kyc-document]");if(doc){e.preventDefault();try{await openKycDocument(doc.dataset.kycDocument)}catch(err){toast(err.message||"Unable to open KYC document.","error")}return}const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;try{
+ document.addEventListener("click",async e=>{const doc=e.target.closest("[data-kyc-document]");if(doc){e.preventDefault();try{await openKycDocument(doc.dataset.kycDocument,doc.dataset.kycLabel||"KYC document")}catch(err){toast(err.message||"Unable to open KYC document.","error")}return}const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;try{
   if(a==="member-status")return memberStatus(b.dataset.id,b.dataset.status);if(a==="comm-select")return openMemberCommunication(b.dataset.id);if(a==="kyc-approve")return kycApprove(b.dataset.id);if(a==="kyc-reject")return kycReject(b.dataset.id);if(a==="invest-status")return investSet(b.dataset.id,b.dataset.status);if(a==="withdraw-status")return withdrawSet(b.dataset.id,b.dataset.status);
   if(a==="edit-pkg")return editPkg(JSON.parse(b.dataset.pkg));if(a==="delete-pkg")return delPkg(b.dataset.id);if(a==="edit-pay")return editPay(JSON.parse(b.dataset.pay));if(a==="toggle-pay")return togglePay(b.dataset.id,b.dataset.active==="true");if(a==="delete-pay")return deletePay(b.dataset.id); if(a==="event-edit")return editHomepageItem("events",Number(b.dataset.index));if(a==="social-edit")return editHomepageItem("socials",Number(b.dataset.index));if(a==="contact-edit")return editHomepageItem("contacts",Number(b.dataset.index));if(a==="event-delete"){homepage.events.splice(Number(b.dataset.index),1);clearHomepageEdit();renderHomepageLists();return await homepageSave()} if(a==="social-delete"){homepage.socials.splice(Number(b.dataset.index),1);clearHomepageEdit();renderHomepageLists();return await homepageSave()} if(a==="contact-delete"){homepage.contacts.splice(Number(b.dataset.index),1);clearHomepageEdit();renderHomepageLists();return await homepageSave()}
  }catch(err){toast(err.message||"Button action failed.","error")}});
