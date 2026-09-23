@@ -3,6 +3,61 @@ const SUPABASE_KEY = "sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 
 const OPENAI_MODEL = "gpt-5.6-luna";
 
+const TELEGRAM_WORKER_URL = "https://monarch-codex-telegram.trademarchofficial.workers.dev";
+
+async function proxyTelegramAdmin(request, env, pathname) {
+  const allowed = new Set([
+    "/api/telegram-admin/admin-chats",
+    "/api/telegram-admin/admin-chat-assignment",
+    "/api/telegram-admin/admin-action"
+  ]);
+
+  if (!allowed.has(pathname)) {
+    return json({ ok: false, error: "Telegram admin endpoint not found." }, 404);
+  }
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+
+  if (request.method !== "GET" && request.method !== "POST") {
+    return json({ ok: false, error: "Method not allowed" }, 405);
+  }
+
+  const targetPath = pathname.replace("/api/telegram-admin", "/telegram");
+  const targetUrl = TELEGRAM_WORKER_URL + targetPath;
+
+  try {
+    const headers = new Headers();
+    const authorization = request.headers.get("Authorization");
+    if (authorization) headers.set("Authorization", authorization);
+    headers.set("Content-Type", request.headers.get("Content-Type") || "application/json");
+
+    const upstream = await fetch(targetUrl, {
+      method: request.method,
+      headers,
+      body: request.method === "POST" ? await request.text() : undefined
+    });
+
+    const responseText = await upstream.text();
+
+    return new Response(responseText, {
+      status: upstream.status,
+      headers: {
+        ...CORS_HEADERS,
+        "Content-Type": upstream.headers.get("Content-Type") || "application/json; charset=UTF-8"
+      }
+    });
+  } catch (error) {
+    return json({
+      ok: false,
+      error: "Telegram operations service could not be reached.",
+      detail: error?.message || "Upstream request failed."
+    }, 502);
+  }
+}
+
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
