@@ -21,7 +21,7 @@ create table if not exists public.wallet_funding_requests (
   amount numeric not null check (amount > 0),
   fee numeric not null default 2 check (fee >= 0),
   total numeric not null check (total > 0),
-  payment_method text not null check (payment_method in ('bank','wallet')),
+  payment_method text not null check (payment_method in ('bank','wallet','spenda')),
   receipt_url text,
   note text,
   status text not null default 'pending' check (status in ('pending','approved','rejected')),
