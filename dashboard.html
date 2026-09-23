@@ -989,9 +989,11 @@ const KYC_PROTECTED_VIEWS=['x','investments','withdrawals','transactions','refer
 let sb=null;
 function showDashboardStartupError(message){
   const l=document.getElementById('loadingScreen'),a=document.getElementById('app'),c=document.querySelector('.content');
-  if(l)l.classList.add('hidden');
-  if(a)a.classList.remove('hidden');
-  if(c)c.innerHTML='<div class="card"><div class="notice error"><strong>Dashboard startup error.</strong><br>'+String(message||'Please refresh the page and try again.').replace(/[&<>]/g,'')+'</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>';
+  if(l&&!l.classList.contains('hidden')){
+    l.classList.add('hidden');
+    if(a)a.classList.remove('hidden');
+    if(c)c.innerHTML='<div class="card"><div class="notice error"><strong>Dashboard startup error.</strong><br>'+String(message||'Please refresh the page and try again.').replace(/[&<>]/g,'')+'</div><button class="btn primary" style="margin-top:12px" onclick="location.href=\'login.html\'">Return to Login</button></div>';
+  }
 }
 function initSupabaseClient(){
   if(sb)return true;
