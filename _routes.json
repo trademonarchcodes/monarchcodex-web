@@ -1,7 +1,8 @@
 {
   "version": 1,
   "include": [
-    "/api/telegram-admin/*"
+    "/api/telegram-admin/*",
+    "/api/auth/*"
   ],
   "exclude": []
 }
