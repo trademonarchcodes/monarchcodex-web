@@ -997,7 +997,9 @@ let currentView='overview', selectedPayment=null, siteContent={homepage_title:'M
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 /* Currency helpers */
-function fmt(n){const x=Number(n);return '{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
+function fmt(n){const x=Number(n);return '$'+(Number.isFinite(x)?x:0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function ngn(n){const x=Number(n);return '₦'+(Number.isFinite(x)?x:0).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
+function date(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
 function toast(msg,type=''){const t=$('toast');t.textContent=msg;t.className='toast '+(type==='error'?'error':'');t.classList.remove('hidden');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.add('hidden'),4200)}
 function setLoading(on){const l=$('loadingScreen');if(l)l.classList.toggle('hidden',!on);if(!on)document.body.classList.add('app-ready')}
 function status(v){const s=String(v||'unknown').toLowerCase();return '<span class="status '+esc(s)+'">'+esc(s.replaceAll('_',' '))+'</span>'}
