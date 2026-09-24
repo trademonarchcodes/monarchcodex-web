@@ -69,3 +69,33 @@ end;
 $$;
 revoke execute on function public.reject_investment_request(uuid,text) from public,anon;
 grant execute on function public.reject_investment_request(uuid,text) to authenticated;
+
+-- Academy administrator access. Member-facing policies remain unchanged.
+alter table public.academy_settings enable row level security;
+alter table public.academy_lessons enable row level security;
+alter table public.academy_courses enable row level security;
+alter table public.academy_subscriptions enable row level security;
+alter table public.academy_progress enable row level security;
+
+drop policy if exists "academy admin settings" on public.academy_settings;
+create policy "academy admin settings" on public.academy_settings for all to authenticated
+using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')))
+with check (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+drop policy if exists "academy admin lessons" on public.academy_lessons;
+create policy "academy admin lessons" on public.academy_lessons for all to authenticated
+using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')))
+with check (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+drop policy if exists "academy admin courses" on public.academy_courses;
+create policy "academy admin courses" on public.academy_courses for all to authenticated
+using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')))
+with check (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+drop policy if exists "academy admin subscriptions" on public.academy_subscriptions;
+create policy "academy admin subscriptions" on public.academy_subscriptions for select to authenticated
+using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+drop policy if exists "academy admin progress" on public.academy_progress;
+create policy "academy admin progress" on public.academy_progress for select to authenticated
+using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk'));
