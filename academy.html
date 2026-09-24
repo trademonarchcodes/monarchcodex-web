@@ -19,7 +19,7 @@
     <h1>Learn step by step.</h1>
     <p class="muted">Your Academy lessons are arranged in sequence. Complete the current course before the next one becomes available.</p>
   </section>
-  <div id="message" class="notice" style="margin-top:14px">Loading Academy…</div>
+  <div id="message" class="notice" style="margin-top:14px">Loading Academy…</div><section id="subscribeCard" class="card" style="margin-top:14px"><h2 style="margin-top:0">Academy Access</h2><p id="subText" class="muted">Checking subscription price and wallet balance…</p><button id="subscribeBtn" class="btn" type="button">Subscribe to Academy</button></section>
   <section id="content" class="lessons hidden"></section>
   <section id="playerCard" class="card hidden" style="margin-top:16px">
     <div id="courseLabel" style="color:var(--gold2);font-weight:800"></div>
@@ -34,19 +34,19 @@
 const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let user=null,lessons=[],courses=[],progress=[],selected=null;
+let user=null,lessons=[],courses=[],progress=[],selected=null,academyPrice=0;
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 function show(msg,type="notice"){const e=$("message");e.className=type==="error"?"notice":"notice";e.innerHTML=msg;e.classList.remove("hidden")}
 function isComplete(id){return progress.some(x=>x.course_id===id&&x.status==="completed")}
-function canOpen(c){const ordered=courses.slice().sort((a,b)=>a.position-b.position);const idx=ordered.findIndex(x=>x.id===c.id);if(idx<=0)return true;return isComplete(ordered[idx-1].id)}
+function currentLessonIndex(){const ordered=lessons.slice().sort((a,b)=>a.position-b.position);for(let i=0;i<ordered.length;i++){const cs=courses.filter(c=>c.lesson_id===ordered[i].id);if(cs.some(c=>!isComplete(c.id)))return i}return ordered.length} function canOpen(c){const orderedLessons=lessons.slice().sort((a,b)=>a.position-b.position);const li=orderedLessons.findIndex(l=>l.id===c.lesson_id);const current=currentLessonIndex();if(li!==current)return false;const cs=courses.filter(x=>x.lesson_id===c.lesson_id).sort((a,b)=>a.position-b.position);const idx=cs.findIndex(x=>x.id===c.id);return idx===0||isComplete(cs[idx-1].id)}
 function render(){
- const by=new Map();lessons.forEach(l=>by.set(l.id,[]));courses.forEach(c=>{if(by.has(c.lesson_id))by.get(c.lesson_id).push(c)});
+ const current=currentLessonIndex();const by=new Map();lessons.forEach(l=>by.set(l.id,[]));courses.forEach(c=>{if(by.has(c.lesson_id))by.get(c.lesson_id).push(c)});
  $("content").innerHTML=lessons.slice().sort((a,b)=>a.position-b.position).map(l=>{
-   const cs=(by.get(l.id)||[]).sort((a,b)=>a.position-b.position);
+   const cs=(by.get(l.id)||[]).sort((a,b)=>a.position-b.position);const lessonIndex=lessons.slice().sort((a,b)=>a.position-b.position).findIndex(x=>x.id===l.id);
    return '<div class="card lesson"><h2>Lesson '+esc(l.position)+' — '+esc(l.title)+'</h2><p class="muted">'+esc(l.description||"")+'</p><div class="courses">'+cs.map(c=>{
      const done=isComplete(c.id),open=canOpen(c);
-     return '<button class="course '+(open?"":"locked")+'" '+(open?'onclick="openCourse(\''+c.id+'\')"':'disabled')+' type="button"><span><strong>'+esc(c.position)+'. '+esc(c.title)+'</strong><small class="muted">'+esc(c.description||"")+'</small></span><span class="pill">'+(done?"Completed":open?"Open":"Locked")+'</span></button>';
+     return '<button class="course '+(open?"":(lessonIndex<current?"locked":"locked"))+'" '+(open?'onclick="openCourse(\''+c.id+'\')"':'disabled')+' type="button"><span><strong>'+esc(c.position)+'. '+esc(c.title)+'</strong><small class="muted">'+esc(c.description||"")+'</small></span><span class="pill">'+(done?"Completed":open?"Open":"Locked")+'</span></button>';
    }).join("")+'</div></div>';
  }).join("");
  $("content").classList.remove("hidden");
@@ -71,9 +71,9 @@ $("completeBtn").onclick=async()=>{
  const {data:{session}}=await sb.auth.getSession();
  if(!session){location.href="login.html";return}
  user=session.user;
- const sub=await sb.from("academy_subscriptions").select("status").eq("user_id",user.id).maybeSingle();
+ const settings=await sb.from("academy_settings").select("academy_price,currency,active").eq("id",true).maybeSingle();if(settings.error){show("Academy settings could not be loaded.","error");return}academyPrice=Number(settings.data?.academy_price||0);const sub=await sb.from("academy_subscriptions").select("status,admin_reason").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();
  if(sub.error){show("Academy setup is not available yet. Please try again after the Academy is configured.","error");return}
- if(!sub.data||sub.data.status!=="approved"){show("Your Academy access is not active yet. Complete the Academy subscription process to unlock the lessons.");return}
+ const balanceRow=await sb.from("profiles").select("balance").eq("id",user.id).maybeSingle();const balance=Number(balanceRow.data?.balance||0);const status=sub.data?.status||"none";$("subscribeCard").classList.remove("hidden");if(status==="approved"){ $("subText").textContent="Your Academy subscription is active."; $("subscribeBtn").classList.add("hidden"); }else if(status==="pending"){ $("subText").textContent="Your Academy subscription request is awaiting admin review."; $("subscribeBtn").classList.add("hidden"); }else { $("subText").textContent="Academy price: "+academyPrice.toFixed(2)+" "+(settings.data?.currency||"USD")+" · Available balance: "+balance.toFixed(2)+" "+(settings.data?.currency||"USD"); if(balance<academyPrice){$("subscribeBtn").disabled=true;$("subscribeBtn").textContent="Insufficient Balance";} } if(status!=="approved"){show(status==="rejected"?"Your previous Academy request was rejected. Your funds were returned. You may submit a new request when your balance is sufficient.":"Subscribe to unlock the Academy lessons.");$("subscribeBtn").onclick=async()=>{const r=await sb.rpc("request_academy_subscription");if(r.error){show(r.error.message,"error");return}$("subscribeBtn").classList.add("hidden");$("subText").textContent="Your subscription request has been submitted and is awaiting admin review.";show("Subscription request submitted.");};return}
  const [ls,cs,pr]=await Promise.all([
   sb.from("academy_lessons").select("*").eq("status","published").order("position"),
   sb.from("academy_courses").select("*").eq("status","published").order("position"),
