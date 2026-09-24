@@ -98,7 +98,7 @@ create or replace function public.request_academy_subscription()
 returns jsonb language plpgsql security definer set search_path=''
 as $$
 declare
- uid uuid:=auth.uid();
+ v_user_id uuid:=auth.uid();
  prof public.profiles%rowtype;
  settings public.academy_settings%rowtype;
  existing public.academy_subscriptions%rowtype;
@@ -110,8 +110,8 @@ declare
  total_amount numeric;
  sub_id uuid;
 begin
- if uid is null then raise exception 'Authentication required.'; end if;
- select * into prof from public.profiles where id=uid for update;
+ if v_user_id is null then raise exception 'Authentication required.'; end if;
+ select p.* into prof from public.profiles p where p.id=v_user_id for update;
  if not found then raise exception 'Profile not found.'; end if;
  select * into settings from public.academy_settings where id=true;
  if not found or not settings.active then
@@ -126,8 +126,8 @@ begin
    else round(cfg.fee_value,2)
  end;
  total_amount:=round(subscription_amount+fee_amount,2);
- select * into existing from public.academy_subscriptions
- where user_id=uid and status in ('pending','approved') limit 1;
+ select * into existing from public.academy_subscriptions s
+ where s.user_id=v_user_id and s.status in ('pending','approved') limit 1;
  if found then raise exception 'You already have an active Academy subscription request.'; end if;
  before_balance:=coalesce(prof.balance,0);
  if before_balance<total_amount then
@@ -135,16 +135,16 @@ begin
      to_char(total_amount,'FM999999990.00');
  end if;
  after_balance:=before_balance-total_amount;
- update public.profiles set balance=after_balance,updated_at=now() where id=uid;
+ update public.profiles set balance=after_balance,updated_at=now() where id=v_user_id;
  insert into public.academy_subscriptions(user_id,amount,fee,status)
- values(uid,subscription_amount,fee_amount,'pending') returning id into sub_id;
+ values(v_user_id,subscription_amount,fee_amount,'pending') returning id into sub_id;
  insert into public.wallet_transactions(
    user_id,direction,amount,fee,balance_before,balance_after,
    source_type,reference_id,description,created_by
  ) values(
-   uid,'debit',subscription_amount,fee_amount,before_balance,after_balance,
+   v_user_id,'debit',subscription_amount,fee_amount,before_balance,after_balance,
    'academy_subscription',sub_id::text,
-   'Academy subscription request pending admin review.',uid
+   'Academy subscription request pending admin review.',v_user_id
  );
  return jsonb_build_object(
    'ok',true,'subscription_id',sub_id,'amount',subscription_amount,
