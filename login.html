@@ -890,6 +890,8 @@ html.mc-light .live-up{color:#16864A!important}.mc-light .live-down{color:#C23D5
 
         return (
             role === "admin" ||
+            role === "super_admin" ||
+            role.includes("admin") ||
             email === "trademonarchofficial@gmail.com"
         );
 
