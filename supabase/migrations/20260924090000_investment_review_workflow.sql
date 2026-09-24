@@ -275,6 +275,3 @@ using (
   or exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk'))
 );
 
-
--- Transaction fee policy applied 2026-09-24
-alter table public.academy_subscriptions add column if not exists fee numeric not null default 0 check (fee >= 0);
