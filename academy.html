@@ -36,7 +36,7 @@ const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let user=null,lessons=[],courses=[],progress=[],selected=null;
 const $=id=>document.getElementById(id);
-const esc=x=>String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[m]));
+const esc=x=>String(x??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 function show(msg,type="notice"){const e=$("message");e.className=type==="error"?"notice":"notice";e.innerHTML=msg;e.classList.remove("hidden")}
 function isComplete(id){return progress.some(x=>x.course_id===id&&x.status==="completed")}
 function canOpen(c){const ordered=courses.slice().sort((a,b)=>a.position-b.position);const idx=ordered.findIndex(x=>x.id===c.id);if(idx<=0)return true;return isComplete(ordered[idx-1].id)}
