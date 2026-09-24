@@ -51,7 +51,7 @@ let lessons=[],courses=[],subs=[];
 
 function msg(t,error=false){$("msg").textContent=t;$("msg").style.borderColor=error?"#672d2d":"#57481f";$("msg").style.color=error?"#ffaaaa":"#dec778";$("msg").hidden=false}
 function videoId(v){v=String(v||"").trim();try{const u=new URL(v);if(u.searchParams.get("v"))return u.searchParams.get("v");if(u.hostname==="youtu.be")return u.pathname.replace(/^\//,"");if(u.pathname.includes("/embed/"))return u.pathname.split("/embed/")[1].split("/")[0]}catch(e){}return v}
-function roleOK(r){return ["admin","sovereign_desk"].includes(String(r||"").toLowerCase())}
+function roleOK(r){const x=String(r||"").toLowerCase().trim();return x==="admin"||x==="super_admin"||x==="sovereign_desk"||x==="sovereign-desk"||x.includes("admin")}
 
 async function load(){
   const st=await db.from("academy_settings").select("*").eq("id",true).maybeSingle();if(st.error)throw st.error;
@@ -89,7 +89,28 @@ $("saveSettings").onclick=async()=>{try{const r=await db.from("academy_settings"
 $("addLesson").onclick=async()=>{try{const r=await db.from("academy_lessons").insert({title:$("lessonTitle").value.trim(),description:$("lessonDescription").value.trim()||null,position:Number($("lessonPosition").value),status:"published"});if(r.error)throw r.error;await load();msg("Lesson added.")}catch(e){msg(e.message,true)}};
 $("addCourse").onclick=async()=>{try{const r=await db.from("academy_courses").insert({lesson_id:$("courseLesson").value,title:$("courseTitle").value.trim(),description:$("courseDescription").value.trim()||null,youtube_video_id:videoId($("videoId").value),position:Number($("coursePosition").value),status:"published"});if(r.error)throw r.error;await load();msg("Course added.")}catch(e){msg(e.message,true)}};
 
-(async()=>{try{const s=await db.auth.getSession();if(!s.data.session){location.href="login.html";return}const p=await db.from("profiles").select("role").eq("id",s.data.session.user.id).maybeSingle();if(!roleOK(p.data?.role)){location.href="dashboard.html";return}$("app").hidden=false;await load();$("msg").hidden=true}catch(e){msg(e.message||"Academy admin could not load.",true)}})();
+let academyAdminBooted=false;
+async function academyAdminBoot(session){
+  if(academyAdminBooted)return;
+  academyAdminBooted=true;
+  try{
+    if(!session){location.href="login.html";return}
+    const p=await db.from("profiles").select("role").eq("id",session.user.id).maybeSingle();
+    if(p.error)throw p.error;
+    if(!roleOK(p.data?.role)){location.href="dashboard.html";return}
+    $("app").hidden=false;
+    await load();
+    $("msg").hidden=true;
+  }catch(e){
+    console.error("Academy admin boot error:",e);
+    msg(e.message||"Academy admin could not load.",true);
+  }
+}
+db.auth.onAuthStateChange((event,session)=>{
+  if(event==="INITIAL_SESSION"||event==="SIGNED_IN")setTimeout(()=>academyAdminBoot(session),0);
+  if(event==="SIGNED_OUT")location.href="login.html";
+});
+setTimeout(()=>{if(!academyAdminBooted)msg("Academy access is taking too long. Please refresh and try again.",true)},12000);
 </script>
 </body>
 </html>
