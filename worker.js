@@ -825,6 +825,37 @@ async function handleX(request, env) {
   }
 }
 
+
+
+async function proxyMemberWallet(request) {
+  const authHeader = request.headers.get("Authorization") || "";
+  if (!authHeader.startsWith("Bearer ")) return json({ ok:false, error:"Missing authorization token." },401);
+  const token = authHeader.substring(7).trim();
+  if (!token) return json({ ok:false, error:"Invalid authorization token." },401);
+  try {
+    const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${token}` };
+    const base = SUPABASE_URL + "/rest/v1/";
+    const q = async (table, params) => {
+      const r = await fetch(base + table + "?" + params, { headers });
+      const t = await r.text();
+      if (!r.ok) throw new Error(t || `Supabase returned HTTP ${r.status}.`);
+      return JSON.parse(t || "[]");
+    };
+    const userCheck = await fetch(SUPABASE_URL + "/auth/v1/user", { headers });
+    if (!userCheck.ok) return json({ ok:false, error:"Your MONARCH CODEX session is invalid or has expired." },401);
+    const authUser = await userCheck.json(), uid = authUser.id;
+    const [profiles,payments,funding,transactions] = await Promise.all([
+      q("profiles","select=id,full_name,display_username,uid,balance&id=eq."+encodeURIComponent(uid)+"&limit=1"),
+      q("payment_details","select=title,payment_type,bank_name,account_name,account_number,crypto_name,crypto_network,wallet_address,active&active=eq.true"),
+      q("wallet_funding_requests","select=amount,fee,payment_method,status,created_at&user_id=eq."+encodeURIComponent(uid)+"&order=created_at.desc&limit=100"),
+      q("wallet_transactions","select=*&user_id=eq."+encodeURIComponent(uid)+"&order=created_at.desc&limit=50")
+    ]);
+    return json({ok:true,user:{id:uid,email:authUser.email||null},profile:profiles?.[0]||null,payments:payments||[],funding:funding||[],transactions:transactions||[]});
+  } catch(error) {
+    return json({ok:false,error:error?.message||"Wallet service could not be reached."},502);
+  }
+}
+
 export default {
 
   async fetch(request, env) {
@@ -867,6 +898,10 @@ export default {
         return json({ ok: false, error: "Unauthorized authentication origin." }, 403);
       }
       return proxyPasswordLogin(request);
+    }
+
+    if (request.method === "GET" && url.pathname === "/api/member/wallet") {
+      return proxyMemberWallet(request);
     }
 
     /*
