@@ -153,3 +153,78 @@ revoke execute on function public.reject_investment_request(uuid,text) from publ
 grant execute on function public.purchase_investment_from_wallet(integer) to authenticated;
 grant execute on function public.approve_investment_request(uuid,text) to authenticated;
 grant execute on function public.reject_investment_request(uuid,text) to authenticated;
+
+
+-- Academy progression hardening
+alter policy "academy_progress_insert" on public.academy_progress
+  with check ((auth.uid() = user_id) and status = 'started');
+
+alter policy "academy_progress_update" on public.academy_progress
+  using ((auth.uid() = user_id) and status = 'started')
+  with check ((auth.uid() = user_id) and status = 'started');
+
+create or replace function public.start_academy_course(p_course_id uuid)
+returns jsonb language plpgsql security definer set search_path = ''
+as $$
+declare uid uuid:=auth.uid(); c public.academy_courses%rowtype; l public.academy_lessons%rowtype;
+begin
+ if uid is null then raise exception 'Authentication required.'; end if;
+ if not exists(select 1 from public.academy_subscriptions where user_id=uid and status='approved') then raise exception 'An approved Academy subscription is required.'; end if;
+ select c0.* into c from public.academy_courses c0 where c0.id=p_course_id and c0.status='published';
+ if not found then raise exception 'Course is unavailable.'; end if;
+ select l0.* into l from public.academy_lessons l0 where l0.id=c.lesson_id and l0.status='published';
+ if not found then raise exception 'Course lesson is unavailable.'; end if;
+ if exists(
+   select 1 from public.academy_courses earlier
+   join public.academy_lessons el on el.id=earlier.lesson_id
+   where earlier.status='published' and el.status='published'
+     and (el.position<l.position or (el.position=l.position and earlier.position<c.position))
+     and not exists(select 1 from public.academy_progress pr where pr.user_id=uid and pr.course_id=earlier.id and pr.status='completed')
+ ) then raise exception 'Complete the current course before opening this course.'; end if;
+ insert into public.academy_progress(user_id,course_id,status,started_at,updated_at)
+ values(uid,c.id,'started',now(),now())
+ on conflict (user_id,course_id) do update
+ set status=case when public.academy_progress.status='completed' then public.academy_progress.status else 'started' end,
+     started_at=coalesce(public.academy_progress.started_at,excluded.started_at),updated_at=now();
+ return jsonb_build_object('ok',true,'course_id',c.id,'status','started');
+end;
+$$;
+
+create or replace function public.complete_academy_course(p_course_id uuid)
+returns jsonb language plpgsql security definer set search_path = ''
+as $$
+declare uid uuid:=auth.uid(); c public.academy_courses%rowtype; l public.academy_lessons%rowtype;
+begin
+ if uid is null then raise exception 'Authentication required.'; end if;
+ if not exists(select 1 from public.academy_subscriptions where user_id=uid and status='approved') then raise exception 'An approved Academy subscription is required.'; end if;
+ select c0.* into c from public.academy_courses c0 where c0.id=p_course_id and c0.status='published';
+ if not found then raise exception 'Course is unavailable.'; end if;
+ select l0.* into l from public.academy_lessons l0 where l0.id=c.lesson_id and l0.status='published';
+ if not found then raise exception 'Course lesson is unavailable.'; end if;
+ if exists(
+   select 1 from public.academy_courses earlier
+   join public.academy_lessons el on el.id=earlier.lesson_id
+   where earlier.status='published' and el.status='published'
+     and (el.position<l.position or (el.position=l.position and earlier.position<c.position))
+     and not exists(select 1 from public.academy_progress pr where pr.user_id=uid and pr.course_id=earlier.id and pr.status='completed')
+ ) then raise exception 'Complete the current course before completing this course.'; end if;
+ insert into public.academy_progress(user_id,course_id,status,started_at,completed_at,updated_at)
+ values(uid,c.id,'completed',now(),now(),now())
+ on conflict (user_id,course_id) do update
+ set status='completed',completed_at=now(),started_at=coalesce(public.academy_progress.started_at,excluded.started_at),updated_at=now();
+ return jsonb_build_object('ok',true,'course_id',c.id,'status','completed');
+end;
+$$;
+
+revoke execute on function public.start_academy_course(uuid) from public,anon;
+revoke execute on function public.complete_academy_course(uuid) from public,anon;
+grant execute on function public.start_academy_course(uuid) to authenticated;
+grant execute on function public.complete_academy_course(uuid) to authenticated;
+
+-- Ensure Academy security-definer RPCs are never anonymously executable.
+revoke execute on function public.request_academy_subscription() from public,anon;
+revoke execute on function public.approve_academy_subscription(uuid,text) from public,anon;
+revoke execute on function public.reject_academy_subscription(uuid,text) from public,anon;
+grant execute on function public.request_academy_subscription() to authenticated;
+grant execute on function public.approve_academy_subscription(uuid,text) to authenticated;
+grant execute on function public.reject_academy_subscription(uuid,text) to authenticated;
