@@ -25,16 +25,16 @@
     <div id="courseLabel" style="color:var(--gold2);font-weight:800"></div>
     <div id="player" class="player"></div>
     <p id="courseDescription" class="muted"></p>
-    <button id="completeBtn" class="btn" type="button">Mark Course Complete</button>
+    <button id="completeBtn" class="btn" type="button" disabled>Finish watching to complete</button>
   </section>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://www.youtube.com/iframe_api"></script>
 <script>
 "use strict";
 const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
 const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let user=null,lessons=[],courses=[],progress=[],selected=null,academyPrice=0;
+let user=null,lessons=[],courses=[],progress=[],selected=null,academyPrice=0,ytPlayer=null;
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
 function show(msg,type="notice"){const e=$("message");e.className=type==="error"?"notice":"notice";e.innerHTML=msg;e.classList.remove("hidden")}
@@ -56,8 +56,12 @@ window.openCourse=async id=>{
  selected=c;
  $("courseLabel").textContent=c.title;
  $("courseDescription").textContent=c.description||"";
- $("player").innerHTML='<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(c.youtube_video_id)+'?playsinline=1&rel=0&enablejsapi=1&origin='+encodeURIComponent(location.origin)+'" title="'+esc(c.title)+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+ if(ytPlayer){try{ytPlayer.destroy()}catch(e){}ytPlayer=null}
+ $("completeBtn").disabled=true;$("completeBtn").textContent="Finish watching to complete";
+ $("player").innerHTML='<div id="ytPlayer" style="position:absolute;inset:0"></div>';
  $("playerCard").classList.remove("hidden");
+ window.onYouTubeIframeAPIReady=()=>{ytPlayer=new YT.Player("ytPlayer",{videoId:c.youtube_video_id,playerVars:{playsinline:1,rel:0,enablejsapi:1,origin:location.origin},events:{onStateChange:e=>{if(e.data===YT.PlayerState.ENDED){$("completeBtn").disabled=false;$("completeBtn").textContent="Complete Course"}}}})};
+ if(window.YT&&YT.Player)window.onYouTubeIframeAPIReady();
  await sb.from("academy_progress").upsert({user_id:user.id,course_id:c.id,status:"started",started_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:"user_id,course_id"});
  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 };
