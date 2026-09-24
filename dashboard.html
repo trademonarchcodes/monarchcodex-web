@@ -1458,6 +1458,18 @@ async function boot(){
     renderIdentity();
     renderKyc();
     renderOverview();
+
+    // Admin and sovereign accounts must never enter the member dashboard.
+    const dashboardRole=String(profile?.role||'').toLowerCase().trim();
+    if(dashboardRole==='super_admin' || dashboardRole==='admin' || dashboardRole.includes('admin')){
+      window.location.replace('admin.html');
+      return;
+    }
+    if(dashboardRole==='sovereign_desk' || dashboardRole==='sovereign-desk'){
+      window.location.replace('sovereign_desk.html');
+      return;
+    }
+
     setLoading(false);
     loadSiteContent();
 
