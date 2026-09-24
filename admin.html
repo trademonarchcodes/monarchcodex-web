@@ -347,7 +347,7 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
 
 <div id="view-kyc" class="view"><div class="hero"><h1>KYC Requests</h1><p>Review submitted identity verification requests.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><select id="kycFilter"><option value="under_review">Under Review</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select><button id="refreshKyc" class="btn">Refresh</button></div><div id="kyc" class="empty">Loading...</div></div></div>
 
-<div id="view-investments" class="view"><div class="hero"><h1>Investment Requests</h1><p>Review payment proof and approve or reject Monarch investment requests.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><select id="investmentFilter"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select><button id="refreshInvestments" class="btn">Refresh</button></div><div id="investments" class="empty">Loading...</div></div></div>
+<div id="view-investments" class="view"><div class="hero"><h1>Investment Requests</h1><p>Review investment requests. Deposits are the only requests that require payment verification.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><select id="investmentFilter"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select><button id="refreshInvestments" class="btn">Refresh</button></div><div id="investments" class="empty">Loading...</div></div></div>
 
 <div id="view-packages" class="view"><div class="hero"><h1>Investment Packages</h1><p>Manage the packages members see.</p></div><div class="card"><h2 class="section">Add / Edit Package</h2><input id="pkgId" type="hidden"><div class="form"><div class="field"><label>Package Name</label><input id="pkgName" placeholder="$30 Package"></div><div class="field"><label>Amount USD</label><input id="pkgAmount" type="number" min="0" step=".01"></div><div class="field full"><label>Description</label><textarea id="pkgDesc"></textarea></div></div><div class="actions"><button id="savePkg" class="btn">Save Package</button><button id="clearPkg" class="btn secondary">Clear</button><button id="seedPkgs" class="btn secondary">Create Default $30–$1,000 Packages</button></div></div><div class="card"><h2 class="section">Current Packages</h2><div id="packageList" class="packages"><div class="empty">Loading...</div></div></div></div>
 
@@ -512,17 +512,23 @@ async function kycApprove(id){try{const r=await q("profiles",x=>x.update({kyc_st
 async function kycReject(id){const reason=prompt("Enter the rejection reason:");if(reason===null||!reason.trim())return toast("Rejection reason is required","warning");try{const r=await q("profiles",x=>x.update({kyc_status:"rejected",kyc_rejection_reason:reason.trim()}).eq("id",id));if(r.error)throw r.error;await notifyMember(id,"KYC Rejected",`Your KYC submission was rejected. Reason: ${reason.trim()}`,"warning");toast("KYC rejected","success");await kycLoad()}catch(e){toast(e.message,"error")}}
 async function investLoad(){
  try{
-  const r=await q("investments",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[],f=$("investmentFilter").value,a=f==="all"?all:all.filter(x=>String(x.status||"pending").toLowerCase()===f);$("statInvestments").textContent=all.filter(x=>String(x.status||"pending").toLowerCase()==="pending").length;
-  $("investments").innerHTML=a.length?`<div class="table"><table><tr><th>Member</th><th>Package</th><th>Amount</th><th>Method</th><th>Fee</th><th>Receipt</th><th>Status</th><th>Date</th><th>Action</th></tr>${a.map(x=>{const pending=String(x.status||"pending").toLowerCase()==="pending";return `<tr><td>${esc(memberName(x.user_id))}</td><td>${esc(x.package_name||"—")}</td><td>${money(x.amount)}</td><td>${esc(x.payment_method||x.method||"—")}</td><td>${money(x.fee)}</td><td>${x.receipt_url?`<a class="btn secondary" href="${esc(x.receipt_url)}" target="_blank" rel="noopener">↗ Receipt</a>`:"—"}</td><td>${badge(x.status)}</td><td>${dt(x.created_at)}</td><td>${pending?`<button class="btn success" data-action="invest-status" data-id="${esc(x.id)}" data-status="approved">Approve</button> <button class="btn danger" data-action="invest-status" data-id="${esc(x.id)}" data-status="rejected">Reject</button>`:"—"}</td></tr>`}).join("")}</table></div>`:'<div class="empty">No matching investment requests.</div>';
+  const r=await q("investments",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;
+  const all=r.data||[],f=$("investmentFilter").value,a=f==="all"?all:all.filter(x=>String(x.status||"pending").toLowerCase()===f);
+  $("statInvestments").textContent=all.filter(x=>String(x.status||"pending").toLowerCase()==="pending").length;
+  $("investments").innerHTML=a.length?'<div class="table"><table><tr><th>Member</th><th>Package</th><th>Amount</th><th>Method</th><th>Fee</th><th>Status</th><th>Date</th><th>Action</th></tr>'+a.map(x=>{const pending=String(x.status||"pending").toLowerCase()==="pending";return '<tr><td>'+esc(memberName(x.user_id))+'</td><td>'+esc(x.package_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+esc(x.payment_method||x.method||"—")+'</td><td>'+money(x.fee)+'</td><td>'+badge(x.status)+'</td><td>'+dt(x.created_at)+'</td><td>'+ (pending?'<button class="btn success" data-action="invest-status" data-id="'+esc(x.id)+'" data-status="approved">Approve</button> <button class="btn danger" data-action="invest-status" data-id="'+esc(x.id)+'" data-status="rejected">Reject</button>':"—")+'</td></tr>'}).join('')+'</table></div>':'<div class="empty">No matching investment requests.</div>';
  }catch(e){showError("investments",e);toast(e.message,"error")}
 }
-async function investSet(id,status){if(!confirm(`${status} investment?`))return;try{const r=await q("investments",x=>x.update({status, ...(status==="approved"?{approved_at:new Date().toISOString()}:{})}).eq("id",id));if(r.error)throw r.error;const inv=await q("investments",x=>x.select("user_id,amount,package_name").eq("id",id).maybeSingle());if(inv.data?.user_id)await notifyMember(inv.data.user_id,status==="approved"?"Investment Approved":"Investment Rejected",status==="approved"?`Your ${inv.data.package_name||"investment"} investment request for ${money(inv.data.amount)} has been approved.`:`Your ${inv.data.package_name||"investment"} investment request for ${money(inv.data.amount)} has been rejected.`,status==="approved"?"success":"warning");toast("Investment "+status,"success");await investLoad()}catch(e){toast(e.message,"error")}}
-function normalizeWhatsAppPhone(raw,code){
-  let digits=String(raw||'').replace(/\D/g,'');
-  const cc=String(code||'+234').replace(/\D/g,'');
-  if(digits.startsWith(cc))digits=digits.slice(cc.length);
-  if(digits.startsWith('0'))digits=digits.slice(1);
-  return digits;
+async function investSet(id,status){
+ const reason=status==="rejected"?prompt("Reason for rejecting this investment request:",""):prompt("Approval note (optional):","");
+ if(reason===null)return;
+ if(status==="rejected"&&!reason.trim())return toast("A rejection reason is required.","error");
+ try{
+  const fn=status==="approved"?"approve_investment_request":"reject_investment_request";
+  const r=await sb.rpc(fn,{p_investment_id:id,p_admin_reason:reason.trim()||null});
+  if(r.error)throw r.error;
+  toast(status==="approved"?"Investment approved.":"Investment rejected and funds returned.","success");
+  await investLoad();
+ }catch(e){toast(e.message||"Investment review failed.","error")}
 }
 function inferCountryCode(phone){
   const d=String(phone||'').replace(/\D/g,'');
