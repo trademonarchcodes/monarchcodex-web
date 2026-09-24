@@ -194,7 +194,7 @@ $('investmentForm').addEventListener('submit',async e=>{
     const {data,error}=await sb.rpc('purchase_investment_from_wallet',{p_package_id:pkgId});
     if(error)throw error;
     profile.balance=Number(data?.balance??profile.balance);
-    const q=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(q.error)throw q.error;investments=q.data||[];renderHistory();renderWalletPurchase();$('packageSelect').value='';renderWalletPurchase();toast('Investment purchased from your wallet.','success');
+    const q=await sb.from('investments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(q.error)throw q.error;investments=q.data||[];renderHistory();renderWalletPurchase();$('packageSelect').value='';renderWalletPurchase();toast('Investment request submitted. Your balance was reserved and the request is awaiting admin review.','success');
   }catch(err){console.error(err);toast(err.message||'Wallet purchase failed.','error')}finally{btn.disabled=false;btn.textContent='Buy Package From Wallet'}
 });
 $('mobileMenu').addEventListener('click',()=>$('sidebar').classList.toggle('open'));
