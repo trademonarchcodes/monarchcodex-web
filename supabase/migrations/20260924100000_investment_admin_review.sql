@@ -98,4 +98,4 @@ using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and
 
 drop policy if exists "academy admin progress" on public.academy_progress;
 create policy "academy admin progress" on public.academy_progress for select to authenticated
-using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk'));
+using (exists(select 1 from public.profiles p where p.id=(select auth.uid()) and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
