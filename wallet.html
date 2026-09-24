@@ -47,11 +47,14 @@
   <div class="grid">
     <div class="card"><h3 style="font-family:Cinzel;margin-top:0">Fund Wallet</h3><p class="muted">Choose how you are funding your wallet. Bank Transfer carries a $2 charge; Wallet Transfer carries a $1 charge; Spenda carries a $2 charge.</p>
       <form id="fundForm" class="form">
-        <div class="field"><label>Amount to credit (USD)</label><input id="amount" type="number" min="1" step="0.01" required placeholder="0.00"></div>
+        <div class="field"><label>Amount you want to pay</label><input id="amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></div>
+        <div class="field"><label>Payment currency</label><select id="amountCurrency" required><option value="USD">USD — Dollar</option><option value="NGN">NGN — Naira</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — Pound</option><option value="CAD">CAD — Canadian Dollar</option><option value="AUD">AUD — Australian Dollar</option><option value="GHS">GHS — Ghanaian Cedi</option><option value="ZAR">ZAR — South African Rand</option><option value="INR">INR — Indian Rupee</option><option value="JPY">JPY — Japanese Yen</option><option value="CNY">CNY — Chinese Yuan</option><option value="AED">AED — UAE Dirham</option><option value="XOF">XOF — CFA Franc</option></select></div>
+        <div class="field full"><label>Wallet credit in USD</label><input id="usdCredit" readonly value="$0.00"></div>
         <div class="field"><label>Funding method</label><select id="method" required><option value="">Choose method</option><option value="bank">Bank Transfer — $2 charge</option><option value="wallet">Wallet Transfer — $1 charge</option><option value="spenda">Spenda — $2 charge</option></select></div>
         <div class="field full"><label>Payment destination</label><div id="destinations" class="payment-list"><div class="muted">Choose a funding method.</div></div></div>
         <div class="field"><label>Charge</label><input id="fee" readonly value="$0.00"></div>
         <div class="field"><label>Total to pay</label><input id="total" readonly value="$0.00"></div>
+        <div class="field full"><div class="muted" id="fxNote">Enter an amount and choose your currency. The wallet credit is calculated in USD and the funding charge is converted into the selected payment currency.</div></div>
         <div class="field full"><label>Payment receipt</label><input id="receipt" type="file" accept="image/*,.pdf" required></div>
         <div class="field full"><label>Note (optional)</label><textarea id="note" rows="3"></textarea></div>
         <div class="field full"><button class="btn primary" type="submit" id="submit">Submit Funding Request</button></div>
@@ -76,11 +79,13 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
 let currentUser=null,profile=null,payments=[],fundingRows=[],txRows=[];
 let currency=localStorage.getItem("monarch_balance_currency")||"USD";
-const rates={USD:1,NGN:1400,EUR:.85,GBP:.75};
-const meta={USD:{s:"$",d:2},NGN:{s:"₦",d:0},EUR:{s:"€",d:2},GBP:{s:"£",d:2}};
+const rates={USD:1,NGN:1373.63,EUR:0.877685,GBP:0.754629,CAD:1.409797,AUD:1.421296,GHS:12.9,ZAR:16.2,INR:95.80004,JPY:158.3129,CNY:6.70934,AED:3.6725,XOF:563.2};
+const meta={USD:{s:"$",d:2},NGN:{s:"₦",d:2},EUR:{s:"€",d:2},GBP:{s:"£",d:2},CAD:{s:"C$",d:2},AUD:{s:"A$",d:2},GHS:{s:"GH₵",d:2},ZAR:{s:"R",d:2},INR:{s:"₹",d:2},JPY:{s:"¥",d:0},CNY:{s:"¥",d:2},AED:{s:"د.إ",d:2},XOF:{s:"CFA ",d:0}};
+const rateSource="https://open.er-api.com/v6/latest/USD";
 function money(n,c=currency){const m=meta[c]||meta.USD;return m.s+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:m.d,maximumFractionDigits:m.d})}
 function fmt(n){return "$"+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
 function timeout(p,ms,label){return Promise.race([p,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" timed out. Please refresh and try again.")),ms))])}
+async function refreshRates(){try{const r=await timeout(fetch(rateSource,{cache:"no-store"}),5000,"Exchange rates");if(!r.ok)throw new Error("Exchange rate service unavailable");const j=await r.json();if(j&&j.result==="success"&&j.rates){for(const k of Object.keys(rates)){if(k!=="USD"&&Number.isFinite(Number(j.rates[k])))rates[k]=Number(j.rates[k]);}totals();renderBalance();}}catch(e){console.warn("Live exchange rates unavailable; using fallback rates.",e)}}
 function toast(message,error=false){const t=$("toast");t.textContent=message;t.className="toast"+(error?" error":"");t.classList.remove("hidden");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.add("hidden"),4500)}
 function setLoading(message){$("loadingText").textContent=message}
 function renderBalance(){const usd=Number(profile?.balance||0);$("balance").textContent=money(usd*(rates[currency]||1),currency);$("usdBase").textContent="USD base balance: "+fmt(usd)+" • "+currency+" display"}
