@@ -198,8 +198,8 @@ function render(a,alloc){
   $('accountArea').innerHTML=
     '<div class="grid stats">'+
       '<div class="card"><div class="label">Package</div><div class="value" style="font-size:20px">'+esc(a.package||'Not set')+'</div><div class="small"><span class="status">'+esc(status)+'</span></div></div>'+
-      '<div class="card"><div class="label">Initial Contribution</div><div class="value">'+money(a.initial_contribution)+'</div><div class="small">Recorded in MONARCH CODEX</div></div>'+
-      '<div class="card"><div class="label">Cooperative Earnings</div><div class="value">'+money(earnings)+'</div><div class="small">Admin-maintained account figure</div></div>'+
+      ''+
+      '<div class="card"><div class="label">Cooperative Earnings</div><div class="value">'+money(earnings)+'</div><div class="small">Current recorded earnings</div></div>'+
       '<div class="card"><div class="label">Target</div><div class="value">'+money(target)+'</div><div class="small">'+(target?'Progress '+pct.toFixed(1)+'%':'Target not set')+'</div></div>'+
     '</div>'+
 
