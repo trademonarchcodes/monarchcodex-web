@@ -25,6 +25,7 @@
     <div id="courseLabel" style="color:var(--gold2);font-weight:800"></div>
     <div id="player" class="player"></div>
     <p id="courseDescription" class="muted"></p>
+    <a id="youtubeQuestionLink" class="btn" href="#" target="_blank" rel="noopener noreferrer" style="margin-top:4px">Ask a question on YouTube ↗</a>
     <button id="completeBtn" class="btn" type="button" disabled>Finish watching to complete</button>
   </section>
 </div>
@@ -55,27 +56,27 @@ window.openCourse=async id=>{
  const c=courses.find(x=>x.id===id);if(!c||!canOpen(c))return;
  selected=c;
  $("courseLabel").textContent=c.title;
- $("courseDescription").textContent=c.description||"";
+ $("courseDescription").textContent=c.description||"";$("youtubeQuestionLink").href="https://www.youtube.com/watch?v="+encodeURIComponent(c.youtube_video_id);
  if(ytPlayer){try{ytPlayer.destroy()}catch(e){}ytPlayer=null}
  $("completeBtn").disabled=true;$("completeBtn").textContent="Finish watching to complete";
  $("player").innerHTML='<div id="ytPlayer" style="position:absolute;inset:0"></div>';
  $("playerCard").classList.remove("hidden");
  window.onYouTubeIframeAPIReady=()=>{ytPlayer=new YT.Player("ytPlayer",{videoId:c.youtube_video_id,playerVars:{playsinline:1,rel:0,enablejsapi:1,origin:location.origin},events:{onStateChange:e=>{if(e.data===YT.PlayerState.ENDED){$("completeBtn").disabled=false;$("completeBtn").textContent="Complete Course"}}}})};
  if(window.YT&&YT.Player)window.onYouTubeIframeAPIReady();
- await sb.from("academy_progress").upsert({user_id:user.id,course_id:c.id,status:"started",started_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:"user_id,course_id"});
+ const startResult=await sb.rpc("start_academy_course",{p_course_id:c.id});if(startResult.error){show(esc(startResult.error.message),"error");return;}
  window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 };
 $("completeBtn").onclick=async()=>{
  if(!selected)return;
- const {error}=await sb.from("academy_progress").upsert({user_id:user.id,course_id:selected.id,status:"completed",completed_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:"user_id,course_id"});
- if(error)return show("Could not save course progress: "+esc(error.message),"error");
+ const result=await sb.rpc("complete_academy_course",{p_course_id:selected.id});
+ if(result.error)return show("Could not save course progress: "+esc(result.error.message),"error");
  progress=progress.filter(x=>x.course_id!==selected.id);progress.push({course_id:selected.id,status:"completed"});render();show("Course completed. The next course is now available.");
 };
 (async()=>{
  const {data:{session}}=await sb.auth.getSession();
  if(!session){location.href="login.html";return}
  user=session.user;
- const settings=await sb.from("academy_settings").select("academy_price,currency,active").eq("id",true).maybeSingle();if(settings.error){show("Academy settings could not be loaded.","error");return}academyPrice=Number(settings.data?.academy_price||0);const sub=await sb.from("academy_subscriptions").select("status,admin_reason").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+ const settings=await sb.from("academy_settings").select("academy_price,currency,active").eq("id",true).maybeSingle();if(settings.error){show("Academy settings could not be loaded.","error");return}if(settings.data?.active===false){$("subscribeCard").classList.add("hidden");show("Academy access is currently unavailable. Please check back later.");return}academyPrice=Number(settings.data?.academy_price||0);const sub=await sb.from("academy_subscriptions").select("status,admin_reason").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1).maybeSingle();
  if(sub.error){show("Academy setup is not available yet. Please try again after the Academy is configured.","error");return}
  const balanceRow=await sb.from("profiles").select("balance").eq("id",user.id).maybeSingle();const balance=Number(balanceRow.data?.balance||0);const status=sub.data?.status||"none";$("subscribeCard").classList.remove("hidden");if(status==="approved"){ $("subText").textContent="Your Academy subscription is active."; $("subscribeBtn").classList.add("hidden"); }else if(status==="pending"){ $("subText").textContent="Your Academy subscription request is awaiting admin review."; $("subscribeBtn").classList.add("hidden"); }else { $("subText").textContent="Academy price: "+academyPrice.toFixed(2)+" "+(settings.data?.currency||"USD")+" · Available balance: "+balance.toFixed(2)+" "+(settings.data?.currency||"USD"); if(balance<academyPrice){$("subscribeBtn").disabled=true;$("subscribeBtn").textContent="Insufficient Balance";} } if(status!=="approved"){show(status==="rejected"?"Your previous Academy request was rejected. Your funds were returned. You may submit a new request when your balance is sufficient.":"Subscribe to unlock the Academy lessons.");$("subscribeBtn").onclick=async()=>{const r=await sb.rpc("request_academy_subscription");if(r.error){show(r.error.message,"error");return}$("subscribeBtn").classList.add("hidden");$("subText").textContent="Your subscription request has been submitted and is awaiting admin review.";show("Subscription request submitted.");};return}
  const [ls,cs,pr]=await Promise.all([
