@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070707">
+<title>MONARCH CODEX — Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#D4AF37;--gold2:#F4D66D;--bg:#070707;--card:#111318;--line:#2a2a2a;--text:#f8f6ef;--muted:#9b9b9b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 5%,rgba(212,175,55,.08),transparent 25%),var(--bg);color:var(--text);font-family:Figtree,Arial,sans-serif}.wrap{max-width:1180px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:18px}.brand{color:var(--gold);font:800 22px Bricolage Grotesque}.btn{border:1px solid #5b4b1f;background:#17130a;color:var(--gold2);padding:11px 15px;border-radius:10px;font-weight:700;text-decoration:none;display:inline-block}.hero,.card{background:rgba(17,19,24,.94);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 15px 45px #0004}.hero h1{font:800 clamp(28px,5vw,44px) Bricolage Grotesque;margin:6px 0}.muted{color:var(--muted);line-height:1.65}.grid{display:grid;gap:14px}.lessons{margin-top:18px}.lesson{margin-bottom:14px}.lesson h2{font:700 20px Bricolage Grotesque;margin:0}.courses{display:grid;gap:9px;margin-top:12px}.course{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #292929;background:#0c0d10;padding:14px;border-radius:12px}.course.locked{opacity:.55}.course strong{display:block}.pill{font-size:11px;border:1px solid #383838;border-radius:999px;padding:5px 9px;color:#aaa}.player{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:15px;overflow:hidden;margin-top:14px}.player iframe{width:100%;height:100%;border:0}.notice{padding:13px;border-radius:11px;border:1px solid #5a461d;background:#191408;color:#dfc17a}.hidden{display:none!important}@media(max-width:700px){.wrap{padding:14px}.top{align-items:flex-start}.course{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">MONARCH CODEX</div><a class="btn" href="dashboard.html">← Dashboard</a></div>
+  <section class="hero">
+    <div style="font-size:11px;letter-spacing:2px;color:var(--gold)">ACADEMY</div>
+    <h1>Learn step by step.</h1>
+    <p class="muted">Your Academy lessons are arranged in sequence. Complete the current course before the next one becomes available.</p>
+  </section>
+  <div id="message" class="notice" style="margin-top:14px">Loading Academy…</div>
+  <section id="content" class="lessons hidden"></section>
+  <section id="playerCard" class="card hidden" style="margin-top:16px">
+    <div id="courseLabel" style="color:var(--gold2);font-weight:800"></div>
+    <div id="player" class="player"></div>
+    <p id="courseDescription" class="muted"></p>
+    <button id="completeBtn" class="btn" type="button">Mark Course Complete</button>
+  </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const SUPABASE_URL="https://avaworleivncevaoqeny.supabase.co";
+const SUPABASE_KEY="sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let user=null,lessons=[],courses=[],progress=[],selected=null;
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[m]));
+function show(msg,type="notice"){const e=$("message");e.className=type==="error"?"notice":"notice";e.innerHTML=msg;e.classList.remove("hidden")}
+function isComplete(id){return progress.some(x=>x.course_id===id&&x.status==="completed")}
+function canOpen(c){const ordered=courses.slice().sort((a,b)=>a.position-b.position);const idx=ordered.findIndex(x=>x.id===c.id);if(idx<=0)return true;return isComplete(ordered[idx-1].id)}
+function render(){
+ const by=new Map();lessons.forEach(l=>by.set(l.id,[]));courses.forEach(c=>{if(by.has(c.lesson_id))by.get(c.lesson_id).push(c)});
+ $("content").innerHTML=lessons.slice().sort((a,b)=>a.position-b.position).map(l=>{
+   const cs=(by.get(l.id)||[]).sort((a,b)=>a.position-b.position);
+   return '<div class="card lesson"><h2>Lesson '+esc(l.position)+' — '+esc(l.title)+'</h2><p class="muted">'+esc(l.description||"")+'</p><div class="courses">'+cs.map(c=>{
+     const done=isComplete(c.id),open=canOpen(c);
+     return '<button class="course '+(open?"":"locked")+'" '+(open?'onclick="openCourse(\''+c.id+'\')"':'disabled')+' type="button"><span><strong>'+esc(c.position)+'. '+esc(c.title)+'</strong><small class="muted">'+esc(c.description||"")+'</small></span><span class="pill">'+(done?"Completed":open?"Open":"Locked")+'</span></button>';
+   }).join("")+'</div></div>';
+ }).join("");
+ $("content").classList.remove("hidden");
+}
+window.openCourse=async id=>{
+ const c=courses.find(x=>x.id===id);if(!c||!canOpen(c))return;
+ selected=c;
+ $("courseLabel").textContent=c.title;
+ $("courseDescription").textContent=c.description||"";
+ $("player").innerHTML='<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(c.youtube_video_id)+'?playsinline=1&rel=0&enablejsapi=1&origin='+encodeURIComponent(location.origin)+'" title="'+esc(c.title)+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+ $("playerCard").classList.remove("hidden");
+ await sb.from("academy_progress").upsert({user_id:user.id,course_id:c.id,status:"started",started_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:"user_id,course_id"});
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+};
+$("completeBtn").onclick=async()=>{
+ if(!selected)return;
+ const {error}=await sb.from("academy_progress").upsert({user_id:user.id,course_id:selected.id,status:"completed",completed_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:"user_id,course_id"});
+ if(error)return show("Could not save course progress: "+esc(error.message),"error");
+ progress=progress.filter(x=>x.course_id!==selected.id);progress.push({course_id:selected.id,status:"completed"});render();show("Course completed. The next course is now available.");
+};
+(async()=>{
+ const {data:{session}}=await sb.auth.getSession();
+ if(!session){location.href="login.html";return}
+ user=session.user;
+ const sub=await sb.from("academy_subscriptions").select("status").eq("user_id",user.id).maybeSingle();
+ if(sub.error){show("Academy setup is not available yet. Please try again after the Academy is configured.","error");return}
+ if(!sub.data||sub.data.status!=="approved"){show("Your Academy access is not active yet. Complete the Academy subscription process to unlock the lessons.");return}
+ const [ls,cs,pr]=await Promise.all([
+  sb.from("academy_lessons").select("*").eq("status","published").order("position"),
+  sb.from("academy_courses").select("*").eq("status","published").order("position"),
+  sb.from("academy_progress").select("course_id,status").eq("user_id",user.id)
+ ]);
+ if(ls.error||cs.error||pr.error){show("Academy content could not be loaded.","error");return}
+ lessons=ls.data||[];courses=cs.data||[];progress=pr.data||[];render();$("message").classList.add("hidden");
+})();
+</script>
+</body>
+</html>
