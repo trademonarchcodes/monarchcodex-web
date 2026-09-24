@@ -228,3 +228,49 @@ revoke execute on function public.reject_academy_subscription(uuid,text) from pu
 grant execute on function public.request_academy_subscription() to authenticated;
 grant execute on function public.approve_academy_subscription(uuid,text) to authenticated;
 grant execute on function public.reject_academy_subscription(uuid,text) to authenticated;
+
+
+-- Academy admin RLS: management pages may manage content, while members only see published content.
+create policy "academy_settings_admin_update" on public.academy_settings
+for update to authenticated
+using (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')))
+with check (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+create policy "academy_settings_admin_insert" on public.academy_settings
+for insert to authenticated
+with check (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+create policy "academy_lessons_admin_select" on public.academy_lessons
+for select to authenticated
+using (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+create policy "academy_lessons_admin_insert" on public.academy_lessons
+for insert to authenticated
+with check (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+create policy "academy_lessons_admin_update" on public.academy_lessons
+for update to authenticated
+using (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')))
+with check (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+create policy "academy_lessons_admin_delete" on public.academy_lessons
+for delete to authenticated
+using (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+create policy "academy_courses_admin_select" on public.academy_courses
+for select to authenticated
+using (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+create policy "academy_courses_admin_insert" on public.academy_courses
+for insert to authenticated
+with check (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+create policy "academy_courses_admin_update" on public.academy_courses
+for update to authenticated
+using (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')))
+with check (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+create policy "academy_courses_admin_delete" on public.academy_courses
+for delete to authenticated
+using (exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk')));
+
+create policy "academy_subscriptions_admin_select" on public.academy_subscriptions
+for select to authenticated
+using (
+  auth.uid()=user_id
+  or exists(select 1 from public.profiles p where p.id=auth.uid() and (lower(coalesce(p.role,'')) like '%admin%' or lower(coalesce(p.role,''))='sovereign_desk'))
+);
