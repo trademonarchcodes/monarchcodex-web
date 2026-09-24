@@ -981,7 +981,7 @@ const SUPABASE_KEY='sb_publishable_OZCDmpzZ1-pvN1rfTGqrpw_JatYPjIh';
 const X_ENDPOINT='https://monarchcodex-web.trademonarchofficial.workers.dev/api/x';
 const SIGNAL_MEMBER_ENDPOINT='https://monarch-codex-telegram.trademonarchofficial.workers.dev/telegram/member-signals';
 const X_HISTORY_KEY='monarch_x_chat_v1';
-const NGN_RATE=1400, BANK_FEE=2, WALLET_FEE=1, WITHDRAWAL_RATE=.01, MIN_EARNINGS=10, CAPITAL_LOCK_MONTHS=3;
+const NGN_RATE=1400, BANK_FEE=2, WALLET_FEE=1, WITHDRAWAL_RATE=.02, MIN_EARNINGS=10, CAPITAL_LOCK_MONTHS=3;
 const KYC_PROTECTED_VIEWS=['x','investments','withdrawals','transactions','referrals','profile'];
 let sb=null;
 window.addEventListener('error',e=>{console.error('MONARCH DASHBOARD ERROR',e.error||e.message);try{setTimeout(()=>{const l=document.getElementById('loadingScreen'),a=document.getElementById('app');if(l&&!l.classList.contains('hidden')){l.classList.add('hidden');if(a)a.classList.remove('hidden');const c=document.querySelector('.content');if(c)c.innerHTML='<div class=\"card\"><div class=\"notice error\"><strong>Dashboard startup error.</strong><br>'+String(e.message||'Please refresh and try again.').replace(/[&<>]/g,'')+'</div></div>'; }},0)}catch(_){} });
