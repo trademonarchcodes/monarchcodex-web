@@ -101,12 +101,8 @@ export async function onRequest(context) {
     return json({ ok: false, error: "event_key, event_type and message are required." }, 400);
   }
 
-  if (!env.TELEGRAM_SERVICE) {
-    return json({ ok: false, error: "Notification service binding is unavailable." }, 503);
-  }
-
-  const upstream = await env.TELEGRAM_SERVICE.fetch(
-    new Request("https://monarch-codex-telegram/notifications/send", {
+  const upstream = await fetch(
+    "https://monarch-codex-telegram.trademarchofficial.workers.dev/notifications/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
