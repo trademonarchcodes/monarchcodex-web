@@ -295,7 +295,30 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
 </style>
 <style id="online-cooperative-brand-fix">
 .coop-nav-mark{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;min-width:24px;margin-right:7px;color:#D4AF37;vertical-align:middle}.coop-nav-mark svg{width:22px;height:22px;display:block}.coop-nav-label{color:#D4AF37;font-weight:800}.coop-brand-banner{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 18px;padding:14px 18px;border:1px solid rgba(212,175,55,.25);border-radius:14px;background:linear-gradient(180deg,rgba(212,175,55,.08),rgba(212,175,55,.025));color:#D4AF37;font-weight:800;font-size:22px}.coop-brand-banner svg{width:34px;height:34px;flex:0 0 34px}.coop-brand-banner small{display:block;font-size:9px;color:#9d9378;font-weight:600;margin-top:3px;letter-spacing:.08em;text-transform:uppercase}
-</style></head>
+</style><style id="mc-users-kyc-enhancement">
+.users-toolbar,.kyc-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) minmax(180px,240px) auto;gap:9px;margin-bottom:13px}
+.user-card{background:#101010;border:1px solid #292929;border-radius:16px;padding:14px;margin-bottom:10px}
+.user-card-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.user-card-name{font-weight:800;color:#f0d477;font-size:14px}.user-card-meta{color:#8f8f8f;font-size:10px;line-height:1.65;margin-top:4px;word-break:break-word}
+.user-card-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:12px}
+.user-stat{background:#0b0b0b;border:1px solid #242424;border-radius:10px;padding:9px}.user-stat label{display:block;color:#777;font-size:8px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}.user-stat strong{font-size:11px;color:#eee;word-break:break-word}
+.user-card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.kyc-review-card{background:#101010;border:1px solid #292929;border-radius:18px;padding:15px;margin-bottom:12px}
+.kyc-review-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(330px,.95fr);gap:15px}
+.kyc-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.kyc-info{background:#0b0b0b;border:1px solid #242424;border-radius:10px;padding:10px}.kyc-info label{display:block;color:#777;font-size:8px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}.kyc-info strong{font-size:11px;line-height:1.5;word-break:break-word}
+.kyc-doc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.kyc-doc-preview{display:block;width:100%;height:150px;border:1px solid #333;border-radius:11px;background:#080808;overflow:hidden;padding:0;cursor:pointer}
+.kyc-doc-preview img{display:block;width:100%;height:100%;object-fit:contain;background:#050505}
+.kyc-doc-preview.empty{display:flex;align-items:center;justify-content:center;color:#777;font-size:10px;cursor:default}
+.kyc-doc-title{font-size:9px;font-weight:800;color:#f0d477;margin:0 0 6px;text-transform:uppercase}
+.kyc-doc-card{min-width:0}
+.kyc-review-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+#kycViewerBody img{user-select:none}
+@media(max-width:900px){.users-toolbar,.kyc-toolbar{grid-template-columns:1fr 1fr auto}.user-card-grid{grid-template-columns:repeat(2,1fr)}.kyc-review-layout{grid-template-columns:1fr}.kyc-doc-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.users-toolbar,.kyc-toolbar{grid-template-columns:1fr}.user-card-top{flex-direction:column}.user-card-grid,.kyc-info-grid,.kyc-doc-grid{grid-template-columns:1fr}.kyc-doc-preview{height:190px}}
+</style>
+</head>
 <body>
 <div id="boot" class="overlay"><div style="text-align:center"><div class="spin"></div><div style="font:600 16px Cinzel;color:#D4AF37">SECURING THE ADMIN KINGDOM</div><div id="bootText" class="muted" style="font-size:11px;margin-top:6px">Checking your session...</div></div></div>
 <div id="toast"></div>
@@ -343,9 +366,9 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
 <div class="actions" style="margin-top:12px"><button id="sendMemberNotification" class="btn primary">SEND IN-APP NOTIFICATION</button><button id="sendWhatsApp" class="btn secondary">OPEN WHATSAPP</button><button id="sendEmail" class="btn secondary">OPEN EMAIL</button><button id="sendNotificationTest" class="btn secondary">SEND TEST NOTIFICATION</button></div><div class="notice" style="margin-top:12px">In-app notifications appear directly in the member dashboard notification center. Choose <strong>Everyone</strong> for a broadcast or <strong>One member</strong> for an individual notification.</div></div>
 <div class="card"><h2 class="section">Member Contact Directory</h2><p class="muted">Email and phone information captured during KYC is shown here so you can search and contact the correct Monarch.</p><div id="commDirectory" class="empty">Loading...</div></div></div>
 
-<div id="view-members" class="view"><div class="hero"><h1>Monarch Members</h1><p>Activate, block and review member accounts.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><input id="memberSearch" placeholder="Search name, email, phone, username or UID"><button id="refreshMembers" class="btn">Refresh</button></div><div id="members" class="empty">Loading...</div></div></div>
+<div id="view-members" class="view"><div class="hero"><h1>Monarch Members</h1><p>Manage member accounts, KYC status and authorized account information.</p></div><div class="card"><div class="users-toolbar"><input id="memberSearch" placeholder="Search name, email or User ID"><select id="memberKycFilter"><option value="all">All Users</option><option value="approved">KYC Approved</option><option value="under_review">KYC Under Review</option><option value="not_submitted">KYC Not Submitted</option><option value="rejected">KYC Rejected</option></select><button id="refreshMembers" class="btn">Refresh</button></div><div id="members" class="empty">Loading...</div></div></div>
 
-<div id="view-kyc" class="view"><div class="hero"><h1>KYC Requests</h1><p>Review submitted identity verification requests.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><select id="kycFilter"><option value="under_review">Under Review</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select><button id="refreshKyc" class="btn">Refresh</button></div><div id="kyc" class="empty">Loading...</div></div></div>
+<div id="view-kyc" class="view"><div class="hero"><h1>KYC Requests</h1><p>Review identity information and secure document previews before approval or rejection.</p></div><div class="card"><div class="kyc-toolbar"><select id="kycFilter"><option value="under_review">Under Review</option><option value="pending">Pending</option><option value="not_submitted">Not Submitted</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select><div></div><button id="refreshKyc" class="btn">Refresh</button></div><div id="kyc" class="empty">Loading...</div></div></div>
 
 <div id="view-investments" class="view"><div class="hero"><h1>Investment Requests</h1><p>Review investment requests. Deposits are the only requests that require payment verification.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><select id="investmentFilter"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select><button id="refreshInvestments" class="btn">Refresh</button></div><div id="investments" class="empty">Loading...</div></div></div>
 
@@ -420,13 +443,52 @@ async function membersLoad(){
  }catch(e){showError("members",e);toast(e.message,"error")}
 }
 function memberHTML(){
- const term=String($("memberSearch")?.value||"").toLowerCase();
- const a=members.filter(p=>[p.full_name,p.email,p.display_username,p.phone,p.country,p.state,p.city,p.uid,p.id].join(" ").toLowerCase().includes(term));
- if(!a.length)return '<div class="empty">No members found.</div>';
- return `<div class="table"><table><tr><th>Member</th><th>Contact</th><th>Location</th><th>Status</th><th>KYC</th><th>Joined</th><th>Action</th></tr>${a.map(p=>{
-  const k=String(p.kyc_status||"not_submitted").toLowerCase(),kl=k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":["pending","submitted","under_review"].includes(k)?"UNDER REVIEW":"KYC NOT SUBMITTED",blocked=String(p.status||"").toLowerCase()==="blocked";
-  return `<tr><td><b>${esc(p.full_name||p.display_username||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.email||"—")}<br><small>${esc(p.phone||"—")}</small></td><td>${esc([p.city,p.state,p.country].filter(Boolean).join(", ")||"—")}</td><td>${badge(p.status||"pending_kyc")}</td><td>${badge(kl)}</td><td>${dt(p.created_at)}</td><td><button class="btn btn-sm" data-action="comm-select" data-id="${esc(p.id)}">CONTACT</button> ${blocked?`<button class="btn success btn-sm" data-action="member-status" data-id="${esc(p.id)}" data-status="active">Activate</button>`:`<button class="btn danger btn-sm" data-action="member-status" data-id="${esc(p.id)}" data-status="blocked">Block</button>`}</td></tr>`;
- }).join("")}</table></div>`;
+ const term=String($("memberSearch")?.value||"").trim().toLowerCase();
+ const filter=String($("memberKycFilter")?.value||"all").toLowerCase();
+ const a=members.filter(p=>{
+  const k=String(p.kyc_status||"not_submitted").toLowerCase();
+  const under=["pending","submitted","under_review"].includes(k);
+  const matchesFilter=filter==="all"||(filter==="under_review"&&under)||k===filter;
+  const hay=[p.full_name,p.email,p.uid,p.id].join(" ").toLowerCase();
+  return matchesFilter&&(!term||hay.includes(term));
+ });
+ if(!a.length)return '<div class="empty">No members match the current search/filter.</div>';
+ return a.map(p=>{
+  const k=String(p.kyc_status||"not_submitted").toLowerCase(),under=["pending","submitted","under_review"].includes(k);
+  const kLabel=k==="approved"?"KYC APPROVED":k==="rejected"?"KYC REJECTED":under?"UNDER REVIEW":"KYC NOT SUBMITTED";
+  const isAdmin=ADMIN_ROLES.includes(String(p.role||"").toLowerCase());
+  const blocked=String(p.status||"").toLowerCase()==="blocked";
+  return `<div class="user-card">
+   <div class="user-card-top"><div><div class="user-card-name">${esc(p.full_name||p.display_username||"Monarch")}</div><div class="user-card-meta">${esc(p.email||"—")} · User ID: ${esc(p.id||"—")}</div></div><div>${badge(kLabel)} ${badge(p.status||"pending_kyc")}</div></div>
+   <div class="user-card-grid">
+    <div class="user-stat"><label>Registration</label><strong>${dt(p.created_at)}</strong></div>
+    <div class="user-stat"><label>Account Status</label><strong>${esc(p.status||"—")}</strong></div>
+    <div class="user-stat"><label>Balance</label><strong>${esc(String(p.balance??0))} USD</strong></div>
+    <div class="user-stat"><label>Total Invested</label><strong>${esc(String(p.total_invested??0))} USD</strong></div>
+   </div>
+   <div class="user-card-actions">
+    <button class="btn btn-sm" data-action="comm-select" data-id="${esc(p.id)}">CONTACT</button>
+    ${blocked?`<button class="btn success btn-sm" data-action="member-status" data-id="${esc(p.id)}" data-status="active">Activate</button>`:`<button class="btn danger btn-sm" data-action="member-status" data-id="${esc(p.id)}" data-status="blocked">Block</button>`}
+    ${isAdmin?`<button class="btn secondary btn-sm" disabled title="Administrator accounts are protected">ADMIN PROTECTED</button>`:`<button class="btn danger btn-sm" data-action="delete-user" data-id="${esc(p.id)}">DELETE USER</button>`}
+   </div>
+  </div>`;
+ }).join("");
+}
+async function deleteMemberUser(id){
+ const member=members.find(p=>String(p.id)===String(id));
+ if(!member)return toast("User not found.","error");
+ if(ADMIN_ROLES.includes(String(member.role||"").toLowerCase()))return toast("Administrator accounts cannot be deleted here.","warning");
+ const name=member.full_name||member.email||member.uid||"this user";
+ if(!confirm(`Delete ${name}?\n\nThis action will permanently remove the user's active account and associated platform data where it is safe to delete.`))return;
+ if(!confirm("PERMANENTLY DELETE USER\n\nIf financial or audit records must be retained, the account will be securely deactivated and personal data anonymized instead.\n\nContinue?"))return;
+ try{
+  const {data,error}=await db.functions.invoke("admin-delete-user",{body:{user_id:id}});
+  if(error)throw error;
+  if(!data?.ok)throw new Error(data?.error||"User deletion failed.");
+  toast(data.mode==="retained-history-anonymized"?"Account removed; retained records were preserved and personal data anonymized.":"User permanently deleted.","success");
+  await membersLoad();
+  await kycLoad();
+ }catch(e){console.error("delete user failed:",e);toast(e.message||"Unable to delete user.","error")}
 }
 async function memberStatus(id,status){if(!confirm(`Set member to ${status}?`))return;try{const r=await q("profiles",x=>x.update({status}).eq("id",id));if(r.error)throw r.error;await notifyMember(id,status==="blocked"?"Account Restricted":"Account Activated",status==="blocked"?"Your MONARCH CODEX account has been blocked by the administrator.":"Your MONARCH CODEX account has been activated. Welcome back, Monarch.",status==="blocked"?"warning":"success");toast("Member updated","success");await membersLoad()}catch(e){toast(e.message,"error")}}
 function kycDocumentPath(raw){
@@ -499,16 +561,47 @@ async function openKycDocument(raw,label){
     throw error;
   }
 }
+async function hydrateKycPreviews(list){
+ const imgs=document.querySelectorAll("[data-kyc-preview]");
+ await Promise.all([...imgs].map(async img=>{
+  try{
+   const path=kycDocumentPath(img.dataset.kycPreview);
+   if(!path)throw new Error("Invalid document path");
+   const r=await db.storage.from("kyc-documents").createSignedUrl(path,300);
+   if(r.error)throw r.error;
+   img.src=r.data.signedUrl;
+   img.removeAttribute("data-kyc-preview");
+  }catch(e){img.closest(".kyc-doc-preview")?.classList.add("empty");img.alt="Document unavailable"}
+ }));
+}
 async function kycLoad(){
  try{
   const f=$("kycFilter").value,r=await q("profiles",x=>x.select("*").order("created_at",{ascending:false}));if(r.error)throw r.error;const all=r.data||[];
   const under=all.filter(p=>["pending","submitted","under_review"].includes(String(p.kyc_status||"").toLowerCase()));$("statKyc").textContent=under.length;
   const a=all.filter(p=>{const k=String(p.kyc_status||"not_submitted").toLowerCase();return f==="all"?true:f==="under_review"?["pending","submitted","under_review"].includes(k):k===f});
-  $("kyc").innerHTML=a.length?`<div class="table kyc-table"><table><tr><th>Member</th><th>Email</th><th>Phone</th><th>NIN</th><th>Status</th><th>Documents</th><th>Reason</th><th>Action</th></tr>${a.map(p=>{
+  $("kyc").innerHTML=a.length?a.map(p=>{
    const k=String(p.kyc_status||"not_submitted").toLowerCase(),review=["pending","submitted","under_review"].includes(k),reason=typeof p.kyc_rejection_reason==="object"?JSON.stringify(p.kyc_rejection_reason):p.kyc_rejection_reason||"";
-   const docs=[["Front",p.nin_front_url],["Back",p.nin_back_url],["Selfie",p.selfie_url]].filter(x=>x[1]);
-   return `<tr><td><b>${esc(p.full_name||"Monarch")}</b><br><small>${esc(p.display_username||p.uid||p.id)}</small></td><td>${esc(p.email||"—")}</td><td>${esc(p.phone||"—")}</td><td>${esc(p.nin_number||"—")}</td><td>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</td><td>${docs.length?`<div class="doc-links">${docs.map(d=>`<button type="button" class="doc-link" data-kyc-document="${esc(d[1])}" data-kyc-label="${esc(d[0])}"><span>VIEW</span>${esc(d[0])}</button>`).join("")}</div>`:"—"}</td><td>${esc(reason||"—")}</td><td>${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">Approve</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">Reject</button>`:"—"}</td></tr>`;
-  }).join("")}</table></div>`:'<div class="empty">No matching KYC requests.</div>';
+   const docs=[["ID FRONT",p.nin_front_url],["ID BACK",p.nin_back_url],["SELFIE",p.selfie_url]];
+   const docHtml=docs.map(d=>`<div class="kyc-doc-card"><div class="kyc-doc-title">${esc(d[0])}</div>${d[1]?`<button type="button" class="kyc-doc-preview" data-kyc-document="${esc(d[1])}" data-kyc-label="${esc(d[0])}"><img data-kyc-preview="${esc(d[1])}" alt="${esc(d[0])} preview" loading="lazy"></button>`:'<div class="kyc-doc-preview empty">Not submitted</div>'}</div>`).join("");
+   return `<div class="kyc-review-card">
+    <div class="user-card-top"><div><div class="user-card-name">${esc(p.full_name||"Monarch")}</div><div class="user-card-meta">${esc(p.email||"—")} · User ID: ${esc(p.id||"—")}</div></div><div>${badge(k==="approved"?"KYC VERIFIED":k==="rejected"?"KYC REJECTED":review?"UNDER REVIEW":"KYC NOT SUBMITTED")}</div></div>
+    <div class="kyc-review-layout" style="margin-top:13px">
+      <div><div class="section" style="font-size:13px;margin-bottom:9px">PERSONAL & IDENTITY INFORMATION</div><div class="kyc-info-grid">
+       <div class="kyc-info"><label>Full Name</label><strong>${esc(p.full_name||"—")}</strong></div>
+       <div class="kyc-info"><label>Email</label><strong>${esc(p.email||"—")}</strong></div>
+       <div class="kyc-info"><label>Phone</label><strong>${esc(p.phone||"—")}</strong></div>
+       <div class="kyc-info"><label>Gender</label><strong>${esc(p.gender||"—")}</strong></div>
+       <div class="kyc-info"><label>NIN / ID Number</label><strong>${esc(p.nin_number||"—")}</strong></div>
+       <div class="kyc-info"><label>Country</label><strong>${esc(p.country||"—")}</strong></div>
+       <div class="kyc-info"><label>State / City</label><strong>${esc([p.state,p.city].filter(Boolean).join(" / ")||"—")}</strong></div>
+       <div class="kyc-info"><label>Address</label><strong>${esc(p.address||"—")}</strong></div>
+      </div><div class="kyc-info" style="margin-top:9px"><label>Rejection / Review Note</label><strong>${esc(reason||"—")}</strong></div></div>
+      <div><div class="section" style="font-size:13px;margin-bottom:9px">DOCUMENT IMAGES</div><div class="kyc-doc-grid">${docHtml}</div></div>
+    </div>
+    <div class="kyc-review-actions">${review?`<button class="btn success" data-action="kyc-approve" data-id="${esc(p.id)}">APPROVE</button> <button class="btn danger" data-action="kyc-reject" data-id="${esc(p.id)}">REJECT</button>`:""}</div>
+   </div>`;
+  }).join(""):'<div class="empty">No matching KYC requests.</div>';
+  await hydrateKycPreviews(a);
  }catch(e){showError("kyc",e);toast(e.message,"error")}
 }
 async function kycApprove(id){try{const r=await q("profiles",x=>x.update({kyc_status:"approved"}).eq("id",id));if(r.error)throw r.error;await notifyMember(id,"KYC Verified","Your identity verification has been approved. Your MONARCH CODEX KYC status is now verified.","success");toast("KYC verified","success");await kycLoad()}catch(e){toast(e.message,"error")}}
@@ -827,12 +920,12 @@ document.addEventListener("DOMContentLoaded",()=>{
  document.querySelectorAll("[data-go]").forEach(b=>{b.type="button";b.addEventListener("click",()=>view(b.dataset.go))});
  $('addEvent').onclick=addHomepageEvent;$('addSocial').onclick=addHomepageSocial;$('addContact').onclick=addHomepageContact;$('saveHomepage').onclick=homepageSave;$('refreshHomepage').onclick=homepageLoad; $('addTestimony').onclick=saveTestimony;$('clearTestimony').onclick=clearTestimony;$('sendNotificationTest').onclick=sendNotificationTest;$('commMember').onchange=renderCommunicationRecipient;$('commChannel').onchange=renderCommunicationRecipient;$('commNotificationRecipient').onchange=()=>{$('commNotificationMemberField').style.display=$('commNotificationRecipient').value==='individual'?'block':'none'};$('sendMemberNotification').onclick=sendMemberNotification;$('sendWhatsApp').onclick=openWhatsApp;$('sendEmail').onclick=openEmail;
  $("menu").onclick=()=>$("side").classList.toggle("open");$("logout").onclick=async()=>{try{await db?.auth.signOut()}catch(e){}try{localStorage.clear();sessionStorage.clear()}catch(e){}window.location.replace("login.html")};
- $("memberSearch").oninput=()=>{$("members").innerHTML=memberHTML()};$("refreshMembers").onclick=membersLoad;$("refreshKyc").onclick=kycLoad;$("kycFilter").onchange=kycLoad;$("refreshInvestments").onclick=investLoad;$("investmentFilter").onchange=investLoad;
+ $("memberSearch").oninput=()=>{$("members").innerHTML=memberHTML()};$("memberKycFilter").onchange=()=>{$("members").innerHTML=memberHTML()};$("refreshMembers").onclick=membersLoad;$("refreshKyc").onclick=kycLoad;$("kycFilter").onchange=kycLoad;$("refreshInvestments").onclick=investLoad;$("investmentFilter").onchange=investLoad;
  $("savePkg").onclick=savePkg;$("clearPkg").onclick=clearPkg;$("seedPkgs").onclick=seedPackages;$("payType").onchange=paymentFormToggle;$("savePay").onclick=savePay;$("clearPay").onclick=clearPay;$("refreshPay").onclick=paymentsLoad;
  $("addEarning").onclick=earnAdd;$("earningUser").onchange=()=>loadInvestorInvestments($("earningUser").value);$("capitalUser").onchange=updateCapitalPreview;$("capitalType").onchange=()=>{$("capitalValueLabel").textContent=$("capitalType").value==="percent"?"Reduction Percentage (%)":"Reduction Amount (USD)"};$("capitalValue").oninput=updateCapitalPreview;$("reduceCapitalBtn").onclick=reduceCapital;
  $("refreshWithdrawals").onclick=withdrawLoad;$("withdrawalFilter").onchange=withdrawLoad;$("refreshTransactions").onclick=transactionsLoad;$("transactionFilter").onchange=transactionsLoad;$("refreshWalletFunding").onclick=walletFundingLoad;$("walletFundingFilter").onchange=walletFundingLoad;
  document.addEventListener("click",async e=>{const wf=e.target.closest("[data-wallet-action]");if(wf){return walletFundingAction(wf.dataset.walletId,wf.dataset.walletAction)}const doc=e.target.closest("[data-kyc-document]");if(doc){e.preventDefault();try{await openKycDocument(doc.dataset.kycDocument,doc.dataset.kycLabel||"KYC document")}catch(err){toast(err.message||"Unable to open KYC document.","error")}return}const b=e.target.closest("[data-action]");if(!b)return;const a=b.dataset.action;try{
-  if(a==="member-status")return memberStatus(b.dataset.id,b.dataset.status);if(a==="comm-select")return openMemberCommunication(b.dataset.id);if(a==="kyc-approve")return kycApprove(b.dataset.id);if(a==="kyc-reject")return kycReject(b.dataset.id);if(a==="invest-status")return investSet(b.dataset.id,b.dataset.status);if(a==="withdraw-status")return withdrawSet(b.dataset.id,b.dataset.status);
+  if(a==="member-status")return memberStatus(b.dataset.id,b.dataset.status);if(a==="delete-user")return deleteMemberUser(b.dataset.id);if(a==="comm-select")return openMemberCommunication(b.dataset.id);if(a==="kyc-approve")return kycApprove(b.dataset.id);if(a==="kyc-reject")return kycReject(b.dataset.id);if(a==="invest-status")return investSet(b.dataset.id,b.dataset.status);if(a==="withdraw-status")return withdrawSet(b.dataset.id,b.dataset.status);
   if(a==="edit-pkg")return editPkg(JSON.parse(b.dataset.pkg));if(a==="delete-pkg")return delPkg(b.dataset.id);if(a==="edit-pay")return editPay(JSON.parse(b.dataset.pay));if(a==="toggle-pay")return togglePay(b.dataset.id,b.dataset.active==="true");if(a==="delete-pay")return deletePay(b.dataset.id); if(a==="event-edit")return editHomepageItem("events",Number(b.dataset.index));if(a==="social-edit")return editHomepageItem("socials",Number(b.dataset.index));if(a==="contact-edit")return editHomepageItem("contacts",Number(b.dataset.index));if(a==="event-delete"){homepage.events.splice(Number(b.dataset.index),1);clearHomepageEdit();renderHomepageLists();return await homepageSave()} if(a==="social-delete"){homepage.socials.splice(Number(b.dataset.index),1);clearHomepageEdit();renderHomepageLists();return await homepageSave()} if(a==="contact-delete"){homepage.contacts.splice(Number(b.dataset.index),1);clearHomepageEdit();renderHomepageLists();return await homepageSave()}
  }catch(err){toast(err.message||"Button action failed.","error")}});
  boot();
