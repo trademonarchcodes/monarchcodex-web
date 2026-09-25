@@ -412,7 +412,7 @@ const dt=x=>x?new Date(x).toLocaleDateString("en-GB",{day:"2-digit",month:"short
 function toast(message,type=""){const e=$("toast");e.textContent=message;e.className="show "+type;clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>e.className="",3500)}
 function badge(value){const x=String(value||"pending"),low=x.toLowerCase(),cls=["approved","active","confirmed","completed","kyc verified"].includes(low)?"ok":["rejected","blocked","kyc rejected"].includes(low)?"bad":"wait";return `<span class="badge ${cls}">${esc(x)}</span>`}
 async function q(table,callback){if(!db)throw new Error("Supabase connection is not ready. Please refresh the page.");const result=await callback(db.from(table));return result}
-function adminOK(){return String(user?.email||"").toLowerCase()===ADMIN_EMAIL.toLowerCase()||String(profile?.role||"").toLowerCase().includes("admin")}
+const ADMIN_ROLES=["admin","super_admin","sovereign_desk","sovereign-desk","kyc_admin","payment_admin","support_admin"];\nfunction adminOK(){return String(user?.email||"").toLowerCase()===ADMIN_EMAIL.toLowerCase()||String(profile?.role||"").toLowerCase().includes("admin")}
 function showError(id,error){if($(id))$(id).innerHTML=`<div class="empty">${esc(error?.message||error||"Something went wrong.")}</div>`}
 async function notifyMember(userId,title,message,type="info"){
   if(!userId)return false;
