@@ -340,7 +340,7 @@ html.mc-light .live-feed-separation{background:#FFFDF7!important}
 <div class="field full" id="commSubjectField"><label>Email Subject <span class="muted">(email only)</span></label><input id="commSubject" placeholder="MONARCH CODEX — Account Update"></div>
 <div class="field full"><label>Message</label><textarea id="commMessage" rows="7" placeholder="Write your message..."></textarea></div>
 </div><div class="notice" style="margin-top:12px">For WhatsApp, the button opens WhatsApp with the selected number and message ready. For email, it opens your device's email composer. The browser cannot choose the actual WhatsApp account or override the sender mailbox; that is controlled by the app/account you use.</div>
-<div class="actions" style="margin-top:12px"><button id="sendMemberNotification" class="btn primary">SEND IN-APP NOTIFICATION</button><button id="sendWhatsApp" class="btn secondary">OPEN WHATSAPP</button><button id="sendEmail" class="btn secondary">OPEN EMAIL</button></div><div class="notice" style="margin-top:12px">In-app notifications appear directly in the member dashboard notification center. Choose <strong>Everyone</strong> for a broadcast or <strong>One member</strong> for an individual notification.</div></div>
+<div class="actions" style="margin-top:12px"><button id="sendMemberNotification" class="btn primary">SEND IN-APP NOTIFICATION</button><button id="sendWhatsApp" class="btn secondary">OPEN WHATSAPP</button><button id="sendEmail" class="btn secondary">OPEN EMAIL</button><button id="sendNotificationTest" class="btn secondary">SEND TEST NOTIFICATION</button></div><div class="notice" style="margin-top:12px">In-app notifications appear directly in the member dashboard notification center. Choose <strong>Everyone</strong> for a broadcast or <strong>One member</strong> for an individual notification.</div></div>
 <div class="card"><h2 class="section">Member Contact Directory</h2><p class="muted">Email and phone information captured during KYC is shown here so you can search and contact the correct Monarch.</p><div id="commDirectory" class="empty">Loading...</div></div></div>
 
 <div id="view-members" class="view"><div class="hero"><h1>Monarch Members</h1><p>Activate, block and review member accounts.</p></div><div class="card"><div class="search" style="display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:13px"><input id="memberSearch" placeholder="Search name, email, phone, username or UID"><button id="refreshMembers" class="btn">Refresh</button></div><div id="members" class="empty">Loading...</div></div></div>
@@ -596,6 +596,35 @@ function openWhatsApp(){
   window.open('https://wa.me/'+code.replace(/\D/g,'')+phone+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
 }
 async function sendMemberNotification(){const msg=$('commMessage').value.trim(),title=$('commSubject').value.trim()||'MONARCH CODEX Update',mode=$('commNotificationRecipient').value;if(!msg)return toast('Choose a saved message or write a message first.','warning');let ids=[];if(mode==='individual'){const id=$('commNotificationMember').value;if(!id)return toast('Select the member who should receive the notification.','warning');ids=[id]}else{ids=members.filter(p=>String(p.role||'').toLowerCase()==='member').map(p=>p.id).filter(Boolean);if(!ids.length)return toast('No members are available for a broadcast.','warning');if(!confirm('Send this notification to all '+ids.length+' member(s)?'))return}try{const rows=ids.map(id=>({user_id:id,title,message:msg,type:'event',is_read:false}));for(let i=0;i<rows.length;i+=50){const r=await q('notifications',x=>x.insert(rows.slice(i,i+50)));if(r.error)throw r.error}toast('Notification sent to '+ids.length+' member(s).','success')}catch(e){toast(e.message||'Unable to send notification.','error')}}
+async function sendNotificationTest(){
+  const button=$('sendNotificationTest');
+  if(button)button.disabled=true;
+  try{
+    const sessionResult=await db.auth.getSession();
+    if(sessionResult.error)throw sessionResult.error;
+    const accessToken=sessionResult.data?.session?.access_token;
+    if(!accessToken)throw new Error('Your admin session has expired. Please sign in again.');
+    const eventKey='admin-whatsapp-test-'+crypto.randomUUID();
+    const r=await fetch('/api/notifications',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        event_key:eventKey,
+        event_type:'admin_test',
+        message:'MONARCH CODEX notification test — WhatsApp connection is working.'
+      })
+    });
+    let data=null;
+    try{data=await r.json()}catch(e){}
+    if(!r.ok)throw new Error(data?.error||data?.message||'Notification test failed.');
+    toast(data?.duplicate?'Test notification already sent.':'Test notification sent to WhatsApp.','success');
+  }catch(e){
+    console.error('Notification test failed:',e);
+    toast(e.message||'Unable to send test notification.','error');
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
 function openEmail(){
   const to=String($('commRecipient').value||'').trim(),msg=$('commMessage').value.trim(),subject=$('commSubject').value.trim();
   if(!to)return toast('Enter a recipient email address first.','warning');
@@ -796,7 +825,7 @@ async function boot(){
 document.addEventListener("DOMContentLoaded",()=>{
  document.querySelectorAll("nav button[data-v]").forEach(b=>{b.type="button";b.addEventListener("click",()=>{view(b.dataset.v);if(b.dataset.v==='homepage')homepageLoad();if(b.dataset.v==='testimonies')testimoniesLoad()})});
  document.querySelectorAll("[data-go]").forEach(b=>{b.type="button";b.addEventListener("click",()=>view(b.dataset.go))});
- $('addEvent').onclick=addHomepageEvent;$('addSocial').onclick=addHomepageSocial;$('addContact').onclick=addHomepageContact;$('saveHomepage').onclick=homepageSave;$('refreshHomepage').onclick=homepageLoad; $('addTestimony').onclick=saveTestimony;$('clearTestimony').onclick=clearTestimony;$('commMember').onchange=renderCommunicationRecipient;$('commChannel').onchange=renderCommunicationRecipient;$('commNotificationRecipient').onchange=()=>{$('commNotificationMemberField').style.display=$('commNotificationRecipient').value==='individual'?'block':'none'};$('sendMemberNotification').onclick=sendMemberNotification;$('sendWhatsApp').onclick=openWhatsApp;$('sendEmail').onclick=openEmail;
+ $('addEvent').onclick=addHomepageEvent;$('addSocial').onclick=addHomepageSocial;$('addContact').onclick=addHomepageContact;$('saveHomepage').onclick=homepageSave;$('refreshHomepage').onclick=homepageLoad; $('addTestimony').onclick=saveTestimony;$('clearTestimony').onclick=clearTestimony;$('sendNotificationTest').onclick=sendNotificationTest;$('commMember').onchange=renderCommunicationRecipient;$('commChannel').onchange=renderCommunicationRecipient;$('commNotificationRecipient').onchange=()=>{$('commNotificationMemberField').style.display=$('commNotificationRecipient').value==='individual'?'block':'none'};$('sendMemberNotification').onclick=sendMemberNotification;$('sendWhatsApp').onclick=openWhatsApp;$('sendEmail').onclick=openEmail;
  $("menu").onclick=()=>$("side").classList.toggle("open");$("logout").onclick=async()=>{try{await db?.auth.signOut()}catch(e){}try{localStorage.clear();sessionStorage.clear()}catch(e){}window.location.replace("login.html")};
  $("memberSearch").oninput=()=>{$("members").innerHTML=memberHTML()};$("refreshMembers").onclick=membersLoad;$("refreshKyc").onclick=kycLoad;$("kycFilter").onchange=kycLoad;$("refreshInvestments").onclick=investLoad;$("investmentFilter").onchange=investLoad;
  $("savePkg").onclick=savePkg;$("clearPkg").onclick=clearPkg;$("seedPkgs").onclick=seedPackages;$("payType").onchange=paymentFormToggle;$("savePay").onclick=savePay;$("clearPay").onclick=clearPay;$("refreshPay").onclick=paymentsLoad;
