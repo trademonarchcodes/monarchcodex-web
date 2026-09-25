@@ -708,9 +708,13 @@ async function sendNotificationTest(){
         message:'MONARCH CODEX notification test — WhatsApp connection is working.'
       })
     });
+    const responseText=await r.text();
     let data=null;
-    try{data=await r.json()}catch(e){}
-    if(!r.ok)throw new Error(data?.error||data?.message||'Notification test failed.');
+    try{data=JSON.parse(responseText)}catch(e){}
+    if(!r.ok){
+      const detail=data?.error||data?.message||responseText||('HTTP '+r.status);
+      throw new Error('Notification test failed (HTTP '+r.status+'): '+detail.slice(0,500));
+    }
     toast(data?.duplicate?'Test notification already sent.':'Test notification sent to WhatsApp.','success');
   }catch(e){
     console.error('Notification test failed:',e);
