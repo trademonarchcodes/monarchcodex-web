@@ -102,7 +102,7 @@ export async function onRequest(context) {
   }
 
   const upstream = await fetch(
-    "https://monarch-codex-telegram.trademarchofficial.workers.dev/notifications/send", {
+    "https://monarch-codex-telegram.trademarchofficial.workers.dev/notifications/dispatch", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
