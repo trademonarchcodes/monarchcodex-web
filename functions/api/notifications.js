@@ -112,7 +112,7 @@ export async function onRequest(context) {
   // Use the unified dispatcher first. Keep a compatibility fallback for an
   // older Worker deployment so the admin test is not blocked by a stale route.
   let upstream = await fetch(
-    "https://monarch-codex-telegram.trademarchofficial.workers.dev/notifications/dispatch", {
+    "https://monarch-codex-telegram.trademarchofficial.com/notifications/dispatch", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -124,7 +124,7 @@ export async function onRequest(context) {
 
   if (upstream.status === 405) {
     upstream = await fetch(
-      "https://monarch-codex-telegram.trademarchofficial.workers.dev/notifications/send", {
+      "https://monarch-codex-telegram.trademarchofficial.com/notifications/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
