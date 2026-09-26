@@ -101,22 +101,39 @@ export async function onRequest(context) {
     return json({ ok: false, error: "event_key, event_type and message are required." }, 400);
   }
 
-  const upstream = await fetch(
+  const payload = JSON.stringify({
+    event_key: eventKey,
+    event_type: eventType,
+    message,
+    template_name: body?.template_name || "hello_world",
+    payload: body?.payload || {}
+  });
+
+  // Use the unified dispatcher first. Keep a compatibility fallback for an
+  // older Worker deployment so the admin test is not blocked by a stale route.
+  let upstream = await fetch(
     "https://monarch-codex-telegram.trademarchofficial.workers.dev/notifications/dispatch", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-MONARCH-NOTIFICATION-SECRET": env.NOTIFICATION_INTERNAL_SECRET || ""
       },
-      body: JSON.stringify({
-        event_key: eventKey,
-        event_type: eventType,
-        message,
-        template_name: body?.template_name || "hello_world",
-        payload: body?.payload || {}
-      })
-    })
+      body: payload
+    }
   );
+
+  if (upstream.status === 405) {
+    upstream = await fetch(
+      "https://monarch-codex-telegram.trademarchofficial.workers.dev/notifications/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-MONARCH-NOTIFICATION-SECRET": env.NOTIFICATION_INTERNAL_SECRET || ""
+        },
+        body: payload
+      }
+    );
+  }
 
   const text = await upstream.text();
   return new Response(text, {
