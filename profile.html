@@ -105,8 +105,8 @@
         </div>
         <div class="field">
           <label>Full Name</label>
-          <input id="profileFullName" readonly>
-          <div class="readonly-note">Your registered identity name is controlled by KYC.</div>
+          <input id="profileFullName" maxlength="100" autocomplete="name">
+          <div id="profileNameNote" class="readonly-note">You can update your name until you begin KYC. After KYC submission, the name is locked to protect identity records.</div>
         </div>
         <div class="field">
           <label>Email</label>
@@ -227,15 +227,16 @@ function render(){
   setAvatar($('sideAvatar'),profile.avatar_url,name);setAvatar($('profileAvatar'),profile.avatar_url,name);setAvatar($('avatarPreview'),profile.avatar_url,name);
 }
 async function updateAllowed(fields){
-  const {data,error}=await sb.rpc('update_my_profile',{p_display_username:fields.display_username??null,p_phone:fields.phone??null,p_avatar_url:fields.avatar_url??null,p_withdrawal_account_name:null,p_withdrawal_account_number:fields.withdrawal_account_number??null,p_withdrawal_bank:fields.withdrawal_bank??null});
+  const {data,error}=await sb.rpc('update_my_profile',{p_display_username:fields.display_username??null,p_phone:fields.phone??null,p_avatar_url:fields.avatar_url??null,p_full_name:fields.full_name??null,p_withdrawal_account_name:null,p_withdrawal_account_number:fields.withdrawal_account_number??null,p_withdrawal_bank:fields.withdrawal_bank??null});
   if(error)throw error;profile=data;render();
 }
 $('profileForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const u=$('displayUsername').value.trim(),phone=$('profilePhone').value.trim();
+  const u=$('displayUsername').value.trim(),fullName=$('profileFullName').value.trim(),phone=$('profilePhone').value.trim();
   if(!/^[A-Za-z0-9_-]{3,30}$/.test(u)){toast('Username must be 3–30 characters using letters, numbers, underscores or hyphens.','error');return}
+  if(!fullName || fullName.length<3 || !/[A-Za-z]/.test(fullName) || /^[0-9\s+()-]+$/.test(fullName)){toast('Enter your real full name using letters.','error');return}
   const btn=$('saveProfile');btn.disabled=true;btn.textContent='Saving…';
-  try{await updateAllowed({display_username:u,phone});toast('Profile details updated successfully.')}catch(err){console.error(err);toast(err.message||'Unable to update profile.','error')}finally{btn.disabled=false;btn.textContent='Save Profile Changes'}
+  try{await updateAllowed({display_username:u,full_name:fullName,phone});toast('Profile details updated successfully.')}catch(err){console.error(err);toast(err.message||'Unable to update profile.','error')}finally{btn.disabled=false;btn.textContent='Save Profile Changes'}
 });
 $('bankForm').addEventListener('submit',async e=>{
   e.preventDefault();const bank=$('bankName').value.trim(),num=$('bankAccountNumber').value.trim();
