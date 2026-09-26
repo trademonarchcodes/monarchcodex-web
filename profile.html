@@ -206,7 +206,7 @@ function avatarFallback(name){const initial=(String(name||'M').trim()[0]||'M').t
 function setAvatar(el,src,name){if(!el)return;el.src=src||avatarFallback(name);el.onerror=()=>{el.onerror=null;el.src=avatarFallback(name)}}
 function storageName(file){return currentUser.id+'/profile/'+Date.now()+'_'+String(file.name).replace(/[^a-zA-Z0-9._-]/g,'_')}
 async function loadProfile(){
-  const {data,error}=await sb.from('profiles').select('id,full_name,display_username,phone,country,state,city,uid,status,kyc_status,withdrawal_account_name,withdrawal_account_number,withdrawal_bank,avatar_url').eq('id',currentUser.id).maybeSingle();
+  const {data,error}=await sb.from('profiles').select('id,full_name,display_username,phone,country,state,city,uid,status,kyc_status,nin_number,nin_front_url,nin_back_url,selfie_url,withdrawal_account_name,withdrawal_account_number,withdrawal_bank,avatar_url').eq('id',currentUser.id).maybeSingle();
   if(error)throw error;if(!data)throw new Error('Profile not found.');profile=data;
 }
 function render(){
@@ -214,7 +214,10 @@ function render(){
   $('sideName').textContent=name;$('sideUid').textContent=profile.uid||'UID unavailable';
   $('profileName').textContent=name;$('profileUsername').textContent='@'+(profile.display_username||'—');
   $('profileStatus').textContent=String(profile.status||'active').replaceAll('_',' ');
-  $('profileFullName').value=profile.full_name||'';$('profileEmail').value=currentUser.email||'';
+  const kycStarted=Boolean(String(profile.nin_number||'').trim()||String(profile.nin_front_url||'').trim()||String(profile.nin_back_url||'').trim()||String(profile.selfie_url||'').trim());
+  $('profileFullName').value=profile.full_name||'';$('profileFullName').readOnly=kycStarted;
+  $('profileNameNote').textContent=kycStarted?'Your name is locked because KYC has been started.':'You can update your name until you begin KYC. After KYC submission, the name is locked to protect identity records.';
+  $('profileEmail').value=currentUser.email||'';
   $('profilePhone').value=profile.phone||'';$('profileUid').value=profile.uid||'';
   $('profileCountry').value=profile.country||'';$('profileState').value=profile.state||'';
   $('profileCity').value=profile.city||'';$('profileKyc').value=profile.kyc_status||'pending';
