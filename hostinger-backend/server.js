@@ -1,0 +1,12 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import auth from "./src/auth.js";
+dotenv.config();
+const app=express();
+app.use(cors({origin:true,credentials:true}));
+app.use(express.json({limit:"2mb"}));
+app.get("/api/health",(_,res)=>res.json({ok:true,service:"monarch-codex-hostinger"}));
+app.use("/api/auth",auth);
+app.use("/api",(_,res)=>res.status(501).json({ok:false,error:"Migration endpoint not implemented yet."}));
+app.listen(Number(process.env.PORT||3000),"0.0.0.0",()=>console.log("MONARCH CODEX Hostinger API listening"));
