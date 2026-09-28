@@ -132,7 +132,7 @@ function loadSupabase(){
     const s=document.createElement('script');
     let settled=false;
     const finish=(fn,v)=>{if(settled)return;settled=true;fn(v)};
-    s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.src='hostinger-client.js';
     s.onload=()=>window.supabase?.createClient?finish(resolve,window.supabase):finish(reject,new Error('Supabase library loaded incorrectly.'));
     s.onerror=()=>finish(reject,new Error('The Supabase client library could not be loaded on this network.'));
     document.head.appendChild(s);
