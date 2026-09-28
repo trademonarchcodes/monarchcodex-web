@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: monarch_codex
+      MYSQL_USER: monarch_codex
+      MYSQL_PASSWORD: CHANGE_THIS
+      MYSQL_ROOT_PASSWORD: CHANGE_THIS_ROOT
+    volumes:
+      - monarch_mysql:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+  api:
+    build: ./server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    depends_on:
+      - mysql
+    ports:
+      - "3000:3000"
+volumes:
+  monarch_mysql:
