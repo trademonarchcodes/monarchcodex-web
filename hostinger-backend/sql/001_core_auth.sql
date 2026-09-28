@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS profiles (
+ id CHAR(36) PRIMARY KEY,
+ email VARCHAR(320) NOT NULL UNIQUE,
+ full_name VARCHAR(255) NOT NULL,
+ password_hash VARCHAR(255) NOT NULL,
+ role VARCHAR(64) NOT NULL DEFAULT 'member',
+ status VARCHAR(64) NOT NULL DEFAULT 'pending_kyc',
+ balance DECIMAL(24,8) NOT NULL DEFAULT 0,
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ INDEX idx_profiles_role(role), INDEX idx_profiles_status(status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS auth_sessions (
+ id CHAR(36) PRIMARY KEY,
+ user_id CHAR(36) NOT NULL,
+ token_hash CHAR(64) NOT NULL UNIQUE,
+ expires_at DATETIME NOT NULL,
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ INDEX idx_auth_sessions_user(user_id),
+ CONSTRAINT fk_auth_sessions_user FOREIGN KEY(user_id) REFERENCES profiles(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
