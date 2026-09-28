@@ -1,0 +1,13 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import rateLimit from "express-rate-limit";
+import {pool} from "./db.js";
+dotenv.config();
+const app=express();
+app.set("trust proxy",1); app.use(cors({origin:true,credentials:true})); app.use(express.json({limit:"2mb"}));
+app.use("/api/",rateLimit({windowMs:60_000,max:120,standardHeaders:true,legacyHeaders:false}));
+app.get("/api/health",async(_req,res)=>{try{await pool.query("SELECT 1");res.json({ok:true,service:"monarch-codex-hostinger-api",database:"ok"})}catch(e){res.status(503).json({ok:false,database:"unavailable"})}});
+app.get("/api/config",(req,res)=>res.json({ok:true,version:"hostinger-mysql-1",auth:"hostinger",storage:"hostinger-private"}));
+app.use((err,_req,res,_next)=>{console.error(err);res.status(500).json({ok:false,error:"Internal server error."})});
+const port=Number(process.env.PORT||3000); app.listen(port,()=>console.log("MONARCH CODEX API listening on "+port));
