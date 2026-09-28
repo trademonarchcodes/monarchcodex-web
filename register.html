@@ -34,13 +34,7 @@ function showError(m){$("status").style.display="none";$("status").textContent="
 function clearMessages(){["status","error"].forEach(id=>{$(id).textContent="";$(id).style.display="none"})}
 function withTimeout(p,ms){return Promise.race([p,new Promise((_,r)=>setTimeout(()=>r(new Error("Request timed out. Please check your internet connection and try again.")),ms))])}
 function friendlyError(e){let m=e&&e.message?e.message:"Registration failed.";if(/user already registered|already registered/i.test(m))return"This email is already registered. Please log in instead.";if(/over_email_send_rate_limit|email.*rate limit|rate limit.*email|email.*too many/i.test(m))return"Registration email delivery is temporarily rate-limited. Please try again later, or contact MONARCH CODEX support to restore registration capacity.";if(/over_request_rate_limit|too many requests|too many attempts/i.test(m))return"Registration traffic is temporarily rate-limited. Please wait a few minutes before trying again.";if(/password/i.test(m)&&/6|weak|short/i.test(m))return"Password must be at least 6 characters.";if(/failed to fetch|networkerror|load failed/i.test(m))return"Could not reach Supabase. Check your internet connection and try again.";if(e&&e.status===429)return"Registration is temporarily rate-limited. Please wait a few minutes and try again.";return m}
-async function connect(){
- if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("Supabase library failed to load.");
- client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
- const r=await withTimeout(fetch(SUPABASE_URL+"/auth/v1/settings",{headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY},cache:"no-store"}),10000);
- if(!r.ok)throw new Error("Supabase Auth returned HTTP "+r.status+".");
-}
-async function register(){
+async function connect(){\n if(!window.supabase||typeof window.supabase.createClient!=="function")throw new Error("Hostinger client failed to load.");\n client=window.supabase.createClient("hostinger","hostinger");\n}\nasync function register(){
  if(registering)return;
  const cooldownUntil=Number(sessionStorage.getItem("monarch_signup_cooldown_until")||0);if(Date.now()<cooldownUntil){const seconds=Math.ceil((cooldownUntil-Date.now())/1000);return showError("Please wait "+seconds+" seconds before trying registration again.")}
  clearMessages();
