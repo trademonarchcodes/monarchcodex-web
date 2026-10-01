@@ -22,17 +22,597 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `uq_users_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `academy_courses` (\n  `id` CHAR(36) NOT NULL,\n  `lesson_id` CHAR(36) NOT NULL,\n  `title` LONGTEXT NOT NULL,\n  `description` LONGTEXT,\n  `youtube_video_id` LONGTEXT NOT NULL,\n  `position` INT NOT NULL,\n  `status` LONGTEXT NOT NULL DEFAULT 'published',\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `academy_lessons` (\n  `id` CHAR(36) NOT NULL,\n  `title` LONGTEXT NOT NULL,\n  `description` LONGTEXT,\n  `position` INT NOT NULL,\n  `status` LONGTEXT NOT NULL DEFAULT 'published',\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `academy_progress` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `course_id` CHAR(36) NOT NULL,\n  `status` LONGTEXT NOT NULL DEFAULT 'not_started',\n  `started_at` TIMESTAMP,\n  `completed_at` TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `academy_settings` (\n  `id` TINYINT(1) NOT NULL DEFAULT 1,\n  `academy_price` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `currency` LONGTEXT NOT NULL DEFAULT 'USD',\n  `active` TINYINT(1) NOT NULL DEFAULT 1,\n  `youtube_channel_id` LONGTEXT,\n  `youtube_channel_url` LONGTEXT,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `academy_subscriptions` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `amount` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `status` LONGTEXT NOT NULL DEFAULT 'pending',\n  `admin_reason` LONGTEXT,\n  `approved_at` TIMESTAMP,\n  `rejected_at` TIMESTAMP,\n  `reviewed_by` CHAR(36),\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `fee` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `capital_adjustments` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `adjustment_type` LONGTEXT NOT NULL DEFAULT 'amount',\n  `percentage` DECIMAL(30,10),\n  `amount` DECIMAL(30,10) NOT NULL,\n  `reason` LONGTEXT NOT NULL,\n  `created_by` CHAR(36),\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `earnings` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `investment_id` BIGINT,\n  `amount` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `description` LONGTEXT,\n  `status` LONGTEXT NOT NULL DEFAULT 'confirmed',\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `type` LONGTEXT NOT NULL DEFAULT 'profit',\n  `source_investment_id` CHAR(36),\n  `profit_month` DATE,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `email_logs` (\n  `id` CHAR(36) NOT NULL,\n  `recipient` LONGTEXT NOT NULL,\n  `subject` LONGTEXT NOT NULL,\n  `body` LONGTEXT NOT NULL,\n  `status` LONGTEXT DEFAULT 'pending_manual',\n  `error_message` LONGTEXT,\n  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  `sent_at` TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `investments` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36),\n  `package_name` LONGTEXT NOT NULL,\n  `amount` DECIMAL(30,10) NOT NULL,\n  `payment_method` LONGTEXT NOT NULL,\n  `receipt_url` LONGTEXT,\n  `status` LONGTEXT DEFAULT 'pending',\n  `approved_at` TIMESTAMP,\n  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  `method` LONGTEXT,\n  `note` LONGTEXT,\n  `fee` DECIMAL(30,10),\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `kyc_verifications` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36),\n  `field_name` LONGTEXT,\n  `status` LONGTEXT,\n  `reason` LONGTEXT,\n  `verified_by` CHAR(36),\n  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `notification_deliveries` (\n  `id` CHAR(36) NOT NULL,\n  `event_id` CHAR(36),\n  `channel` LONGTEXT NOT NULL,\n  `recipient` LONGTEXT,\n  `status` LONGTEXT NOT NULL DEFAULT 'pending',\n  `provider_message_id` LONGTEXT,\n  `error_message` LONGTEXT,\n  `attempts` INT NOT NULL DEFAULT 0,\n  `sent_at` TIMESTAMP,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `notification_events` (\n  `id` CHAR(36) NOT NULL,\n  `event_key` LONGTEXT NOT NULL,\n  `event_type` LONGTEXT NOT NULL,\n  `payload` JSON NOT NULL DEFAULT '{}',\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `notification_settings` (\n  `id` BIGINT NOT NULL,\n  `channel` LONGTEXT NOT NULL,\n  `enabled` TINYINT(1) NOT NULL DEFAULT 0,\n  `recipient` LONGTEXT,\n  `event_types` JSON NOT NULL,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `notifications` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `title` LONGTEXT NOT NULL,\n  `message` LONGTEXT NOT NULL,\n  `type` LONGTEXT NOT NULL DEFAULT 'info',\n  `is_read` TINYINT(1) NOT NULL DEFAULT 0,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `online_cooperative_accounts` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `package` LONGTEXT,\n  `external_account_reference` LONGTEXT,\n  `initial_contribution` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `target_amount` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `current_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `direct_referral_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `placement_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `network_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `status` LONGTEXT NOT NULL DEFAULT 'pending_setup',\n  `admin_note` LONGTEXT,\n  `visible_to_member` TINYINT(1) NOT NULL DEFAULT 1,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `online_cooperative_allocations` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `investment_id` CHAR(36) NOT NULL,\n  `allocated_amount` DECIMAL(30,10) NOT NULL DEFAULT 10,\n  `status` LONGTEXT NOT NULL DEFAULT 'allocated',\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `reversed_at` TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `online_cooperative_audit_logs` (\n  `id` CHAR(36) NOT NULL,\n  `account_id` CHAR(36),\n  `target_user_id` CHAR(36) NOT NULL,\n  `actor_user_id` CHAR(36) NOT NULL,\n  `action` LONGTEXT NOT NULL,\n  `changes` JSON NOT NULL DEFAULT '{}',\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `packages` (\n  `id` INT NOT NULL AUTO_INCREMENT,\n  `name` LONGTEXT NOT NULL,\n  `amount` DECIMAL(30,10) NOT NULL,\n  `profit_percent` DECIMAL(30,10) DEFAULT 10,\n  `active` TINYINT(1) DEFAULT 1,\n  `description` LONGTEXT,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `payment_destinations` (\n  `id` CHAR(36) NOT NULL,\n  `type` LONGTEXT NOT NULL,\n  `label` LONGTEXT NOT NULL,\n  `bank_name` LONGTEXT,\n  `account_name` LONGTEXT,\n  `account_number` LONGTEXT,\n  `wallet_address` LONGTEXT,\n  `chain` LONGTEXT,\n  `is_active` TINYINT(1) NOT NULL DEFAULT 1,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `payment_details` (\n  `id` INT NOT NULL AUTO_INCREMENT,\n  `title` LONGTEXT,\n  `payment_type` LONGTEXT,\n  `bank_name` LONGTEXT,\n  `account_name` LONGTEXT,\n  `account_number` LONGTEXT,\n  `crypto_name` LONGTEXT,\n  `crypto_network` LONGTEXT,\n  `wallet_address` LONGTEXT,\n  `active` TINYINT(1) DEFAULT 1,\n  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  `accepted_currency` LONGTEXT,\n  `payment_instructions` LONGTEXT,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `payment_receipts` (\n  `id` BIGINT NOT NULL AUTO_INCREMENT,\n  `investment_id` BIGINT NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `uid` LONGTEXT NOT NULL,\n  `amount` DECIMAL(30,10) NOT NULL,\n  `payment_method` LONGTEXT NOT NULL,\n  `file_name` LONGTEXT NOT NULL,\n  `file_path` LONGTEXT NOT NULL,\n  `file_type` LONGTEXT,\n  `file_size` BIGINT,\n  `verification_status` LONGTEXT NOT NULL DEFAULT 'pending',\n  `admin_note` LONGTEXT,\n  `uploaded_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `reviewed_at` TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `profiles` (\n  `id` CHAR(36) NOT NULL,\n  `full_name` LONGTEXT NOT NULL,\n  `display_username` LONGTEXT,\n  `username_last_changed` TIMESTAMP,\n  `phone` LONGTEXT NOT NULL,\n  `country` LONGTEXT,\n  `state` LONGTEXT,\n  `city` LONGTEXT,\n  `address` LONGTEXT,\n  `nin_number` LONGTEXT,\n  `nin_front_url` LONGTEXT,\n  `nin_back_url` LONGTEXT,\n  `selfie_url` LONGTEXT,\n  `uid` LONGTEXT NOT NULL,\n  `role` LONGTEXT DEFAULT 'member',\n  `status` LONGTEXT DEFAULT 'pending_kyc',\n  `kyc_status` LONGTEXT DEFAULT 'pending',\n  `kyc_rejection_reason` JSON DEFAULT '{}',\n  `balance` DECIMAL(30,10) DEFAULT 0,\n  `total_invested` DECIMAL(30,10) DEFAULT 0,\n  `total_earnings` DECIMAL(30,10) DEFAULT 0,\n  `referral_code` LONGTEXT,\n  `referred_by` CHAR(36),\n  `withdrawal_account_name` LONGTEXT,\n  `withdrawal_account_number` LONGTEXT,\n  `withdrawal_bank` LONGTEXT,\n  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  `avatar_url` LONGTEXT,\n  `kyc_document_url` LONGTEXT,\n  `gender` LONGTEXT,\n  `email` LONGTEXT,\n  `phone_country_code` LONGTEXT,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `referral_bonus_ledger` (\n  `id` CHAR(36) NOT NULL,\n  `referrer_id` CHAR(36) NOT NULL,\n  `referred_user_id` CHAR(36) NOT NULL,\n  `investment_id` CHAR(36) NOT NULL,\n  `bonus_type` LONGTEXT NOT NULL,\n  `month_number` INT NOT NULL DEFAULT 0,\n  `amount` DECIMAL(30,10) NOT NULL,\n  `source_earning_id` CHAR(36),\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `referrals` (\n  `id` CHAR(36) NOT NULL,\n  `referrer_id` CHAR(36) NOT NULL,\n  `referred_user_id` CHAR(36) NOT NULL,\n  `referral_code` LONGTEXT NOT NULL,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `site_content` (\n  `id` TINYINT(1) NOT NULL DEFAULT 1,\n  `homepage_title` LONGTEXT NOT NULL DEFAULT 'MONARCH CODEX',\n  `homepage_intro` LONGTEXT NOT NULL DEFAULT 'Updates, events and official channels from the MONARCH CODEX team.',\n  `events` JSON NOT NULL DEFAULT '[]',\n  `socials` JSON NOT NULL DEFAULT '[]',\n  `contacts` JSON NOT NULL DEFAULT '[]',\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `support_title` LONGTEXT DEFAULT 'WE''RE HERE TO HELP.',\n  `support_intro` LONGTEXT DEFAULT 'Reach MONARCH CODEX through the official support channels below.',\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `sovereign_desk_audit_logs` (\n  `id` CHAR(36) NOT NULL,\n  `actor_user_id` CHAR(36) NOT NULL,\n  `action` LONGTEXT NOT NULL,\n  `target_user_id` CHAR(36),\n  `entity_type` LONGTEXT,\n  `entity_id` CHAR(36),\n  `amount` DECIMAL(30,10),\n  `metadata` JSON NOT NULL DEFAULT '{}',\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `sovereign_desk_permissions` (\n  `user_id` CHAR(36) NOT NULL,\n  `permission` LONGTEXT NOT NULL,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`user_id`, `permission`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_access` (\n  `id` CHAR(36) NOT NULL,\n  `telegram_user_id` BIGINT NOT NULL,\n  `telegram_chat_id` BIGINT NOT NULL,\n  `access_status` LONGTEXT NOT NULL DEFAULT 'pending',\n  `access_reason` LONGTEXT,\n  `approved_at` TIMESTAMP,\n  `removed_at` TIMESTAMP,\n  `expires_at` TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_account_links` (\n  `id` CHAR(36) NOT NULL,\n  `telegram_user_id` BIGINT NOT NULL,\n  `website_user_id` CHAR(36) NOT NULL,\n  `linked_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `unlinked_at` TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_chat_assignments` (\n  `id` CHAR(36) NOT NULL,\n  `telegram_chat_id` BIGINT NOT NULL,\n  `operator_user_id` CHAR(36) NOT NULL,\n  `assigned_by` CHAR(36) NOT NULL,\n  `assigned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `active` TINYINT(1) NOT NULL DEFAULT 1,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_chats` (\n  `id` CHAR(36) NOT NULL,\n  `telegram_chat_id` BIGINT NOT NULL,\n  `chat_type` LONGTEXT,\n  `title` LONGTEXT,\n  `username` LONGTEXT,\n  `purpose` LONGTEXT NOT NULL DEFAULT 'general',\n  `is_active` TINYINT(1) NOT NULL DEFAULT 1,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_join_requests` (\n  `id` CHAR(36) NOT NULL,\n  `telegram_user_id` BIGINT NOT NULL,\n  `telegram_chat_id` BIGINT NOT NULL,\n  `requested_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `decision` LONGTEXT NOT NULL DEFAULT 'pending',\n  `decided_at` TIMESTAMP,\n  `decided_by` CHAR(36),\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_logs` (\n  `id` CHAR(36) NOT NULL,\n  `event_type` LONGTEXT NOT NULL,\n  `telegram_user_id` BIGINT,\n  `telegram_chat_id` BIGINT,\n  `telegram_message_id` BIGINT,\n  `payload` JSON,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_members` (\n  `id` CHAR(36) NOT NULL,\n  `telegram_user_id` BIGINT NOT NULL,\n  `telegram_username` LONGTEXT,\n  `first_name` LONGTEXT,\n  `last_name` LONGTEXT,\n  `language_code` LONGTEXT,\n  `is_bot` TINYINT(1) NOT NULL DEFAULT 0,\n  `telegram_status` LONGTEXT NOT NULL DEFAULT 'unknown',\n  `last_seen_at` TIMESTAMP,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_operator_limits` (\n  `user_id` CHAR(36) NOT NULL,\n  `max_managed_chats` INT NOT NULL DEFAULT 1,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_settings` (\n  `id` TINYINT(1) NOT NULL DEFAULT 1,\n  `signal_distribution_paused` TINYINT(1) NOT NULL DEFAULT 0,\n  `auto_access_paused` TINYINT(1) NOT NULL DEFAULT 0,\n  `auto_approval_paused` TINYINT(1) NOT NULL DEFAULT 0,\n  `signal_tag` LONGTEXT NOT NULL DEFAULT '/SIGNAL',\n  `signal_subscription_price` DECIMAL(30,10) NOT NULL DEFAULT 30,\n  `signal_subscription_currency` LONGTEXT NOT NULL DEFAULT 'USD',\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_signal_events` (\n  `id` CHAR(36) NOT NULL,\n  `signal_id` CHAR(36) NOT NULL,\n  `event_type` LONGTEXT NOT NULL,\n  `note` LONGTEXT,\n  `created_by` CHAR(36),\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `telegram_signals` (\n  `id` CHAR(36) NOT NULL,\n  `source_chat_id` BIGINT,\n  `source_message_id` BIGINT,\n  `signal_code` LONGTEXT,\n  `symbol` LONGTEXT,\n  `market` LONGTEXT,\n  `direction` LONGTEXT,\n  `entry` LONGTEXT,\n  `stop_loss` LONGTEXT,\n  `take_profit_1` LONGTEXT,\n  `take_profit_2` LONGTEXT,\n  `take_profit_3` LONGTEXT,\n  `raw_text` LONGTEXT,\n  `status` LONGTEXT NOT NULL DEFAULT 'pending',\n  `published_at` TIMESTAMP,\n  `closed_at` TIMESTAMP,\n  `closed_result` LONGTEXT,\n  `created_by` CHAR(36),\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `testimonies` (\n  `id` CHAR(36) NOT NULL,\n  `name` LONGTEXT NOT NULL,\n  `role` LONGTEXT,\n  `message` LONGTEXT NOT NULL,\n  `image_url` LONGTEXT,\n  `active` TINYINT(1) NOT NULL DEFAULT 1,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `transaction_fee_settings` (\n  `transaction_type` LONGTEXT NOT NULL,\n  `fee_type` LONGTEXT NOT NULL,\n  `fee_value` DECIMAL(30,10) NOT NULL,\n  `active` TINYINT(1) NOT NULL DEFAULT 1,\n  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`transaction_type`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `transactions` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36),\n  `type` LONGTEXT,\n  `amount` DECIMAL(30,10) NOT NULL,\n  `display_amount` LONGTEXT,\n  `description` LONGTEXT,\n  `created_by` CHAR(36),\n  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `wallet_funding_requests` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `amount` DECIMAL(30,10) NOT NULL,\n  `fee` DECIMAL(30,10) NOT NULL DEFAULT 2,\n  `total` DECIMAL(30,10) NOT NULL,\n  `payment_method` LONGTEXT NOT NULL,\n  `receipt_url` LONGTEXT,\n  `note` LONGTEXT,\n  `status` LONGTEXT NOT NULL DEFAULT 'pending',\n  `admin_note` LONGTEXT,\n  `reviewed_by` CHAR(36),\n  `reviewed_at` TIMESTAMP,\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `payment_currency` LONGTEXT,\n  `payment_amount` DECIMAL(30,10),\n  `payment_fee` DECIMAL(30,10),\n  `payment_total` DECIMAL(30,10),\n  `payment_detail_id` INT,\n  `receiving_account_snapshot` JSON,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `wallet_transactions` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36) NOT NULL,\n  `direction` LONGTEXT NOT NULL,\n  `amount` DECIMAL(30,10) NOT NULL,\n  `fee` DECIMAL(30,10) NOT NULL DEFAULT 0,\n  `balance_before` DECIMAL(30,10) NOT NULL,\n  `balance_after` DECIMAL(30,10) NOT NULL,\n  `source_type` LONGTEXT NOT NULL,\n  `reference_id` LONGTEXT,\n  `description` LONGTEXT,\n  `created_by` CHAR(36),\n  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE IF NOT EXISTS `withdrawals` (\n  `id` CHAR(36) NOT NULL,\n  `user_id` CHAR(36),\n  `amount` DECIMAL(30,10) NOT NULL,\n  `account_name` LONGTEXT NOT NULL,\n  `account_number` LONGTEXT NOT NULL,\n  `bank_name` LONGTEXT NOT NULL,\n  `status` LONGTEXT DEFAULT 'pending',\n  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n  `source_type` LONGTEXT NOT NULL DEFAULT 'earnings',\n  `fee` DECIMAL(30,10),\n  `details` LONGTEXT,\n  `method` LONGTEXT,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\n
-CREATE TABLE IF NOT EXISTS users (
-  id CHAR(36) NOT NULL,
-  email VARCHAR(320) NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  full_name LONGTEXT NOT NULL,
-  role VARCHAR(64) NOT NULL DEFAULT 'member',
-  active TINYINT(1) NOT NULL DEFAULT 1,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uq_users_email (email)
+CREATE TABLE IF NOT EXISTS `academy_courses` (
+  `id` CHAR(36) NOT NULL,
+  `lesson_id` CHAR(36) NOT NULL,
+  `title` LONGTEXT NOT NULL,
+  `description` LONGTEXT,
+  `youtube_video_id` LONGTEXT NOT NULL,
+  `position` INT NOT NULL,
+  `status` LONGTEXT NOT NULL DEFAULT 'published',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-SET FOREIGN_KEY_CHECKS=1;\n\n-- IMPORTANT: Foreign keys are intentionally added by the application migration layer after data import.\n-- This avoids ordering failures while importing existing production records.\n
+CREATE TABLE IF NOT EXISTS `academy_lessons` (
+  `id` CHAR(36) NOT NULL,
+  `title` LONGTEXT NOT NULL,
+  `description` LONGTEXT,
+  `position` INT NOT NULL,
+  `status` LONGTEXT NOT NULL DEFAULT 'published',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `academy_progress` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `course_id` CHAR(36) NOT NULL,
+  `status` LONGTEXT NOT NULL DEFAULT 'not_started',
+  `started_at` TIMESTAMP,
+  `completed_at` TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `academy_settings` (
+  `id` TINYINT(1) NOT NULL DEFAULT 1,
+  `academy_price` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `currency` LONGTEXT NOT NULL DEFAULT 'USD',
+  `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `youtube_channel_id` LONGTEXT,
+  `youtube_channel_url` LONGTEXT,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `academy_subscriptions` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `amount` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `status` LONGTEXT NOT NULL DEFAULT 'pending',
+  `admin_reason` LONGTEXT,
+  `approved_at` TIMESTAMP,
+  `rejected_at` TIMESTAMP,
+  `reviewed_by` CHAR(36),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fee` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `capital_adjustments` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `adjustment_type` LONGTEXT NOT NULL DEFAULT 'amount',
+  `percentage` DECIMAL(30,10),
+  `amount` DECIMAL(30,10) NOT NULL,
+  `reason` LONGTEXT NOT NULL,
+  `created_by` CHAR(36),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `earnings` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `investment_id` BIGINT,
+  `amount` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `description` LONGTEXT,
+  `status` LONGTEXT NOT NULL DEFAULT 'confirmed',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `type` LONGTEXT NOT NULL DEFAULT 'profit',
+  `source_investment_id` CHAR(36),
+  `profit_month` DATE,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `email_logs` (
+  `id` CHAR(36) NOT NULL,
+  `recipient` LONGTEXT NOT NULL,
+  `subject` LONGTEXT NOT NULL,
+  `body` LONGTEXT NOT NULL,
+  `status` LONGTEXT DEFAULT 'pending_manual',
+  `error_message` LONGTEXT,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `sent_at` TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `investments` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36),
+  `package_name` LONGTEXT NOT NULL,
+  `amount` DECIMAL(30,10) NOT NULL,
+  `payment_method` LONGTEXT NOT NULL,
+  `receipt_url` LONGTEXT,
+  `status` LONGTEXT DEFAULT 'pending',
+  `approved_at` TIMESTAMP,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `method` LONGTEXT,
+  `note` LONGTEXT,
+  `fee` DECIMAL(30,10),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `kyc_verifications` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36),
+  `field_name` LONGTEXT,
+  `status` LONGTEXT,
+  `reason` LONGTEXT,
+  `verified_by` CHAR(36),
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `notification_deliveries` (
+  `id` CHAR(36) NOT NULL,
+  `event_id` CHAR(36),
+  `channel` LONGTEXT NOT NULL,
+  `recipient` LONGTEXT,
+  `status` LONGTEXT NOT NULL DEFAULT 'pending',
+  `provider_message_id` LONGTEXT,
+  `error_message` LONGTEXT,
+  `attempts` INT NOT NULL DEFAULT 0,
+  `sent_at` TIMESTAMP,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `notification_events` (
+  `id` CHAR(36) NOT NULL,
+  `event_key` LONGTEXT NOT NULL,
+  `event_type` LONGTEXT NOT NULL,
+  `payload` JSON NOT NULL DEFAULT '{}',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `notification_settings` (
+  `id` BIGINT NOT NULL,
+  `channel` LONGTEXT NOT NULL,
+  `enabled` TINYINT(1) NOT NULL DEFAULT 0,
+  `recipient` LONGTEXT,
+  `event_types` JSON NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `title` LONGTEXT NOT NULL,
+  `message` LONGTEXT NOT NULL,
+  `type` LONGTEXT NOT NULL DEFAULT 'info',
+  `is_read` TINYINT(1) NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `online_cooperative_accounts` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `package` LONGTEXT,
+  `external_account_reference` LONGTEXT,
+  `initial_contribution` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `target_amount` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `current_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `direct_referral_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `placement_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `network_earnings` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `status` LONGTEXT NOT NULL DEFAULT 'pending_setup',
+  `admin_note` LONGTEXT,
+  `visible_to_member` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `online_cooperative_allocations` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `investment_id` CHAR(36) NOT NULL,
+  `allocated_amount` DECIMAL(30,10) NOT NULL DEFAULT 10,
+  `status` LONGTEXT NOT NULL DEFAULT 'allocated',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `reversed_at` TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `online_cooperative_audit_logs` (
+  `id` CHAR(36) NOT NULL,
+  `account_id` CHAR(36),
+  `target_user_id` CHAR(36) NOT NULL,
+  `actor_user_id` CHAR(36) NOT NULL,
+  `action` LONGTEXT NOT NULL,
+  `changes` JSON NOT NULL DEFAULT '{}',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `packages` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` LONGTEXT NOT NULL,
+  `amount` DECIMAL(30,10) NOT NULL,
+  `profit_percent` DECIMAL(30,10) DEFAULT 10,
+  `active` TINYINT(1) DEFAULT 1,
+  `description` LONGTEXT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_destinations` (
+  `id` CHAR(36) NOT NULL,
+  `type` LONGTEXT NOT NULL,
+  `label` LONGTEXT NOT NULL,
+  `bank_name` LONGTEXT,
+  `account_name` LONGTEXT,
+  `account_number` LONGTEXT,
+  `wallet_address` LONGTEXT,
+  `chain` LONGTEXT,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_details` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `title` LONGTEXT,
+  `payment_type` LONGTEXT,
+  `bank_name` LONGTEXT,
+  `account_name` LONGTEXT,
+  `account_number` LONGTEXT,
+  `crypto_name` LONGTEXT,
+  `crypto_network` LONGTEXT,
+  `wallet_address` LONGTEXT,
+  `active` TINYINT(1) DEFAULT 1,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `accepted_currency` LONGTEXT,
+  `payment_instructions` LONGTEXT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_receipts` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `investment_id` BIGINT NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `uid` LONGTEXT NOT NULL,
+  `amount` DECIMAL(30,10) NOT NULL,
+  `payment_method` LONGTEXT NOT NULL,
+  `file_name` LONGTEXT NOT NULL,
+  `file_path` LONGTEXT NOT NULL,
+  `file_type` LONGTEXT,
+  `file_size` BIGINT,
+  `verification_status` LONGTEXT NOT NULL DEFAULT 'pending',
+  `admin_note` LONGTEXT,
+  `uploaded_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `reviewed_at` TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `profiles` (
+  `id` CHAR(36) NOT NULL,
+  `full_name` LONGTEXT NOT NULL,
+  `display_username` LONGTEXT,
+  `username_last_changed` TIMESTAMP,
+  `phone` LONGTEXT NOT NULL,
+  `country` LONGTEXT,
+  `state` LONGTEXT,
+  `city` LONGTEXT,
+  `address` LONGTEXT,
+  `nin_number` LONGTEXT,
+  `nin_front_url` LONGTEXT,
+  `nin_back_url` LONGTEXT,
+  `selfie_url` LONGTEXT,
+  `uid` LONGTEXT NOT NULL,
+  `role` LONGTEXT DEFAULT 'member',
+  `status` LONGTEXT DEFAULT 'pending_kyc',
+  `kyc_status` LONGTEXT DEFAULT 'pending',
+  `kyc_rejection_reason` JSON DEFAULT '{}',
+  `balance` DECIMAL(30,10) DEFAULT 0,
+  `total_invested` DECIMAL(30,10) DEFAULT 0,
+  `total_earnings` DECIMAL(30,10) DEFAULT 0,
+  `referral_code` LONGTEXT,
+  `referred_by` CHAR(36),
+  `withdrawal_account_name` LONGTEXT,
+  `withdrawal_account_number` LONGTEXT,
+  `withdrawal_bank` LONGTEXT,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `avatar_url` LONGTEXT,
+  `kyc_document_url` LONGTEXT,
+  `gender` LONGTEXT,
+  `email` LONGTEXT,
+  `phone_country_code` LONGTEXT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `referral_bonus_ledger` (
+  `id` CHAR(36) NOT NULL,
+  `referrer_id` CHAR(36) NOT NULL,
+  `referred_user_id` CHAR(36) NOT NULL,
+  `investment_id` CHAR(36) NOT NULL,
+  `bonus_type` LONGTEXT NOT NULL,
+  `month_number` INT NOT NULL DEFAULT 0,
+  `amount` DECIMAL(30,10) NOT NULL,
+  `source_earning_id` CHAR(36),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `referrals` (
+  `id` CHAR(36) NOT NULL,
+  `referrer_id` CHAR(36) NOT NULL,
+  `referred_user_id` CHAR(36) NOT NULL,
+  `referral_code` LONGTEXT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `site_content` (
+  `id` TINYINT(1) NOT NULL DEFAULT 1,
+  `homepage_title` LONGTEXT NOT NULL DEFAULT 'MONARCH CODEX',
+  `homepage_intro` LONGTEXT NOT NULL DEFAULT 'Updates, events and official channels from the MONARCH CODEX team.',
+  `events` JSON NOT NULL DEFAULT '[]',
+  `socials` JSON NOT NULL DEFAULT '[]',
+  `contacts` JSON NOT NULL DEFAULT '[]',
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `support_title` LONGTEXT DEFAULT 'WE''RE HERE TO HELP.',
+  `support_intro` LONGTEXT DEFAULT 'Reach MONARCH CODEX through the official support channels below.',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `sovereign_desk_audit_logs` (
+  `id` CHAR(36) NOT NULL,
+  `actor_user_id` CHAR(36) NOT NULL,
+  `action` LONGTEXT NOT NULL,
+  `target_user_id` CHAR(36),
+  `entity_type` LONGTEXT,
+  `entity_id` CHAR(36),
+  `amount` DECIMAL(30,10),
+  `metadata` JSON NOT NULL DEFAULT '{}',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `sovereign_desk_permissions` (
+  `user_id` CHAR(36) NOT NULL,
+  `permission` LONGTEXT NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`, `permission`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_access` (
+  `id` CHAR(36) NOT NULL,
+  `telegram_user_id` BIGINT NOT NULL,
+  `telegram_chat_id` BIGINT NOT NULL,
+  `access_status` LONGTEXT NOT NULL DEFAULT 'pending',
+  `access_reason` LONGTEXT,
+  `approved_at` TIMESTAMP,
+  `removed_at` TIMESTAMP,
+  `expires_at` TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_account_links` (
+  `id` CHAR(36) NOT NULL,
+  `telegram_user_id` BIGINT NOT NULL,
+  `website_user_id` CHAR(36) NOT NULL,
+  `linked_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `unlinked_at` TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_chat_assignments` (
+  `id` CHAR(36) NOT NULL,
+  `telegram_chat_id` BIGINT NOT NULL,
+  `operator_user_id` CHAR(36) NOT NULL,
+  `assigned_by` CHAR(36) NOT NULL,
+  `assigned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_chats` (
+  `id` CHAR(36) NOT NULL,
+  `telegram_chat_id` BIGINT NOT NULL,
+  `chat_type` LONGTEXT,
+  `title` LONGTEXT,
+  `username` LONGTEXT,
+  `purpose` LONGTEXT NOT NULL DEFAULT 'general',
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_join_requests` (
+  `id` CHAR(36) NOT NULL,
+  `telegram_user_id` BIGINT NOT NULL,
+  `telegram_chat_id` BIGINT NOT NULL,
+  `requested_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `decision` LONGTEXT NOT NULL DEFAULT 'pending',
+  `decided_at` TIMESTAMP,
+  `decided_by` CHAR(36),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_logs` (
+  `id` CHAR(36) NOT NULL,
+  `event_type` LONGTEXT NOT NULL,
+  `telegram_user_id` BIGINT,
+  `telegram_chat_id` BIGINT,
+  `telegram_message_id` BIGINT,
+  `payload` JSON,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_members` (
+  `id` CHAR(36) NOT NULL,
+  `telegram_user_id` BIGINT NOT NULL,
+  `telegram_username` LONGTEXT,
+  `first_name` LONGTEXT,
+  `last_name` LONGTEXT,
+  `language_code` LONGTEXT,
+  `is_bot` TINYINT(1) NOT NULL DEFAULT 0,
+  `telegram_status` LONGTEXT NOT NULL DEFAULT 'unknown',
+  `last_seen_at` TIMESTAMP,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_operator_limits` (
+  `user_id` CHAR(36) NOT NULL,
+  `max_managed_chats` INT NOT NULL DEFAULT 1,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_settings` (
+  `id` TINYINT(1) NOT NULL DEFAULT 1,
+  `signal_distribution_paused` TINYINT(1) NOT NULL DEFAULT 0,
+  `auto_access_paused` TINYINT(1) NOT NULL DEFAULT 0,
+  `auto_approval_paused` TINYINT(1) NOT NULL DEFAULT 0,
+  `signal_tag` LONGTEXT NOT NULL DEFAULT '/SIGNAL',
+  `signal_subscription_price` DECIMAL(30,10) NOT NULL DEFAULT 30,
+  `signal_subscription_currency` LONGTEXT NOT NULL DEFAULT 'USD',
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_signal_events` (
+  `id` CHAR(36) NOT NULL,
+  `signal_id` CHAR(36) NOT NULL,
+  `event_type` LONGTEXT NOT NULL,
+  `note` LONGTEXT,
+  `created_by` CHAR(36),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `telegram_signals` (
+  `id` CHAR(36) NOT NULL,
+  `source_chat_id` BIGINT,
+  `source_message_id` BIGINT,
+  `signal_code` LONGTEXT,
+  `symbol` LONGTEXT,
+  `market` LONGTEXT,
+  `direction` LONGTEXT,
+  `entry` LONGTEXT,
+  `stop_loss` LONGTEXT,
+  `take_profit_1` LONGTEXT,
+  `take_profit_2` LONGTEXT,
+  `take_profit_3` LONGTEXT,
+  `raw_text` LONGTEXT,
+  `status` LONGTEXT NOT NULL DEFAULT 'pending',
+  `published_at` TIMESTAMP,
+  `closed_at` TIMESTAMP,
+  `closed_result` LONGTEXT,
+  `created_by` CHAR(36),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `testimonies` (
+  `id` CHAR(36) NOT NULL,
+  `name` LONGTEXT NOT NULL,
+  `role` LONGTEXT,
+  `message` LONGTEXT NOT NULL,
+  `image_url` LONGTEXT,
+  `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `transaction_fee_settings` (
+  `transaction_type` LONGTEXT NOT NULL,
+  `fee_type` LONGTEXT NOT NULL,
+  `fee_value` DECIMAL(30,10) NOT NULL,
+  `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`transaction_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36),
+  `type` LONGTEXT,
+  `amount` DECIMAL(30,10) NOT NULL,
+  `display_amount` LONGTEXT,
+  `description` LONGTEXT,
+  `created_by` CHAR(36),
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `wallet_funding_requests` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `amount` DECIMAL(30,10) NOT NULL,
+  `fee` DECIMAL(30,10) NOT NULL DEFAULT 2,
+  `total` DECIMAL(30,10) NOT NULL,
+  `payment_method` LONGTEXT NOT NULL,
+  `receipt_url` LONGTEXT,
+  `note` LONGTEXT,
+  `status` LONGTEXT NOT NULL DEFAULT 'pending',
+  `admin_note` LONGTEXT,
+  `reviewed_by` CHAR(36),
+  `reviewed_at` TIMESTAMP,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `payment_currency` LONGTEXT,
+  `payment_amount` DECIMAL(30,10),
+  `payment_fee` DECIMAL(30,10),
+  `payment_total` DECIMAL(30,10),
+  `payment_detail_id` INT,
+  `receiving_account_snapshot` JSON,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `wallet_transactions` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
+  `direction` LONGTEXT NOT NULL,
+  `amount` DECIMAL(30,10) NOT NULL,
+  `fee` DECIMAL(30,10) NOT NULL DEFAULT 0,
+  `balance_before` DECIMAL(30,10) NOT NULL,
+  `balance_after` DECIMAL(30,10) NOT NULL,
+  `source_type` LONGTEXT NOT NULL,
+  `reference_id` LONGTEXT,
+  `description` LONGTEXT,
+  `created_by` CHAR(36),
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `withdrawals` (
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36),
+  `amount` DECIMAL(30,10) NOT NULL,
+  `account_name` LONGTEXT NOT NULL,
+  `account_number` LONGTEXT NOT NULL,
+  `bank_name` LONGTEXT NOT NULL,
+  `status` LONGTEXT DEFAULT 'pending',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `source_type` LONGTEXT NOT NULL DEFAULT 'earnings',
+  `fee` DECIMAL(30,10),
+  `details` LONGTEXT,
+  `method` LONGTEXT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+SET FOREIGN_KEY_CHECKS=1;
+
+-- IMPORTANT: Foreign keys are intentionally added by the application migration layer after data import.
+-- This avoids ordering failures while importing existing production records.
