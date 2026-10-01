@@ -382,7 +382,7 @@ CREATE TABLE IF NOT EXISTS `sovereign_desk_audit_logs` (
 
 CREATE TABLE IF NOT EXISTS `sovereign_desk_permissions` (
   `user_id` CHAR(36) NOT NULL,
-  `permission` LONGTEXT NOT NULL,
+  `permission` VARCHAR(255) NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`, `permission`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -536,7 +536,7 @@ CREATE TABLE IF NOT EXISTS `testimonies` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `transaction_fee_settings` (
-  `transaction_type` LONGTEXT NOT NULL,
+  `transaction_type` VARCHAR(255) NOT NULL,
   `fee_type` LONGTEXT NOT NULL,
   `fee_value` DECIMAL(30,10) NOT NULL,
   `active` TINYINT(1) NOT NULL DEFAULT 1,
